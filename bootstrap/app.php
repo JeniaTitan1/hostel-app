@@ -38,5 +38,12 @@ return Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function ($response, $exception, $request) {
+            if ($response->getStatusCode() === 302 && in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+                if ($request->hasHeader('X-Inertia')) {
+                    $response->setStatusCode(303);
+                }
+            }
+            return $response;
+        });
     })->create();

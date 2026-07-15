@@ -32,7 +32,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <span className="font-bold text-amber-800 dark:text-amber-200 text-sm">Обов'язкова первинна реєстрація</span>
                             </div>
                             <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                                Ваш акаунт було створено тимчасово. Будь ласка, змініть ваше ім'я, email, заповніть контакти (Telegram та телефон) та оновіть пароль у блоках нижче. Після виконання цих кроків ви зможете користуватися іншими сторінками сайту.
+                                Ваш акаунт було створено тимчасово. Будь ласка, змініть ваше ім'я, email, заповніть стать, напрям, курс, групу та телефон, а також оновіть пароль у блоках нижче. Після виконання цих кроків ви зможете користуватися іншими сторінками сайту.
                             </p>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[11px] font-bold">
                                 <span className={auth?.user?.name && !auth?.user?.name.startsWith('Тимчасовий') && !auth?.user?.name.startsWith('Temporary') ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
@@ -46,6 +46,18 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 </span>
                                 <span className={auth?.user?.phone ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
                                     {auth?.user?.phone ? '✓' : '✗'} Телефон ({auth?.user?.phone || 'немає'})
+                                </span>
+                                <span className={auth?.user?.gender ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
+                                    {auth?.user?.gender ? '✓' : '✗'} Стать
+                                </span>
+                                <span className={auth?.user?.specialty ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
+                                    {auth?.user?.specialty ? '✓' : '✗'} Напрям
+                                </span>
+                                <span className={auth?.user?.course ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
+                                    {auth?.user?.course ? '✓' : '✗'} Курс
+                                </span>
+                                <span className={auth?.user?.group ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
+                                    {auth?.user?.group ? '✓' : '✗'} Група
                                 </span>
                                 <span className={auth?.user?.password_changed ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
                                     {auth?.user?.password_changed ? '✓' : '✗'} Новий пароль
@@ -105,9 +117,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <UpdatePasswordForm />
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
-                                <DeleteUserForm />
-                            </div>
+                            {auth?.user?.role !== 'admin' && (
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
+                                    <DeleteUserForm />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

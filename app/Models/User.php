@@ -23,6 +23,10 @@ class User extends Authenticatable
         'phone',
         'must_change_password',
         'password_changed',
+        'gender',
+        'specialty',
+        'course',
+        'group',
     ];
 
     protected $hidden = [
@@ -56,6 +60,6 @@ class User extends Authenticatable
         $nameTemp = str_starts_with($this->name, 'Тимчасовий') || str_starts_with($this->name, 'Temporary');
         $emailTemp = str_starts_with($this->email, 'student') && str_ends_with($this->email, '@mnau.edu.ua');
 
-        return !$nameTemp && !$emailTemp && $this->password_changed && !empty($this->phone);
+        return !$nameTemp && !$emailTemp && $this->password_changed && !empty($this->phone) && !empty($this->gender) && !empty($this->specialty) && !empty($this->course) && !empty($this->group);
     }
 }

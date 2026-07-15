@@ -120,6 +120,27 @@ class BuildingController extends Controller
             return redirect()->back()->with('error', 'В цій кімнаті немає місць.');
         }
 
+        $userGender = Auth::user()->gender;
+        if ($userGender) {
+            $occupantGenders = User::whereIn('id', function($q) use ($room) {
+                $q->select('user_id')
+                  ->from('bookings')
+                  ->where('room_id', $room->id)
+                  ->where(function ($query) {
+                      $query->where('status', 'approved')
+                            ->orWhere(function ($sq) {
+                                $sq->where('status', 'pending')
+                                  ->whereNotNull('new_room_id');
+                            });
+                  });
+            })->pluck('gender')->filter()->unique();
+
+            if ($occupantGenders->isNotEmpty() && !$occupantGenders->contains($userGender)) {
+                $genderLabel = $userGender === 'male' ? 'жіноча' : 'чоловіча';
+                return redirect()->back()->with('error', "Ви не можете заселитися в цю кімнату, оскільки вона є {$genderLabel}ською.");
+            }
+        }
+
         // 2. Ищем существующую бронь (любую: pending, approved, rejected)
         $existingBooking = Booking::where('user_id', $userId)->first();
 

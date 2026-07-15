@@ -12,12 +12,29 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 0. Створюємо академічні опції
+        $specs = ['КН', 'ГРС', 'МЕН', 'ПВ', 'ФІН'];
+        foreach ($specs as $s) {
+            \App\Models\Specialty::create(['name' => $s]);
+        }
+
+        $courses = [1, 2, 3, 4, 5, 6];
+        foreach ($courses as $c) {
+            \App\Models\AcademicCourse::create(['number' => $c]);
+        }
+
+        $groups = ['1', '2', '3', '4', '5'];
+        foreach ($groups as $g) {
+            \App\Models\AcademicGroup::create(['name' => $g]);
+        }
+
         // 1. Создаем админа
         $admin = User::create([
             'name' => 'Головний Адміністратор',
             'email' => 'admin@test.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
+            'gender' => 'male',
         ]);
 
         // 2. Создаем тестовых пользователей (постоянных)
@@ -29,6 +46,10 @@ class DatabaseSeeder extends Seeder
             'telegram' => '@ivan_stud',
             'phone' => '+380991112233',
             'password_changed' => true,
+            'gender' => 'male',
+            'specialty' => 'КН',
+            'course' => 2,
+            'group' => '1',
         ]);
 
         $user2 = User::create([
@@ -39,6 +60,10 @@ class DatabaseSeeder extends Seeder
             'telegram' => '@alex_skipper',
             'phone' => '+380994445566',
             'password_changed' => true,
+            'gender' => 'male',
+            'specialty' => 'ГРС',
+            'course' => 1,
+            'group' => '1',
         ]);
 
         $user3 = User::create([
@@ -49,6 +74,10 @@ class DatabaseSeeder extends Seeder
             'telegram' => '@petro_krav',
             'phone' => '+380956667788',
             'password_changed' => true,
+            'gender' => 'male',
+            'specialty' => 'КН',
+            'course' => 3,
+            'group' => '2',
         ]);
 
         $user4 = User::create([
@@ -59,6 +88,10 @@ class DatabaseSeeder extends Seeder
             'telegram' => '@olena_shev',
             'phone' => '+380931234567',
             'password_changed' => true,
+            'gender' => 'female',
+            'specialty' => 'ГРС',
+            'course' => 2,
+            'group' => '1',
         ]);
 
         $user5 = User::create([
@@ -69,6 +102,10 @@ class DatabaseSeeder extends Seeder
             'telegram' => '@sergiy_kov',
             'phone' => '+380509876543',
             'password_changed' => true,
+            'gender' => 'male',
+            'specialty' => 'КН',
+            'course' => 4,
+            'group' => '1',
         ]);
 
         // 3. Создаем временного пользователя (must_change_password = true)
@@ -79,6 +116,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'user',
             'must_change_password' => true,
             'password_changed' => false,
+            'gender' => 'male',
         ]);
 
         // 4. Создаем тестовые корпуса

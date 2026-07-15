@@ -2,6 +2,26 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
 import { useState } from "react";
 
+const BedIcon = ({ gender, isOccupied, name }) => {
+    if (!isOccupied) {
+        return (
+            <svg className="w-5 h-5 text-slate-200 dark:text-gray-700 hover:text-slate-350 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} title="Вільне ліжко">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2 4v16M2 8h20M22 4v16M2 18h20M6 8v5a3 3 0 003 3h6a3 3 0 003-3V8" />
+            </svg>
+        );
+    }
+    const colorClass = gender === 'female' 
+        ? 'text-pink-500 dark:text-pink-400 drop-shadow-[0_2px_4px_rgba(244,63,94,0.15)]'
+        : 'text-blue-500 dark:text-blue-400 drop-shadow-[0_2px_4px_rgba(59,130,246,0.15)]';
+    return (
+        <svg className={`w-5 h-5 ${colorClass} hover:scale-110 transition-all cursor-pointer`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} title={name}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2 4v16M2 8h20M22 4v16M2 18h20M6 8v5a3 3 0 003 3h6a3 3 0 003-3V8" />
+            <circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            <path d="M12 12h5a1 1 0 011 1v3h-7v-3a1 1 0 011-1z" fill="currentColor" stroke="none" />
+        </svg>
+    );
+};
+
 export default function Dashboard({
     auth,
     buildings = [],
@@ -16,6 +36,7 @@ export default function Dashboard({
     // Використовуємо локальний стан для керування завантаженням (processing)
     const [processing, setProcessing] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
+    const [genderFilter, setGenderFilter] = useState("");
 
     // Форма для створення заявки на обслуговування
     const ticketForm = useForm({
@@ -167,6 +188,51 @@ export default function Dashboard({
     };
 
     // Визначення кольору кімнати залежно від її заповненості
+    
+    // Визначення гендерного типу кімнати на основі її мешканців
+    const getRoomGender = (room) => {
+        const bookings = room.bookings || [];
+        const approvedBookings = bookings.filter(
+            (b) => b.status === "approved" || (b.status === "pending" && b.new_room_id !== null)
+        );
+
+        if (approvedBookings.length === 0) {
+            return {
+                type: "empty",
+                label: "Вільна",
+                icon: "",
+                badgeBg: "bg-slate-50 dark:bg-gray-900/30 text-gray-500 border-slate-100 dark:border-gray-700"
+            };
+        }
+
+        const genders = [...new Set(approvedBookings.map((b) => b.user?.gender).filter(Boolean))];
+
+        if (genders.length === 1) {
+            if (genders[0] === "male") {
+                return {
+                    type: "male",
+                    label: "Чоловіча",
+                    icon: "",
+                    badgeBg: "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800/40"
+                };
+            } else if (genders[0] === "female") {
+                return {
+                    type: "female",
+                    label: "Жіноча",
+                    icon: "",
+                    badgeBg: "bg-pink-50 dark:bg-pink-950/20 text-pink-700 dark:text-pink-300 border-pink-100 dark:border-pink-800/40"
+                };
+            }
+        }
+
+        return {
+            type: "mixed",
+            label: "Змішана",
+            icon: "",
+            badgeBg: "bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800/40"
+        };
+    };
+
     const getRoomStatusColor = (room) => {
         const booked = room.approved_bookings_count || 0;
         const capacity = room.max_capacity;
@@ -207,6 +273,11 @@ export default function Dashboard({
         selectedRoom &&
         Number(userBooking.room_id) === Number(selectedRoom.id) &&
         userBooking.status === "approved";
+    
+    const userGender = auth?.user?.gender;
+    const rGenderObj = selectedRoom ? getRoomGender(selectedRoom) : null;
+    const isGenderMismatch = userGender && rGenderObj && rGenderObj.type !== 'empty' && rGenderObj.type !== userGender;
+
     const isTargetReallocationRoom =
         userBooking &&
         selectedRoom &&
@@ -671,7 +742,14 @@ export default function Dashboard({
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                                         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {rooms.map((room) => {
+                                            {rooms
+                                                .filter((room) => {
+                                                    if (!genderFilter) return true;
+                                                    const rg = getRoomGender(room);
+                                                    if (genderFilter === 'empty') return rg.type === 'empty';
+                                                    return rg.type === genderFilter;
+                                                })
+                                                .map((room) => {
                                                 const isClosed =
                                                     room.status === "closed";
                                                 const styles = isClosed
@@ -725,11 +803,8 @@ export default function Dashboard({
                                                                 <span
                                                                     className={`w-2 h-2 rounded-full ${styles.indicator}`}
                                                                 />
-                                                                <span className="font-bold text-lg text-gray-900">
-                                                                    Кімната №
-                                                                    {
-                                                                        room.room_number
-                                                                    }
+                                                                <span className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-1.5">
+                                                                    <span>Кімната №{room.room_number}</span>
                                                                 </span>
                                                             </div>
                                                             <div className="flex items-center gap-1">
@@ -750,16 +825,43 @@ export default function Dashboard({
                                                                         />
                                                                     </svg>
                                                                 )}
-                                                                <span
-                                                                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}
-                                                                >
-                                                                    {isClosed
-                                                                        ? "Зачинено"
-                                                                        : `${room.max_capacity} місна`}
-                                                                </span>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span
+                                                                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}
+                                                                    >
+                                                                        {isClosed
+                                                                            ? "Зачинено"
+                                                                            : `${room.max_capacity} місна`}
+                                                                    </span>
+                                                                    {!isClosed && (
+                                                                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(room).badgeBg}`}>
+                                                                            {getRoomGender(room).label}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="w-full flex justify-between items-end mt-4">
+                                                        {/* Слот-візуалізатор ліжок */}
+                                                        {!isClosed && (
+                                                            <div className="flex gap-1.5 mt-3 flex-wrap">
+                                                                {Array.from({ length: room.max_capacity }).map((_, idx) => {
+                                                                    const rBookings = room.bookings || [];
+                                                                    const appBookings = rBookings.filter(b => b.status === 'approved' || (b.status === 'pending' && b.new_room_id !== null));
+                                                                    const isOccupied = idx < appBookings.length;
+                                                                    const uGender = isOccupied ? appBookings[idx]?.user?.gender : null;
+                                                                    return (
+                                                                        <BedIcon
+                                                                            key={idx}
+                                                                            gender={uGender}
+                                                                            isOccupied={isOccupied}
+                                                                            name={isOccupied ? appBookings[idx]?.user?.name : 'Вільне ліжко'}
+                                                                        />
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+
+                                                        <div className="w-full flex justify-between items-end mt-2">
                                                             <div className="flex flex-col gap-0.5">
                                                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                                                     Статус
@@ -783,16 +885,20 @@ export default function Dashboard({
                                         <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
                                             {selectedRoom ? (
                                                 <>
-                                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-4 space-y-1">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                                                            Обраний об'єкт
-                                                        </span>
-                                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                                                            Кімната №
-                                                            {
-                                                                selectedRoom.room_number
-                                                            }
-                                                        </h3>
+                                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-4 space-y-1.5">
+                                                        <div className="flex justify-between items-start gap-2">
+                                                            <div>
+                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                                                    Обраний об'єкт
+                                                                </span>
+                                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                                                    Кімната №{selectedRoom.room_number}
+                                                                </h3>
+                                                            </div>
+                                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider flex items-center gap-1 ${getRoomGender(selectedRoom).badgeBg}`}>
+                                                                {getRoomGender(selectedRoom).label}
+                                                            </span>
+                                                        </div>
                                                         <p className="text-xs text-gray-500 dark:text-gray-400">
                                                             Поверх{" "}
                                                             {selectedRoom.floor}{" "}
@@ -902,6 +1008,12 @@ export default function Dashboard({
                                                                 неможливе. У
                                                                 кімнаті немає
                                                                 вільних місць.
+                                                            </p>
+                                                        </div>
+                                                    ) : isGenderMismatch ? (
+                                                        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-red-600 dark:text-red-300 font-medium">
+                                                                Заселення неможливе. Кімната призначена тільки для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}.
                                                             </p>
                                                         </div>
                                                     ) : (

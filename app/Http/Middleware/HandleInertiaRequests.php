@@ -40,6 +40,10 @@ class HandleInertiaRequests extends Middleware
                     'phone' => $request->user()->phone,
                     'must_change_password' => $request->user()->must_change_password,
                     'password_changed' => $request->user()->password_changed,
+                    'gender' => $request->user()->gender,
+                    'specialty' => $request->user()->specialty,
+                    'course' => $request->user()->course,
+                    'group' => $request->user()->group,
                 ] : null,
             ],
             // Если у тебя используются флеш-уведомления (например, статус изменения профиля)
@@ -47,6 +51,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+            ],
+            'academic_options' => [
+                'specialties' => \App\Models\Specialty::all(),
+                'courses' => \App\Models\AcademicCourse::orderBy('number')->get(),
+                'groups' => \App\Models\AcademicGroup::all(),
             ],
         ]);
     }

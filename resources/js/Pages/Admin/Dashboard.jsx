@@ -1,6 +1,26 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+
+const BedIcon = ({ gender, isOccupied, name }) => {
+    if (!isOccupied) {
+        return (
+            <svg className="w-5 h-5 text-slate-200 dark:text-gray-700 hover:text-slate-350 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} title="Вільне ліжко">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2 4v16M2 8h20M22 4v16M2 18h20M6 8v5a3 3 0 003 3h6a3 3 0 003-3V8" />
+            </svg>
+        );
+    }
+    const colorClass = gender === 'female' 
+        ? 'text-pink-500 dark:text-pink-400 drop-shadow-[0_2px_4px_rgba(244,63,94,0.15)]'
+        : 'text-blue-500 dark:text-blue-400 drop-shadow-[0_2px_4px_rgba(59,130,246,0.15)]';
+    return (
+        <svg className={`w-5 h-5 ${colorClass} hover:scale-110 transition-all cursor-pointer`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} title={name}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2 4v16M2 8h20M22 4v16M2 18h20M6 8v5a3 3 0 003 3h6a3 3 0 003-3V8" />
+            <circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            <path d="M12 12h5a1 1 0 011 1v3h-7v-3a1 1 0 011-1z" fill="currentColor" stroke="none" />
+        </svg>
+    );
+};
 
 export default function Dashboard({
     auth,
@@ -38,6 +58,7 @@ export default function Dashboard({
     const [inboxSearch, setInboxSearch] = useState('');
     const [mapSearch, setMapSearch] = useState('');
     const [selectedBuildingFilter, setSelectedBuildingFilter] = useState('');
+    const [genderFilter, setGenderFilter] = useState('');
     const [ticketProcessingId, setTicketProcessingId] = useState(null);
 
     // Стан модалки причини відхилення
@@ -47,7 +68,53 @@ export default function Dashboard({
     // Форма для генератора користувачів
     const genForm = useForm({
         count: 5,
+        gender: '',
     });
+
+    
+    // Визначення гендерного типу кімнати на основі її мешканців
+    const getRoomGender = (room) => {
+        const bookings = room.bookings || [];
+        const approvedBookings = bookings.filter(
+            (b) => b.status === "approved" || (b.status === "pending" && b.new_room_id !== null)
+        );
+
+        if (approvedBookings.length === 0) {
+            return {
+                type: "empty",
+                label: "Вільна",
+                icon: "",
+                badgeBg: "bg-slate-50 dark:bg-gray-900/30 text-gray-500 border-slate-100 dark:border-gray-700"
+            };
+        }
+
+        const genders = [...new Set(approvedBookings.map((b) => b.user?.gender).filter(Boolean))];
+
+        if (genders.length === 1) {
+            if (genders[0] === "male") {
+                return {
+                    type: "male",
+                    label: "Чоловіча",
+                    icon: "",
+                    badgeBg: "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800/40"
+                };
+            } else if (genders[0] === "female") {
+                return {
+                    type: "female",
+                    label: "Жіноча",
+                    icon: "",
+                    badgeBg: "bg-pink-50 dark:bg-pink-950/20 text-pink-700 dark:text-pink-300 border-pink-100 dark:border-pink-800/40"
+                };
+            }
+        }
+
+        return {
+            type: "mixed",
+            label: "Змішана",
+            icon: "",
+            badgeBg: "bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800/40"
+        };
+    };
 
     const handleGenerateUsers = (e) => {
         e.preventDefault();
@@ -129,11 +196,114 @@ export default function Dashboard({
         copyToClipboard(text);
     };
 
+    const { academic_options } = usePage().props;
+    const specialties = academic_options?.specialties || [];
+    const courses = academic_options?.courses || [];
+    const groups = academic_options?.groups || [];
+
+    const specialtyForm = useForm({ name: '' });
+    const courseForm = useForm({ number: '' });
+    const groupForm = useForm({ name: '' });
+
     const [userSearch, setUserSearch] = useState('');
-    const filteredAllUsers = allUsers.filter(u => 
-        u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
-        u.email?.toLowerCase().includes(userSearch.toLowerCase())
-    );
+    const [userSpecialtyFilter, setUserSpecialtyFilter] = useState('');
+    const [userCourseFilter, setUserCourseFilter] = useState('');
+    const [userGroupFilter, setUserGroupFilter] = useState('');
+    const [userSortField, setUserSortField] = useState('name');
+    const [userSortDirection, setUserSortDirection] = useState('asc');
+    const [userGenderFilter, setUserGenderFilter] = useState('');
+
+    const uniqueSpecialties = [...new Set(allUsers.map(u => u.specialty).filter(Boolean))].sort();
+    const uniqueCourses = [...new Set(allUsers.map(u => u.course).filter(Boolean))].sort((a, b) => a - b);
+    const uniqueGroups = [...new Set(allUsers.map(u => u.group).filter(Boolean))].sort();
+    const filteredAllUsers = allUsers.filter(u => {
+        const matchesSearch = !userSearch || 
+            u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+            u.email?.toLowerCase().includes(userSearch.toLowerCase());
+            
+        const matchesSpecialty = !userSpecialtyFilter || u.specialty === userSpecialtyFilter;
+        const matchesCourse = !userCourseFilter || Number(u.course) === Number(userCourseFilter);
+        const matchesGroup = !userGroupFilter || u.group === userGroupFilter;
+        const matchesGender = !userGenderFilter || u.gender === userGenderFilter;
+        
+        return matchesSearch && matchesSpecialty && matchesCourse && matchesGroup && matchesGender;
+    });
+
+    const sortedAllUsers = [...filteredAllUsers].sort((a, b) => {
+        let valA = a[userSortField];
+        let valB = b[userSortField];
+
+        if (userSortField === 'course') {
+            valA = Number(valA) || 0;
+            valB = Number(valB) || 0;
+            return userSortDirection === 'asc' ? valA - valB : valB - valA;
+        }
+
+        if (userSortField === 'must_change_password') {
+            valA = valA ? 1 : 0;
+            valB = valB ? 1 : 0;
+            return userSortDirection === 'asc' ? valA - valB : valB - valA;
+        }
+
+        if (userSortField === 'created_at') {
+            valA = new Date(valA || 0).getTime();
+            valB = new Date(valB || 0).getTime();
+            return userSortDirection === 'asc' ? valA - valB : valB - valA;
+        }
+
+        valA = String(valA || '').toLowerCase();
+        valB = String(valB || '').toLowerCase();
+
+        if (valA < valB) return userSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return userSortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const handleSort = (field) => {
+        if (userSortField === field) {
+            setUserSortDirection(userSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setUserSortField(field);
+            setUserSortDirection('asc');
+        }
+    };
+
+    const renderSortArrow = (field) => {
+        if (userSortField !== field) {
+            return <span className="text-gray-300 dark:text-gray-600 ml-1 select-none">↕</span>;
+        }
+        return userSortDirection === 'asc' 
+            ? <span className="text-emerald-600 dark:text-emerald-400 ml-1 select-none">▲</span> 
+            : <span className="text-emerald-600 dark:text-emerald-400 ml-1 select-none">▼</span>;
+    };
+
+    const renderGenderBadge = (gender) => {
+        if (gender === 'male') {
+            return (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/40">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Чоловік
+                </span>
+            );
+        }
+        if (gender === 'female') {
+            return (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pink-50 dark:bg-pink-950/20 text-pink-700 dark:text-pink-300 border border-pink-100 dark:border-pink-800/40">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Жінка
+                </span>
+            );
+        }
+        return (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-50 dark:bg-gray-900/30 text-gray-500 border border-slate-100 dark:border-gray-700">
+                —
+            </span>
+        );
+    };
 
     const handleResolveTicket = (ticketId) => {
         setTicketProcessingId(ticketId);
@@ -480,6 +650,16 @@ export default function Dashboard({
                         >
                             Генератор користувачів
                         </button>
+                        <button
+                            onClick={() => setActiveTab('academic_settings')}
+                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                                activeTab === 'academic_settings'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                            }`}
+                        >
+                            Академічні налаштування
+                        </button>
                     </div>
 
                     {activeTab === 'bookings' && (
@@ -757,7 +937,14 @@ export default function Dashboard({
                                                                     Поверх {floor}
                                                                 </h5>
                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                                                    {floorRooms.map(room => {
+                                                                    {floorRooms
+                                                        .filter(room => {
+                                                            if (!genderFilter) return true;
+                                                            const rg = getRoomGender(room);
+                                                            if (genderFilter === 'empty') return rg.type === 'empty';
+                                                            return rg.type === genderFilter;
+                                                        })
+                                                        .map(room => {
                                                                         const approvedBookings = room.bookings?.filter(b => b.status === 'approved' || (b.status === 'pending' && b.new_room_id !== null)) || [];
                                                                         const isFull = approvedBookings.length >= room.max_capacity;
 
@@ -772,23 +959,32 @@ export default function Dashboard({
                                                                             >
                                                                                 <div>
                                                                                     <div className="flex justify-between items-center mb-1.5">
-                                                                                        <span className="font-bold text-gray-900 text-sm">Кімната №{room.room_number}</span>
+                                                                                        <span className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+                                                                                            <span>Кімната №{room.room_number}</span>
+                                                                                            {room.status !== 'closed' && (
+                                                                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(room).badgeBg}`}>
+                                                                                                    {getRoomGender(room).label}
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </span>
                                                                                         <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">Місткість: {room.max_capacity}</span>
                                                                                     </div>
 
-                                                                                    {/* Слот-візуалізатор (Occupancy dots) */}
-                                                                                    <div className="flex gap-1.5 my-2">
-                                                                                        {Array.from({ length: room.max_capacity }).map((_, slotIdx) => (
-                                                                                            <span
-                                                                                                key={slotIdx}
-                                                                                                className={`w-4 h-1.5 rounded-xs transition-all border ${
-                                                                                                    slotIdx < approvedBookings.length
-                                                                                                        ? 'bg-emerald-500 border-emerald-600/20'
-                                                                                                        : 'bg-gray-100 dark:bg-gray-700 border-slate-100 dark:border-gray-600'
-                                                                                                }`}
-                                                                                                title={slotIdx < approvedBookings.length ? approvedBookings[slotIdx]?.user?.name : 'Вільне місце'}
-                                                                                            />
-                                                                                        ))}
+                                                                                    {/* Слот-візуалізатор (Occupancy beds) */}
+                                                                                    <div className="flex gap-1.5 my-2 flex-wrap">
+                                                                                        {Array.from({ length: room.max_capacity }).map((_, slotIdx) => {
+                                                                                            const isOccupied = slotIdx < approvedBookings.length;
+                                                                                            const occupantGender = isOccupied ? approvedBookings[slotIdx]?.user?.gender : null;
+                                                                                            const occupantName = isOccupied ? approvedBookings[slotIdx]?.user?.name : 'Вільне ліжко';
+                                                                                            return (
+                                                                                                <BedIcon
+                                                                                                    key={slotIdx}
+                                                                                                    gender={occupantGender}
+                                                                                                    isOccupied={isOccupied}
+                                                                                                    name={occupantName}
+                                                                                                />
+                                                                                            );
+                                                                                        })}
                                                                                     </div>
 
                                                                                     {/* Список жильцов */}
@@ -1004,6 +1200,167 @@ export default function Dashboard({
                         </div>
                     )}
 
+                    {activeTab === 'academic_settings' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Напрями */}
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
+                                        <h3 className="font-bold text-gray-900 dark:text-white text-sm">Напрями навчання</h3>
+                                        <p className="text-[11px] text-gray-400">Спеціальності або напрями підготовки студентів</p>
+                                    </div>
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        specialtyForm.post(route('admin.specialties.store'), {
+                                            onSuccess: () => specialtyForm.reset()
+                                        });
+                                    }} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Напр. КН"
+                                            value={specialtyForm.data.name}
+                                            onChange={e => specialtyForm.setData('name', e.target.value.toUpperCase())}
+                                            className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white flex-1"
+                                            required
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={specialtyForm.processing}
+                                            className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                                        >
+                                            Додати
+                                        </button>
+                                    </form>
+                                    <div className="divide-y divide-slate-100 dark:divide-gray-700 border border-slate-100 dark:border-gray-700 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+                                        {specialties.length === 0 ? (
+                                            <div className="p-4 text-center text-xs text-gray-400">Напрями відсутні</div>
+                                        ) : (
+                                            specialties.map(spec => (
+                                                <div key={spec.id} className="p-3 flex justify-between items-center text-xs text-gray-800 dark:text-gray-200 bg-slate-50/20">
+                                                    <span className="font-bold">{spec.name}</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm(`Ви впевнені, що хочете видалити напрям ${spec.name}?`)) {
+                                                                router.post(route('admin.specialties.destroy', spec.id));
+                                                            }
+                                                        }}
+                                                        className="text-red-500 font-bold hover:underline"
+                                                    >
+                                                        Видалити
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Курси */}
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 pb-3">
+                                        <h3 className="font-bold text-gray-900 dark:text-white text-sm">Курси</h3>
+                                        <p className="text-[11px] text-gray-400">Роки навчання або номери курсів</p>
+                                    </div>
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        courseForm.post(route('admin.courses.store'), {
+                                            onSuccess: () => courseForm.reset()
+                                        });
+                                    }} className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="10"
+                                            placeholder="Напр. 1"
+                                            value={courseForm.data.number}
+                                            onChange={e => courseForm.setData('number', e.target.value)}
+                                            className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white flex-1"
+                                            required
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={courseForm.processing}
+                                            className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                                        >
+                                            Додати
+                                        </button>
+                                    </form>
+                                    <div className="divide-y divide-slate-100 dark:divide-gray-700 border border-slate-100 dark:border-gray-700 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+                                        {courses.length === 0 ? (
+                                            <div className="p-4 text-center text-xs text-gray-400">Курси відсутні</div>
+                                        ) : (
+                                            courses.map(c => (
+                                                <div key={c.id} className="p-3 flex justify-between items-center text-xs text-gray-800 dark:text-gray-200 bg-slate-50/20">
+                                                    <span className="font-bold">{c.number} курс</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm(`Ви впевнені, що хочете видалити курс ${c.number}?`)) {
+                                                                router.post(route('admin.courses.destroy', c.id));
+                                                            }
+                                                        }}
+                                                        className="text-red-500 font-bold hover:underline"
+                                                    >
+                                                        Видалити
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Групи */}
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 pb-3">
+                                        <h3 className="font-bold text-gray-900 dark:text-white text-sm">Академічні групи</h3>
+                                        <p className="text-[11px] text-gray-400">Номери або ідентифікатори академічних груп</p>
+                                    </div>
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        groupForm.post(route('admin.groups.store'), {
+                                            onSuccess: () => groupForm.reset()
+                                        });
+                                    }} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Напр. 11"
+                                            value={groupForm.data.name}
+                                            onChange={e => groupForm.setData('name', e.target.value)}
+                                            className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white flex-1"
+                                            required
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={groupForm.processing}
+                                            className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                                        >
+                                            Додати
+                                        </button>
+                                    </form>
+                                    <div className="divide-y divide-slate-100 dark:divide-gray-700 border border-slate-100 dark:border-gray-700 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+                                        {groups.length === 0 ? (
+                                            <div className="p-4 text-center text-xs text-gray-400">Групи відсутні</div>
+                                        ) : (
+                                            groups.map(g => (
+                                                <div key={g.id} className="p-3 flex justify-between items-center text-xs text-gray-800 dark:text-gray-200 bg-slate-50/20">
+                                                    <span className="font-bold">Група {g.name}</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm(`Ви впевнені, що хочете видалити групу ${g.name}?`)) {
+                                                                router.post(route('admin.groups.destroy', g.id));
+                                                            }
+                                                        }}
+                                                        className="text-red-500 font-bold hover:underline"
+                                                    >
+                                                        Видалити
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {activeTab === 'users_gen' && (
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1013,106 +1370,183 @@ export default function Dashboard({
                                         <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Генератор акаунтів</h3>
                                         <p className="text-xs text-gray-400">Створення тимчасових облікових записів для студентів</p>
                                     </div>
-                                    <form onSubmit={handleGenerateUsers} className="space-y-4">
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Кількість акаунтів для створення</label>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                max="50"
-                                                value={genForm.data.count}
-                                                onChange={e => genForm.setData('count', e.target.value)}
-                                                className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            disabled={genForm.processing}
-                                            className="w-full justify-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm disabled:opacity-50"
-                                        >
-                                            {genForm.processing ? 'Генерація...' : 'Згенерувати акаунти'}
-                                        </button>
-                                    </form>
-                                </div>
-
-                                {/* Список згенерованих аккаунтов */}
-                                <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-slate-100/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Нові згенеровані акаунти</h3>
-                                            <p className="text-xs text-gray-400">Тимчасові логіни та паролі поточної сесії</p>
-                                        </div>
-                                        {generatedUsers && generatedUsers.length > 0 && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={copyAllCredentials}
-                                                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-600 transition-colors"
-                                                >
-                                                    Скопіювати всі
-                                                </button>
-                                                <button
-                                                    onClick={handleExportPDF}
-                                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm"
-                                                >
-                                                    Експорт в PDF
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {!generatedUsers || generatedUsers.length === 0 ? (
-                                        <div className="p-8 text-center text-xs text-gray-400 dark:text-gray-500 bg-slate-50/50/50 dark:bg-gray-900/30 rounded-xl border border-dashed border-slate-100 dark:border-gray-700">
-                                            Тут відобразяться згенеровані акаунти після запуску генератора.
-                                        </div>
-                                    ) : (
-                                        <div className="overflow-x-auto border border-slate-100/80 rounded-xl">
-                                            <table className="w-full text-left border-collapse text-xs">
-                                                <thead>
-                                                    <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                                        <th className="p-3">Тимчасове ім'я</th>
-                                                        <th className="p-3">Email</th>
-                                                        <th className="p-3">Пароль</th>
-                                                        <th className="p-3 text-right">Дії</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-600">
-                                                    {generatedUsers.map((user, idx) => (
-                                                        <tr key={idx} className="hover:bg-slate-50/50/30">
-                                                            <td className="p-3 font-semibold text-gray-900 dark:text-white">{user.name}</td>
-                                                            <td className="p-3 font-mono">{user.email}</td>
-                                                            <td className="p-3 font-mono text-emerald-700 font-bold">{user.password}</td>
-                                                            <td className="p-3 text-right">
-                                                                <button
-                                                                    onClick={() => copyToClipboard(`Email: ${user.email} | Пароль: ${user.password}`)}
-                                                                    className="px-2.5 py-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors"
-                                                                >
-                                                                    Скопіювати
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
+                                     <form onSubmit={handleGenerateUsers} className="space-y-4">
+                                         <div className="space-y-1">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Кількість акаунтів для створення</label>
+                                             <input
+                                                 type="number"
+                                                 min="1"
+                                                 max="50"
+                                                 value={genForm.data.count}
+                                                 onChange={e => genForm.setData('count', e.target.value)}
+                                                 className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                 required
+                                             />
+                                         </div>
+                                         <div className="space-y-1">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Стать для акаунтів</label>
+                                             <select
+                                                 value={genForm.data.gender}
+                                                 onChange={e => genForm.setData('gender', e.target.value)}
+                                                 className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                             >
+                                                 <option value="">Не вказано (пустий)</option>
+                                                 <option value="male">Чоловіча</option>
+                                                 <option value="female">Жіноча</option>
+                                             </select>
+                                         </div>
+                                         <button
+                                             type="submit"
+                                             disabled={genForm.processing}
+                                             className="w-full justify-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm disabled:opacity-50"
+                                         >
+                                             {genForm.processing ? 'Генерація...' : 'Згенерувати акаунти'}
+                                         </button>
+                                     </form>
+                                 </div>
+ 
+                                 {/* Список згенерованих аккаунтов */}
+                                 <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                     <div className="border-b border-slate-100/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                         <div>
+                                             <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Нові згенеровані акаунти</h3>
+                                             <p className="text-xs text-gray-400">Тимчасові логіни та паролі поточної сесії</p>
+                                         </div>
+                                         {generatedUsers && generatedUsers.length > 0 && (
+                                             <div className="flex gap-2">
+                                                 <button
+                                                     onClick={copyAllCredentials}
+                                                     className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-600 transition-colors"
+                                                 >
+                                                     Скопіювати всі
+                                                 </button>
+                                                 <button
+                                                     onClick={handleExportPDF}
+                                                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm"
+                                                 >
+                                                     Експорт в PDF
+                                                 </button>
+                                             </div>
+                                         )}
+                                     </div>
+ 
+                                     {!generatedUsers || generatedUsers.length === 0 ? (
+                                         <div className="p-8 text-center text-xs text-gray-400 dark:text-gray-500 bg-slate-50/50/50 dark:bg-gray-900/30 rounded-xl border border-dashed border-slate-100 dark:border-gray-700">
+                                             Тут відобразяться згенеровані акаунти після запуску генератора.
+                                         </div>
+                                     ) : (
+                                         <div className="overflow-x-auto border border-slate-100/80 rounded-xl">
+                                             <table className="w-full text-left border-collapse text-xs">
+                                                 <thead>
+                                                     <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                                         <th className="p-3">Тимчасове ім'я</th>
+                                                         <th className="p-3">Стать</th>
+                                                         <th className="p-3">Email</th>
+                                                         <th className="p-3">Пароль</th>
+                                                         <th className="p-3 text-right">Дії</th>
+                                                     </tr>
+                                                 </thead>
+                                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-600">
+                                                     {generatedUsers.map((user, idx) => (
+                                                         <tr key={idx} className="hover:bg-slate-50/50/30">
+                                                             <td className="p-3 font-semibold text-gray-900 dark:text-white">{user.name}</td>
+                                                             <td className="p-3">{renderGenderBadge(user.gender)}</td>
+                                                             <td className="p-3 font-mono">{user.email}</td>
+                                                             <td className="p-3 font-mono text-emerald-700 font-bold">{user.password}</td>
+                                                             <td className="p-3 text-right">
+                                                                 <button
+                                                                     onClick={() => copyToClipboard(`Email: ${user.email} | Пароль: ${user.password}`)}
+                                                                     className="px-2.5 py-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors"
+                                                                 >
+                                                                     Скопіювати
+                                                                 </button>
+                                                             </td>
+                                                         </tr>
+                                                     ))}
+                                                 </tbody>
+                                             </table>
+                                         </div>
+                                     )}
                                 </div>
                             </div>
 
                             {/* Список всіх студентів */}
                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
-                                <div className="border-b border-slate-100/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="border-b border-slate-100/80 pb-3 flex flex-wrap items-center justify-between gap-4">
                                     <div>
-                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Зареєстровані студенти</h3>
-                                        <p className="text-xs text-gray-400">Список користувачів системи розселення та статус заповненості їхніх профілів</p>
+                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Список всіх студентів</h3>
+                                        <p className="text-xs text-gray-400">Управління та фільтрація студентського складу</p>
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Пошук за ім'ям або email..."
-                                        value={userSearch}
-                                        onChange={e => setUserSearch(e.target.value)}
-                                        className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-64"
-                                    />
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Спеціальність:</span>
+                                            <select
+                                                value={userSpecialtyFilter}
+                                                onChange={e => setUserSpecialtyFilter(e.target.value)}
+                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            >
+                                                <option value="">Всі</option>
+                                                {uniqueSpecialties.map(spec => (
+                                                    <option key={spec} value={spec}>{spec}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Курс:</span>
+                                            <select
+                                                value={userCourseFilter}
+                                                onChange={e => setUserCourseFilter(e.target.value)}
+                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            >
+                                                <option value="">Всі</option>
+                                                {uniqueCourses.map(c => (
+                                                    <option key={c} value={c}>{c} курс</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Група:</span>
+                                            <select
+                                                value={userGroupFilter}
+                                                onChange={e => setUserGroupFilter(e.target.value)}
+                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            >
+                                                <option value="">Всі групи</option>
+                                                {uniqueGroups.map(grp => (
+                                                    <option key={grp} value={grp}>{grp}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Стать:</span>
+                                            <select
+                                                value={userGenderFilter}
+                                                onChange={e => setUserGenderFilter(e.target.value)}
+                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            >
+                                                <option value="">Всі статі</option>
+                                                <option value="male">Чоловіки</option>
+                                                <option value="female">Жінки</option>
+                                            </select>
+                                        </div>
+
+                                        {(userSpecialtyFilter || userCourseFilter || userGroupFilter || userGenderFilter) && (
+                                            <button
+                                                onClick={() => {
+                                                    setUserSpecialtyFilter('');
+                                                    setUserCourseFilter('');
+                                                    setUserGroupFilter('');
+                                                    setUserGenderFilter('');
+                                                }}
+                                                className="text-[10px] font-bold text-red-500 dark:text-red-400 hover:underline uppercase tracking-wider"
+                                            >
+                                                Скинути фільтри
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {filteredAllUsers.length === 0 ? (
@@ -1124,18 +1558,34 @@ export default function Dashboard({
                                         <table className="w-full text-left border-collapse text-xs">
                                             <thead>
                                                 <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                                    <th className="p-3">Ім'я</th>
-                                                    <th className="p-3">Email</th>
-                                                    <th className="p-3">Telegram</th>
-                                                    <th className="p-3">Телефон</th>
-                                                    <th className="p-3">Статус профілю</th>
-                                                    <th className="p-3">Дата реєстрації</th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('name')}>
+                                                        Ім'я {renderSortArrow('name')}
+                                                    </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('gender')}>
+                                                        Стать {renderSortArrow('gender')}
+                                                    </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('email')}>
+                                                        Email {renderSortArrow('email')}
+                                                    </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('telegram')}>
+                                                        Telegram {renderSortArrow('telegram')}
+                                                    </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('phone')}>
+                                                        Телефон {renderSortArrow('phone')}
+                                                    </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('must_change_password')}>
+                                                        Статус профілю {renderSortArrow('must_change_password')}
+                                                     </th>
+                                                    <th className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" onClick={() => handleSort('created_at')}>
+                                                        Дата реєстрації {renderSortArrow('created_at')}
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-700">
-                                                {filteredAllUsers.map(u => (
+                                                {sortedAllUsers.map(u => (
                                                     <tr key={u.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
                                                         <td className="p-3 font-semibold text-gray-900 dark:text-white">{u.name}</td>
+                                                        <td className="p-3">{renderGenderBadge(u.gender)}</td>
                                                         <td className="p-3 font-mono">{u.email}</td>
                                                         <td className="p-3 text-emerald-600">
                                                             {u.telegram ? (
@@ -1187,10 +1637,12 @@ export default function Dashboard({
                                             onChange={e => manualForm.setData('user_id', e.target.value)}
                                             className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
-                                        >
+                                                                        >
                                             <option value="" disabled>-- Оберіть студента --</option>
                                             {users.map(u => (
-                                                <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                                                <option key={u.id} value={u.id}>
+                                                    {u.name} ({u.email}){u.gender ? ` — ${u.gender === 'male' ? 'Чоловік' : 'Жінка'}` : ''}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>

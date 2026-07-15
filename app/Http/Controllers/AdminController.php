@@ -29,14 +29,14 @@ class AdminController extends Controller
             ->whereDoesntHave('bookings', function ($query) {
                 $query->whereIn('status', ['pending', 'approved']);
             })
-            ->get(['id', 'name', 'email']);
+            ->get(['id', 'name', 'email', 'gender']);
 
         $tickets = Ticket::with(['user', 'room.building'])->orderBy('created_at', 'desc')->get();
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
         $allUsers = User::where('role', 'user')
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'name', 'email', 'telegram', 'phone', 'must_change_password', 'password_changed', 'created_at']);
+            ->get(['id', 'name', 'email', 'gender', 'telegram', 'phone', 'must_change_password', 'password_changed', 'created_at']);
 
         // Аналітика по корпусах
         $stats = [
@@ -250,6 +250,27 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'В обраній кімнаті немає місць!');
         }
 
+        $userGender = $booking->user->gender;
+        if ($userGender) {
+            $occupantGenders = User::whereIn('id', function($q) use ($targetRoom) {
+                $q->select('user_id')
+                  ->from('bookings')
+                  ->where('room_id', $targetRoom->id)
+                  ->where(function ($query) {
+                      $query->where('status', 'approved')
+                            ->orWhere(function ($sq) {
+                                $sq->where('status', 'pending')
+                                  ->whereNotNull('new_room_id');
+                            });
+                  });
+            })->pluck('gender')->filter()->unique();
+
+            if ($occupantGenders->isNotEmpty() && !$occupantGenders->contains($userGender)) {
+                $genderLabel = $userGender === 'male' ? 'жіноча' : 'чоловіча';
+                return redirect()->back()->with('error', "Помилка переселення: цільова кімната є {$genderLabel}ською.");
+            }
+        }
+
         $oldRoomNumber = $booking->room->room_number ?? '?';
         $booking->update([
             'room_id' => $targetRoom->id,
@@ -304,6 +325,28 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'В цій кімнаті немає місць!');
         }
 
+        $user = User::findOrFail($request->user_id);
+        $userGender = $user->gender;
+        if ($userGender) {
+            $occupantGenders = User::whereIn('id', function($q) use ($room) {
+                $q->select('user_id')
+                  ->from('bookings')
+                  ->where('room_id', $room->id)
+                  ->where(function ($query) {
+                      $query->where('status', 'approved')
+                            ->orWhere(function ($sq) {
+                                $sq->where('status', 'pending')
+                                  ->whereNotNull('new_room_id');
+                            });
+                  });
+            })->pluck('gender')->filter()->unique();
+
+            if ($occupantGenders->isNotEmpty() && !$occupantGenders->contains($userGender)) {
+                $genderLabel = $userGender === 'male' ? 'жіноча' : 'чоловіча';
+                return redirect()->back()->with('error', "Помилка заселення: кімната є {$genderLabel}ською.");
+            }
+        }
+
         $booking = Booking::create([
             'user_id' => $request->user_id,
             'room_id' => $request->room_id,
@@ -341,9 +384,11 @@ class AdminController extends Controller
     {
         $request->validate([
             'count' => ['required', 'integer', 'min:1', 'max:50'],
+            'gender' => ['nullable', 'string', 'in:male,female'],
         ]);
 
         $count = (int)$request->input('count');
+        $gender = $request->input('gender');
         $generated = [];
 
         $adjectives = ['Smart', 'Happy', 'Wise', 'Brave', 'Honest', 'Friendly', 'Active', 'Kind'];
@@ -365,6 +410,7 @@ class AdminController extends Controller
                 'role' => 'user',
                 'must_change_password' => true,
                 'password_changed' => false,
+                'gender' => $gender,
             ]);
 
             $generated[] = [
@@ -372,6 +418,7 @@ class AdminController extends Controller
                 'name' => $name,
                 'email' => $email,
                 'password' => $password,
+                'gender' => $user->gender,
             ];
             
             AuditLog::log($request->user()->id, 'user_generated', "Адміністратор згенерував тимчасового користувача $email ($name)");
@@ -392,5 +439,53 @@ class AdminController extends Controller
         \App\Models\AuditLog::log($request->user()->id, 'logs_cleared', "Адміністратор очистив весь журнал аудиту");
 
         return redirect()->back()->with('success', 'Журнал аудиту успішно очищено!');
+    }
+
+    public function storeSpecialty(Request $request)
+    {
+        $request->validate(['name' => 'required|string|unique:specialties,name|max:10']);
+        \App\Models\Specialty::create(['name' => strtoupper($request->name)]);
+        \App\Models\AuditLog::log($request->user()->id, 'specialty_created', "Адміністратор створив напрям " . strtoupper($request->name));
+        return redirect()->back()->with('success', 'Напрям успішно створено!');
+    }
+
+    public function destroySpecialty(Request $request, \App\Models\Specialty $specialty)
+    {
+        $name = $specialty->name;
+        $specialty->delete();
+        \App\Models\AuditLog::log($request->user()->id, 'specialty_deleted', "Адміністратор видалив напрям " . $name);
+        return redirect()->back()->with('success', 'Напрям успішно видалено!');
+    }
+
+    public function storeCourse(Request $request)
+    {
+        $request->validate(['number' => 'required|integer|min:1|max:10|unique:academic_courses,number']);
+        \App\Models\AcademicCourse::create(['number' => $request->number]);
+        \App\Models\AuditLog::log($request->user()->id, 'course_created', "Адміністратор створив курс " . $request->number);
+        return redirect()->back()->with('success', 'Курс успішно створено!');
+    }
+
+    public function destroyCourse(Request $request, \App\Models\AcademicCourse $course)
+    {
+        $num = $course->number;
+        $course->delete();
+        \App\Models\AuditLog::log($request->user()->id, 'course_deleted', "Адміністратор видалив курс " . $num);
+        return redirect()->back()->with('success', 'Курс успішно видалено!');
+    }
+
+    public function storeGroup(Request $request)
+    {
+        $request->validate(['name' => 'required|string|unique:academic_groups,name|max:15']);
+        \App\Models\AcademicGroup::create(['name' => $request->name]);
+        \App\Models\AuditLog::log($request->user()->id, 'group_created', "Адміністратор створив групу " . $request->name);
+        return redirect()->back()->with('success', 'Групу успішно створено!');
+    }
+
+    public function destroyGroup(Request $request, \App\Models\AcademicGroup $group)
+    {
+        $name = $group->name;
+        $group->delete();
+        \App\Models\AuditLog::log($request->user()->id, 'group_deleted', "Адміністратор видалив групу " . $name);
+        return redirect()->back()->with('success', 'Групу успішно видалено!');
     }
 }

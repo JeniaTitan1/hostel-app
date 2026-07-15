@@ -60,6 +60,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Перемкнути статус кімнати
     Route::post('/rooms/{room}/toggle-status', [AdminController::class, 'toggleRoomStatus'])->name('rooms.toggle-status');
+
+    // Академічні опції
+    Route::post('/specialties', [AdminController::class, 'storeSpecialty'])->name('specialties.store');
+    Route::post('/specialties/{specialty}/delete', [AdminController::class, 'destroySpecialty'])->name('specialties.destroy');
+    Route::post('/academic-courses', [AdminController::class, 'storeCourse'])->name('courses.store');
+    Route::post('/academic-courses/{course}/delete', [AdminController::class, 'destroyCourse'])->name('courses.destroy');
+    Route::post('/academic-groups', [AdminController::class, 'storeGroup'])->name('groups.store');
+    Route::post('/academic-groups/{group}/delete', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
 });
 
 // Заявка на ремонт от пользователя
