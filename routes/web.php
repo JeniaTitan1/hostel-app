@@ -51,6 +51,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Резолв заявки на ремонт
     Route::post('/tickets/{ticket}/resolve', [TicketController::class, 'resolve'])->name('tickets.resolve');
+
+    // Генерация пользователей
+    Route::post('/users/generate', [AdminController::class, 'generateUsers'])->name('users.generate');
+
+    // Очистити журнал аудиту
+    Route::post('/audit-logs/clear', [AdminController::class, 'clearAuditLogs'])->name('audit-logs.clear');
 });
 
 // Заявка на ремонт от пользователя

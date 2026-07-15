@@ -36,6 +36,10 @@ class HandleInertiaRequests extends Middleware
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'role' => $request->user()->role, // Передаем роль админа/юзера
+                    'telegram' => $request->user()->telegram,
+                    'phone' => $request->user()->phone,
+                    'must_change_password' => $request->user()->must_change_password,
+                    'password_changed' => $request->user()->password_changed,
                 ] : null,
             ],
             // Если у тебя используются флеш-уведомления (например, статус изменения профиля)

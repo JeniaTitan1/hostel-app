@@ -140,4 +140,92 @@ class HostelImprovementsTest extends TestCase
             'action' => 'booking_approved',
         ]);
     }
+
+    public function test_user_is_redirected_to_profile_when_must_change_password_is_true()
+    {
+        $this->user->update([
+            'must_change_password' => true,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('dashboard'));
+
+        $response->assertRedirect(route('profile.edit'));
+        $response->assertSessionHas('error');
+    }
+
+    public function test_enforcement_is_cleared_after_password_and_profile_updates()
+    {
+        $this->user->update([
+            'name' => 'Temporary Student #1234',
+            'email' => 'student1234@mnau.edu.ua',
+            'must_change_password' => true,
+            'password_changed' => false,
+            'telegram' => null,
+            'phone' => null,
+        ]);
+
+        // 1. Update password
+        $response = $this->actingAs($this->user)
+            ->put(route('password.update'), [
+                'current_password' => 'password',
+                'password' => 'new_password123',
+                'password_confirmation' => 'new_password123',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->user->refresh();
+        $this->assertTrue($this->user->password_changed);
+        // still true because profile details (name, email, phone, telegram) are not completed
+        $this->assertTrue($this->user->must_change_password);
+
+        // 2. Update profile information (changing email to a custom non-temp one, telegram is optional)
+        $response = $this->actingAs($this->user)
+            ->patch(route('profile.update'), [
+                'name' => 'Олексій Коваленко',
+                'email' => 'oleksiy@personal.com',
+                'telegram' => null,
+                'phone' => '+380998887766',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->user->refresh();
+        // now must be false because password, name, email changed and phone filled (telegram is optional)
+        $this->assertFalse($this->user->must_change_password);
+    }
+
+    public function test_admin_can_generate_batch_of_users()
+    {
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.users.generate'), [
+                'count' => 5,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('generated_users');
+
+        $this->assertEquals(5, User::where('role', 'user')->where('must_change_password', true)->count());
+    }
+
+    public function test_admin_can_clear_audit_logs()
+    {
+        // 1. Create a mock audit log entry
+        AuditLog::log($this->user->id, 'mock_action', 'Mock log details');
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'mock_action',
+        ]);
+
+        // 2. Perform truncation
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.audit-logs.clear'));
+
+        $response->assertRedirect();
+        
+        // table is truncated and a new entry logs_cleared is created
+        $this->assertEquals(1, AuditLog::count());
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'logs_cleared',
+        ]);
+    }
 }

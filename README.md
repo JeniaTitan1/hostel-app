@@ -1,58 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏛️ Система розселення студентів у гуртожитках МНАУ
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Система розселення студентів та управління гуртожитками для Миколаївського національного аграрного університету (МНАУ). Проєкт забезпечує повний цикл управління кімнатами, заявками на проживання, ремонтними роботами та інтелектуальною генерацією облікових записів.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Функціонал системи
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. **2D-Візуалізатор поверхів (Floor Map Visualizer)**:
+   - Інтерактивна карта гуртожитку на сторінці адміністратора. Кімнати згруповані по поверхах з кольоровими індикаторами заповненості.
+   - Пошук кімнат та студентів на схемі в реальному часі.
+   - Візуальні індикатори зайнятих ліжко-місць.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+2. **Система заявок та переселення (Relocation System)**:
+   - Студенти можуть обирати та бронювати кімнати самостійно.
+   - Адміністратори можуть вручну розселяти студентів, переселяти жильців між кімнатами або виселяти їх одним кліком.
 
-## Learning Laravel
+3. **Журнал ремонтних заявок (Maintenance Tickets)**:
+   - Студенти з активним заселенням можуть залишати заявки на ремонт кімнати з текстовим описом проблеми.
+   - Адміністратор має спеціальну вкладку для вирішення ремонтних заявок.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+4. **Логування дій (Audit Log)**:
+   - Будь-які зміни (заселення, переселення, виселення, створення корпусів) автоматично записуються в історію дій на панелі адміністратора.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+5. **Генератор користувачів & Обов'язкова первинна реєстрація**:
+   - **Генератор для адміна**: Дозволяє миттєво згенерувати пакет тимчасових акаунтів (пошта типу `studentXXXX@mnau.edu.ua`, випадковий пароль та англійське ім'я).
+   - **Експорт у PDF**: Адміністратор може скопіювати згенеровані пари логін/пароль у буфер або завантажити красивий PDF-файл з реквізитами (сумісний із Latin-шрифтами).
+   - **Middleware-блокування**: Користувачі з тимчасовими акаунтами при вході примусово блокуються на сторінці налаштування профілю, доки не вкажуть справжнє ім'я, робочий email, номер телефону та не змінять тимчасовий пароль. Telegram-контакт є необов'язковим. Після виконання умов з'являється зелений банер для переходу до системи.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 🔑 Тестові дані в Сидері (Seeder Accounts)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Після запуску бази даних з сидерами, система буде містити наступні облікові записи:
 
+### 1. Адміністратор системи
+*   **Email**: `admin@test.com`
+*   **Пароль**: `password`
+*   *Роль*: Адміністратор (доступ до 2D-карти, журналу аудиту, розселення та генератора користувачів).
+
+### 2. Зареєстровані студенти (вже заселені)
+*   **Іван Іванов** (`user@test.com` / `password`) — заселений у **кімнату 101 Корпусу А** разом з Льохою (сусіди).
+*   **Льоха Шкіпер** (`alex@test.com` / `password`) — заселений у **кімнату 101 Корпусу А**.
+*   **Олена Шевченко** (`olena@test.com` / `password`) — заселена в **кімнату 102 Корпусу А**. Має **активну** заявку на ремонт (протікає змішувач).
+*   **Сергій Коваленко** (`sergiy@test.com` / `password`) — заселений у **кімнату 102 Корпусу А**. Має **вирішену** заявку на ремонт (зламана розетка).
+
+### 3. Студент з активною заявкою на заселення (очікує підтвердження)
+*   **Петро Кравченко** (`petro@test.com` / `password`) — надіслав заявку на заселення в **кімнату 101 Корпусу Б**.
+
+### 4. Тимчасовий акаунт для перевірки примусового налаштування
+*   **Email**: `student1111@mnau.edu.ua`
+*   **Пароль**: `password`
+*   *Особливість*: При першому вході вас автоматично заблокує на сторінці профілю та виведе детальний чеклист кроків, які необхідно виконати для розблокування сайту.
+
+---
+
+## 🐳 Інструкця з запуску в Docker з 0 (Laravel Sail)
+
+Перед початком переконайтеся, що на вашому комп'ютері встановлено **Docker** та **Docker Compose**.
+
+### Крок 1. Підготовка оточення
+1. Перейдіть до папки з проєктом:
+   ```bash
+   cd hostel-app
+   ```
+2. Створіть файл конфігурації `.env` на основі шаблону:
+   ```bash
+   cp .env.example .env
+   ```
+
+### Крок 2. Встановлення Composer-залежностей без локального PHP
+Якщо на вашому комп'ютері не встановлено локальний PHP та Composer, ви можете запустити встановлення залежностей через тимчасовий Docker-контейнер:
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Крок 3. Запуск Docker-контейнерів
+Запустіть контейнери Laravel Sail (застосунок, база даних MySQL):
+```bash
+./vendor/bin/sail up -d
+```
+*Примітка: Якщо у вас зайнятий порт 80 або 3306, ви можете змінити їх у файлі `.env` (наприклад, встановити `APP_PORT=8080`).*
 
-## Contributing
+### Крок 4. Генерація ключа додатка
+Згенеруйте унікальний ключ шифрування Laravel додатка:
+```bash
+./vendor/bin/sail artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Крок 5. Міграція та наповнення бази даних (Seeder)
+Створіть таблиці бази даних та заповніть їх тестовими даними (кімнати, корпуси, акаунти, заявки):
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
 
-## Code of Conduct
+### Крок 6. Встановлення npm-залежностей та збірка фронтенду
+1. Встановіть клієнтські пакети Node.js:
+   ```bash
+   ./vendor/bin/sail npm install
+   ```
+2. Запустіть Vite-сервер гарячого оновлення розробки:
+   ```bash
+   ./vendor/bin/sail npm run dev
+   ```
+   *Або для продакшн-збірки:*
+   ```bash
+   ./vendor/bin/sail npm run build
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Крок 7. Перегляд проєкту
+Тепер ваш проєкт готовий до роботи! Відкрийте у браузері:
+👉 **[http://localhost](http://localhost)** (або інший порт, если ви його перепризначили у `.env`).
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🛠️ Корисні команди Sail
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Зупинка додатку**: `./vendor/bin/sail stop`
+- **Запуск тестів**: `./vendor/bin/sail test`
+- **Перезапуск контейнерів**: `./vendor/bin/sail restart`
+- **Доступ до консолі бази даних**: `./vendor/bin/sail mysql`

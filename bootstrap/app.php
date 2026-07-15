@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\EnforceProfileSetup::class,
+        ]);
+
         // 1. Регистрируем твой alias для middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,

@@ -34,12 +34,18 @@ class AdminController extends Controller
         $tickets = Ticket::with(['user', 'room.building'])->orderBy('created_at', 'desc')->get();
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
+        $allUsers = User::where('role', 'user')
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'name', 'email', 'telegram', 'phone', 'must_change_password', 'password_changed', 'created_at']);
+
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings' => $pendingBookings,
             'buildings' => $buildings,
             'users' => $users,
             'tickets' => $tickets,
             'auditLogs' => $auditLogs,
+            'allUsers' => $allUsers,
+            'generatedUsers' => session('generated_users'),
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -284,5 +290,65 @@ class AdminController extends Controller
         AuditLog::log(null, 'building_created', "Створено новий корпус \"{$building->name}\"");
 
         return redirect()->back()->with('success', 'Корпус успішно створено!');
+    }
+
+    /**
+     * Генерация пользователей
+     */
+    public function generateUsers(Request $request)
+    {
+        $request->validate([
+            'count' => ['required', 'integer', 'min:1', 'max:50'],
+        ]);
+
+        $count = (int)$request->input('count');
+        $generated = [];
+
+        $adjectives = ['Smart', 'Happy', 'Wise', 'Brave', 'Honest', 'Friendly', 'Active', 'Kind'];
+        $nouns = ['Student', 'Scholar', 'Researcher', 'Learner', 'Trainee', 'Resident', 'Dormer'];
+
+        for ($i = 0; $i < $count; $i++) {
+            $tempId = rand(1000, 9999);
+            $email = 'student' . $tempId . '@mnau.edu.ua';
+            $password = \Illuminate\Support\Str::random(8);
+            
+            $adj = $adjectives[array_rand($adjectives)];
+            $noun = $nouns[array_rand($nouns)];
+            $name = 'Temporary ' . $adj . ' ' . $noun . ' #' . $tempId;
+
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => \Illuminate\Support\Facades\Hash::make($password),
+                'role' => 'user',
+                'must_change_password' => true,
+                'password_changed' => false,
+            ]);
+
+            $generated[] = [
+                'id' => $user->id,
+                'name' => $name,
+                'email' => $email,
+                'password' => $password,
+            ];
+            
+            AuditLog::log($request->user()->id, 'user_generated', "Адміністратор згенерував тимчасового користувача $email ($name)");
+        }
+
+        return redirect()->back()
+            ->with('generated_users', $generated)
+            ->with('success', "Успішно згенеровано $count користувачів!");
+    }
+
+    /**
+     * Очистити весь журнал аудиту
+     */
+    public function clearAuditLogs(Request $request)
+    {
+        \App\Models\AuditLog::truncate();
+
+        \App\Models\AuditLog::log($request->user()->id, 'logs_cleared', "Адміністратор очистив весь журнал аудиту");
+
+        return redirect()->back()->with('success', 'Журнал аудиту успішно очищено!');
     }
 }

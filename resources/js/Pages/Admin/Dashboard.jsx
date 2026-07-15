@@ -8,7 +8,9 @@ export default function Dashboard({
     buildings = [],
     users = [],
     tickets = [],
-    auditLogs = []
+    auditLogs = [],
+    allUsers = [],
+    generatedUsers = null
 }) {
     // Форма для Конструктора комнат (Групповое создание)
     const bulkForm = useForm({
@@ -36,6 +38,97 @@ export default function Dashboard({
     const [mapSearch, setMapSearch] = useState('');
     const [selectedBuildingFilter, setSelectedBuildingFilter] = useState('');
     const [ticketProcessingId, setTicketProcessingId] = useState(null);
+
+    // Форма для генератора користувачів
+    const genForm = useForm({
+        count: 5,
+    });
+
+    const handleGenerateUsers = (e) => {
+        e.preventDefault();
+        genForm.post(route('admin.users.generate'), {
+            onSuccess: () => {
+                alert('Користувачів успішно згенеровано!');
+                genForm.reset();
+            },
+            onError: (err) => alert(err.count || 'Помилка при генерації.')
+        });
+    };
+
+    const handleClearLogs = () => {
+        if (confirm('Ви впевнені, що хочете очистити весь журнал аудиту?')) {
+            router.post(route('admin.audit-logs.clear'), {}, {
+                onSuccess: () => alert('Журнал аудиту очищено!'),
+                onError: () => alert('Помилка при очищенні журналу.')
+            });
+        }
+    };
+
+    const handleExportPDF = () => {
+        if (!generatedUsers || generatedUsers.length === 0) return;
+
+        const generate = (jsPDFClass) => {
+            const doc = new jsPDFClass();
+            
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("Mykolaiv National Agrarian University (MNAU)", 14, 20);
+            doc.setFontSize(12);
+            doc.setFont("Helvetica", "normal");
+            doc.text("Hostels System - Generated Student Accounts", 14, 27);
+            doc.line(14, 32, 196, 32);
+
+            let y = 42;
+            generatedUsers.forEach((user, index) => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.setFont("Helvetica", "bold");
+                doc.text(`${index + 1}. ${user.name}`, 14, y);
+                doc.setFont("Helvetica", "normal");
+                doc.text(`Email: ${user.email}`, 20, y + 6);
+                doc.text(`Password: ${user.password}`, 20, y + 12);
+                doc.line(14, y + 16, 196, y + 16);
+                y += 24;
+            });
+
+            doc.save("mnau_students_credentials.pdf");
+        };
+
+        if (window.jspdf && window.jspdf.jsPDF) {
+            generate(window.jspdf.jsPDF);
+        } else {
+            const script = document.createElement('script');
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+            script.onload = () => {
+                const jsPDFClass = window.jspdf?.jsPDF || window.jspdf_umd?.jsPDF;
+                if (jsPDFClass) {
+                    generate(jsPDFClass);
+                } else {
+                    alert("Помилка завантаження бібліотеки PDF.");
+                }
+            };
+            document.body.appendChild(script);
+        }
+    };
+
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        alert('Скопійовано в буфер обміну!');
+    };
+
+    const copyAllCredentials = () => {
+        if (!generatedUsers || generatedUsers.length === 0) return;
+        const text = generatedUsers.map((u, i) => `${i + 1}. Ім'я: ${u.name}\n   Email: ${u.email}\n   Пароль: ${u.password}`).join('\n\n');
+        copyToClipboard(text);
+    };
+
+    const [userSearch, setUserSearch] = useState('');
+    const filteredAllUsers = allUsers.filter(u => 
+        u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+        u.email?.toLowerCase().includes(userSearch.toLowerCase())
+    );
 
     const handleResolveTicket = (ticketId) => {
         setTicketProcessingId(ticketId);
@@ -301,6 +394,16 @@ export default function Dashboard({
                             }`}
                         >
                             Журнал аудиту
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('users_gen')}
+                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                                activeTab === 'users_gen'
+                                    ? 'border-emerald-600 text-emerald-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                            }`}
+                        >
+                            Генератор користувачів
                         </button>
                     </div>
 
@@ -750,9 +853,19 @@ export default function Dashboard({
 
                     {activeTab === 'logs' && (
                         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                            <div className="p-5 border-b border-gray-100">
-                                <h3 className="font-bold text-gray-900 tracking-tight">Журнал аудиту дій</h3>
-                                <p className="text-xs text-gray-400">Лог адміністративних дій та статусів заселення</p>
+                            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-bold text-gray-900 tracking-tight">Журнал аудиту дій</h3>
+                                    <p className="text-xs text-gray-400">Лог адміністративних дій та статусів заселення</p>
+                                </div>
+                                {auditLogs.length > 0 && (
+                                    <button
+                                        onClick={handleClearLogs}
+                                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg transition-colors border border-red-200/50"
+                                    >
+                                        Очистити журнал
+                                    </button>
+                                )}
                             </div>
 
                             {auditLogs.length === 0 ? (
@@ -808,6 +921,171 @@ export default function Dashboard({
                                     </table>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {activeTab === 'users_gen' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Генератор аккаунтов */}
+                                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4 h-fit">
+                                    <div className="border-b border-gray-100 pb-3">
+                                        <h3 className="font-bold text-gray-900 tracking-tight">Генератор акаунтів</h3>
+                                        <p className="text-xs text-gray-400">Створення тимчасових облікових записів для студентів</p>
+                                    </div>
+                                    <form onSubmit={handleGenerateUsers} className="space-y-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Кількість акаунтів для створення</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="50"
+                                                value={genForm.data.count}
+                                                onChange={e => genForm.setData('count', e.target.value)}
+                                                className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white"
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            disabled={genForm.processing}
+                                            className="w-full justify-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm disabled:opacity-50"
+                                        >
+                                            {genForm.processing ? 'Генерація...' : 'Згенерувати акаунти'}
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {/* Список згенерованих аккаунтов */}
+                                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-gray-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div>
+                                            <h3 className="font-bold text-gray-900 tracking-tight">Нові згенеровані акаунти</h3>
+                                            <p className="text-xs text-gray-400">Тимчасові логіни та паролі поточної сесії</p>
+                                        </div>
+                                        {generatedUsers && generatedUsers.length > 0 && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={copyAllCredentials}
+                                                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                                >
+                                                    Скопіювати всі
+                                                </button>
+                                                <button
+                                                    onClick={handleExportPDF}
+                                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm"
+                                                >
+                                                    Експорт в PDF
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {!generatedUsers || generatedUsers.length === 0 ? (
+                                        <div className="p-8 text-center text-xs text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                                            Тут відобразяться згенеровані акаунти після запуску генератора.
+                                        </div>
+                                    ) : (
+                                        <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                                            <table className="w-full text-left border-collapse text-xs">
+                                                <thead>
+                                                    <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                        <th className="p-3">Тимчасове ім'я</th>
+                                                        <th className="p-3">Email</th>
+                                                        <th className="p-3">Пароль</th>
+                                                        <th className="p-3 text-right">Дії</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100 text-[13px] text-gray-600">
+                                                    {generatedUsers.map((user, idx) => (
+                                                        <tr key={idx} className="hover:bg-gray-50/30">
+                                                            <td className="p-3 font-semibold text-gray-900">{user.name}</td>
+                                                            <td className="p-3 font-mono">{user.email}</td>
+                                                            <td className="p-3 font-mono text-emerald-700 font-bold">{user.password}</td>
+                                                            <td className="p-3 text-right">
+                                                                <button
+                                                                    onClick={() => copyToClipboard(`Email: ${user.email} | Пароль: ${user.password}`)}
+                                                                    className="px-2.5 py-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors"
+                                                                >
+                                                                    Скопіювати
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Список всіх студентів */}
+                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-gray-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 tracking-tight">Зареєстровані студенти</h3>
+                                        <p className="text-xs text-gray-400">Список користувачів системи розселення та статус заповненості їхніх профілів</p>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Пошук за ім'ям або email..."
+                                        value={userSearch}
+                                        onChange={e => setUserSearch(e.target.value)}
+                                        className="text-xs rounded-lg border border-gray-200 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white w-full sm:w-64"
+                                    />
+                                </div>
+
+                                {filteredAllUsers.length === 0 ? (
+                                    <div className="p-8 text-center text-sm text-gray-500">
+                                        Студентів не знайдено.
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse text-xs">
+                                            <thead>
+                                                <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                    <th className="p-3">Ім'я</th>
+                                                    <th className="p-3">Email</th>
+                                                    <th className="p-3">Telegram</th>
+                                                    <th className="p-3">Телефон</th>
+                                                    <th className="p-3">Статус профілю</th>
+                                                    <th className="p-3">Дата реєстрації</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700">
+                                                {filteredAllUsers.map(u => (
+                                                    <tr key={u.id} className="hover:bg-gray-50/30 transition-colors">
+                                                        <td className="p-3 font-semibold text-gray-900">{u.name}</td>
+                                                        <td className="p-3 font-mono">{u.email}</td>
+                                                        <td className="p-3 text-emerald-600">
+                                                            {u.telegram ? (
+                                                                <a href={`https://t.me/${u.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:underline font-medium">
+                                                                    {u.telegram}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="text-gray-300 italic">немає</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="p-3 text-gray-600">{u.phone || <span className="text-gray-300 italic">немає</span>}</td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
+                                                                u.must_change_password
+                                                                    ? 'bg-amber-50 text-amber-800 border-amber-200/50'
+                                                                    : 'bg-emerald-50 text-emerald-800 border-emerald-200/50'
+                                                            }`}>
+                                                                {u.must_change_password ? 'Очікує налаштування' : 'Готово'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-gray-400">
+                                                            {new Date(u.created_at).toLocaleDateString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 

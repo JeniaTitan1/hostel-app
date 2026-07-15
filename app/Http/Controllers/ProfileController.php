@@ -29,13 +29,20 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        // Якщо користувач підлягає обов'язковій перевірці на зміну пароля та профілю
+        if ($user->must_change_password && $user->isProfileSetupComplete()) {
+            $user->must_change_password = false;
+            $user->save();
+        }
 
         return Redirect::route('profile.edit');
     }

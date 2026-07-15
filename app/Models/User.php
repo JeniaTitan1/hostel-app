@@ -21,6 +21,8 @@ class User extends Authenticatable
         'role', // Добавили роль
         'telegram',
         'phone',
+        'must_change_password',
+        'password_changed',
     ];
 
     protected $hidden = [
@@ -33,6 +35,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
+            'password_changed' => 'boolean',
         ];
     }
 
@@ -42,5 +46,16 @@ class User extends Authenticatable
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Перевірка повної готовності профілю
+     */
+    public function isProfileSetupComplete(): bool
+    {
+        $nameTemp = str_starts_with($this->name, 'Тимчасовий') || str_starts_with($this->name, 'Temporary');
+        $emailTemp = str_starts_with($this->email, 'student') && str_ends_with($this->email, '@mnau.edu.ua');
+
+        return !$nameTemp && !$emailTemp && $this->password_changed && !empty($this->phone);
     }
 }
