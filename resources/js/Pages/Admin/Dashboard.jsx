@@ -339,10 +339,10 @@ export default function Dashboard({
             user={auth?.user}
             header={
                 <div className="flex flex-col gap-1">
-                    <h2 className="font-bold text-2xl text-gray-900 tracking-tight">
+                    <h2 className="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">
                         Панель адміністратора
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                         Управління заявками, конструктором кімнат та жильцями
                     </p>
                 </div>
@@ -350,7 +350,7 @@ export default function Dashboard({
         >
             <Head title="Адмін-панель" />
 
-            <div className="py-8 min-h-[calc(100vh-73px)] bg-gray-50">
+            <div className="py-8 min-h-[calc(100vh-73px)] bg-slate-50/50 dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                     {/* Hero-баннер */}
                     <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-6 text-white shadow-md border border-emerald-700/30 relative overflow-hidden">
@@ -377,44 +377,44 @@ export default function Dashboard({
                     {/* ===== АНАЛІТИКА ===== */}
                     {stats && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Загальна місткість</p>
-                                <p className="text-2xl font-black text-gray-900">{stats.total_capacity}</p>
-                                <p className="text-[10px] text-gray-400">{stats.total_rooms} кімнат</p>
+                                <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.total_capacity}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500">{stats.total_rooms} кімнат</p>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Заселено</p>
-                                <p className="text-2xl font-black text-emerald-600">{stats.occupied}</p>
-                                <p className="text-[10px] text-gray-400">{stats.total_capacity > 0 ? Math.round(stats.occupied / stats.total_capacity * 100) : 0}% завантаженість</p>
+                                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{stats.occupied}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500">{stats.total_capacity > 0 ? Math.round(stats.occupied / stats.total_capacity * 100) : 0}% завантаженість</p>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Вільних місць</p>
-                                <p className="text-2xl font-black text-gray-900">{stats.total_capacity - stats.occupied}</p>
+                                <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.total_capacity - stats.occupied}</p>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Очікують</p>
-                                <p className="text-2xl font-black text-amber-600">{stats.pending}</p>
-                                <p className="text-[10px] text-gray-400">заявок на розгляді</p>
+                                <p className="text-2xl font-black text-amber-600 dark:text-amber-400">{stats.pending}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500">заявок на розгляді</p>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Відкриті тікети</p>
-                                <p className="text-2xl font-black text-red-600">{stats.open_tickets}</p>
-                                <p className="text-[10px] text-gray-400">ремонт / обслуговування</p>
+                                <p className="text-2xl font-black text-red-600 dark:text-red-400">{stats.open_tickets}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500">ремонт / обслуговування</p>
                             </div>
                         </div>
                     )}
 
                     {/* Прогрес-бари по корпусах */}
                     {stats?.buildings?.length > 0 && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Завантаженість по корпусах</h3>
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-4">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Завантаженість по корпусах</h3>
                             {stats.buildings.map(b => (
                                 <div key={b.id} className="space-y-1">
                                     <div className="flex justify-between text-xs">
-                                        <span className="font-semibold text-gray-700">{b.name}</span>
-                                        <span className="text-gray-400">{b.occupied}/{b.capacity} ({b.capacity > 0 ? Math.round(b.occupied / b.capacity * 100) : 0}%)</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-200">{b.name}</span>
+                                        <span className="text-gray-400 dark:text-gray-500">{b.occupied}/{b.capacity} ({b.capacity > 0 ? Math.round(b.occupied / b.capacity * 100) : 0}%)</span>
                                     </div>
-                                    <div className="w-full bg-gray-100 rounded-full h-2">
+                                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                                         <div
                                             className={`h-2 rounded-full transition-all duration-500 ${
                                                 b.capacity > 0 && b.occupied / b.capacity >= 0.9 ? 'bg-red-500' :
@@ -429,12 +429,12 @@ export default function Dashboard({
                     )}
 
                     {/* Вкладки керування */}
-                    <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-px">
+                    <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-px">
                         <button
                             onClick={() => setActiveTab('bookings')}
                             className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
                                 activeTab === 'bookings'
-                                    ? 'border-emerald-600 text-emerald-600'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
                                     : 'border-transparent text-gray-500 hover:text-gray-950'
                             }`}
                         >
@@ -444,7 +444,7 @@ export default function Dashboard({
                             onClick={() => setActiveTab('map')}
                             className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
                                 activeTab === 'map'
-                                    ? 'border-emerald-600 text-emerald-600'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
                                     : 'border-transparent text-gray-500 hover:text-gray-950'
                             }`}
                         >
@@ -454,7 +454,7 @@ export default function Dashboard({
                             onClick={() => setActiveTab('tickets')}
                             className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
                                 activeTab === 'tickets'
-                                    ? 'border-emerald-600 text-emerald-600'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
                                     : 'border-transparent text-gray-500 hover:text-gray-950'
                             }`}
                         >
@@ -464,7 +464,7 @@ export default function Dashboard({
                             onClick={() => setActiveTab('logs')}
                             className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
                                 activeTab === 'logs'
-                                    ? 'border-emerald-600 text-emerald-600'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
                                     : 'border-transparent text-gray-500 hover:text-gray-950'
                             }`}
                         >
@@ -474,7 +474,7 @@ export default function Dashboard({
                             onClick={() => setActiveTab('users_gen')}
                             className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
                                 activeTab === 'users_gen'
-                                    ? 'border-emerald-600 text-emerald-600'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
                                     : 'border-transparent text-gray-500 hover:text-gray-950'
                             }`}
                         >
@@ -485,10 +485,10 @@ export default function Dashboard({
                     {activeTab === 'bookings' && (
                         <>
                             {/* ================= 1. ПАНЕЛЬ ЗАЯВОК (INBOX) ================= */}
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                                <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+                                <div className="p-5 border-b border-slate-100/80 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50/50 dark:bg-gray-800/50">
                                     <div>
-                                        <h3 className="font-bold text-gray-900 tracking-tight">Вхідні заявки на розгляд</h3>
+                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Вхідні заявки на розгляд</h3>
                                         <p className="text-xs text-gray-400">Схвалення або відхилення запитів від студентів</p>
                                     </div>
                                     <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -497,9 +497,9 @@ export default function Dashboard({
                                             placeholder="Пошук за ім'ям / email..."
                                             value={inboxSearch}
                                             onChange={e => setInboxSearch(e.target.value)}
-                                            className="text-xs rounded-lg border border-gray-200 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white w-full sm:w-48"
+                                            className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-48"
                                         />
-                                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/50 shrink-0">
+                                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/30 shrink-0">
                                             {filteredPendingBookings.length} очікують
                                         </span>
                                     </div>
@@ -513,36 +513,36 @@ export default function Dashboard({
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left border-collapse">
                                             <thead>
-                                                <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                                     <th className="p-4">Користувач</th>
                                                     <th className="p-4">Об'єкт / Корпус</th>
                                                     <th className="p-4">Поверх / Кімната</th>
                                                     <th className="p-4 text-right">Дії</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm text-gray-700">
                                                 {filteredPendingBookings.map((booking) => (
-                                                    <tr key={booking.id} className="hover:bg-gray-50/30 transition-colors">
-                                                        <td className="p-4 font-medium text-gray-900">
+                                                    <tr key={booking.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
+                                                        <td className="p-4 font-medium text-gray-900 dark:text-white">
                                                             <div>{booking.user?.name}</div>
-                                                            <div className="text-xs text-gray-400 font-normal">{booking.user?.email}</div>
+                                                            <div className="text-xs text-gray-400 dark:text-gray-500 font-normal">{booking.user?.email}</div>
                                                         </td>
-                                                        <td className="p-4 text-gray-600">
+                                                        <td className="p-4 text-gray-600 dark:text-gray-300">
                                                             {booking.new_room_id ? (
                                                                 <>
-                                                                    <span className="line-through text-gray-400">{booking.room?.building?.name}</span> →
-                                                                    <span className="font-bold text-amber-600"> {booking.new_room?.building?.name}</span>
-                                                                    <span className="block text-xs text-amber-600 font-bold">Запит на переїзд</span>
+                                                                    <span className="line-through text-gray-400 dark:text-gray-550">{booking.room?.building?.name}</span> →
+                                                                    <span className="font-bold text-amber-600 dark:text-amber-400"> {booking.new_room?.building?.name}</span>
+                                                                    <span className="block text-xs text-amber-600 dark:text-amber-400 font-bold">Запит на переїзд</span>
                                                                 </>
                                                             ) : (
                                                                 <>{booking.room?.building?.name}</>
                                                             )}
                                                         </td>
-                                                        <td className="p-4 text-gray-600">
+                                                        <td className="p-4 text-gray-600 dark:text-gray-300">
                                                             {booking.new_room_id ? (
                                                                 <>
-                                                                    <span className="line-through text-gray-400">№{booking.room?.room_number}</span> →
-                                                                    <span className="font-bold text-amber-600"> №{booking.new_room?.room_number}</span>
+                                                                    <span className="line-through text-gray-400 dark:text-gray-550">№{booking.room?.room_number}</span> →
+                                                                    <span className="font-bold text-amber-600 dark:text-amber-400"> №{booking.new_room?.room_number}</span>
                                                                 </>
                                                             ) : (
                                                                 <>Поверх {booking.room?.floor}, Кімната №{booking.room?.room_number}</>
@@ -553,7 +553,7 @@ export default function Dashboard({
                                                                     <button
                                                                         onClick={() => handleApprove(booking.id)}
                                                                         disabled={actionProcessingId !== null}
-                                                                        className="inline-flex items-center text-emerald-600 font-bold hover:text-emerald-800 disabled:opacity-50"
+                                                                        className="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-800 dark:hover:text-emerald-350 disabled:opacity-50"
                                                                     >
                                                                         {actionProcessingId === booking.id ? '...' : 'Затвердити'}
                                                                     </button>
@@ -561,7 +561,7 @@ export default function Dashboard({
                                                                     <button
                                                                         onClick={() => handleReject(booking.id)}
                                                                         disabled={actionProcessingId !== null}
-                                                                        className="inline-flex items-center text-red-600 font-bold hover:text-red-800 disabled:opacity-50"
+                                                                        className="inline-flex items-center text-red-600 dark:text-red-400 font-bold hover:text-red-800 dark:hover:text-red-350 disabled:opacity-50"
                                                                     >
                                                                         {actionProcessingId === booking.id ? '...' : 'Відхилити'}
                                                                     </button>
@@ -577,9 +577,9 @@ export default function Dashboard({
 
 
                             {/* ================= 1.1 СТВОРЕННЯ КОРПУСУ ================= */}
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                <div className="border-b border-gray-100 pb-3">
-                                    <h3 className="font-bold text-gray-900 tracking-tight">Додати новий корпус</h3>
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
+                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Додати новий корпус</h3>
                                     <p className="text-xs text-gray-400">Створення нового об'єкта/корпусу в системі</p>
                                 </div>
 
@@ -591,7 +591,7 @@ export default function Dashboard({
                                             placeholder="Наприклад: Корпус №5"
                                             value={buildingForm.data.name}
                                             onChange={e => buildingForm.setData('name', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
                                         />
                                     </div>
@@ -599,7 +599,7 @@ export default function Dashboard({
                                     <button
                                         type="submit"
                                         disabled={buildingForm.processing}
-                                        className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50 w-full sm:w-auto whitespace-nowrap"
+                                        className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50 w-full sm:w-auto whitespace-nowrap"
                                     >
                                         {buildingForm.processing ? 'Збереження...' : 'Додати корпус'}
                                     </button>
@@ -607,9 +607,9 @@ export default function Dashboard({
                             </div>
 
                             {/* ================= 2. ІНТЕРФЕЙС КОНСТРУКТОРА КІМНАТ ================= */}
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                <div className="border-b border-gray-100 pb-3">
-                                    <h3 className="font-bold text-gray-900 tracking-tight">Конструктор кімнат</h3>
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
+                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Конструктор кімнат</h3>
                                     <p className="text-xs text-gray-400">Швидке групове створення номерного фонду для об'єктів</p>
                                 </div>
 
@@ -619,7 +619,7 @@ export default function Dashboard({
                                         <select
                                             value={bulkForm.data.building_id}
                                             onChange={e => bulkForm.setData('building_id', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                         >
                                             {buildings.map(b => (
                                                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -634,7 +634,7 @@ export default function Dashboard({
                                             min="1"
                                             value={bulkForm.data.floor}
                                             onChange={e => bulkForm.setData('floor', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                         />
                                     </div>
 
@@ -645,7 +645,7 @@ export default function Dashboard({
                                             min="1"
                                             value={bulkForm.data.count}
                                             onChange={e => bulkForm.setData('count', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                         />
                                     </div>
 
@@ -656,7 +656,7 @@ export default function Dashboard({
                                             min="1"
                                             value={bulkForm.data.max_capacity}
                                             onChange={e => bulkForm.setData('max_capacity', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                         />
                                     </div>
 
@@ -664,7 +664,7 @@ export default function Dashboard({
                                         <button
                                             type="submit"
                                             disabled={bulkForm.processing}
-                                            className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50"
+                                            className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50"
                                         >
                                             {bulkForm.processing ? 'Генерація...' : 'Згенерувати кімнати'}
                                         </button>
@@ -679,16 +679,16 @@ export default function Dashboard({
                     {activeTab === 'map' && (
                         <div className="space-y-6">
                             {/* Пошук та фільтр для мапи */}
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <h3 className="font-bold text-gray-900 tracking-tight">Карта корпусів МНАУ</h3>
+                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Карта корпусів МНАУ</h3>
                                     <p className="text-xs text-gray-400">Інтерактивна схема кімнат та розселення</p>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                                     <select
                                         value={selectedBuildingFilter}
                                         onChange={e => setSelectedBuildingFilter(e.target.value)}
-                                        className="text-xs rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white w-full sm:w-48"
+                                        className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-48"
                                     >
                                         <option value="">Усі корпуси</option>
                                         {buildings.map(b => (
@@ -701,7 +701,7 @@ export default function Dashboard({
                                         placeholder="Пошук жильця або кімнати..."
                                         value={mapSearch}
                                         onChange={e => setMapSearch(e.target.value)}
-                                        className="text-xs rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white w-full sm:w-48"
+                                        className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-48"
                                     />
                                 </div>
                             </div>
@@ -725,8 +725,8 @@ export default function Dashboard({
                                     const floorsList = Object.keys(floorsMap).sort((a, b) => Number(a) - Number(b));
 
                                     return (
-                                        <div key={building.id} className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-6">
-                                            <div className="border-b border-gray-100 pb-3 flex justify-between items-center">
+                                        <div key={building.id} className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-6">
+                                            <div className="border-b border-slate-100/80 pb-3 flex justify-between items-center">
                                                 <div>
                                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Об'єкт</span>
                                                     <h4 className="font-bold text-gray-900 text-md">{building.name}</h4>
@@ -766,14 +766,14 @@ export default function Dashboard({
                                                                                 key={room.id}
                                                                                 className={`p-4 rounded-xl border flex flex-col justify-between min-h-[180px] transition-all relative ${
                                                                                     isFull 
-                                                                                        ? 'bg-red-50/20 border-red-200/50 shadow-2xs' 
-                                                                                        : 'bg-emerald-50/10 border-emerald-100 shadow-2xs'
+                                                                                        ? 'bg-red-50/20 dark:bg-red-950/10 border-red-200/50 dark:border-red-800/40 shadow-2xs' 
+                                                                                        : 'bg-emerald-50/10 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-800/40 shadow-2xs'
                                                                                 }`}
                                                                             >
                                                                                 <div>
                                                                                     <div className="flex justify-between items-center mb-1.5">
                                                                                         <span className="font-bold text-gray-900 text-sm">Кімната №{room.room_number}</span>
-                                                                                        <span className="text-[10px] font-bold text-gray-400">Місткість: {room.max_capacity}</span>
+                                                                                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">Місткість: {room.max_capacity}</span>
                                                                                     </div>
 
                                                                                     {/* Слот-візуалізатор (Occupancy dots) */}
@@ -784,7 +784,7 @@ export default function Dashboard({
                                                                                                 className={`w-4 h-1.5 rounded-xs transition-all border ${
                                                                                                     slotIdx < approvedBookings.length
                                                                                                         ? 'bg-emerald-500 border-emerald-600/20'
-                                                                                                        : 'bg-gray-100 border-gray-200'
+                                                                                                        : 'bg-gray-100 dark:bg-gray-700 border-slate-100 dark:border-gray-600'
                                                                                                 }`}
                                                                                                 title={slotIdx < approvedBookings.length ? approvedBookings[slotIdx]?.user?.name : 'Вільне місце'}
                                                                                             />
@@ -794,7 +794,7 @@ export default function Dashboard({
                                                                                     {/* Список жильцов */}
                                                                                     <div className="space-y-1 my-3">
                                                                                         {approvedBookings.map(b => (
-                                                                                            <div key={b.id} className="flex justify-between items-center text-xs bg-white border border-gray-100 p-1.5 rounded-lg shadow-3xs gap-1">
+                                                                                            <div key={b.id} className="flex justify-between items-center text-xs bg-white dark:bg-gray-900/40 border border-slate-100/80 dark:border-gray-700 p-1.5 rounded-lg shadow-3xs gap-1">
                                                                                                 <div className="flex flex-col truncate max-w-[125px]">
                                                                                                     <span className="font-medium text-gray-700 truncate flex items-center gap-1.5">
                                                                                                         {b.user?.name}
@@ -819,7 +819,7 @@ export default function Dashboard({
                                                                                                 <div className="flex items-center gap-1 shrink-0">
                                                                                                     <button
                                                                                                         onClick={() => openReallocateModal(b, room)}
-                                                                                                        className="text-gray-400 hover:text-indigo-600 font-semibold transition-colors"
+                                                                                                        className="text-gray-400 dark:text-gray-500 hover:text-indigo-650 dark:hover:text-indigo-400 font-semibold transition-colors"
                                                                                                         title="Переселити жильця"
                                                                                                     >
                                                                                                         ⇄
@@ -827,7 +827,7 @@ export default function Dashboard({
                                                                                                     <button
                                                                                                         onClick={() => handleDeleteBooking(b.id)}
                                                                                                         disabled={deleteProcessingId === b.id}
-                                                                                                        className="text-gray-400 hover:text-red-600 font-bold px-1 transition-colors text-sm leading-none disabled:opacity-50"
+                                                                                                        className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 font-bold px-1 transition-colors text-sm leading-none disabled:opacity-50"
                                                                                                         title="Виселити жильця"
                                                                                                     >
                                                                                                         {deleteProcessingId === b.id ? '...' : '×'}
@@ -841,7 +841,7 @@ export default function Dashboard({
                                                                                 {!isFull && (
                                                                                     <button
                                                                                         onClick={() => openManualBooking(room)}
-                                                                                        className="w-full text-center bg-white border border-gray-200 hover:border-gray-300 text-gray-700 text-xs py-2 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-2"
+                                                                                        className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 text-xs py-2 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-2"
                                                                                     >
                                                                                         + Заселити вручну
                                                                                     </button>
@@ -851,8 +851,8 @@ export default function Dashboard({
                                                                                     onClick={() => handleToggleRoomStatus(room.id)}
                                                                                     className={`w-full text-center text-xs py-1.5 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-1 ${
                                                                                         room.status === 'closed'
-                                                                                            ? 'bg-emerald-50 border border-emerald-200 hover:border-emerald-300 text-emerald-700'
-                                                                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-500'
+                                                                                            ? 'bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 text-emerald-700 dark:text-emerald-300'
+                                                                                            : 'bg-slate-50/50 dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400'
                                                                                     }`}
                                                                                 >
                                                                                     {room.status === 'closed' ? '🔓 Відкрити кімнату' : '🔒 Закрити на ремонт'}
@@ -873,9 +873,9 @@ export default function Dashboard({
                     )}
 
                     {activeTab === 'tickets' && (
-                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                            <div className="p-5 border-b border-gray-100">
-                                <h3 className="font-bold text-gray-900 tracking-tight">Заявки на ремонт та обслуговування</h3>
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+                            <div className="p-5 border-b border-slate-100/80">
+                                <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Заявки на ремонт та обслуговування</h3>
                                 <p className="text-xs text-gray-400">Звернення від студентів щодо технічних неполадок у кімнатах</p>
                             </div>
 
@@ -887,7 +887,7 @@ export default function Dashboard({
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse text-xs">
                                         <thead>
-                                            <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                            <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                                 <th className="p-4">Студент</th>
                                                 <th className="p-4">Кімната / Корпус</th>
                                                 <th className="p-4">Опис поломки</th>
@@ -895,14 +895,14 @@ export default function Dashboard({
                                                 <th className="p-4 text-right">Дія</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm text-gray-700">
                                             {tickets.map(t => (
-                                                <tr key={t.id} className="hover:bg-gray-50/30 transition-colors">
-                                                    <td className="p-4 font-medium text-gray-900">
+                                                <tr key={t.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
+                                                    <td className="p-4 font-medium text-gray-900 dark:text-white">
                                                         <div>{t.user?.name}</div>
                                                         <div className="text-[10px] text-gray-400 font-normal">{t.user?.email}</div>
                                                     </td>
-                                                    <td className="p-4 text-gray-600">
+                                                    <td className="p-4 text-gray-600 dark:text-gray-300">
                                                         Кімната №{t.room?.room_number} ({t.room?.building?.name})
                                                     </td>
                                                     <td className="p-4 text-gray-700 max-w-xs truncate" title={t.description}>
@@ -938,16 +938,16 @@ export default function Dashboard({
                     )}
 
                     {activeTab === 'logs' && (
-                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+                            <div className="p-5 border-b border-slate-100/80 dark:border-gray-700 flex items-center justify-between">
                                 <div>
-                                    <h3 className="font-bold text-gray-900 tracking-tight">Журнал аудиту дій</h3>
+                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Журнал аудиту дій</h3>
                                     <p className="text-xs text-gray-400">Лог адміністративних дій та статусів заселення</p>
                                 </div>
                                 {auditLogs.length > 0 && (
                                     <button
                                         onClick={handleClearLogs}
-                                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg transition-colors border border-red-200/50"
+                                        className="px-3 py-1.5 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/45 text-red-700 dark:text-red-300 text-xs font-bold rounded-lg transition-colors border border-red-200/50 dark:border-red-800/40"
                                     >
                                         Очистити журнал
                                     </button>
@@ -962,16 +962,16 @@ export default function Dashboard({
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse text-xs">
                                         <thead>
-                                            <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                            <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                                 <th className="p-4">Студент</th>
                                                 <th className="p-4">Дія</th>
                                                 <th className="p-4">Подробиці</th>
                                                 <th className="p-4">Дата / Час</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700">
+                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-700">
                                             {auditLogs.map(log => (
-                                                <tr key={log.id} className="hover:bg-gray-50/30 transition-colors">
+                                                <tr key={log.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
                                                     <td className="p-4 font-semibold text-gray-900">
                                                         {log.user ? (
                                                             <div>
@@ -984,18 +984,12 @@ export default function Dashboard({
                                                     </td>
                                                     <td className="p-4 font-mono">
                                                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                                                            log.action.includes('approved') 
-                                                                ? 'bg-emerald-50 text-emerald-800' 
-                                                                : log.action.includes('rejected') || log.action.includes('evicted')
-                                                                ? 'bg-red-50 text-red-800'
-                                                                : log.action.includes('relocation')
-                                                                ? 'bg-indigo-50 text-indigo-800'
-                                                                : 'bg-gray-100 text-gray-800'
+                                                            log.action.includes('approved') ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300' : log.action.includes('rejected') || log.action.includes('evicted') ? 'bg-red-50 dark:bg-red-950/20 text-red-855 dark:text-red-300' : log.action.includes('relocation') ? 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-800 dark:text-indigo-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                                                         }`}>
                                                             {log.action}
                                                         </span>
                                                     </td>
-                                                    <td className="p-4 text-gray-600">
+                                                    <td className="p-4 text-gray-600 dark:text-gray-300">
                                                         {log.details}
                                                     </td>
                                                     <td className="p-4 text-gray-400">
@@ -1014,9 +1008,9 @@ export default function Dashboard({
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* Генератор аккаунтов */}
-                                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4 h-fit">
-                                    <div className="border-b border-gray-100 pb-3">
-                                        <h3 className="font-bold text-gray-900 tracking-tight">Генератор акаунтів</h3>
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4 h-fit">
+                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
+                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Генератор акаунтів</h3>
                                         <p className="text-xs text-gray-400">Створення тимчасових облікових записів для студентів</p>
                                     </div>
                                     <form onSubmit={handleGenerateUsers} className="space-y-4">
@@ -1028,7 +1022,7 @@ export default function Dashboard({
                                                 max="50"
                                                 value={genForm.data.count}
                                                 onChange={e => genForm.setData('count', e.target.value)}
-                                                className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white"
+                                                className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                 required
                                             />
                                         </div>
@@ -1043,17 +1037,17 @@ export default function Dashboard({
                                 </div>
 
                                 {/* Список згенерованих аккаунтов */}
-                                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-gray-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div>
-                                            <h3 className="font-bold text-gray-900 tracking-tight">Нові згенеровані акаунти</h3>
+                                            <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Нові згенеровані акаунти</h3>
                                             <p className="text-xs text-gray-400">Тимчасові логіни та паролі поточної сесії</p>
                                         </div>
                                         {generatedUsers && generatedUsers.length > 0 && (
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={copyAllCredentials}
-                                                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-600 transition-colors"
                                                 >
                                                     Скопіювати всі
                                                 </button>
@@ -1068,24 +1062,24 @@ export default function Dashboard({
                                     </div>
 
                                     {!generatedUsers || generatedUsers.length === 0 ? (
-                                        <div className="p-8 text-center text-xs text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                                        <div className="p-8 text-center text-xs text-gray-400 dark:text-gray-500 bg-slate-50/50/50 dark:bg-gray-900/30 rounded-xl border border-dashed border-slate-100 dark:border-gray-700">
                                             Тут відобразяться згенеровані акаунти після запуску генератора.
                                         </div>
                                     ) : (
-                                        <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                                        <div className="overflow-x-auto border border-slate-100/80 rounded-xl">
                                             <table className="w-full text-left border-collapse text-xs">
                                                 <thead>
-                                                    <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                    <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                                         <th className="p-3">Тимчасове ім'я</th>
                                                         <th className="p-3">Email</th>
                                                         <th className="p-3">Пароль</th>
                                                         <th className="p-3 text-right">Дії</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-gray-100 text-[13px] text-gray-600">
+                                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-600">
                                                     {generatedUsers.map((user, idx) => (
-                                                        <tr key={idx} className="hover:bg-gray-50/30">
-                                                            <td className="p-3 font-semibold text-gray-900">{user.name}</td>
+                                                        <tr key={idx} className="hover:bg-slate-50/50/30">
+                                                            <td className="p-3 font-semibold text-gray-900 dark:text-white">{user.name}</td>
                                                             <td className="p-3 font-mono">{user.email}</td>
                                                             <td className="p-3 font-mono text-emerald-700 font-bold">{user.password}</td>
                                                             <td className="p-3 text-right">
@@ -1106,10 +1100,10 @@ export default function Dashboard({
                             </div>
 
                             {/* Список всіх студентів */}
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                <div className="border-b border-gray-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-slate-100/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div>
-                                        <h3 className="font-bold text-gray-900 tracking-tight">Зареєстровані студенти</h3>
+                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Зареєстровані студенти</h3>
                                         <p className="text-xs text-gray-400">Список користувачів системи розселення та статус заповненості їхніх профілів</p>
                                     </div>
                                     <input
@@ -1117,7 +1111,7 @@ export default function Dashboard({
                                         placeholder="Пошук за ім'ям або email..."
                                         value={userSearch}
                                         onChange={e => setUserSearch(e.target.value)}
-                                        className="text-xs rounded-lg border border-gray-200 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white w-full sm:w-64"
+                                        className="text-xs rounded-lg border border-slate-100 dark:border-gray-600 px-3 py-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-64"
                                     />
                                 </div>
 
@@ -1129,7 +1123,7 @@ export default function Dashboard({
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left border-collapse text-xs">
                                             <thead>
-                                                <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                                     <th className="p-3">Ім'я</th>
                                                     <th className="p-3">Email</th>
                                                     <th className="p-3">Telegram</th>
@@ -1138,10 +1132,10 @@ export default function Dashboard({
                                                     <th className="p-3">Дата реєстрації</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700">
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-700">
                                                 {filteredAllUsers.map(u => (
-                                                    <tr key={u.id} className="hover:bg-gray-50/30 transition-colors">
-                                                        <td className="p-3 font-semibold text-gray-900">{u.name}</td>
+                                                    <tr key={u.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
+                                                        <td className="p-3 font-semibold text-gray-900 dark:text-white">{u.name}</td>
                                                         <td className="p-3 font-mono">{u.email}</td>
                                                         <td className="p-3 text-emerald-600">
                                                             {u.telegram ? (
@@ -1155,9 +1149,7 @@ export default function Dashboard({
                                                         <td className="p-3 text-gray-600">{u.phone || <span className="text-gray-300 italic">немає</span>}</td>
                                                         <td className="p-3">
                                                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
-                                                                u.must_change_password
-                                                                    ? 'bg-amber-50 text-amber-800 border-amber-200/50'
-                                                                    : 'bg-emerald-50 text-emerald-800 border-emerald-200/50'
+                                                                u.must_change_password ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/40' : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/40'
                                                             }`}>
                                                                 {u.must_change_password ? 'Очікує налаштування' : 'Готово'}
                                                             </span>
@@ -1179,10 +1171,10 @@ export default function Dashboard({
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ РУЧНОГО ЗАСЕЛЕНИЯ ================= */}
                     {selectedRoomForManual && (
                         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-                            <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
-                                <div className="border-b border-gray-100 pb-3">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+                                <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Пряме призначення</span>
-                                    <h3 className="text-lg font-bold text-gray-900">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                         Заселення в кімнату №{selectedRoomForManual.room_number}
                                     </h3>
                                 </div>
@@ -1193,7 +1185,7 @@ export default function Dashboard({
                                         <select
                                             value={manualForm.data.user_id}
                                             onChange={e => manualForm.setData('user_id', e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
                                         >
                                             <option value="" disabled>-- Оберіть студента --</option>
@@ -1207,14 +1199,14 @@ export default function Dashboard({
                                         <button
                                             type="button"
                                             onClick={() => setSelectedRoomForManual(null)}
-                                            className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                            className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
                                         >
                                             Скасувати
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={manualForm.processing}
-                                            className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50"
+                                            className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50"
                                         >
                                             {manualForm.processing ? 'Заселення...' : 'Заселити'}
                                         </button>
@@ -1227,13 +1219,13 @@ export default function Dashboard({
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ ПЕРЕСЕЛЕНИЯ (АДМИН) ================= */}
                     {reallocateBookingData && reallocateCurrentRoom && (
                         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-                            <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
-                                <div className="border-b border-gray-100 pb-3">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+                                <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Переселення жильця</span>
-                                    <h3 className="text-lg font-bold text-gray-900">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                         Переселити: {reallocateBookingData.user?.name}
                                     </h3>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
                                         Поточна кімната: №{reallocateCurrentRoom.room_number} (Поверх {reallocateCurrentRoom.floor})
                                     </p>
                                 </div>
@@ -1244,7 +1236,7 @@ export default function Dashboard({
                                         <select
                                             value={selectedReallocateRoomId}
                                             onChange={e => setSelectedReallocateRoomId(e.target.value)}
-                                            className="w-full text-sm rounded-lg border border-gray-200 p-2.5 focus:border-gray-900 focus:ring-0 bg-white"
+                                            className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
                                         >
                                             <option value="" disabled>-- Оберіть кімнату --</option>
@@ -1264,13 +1256,13 @@ export default function Dashboard({
                                                 setReallocateCurrentRoom(null);
                                                 setSelectedReallocateRoomId('');
                                             }}
-                                            className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                            className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
                                         >
                                             Скасувати
                                         </button>
                                         <button
                                             type="submit"
-                                            className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-sm"
+                                            className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm"
                                         >
                                             Переселити
                                         </button>
@@ -1283,17 +1275,17 @@ export default function Dashboard({
                     {/* ===== МОДАЛКА ПРИЧИНИ ВІДХИЛЕННЯ ===== */}
                     {rejectModalBookingId && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setRejectModalBookingId(null)}>
-                            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 space-y-4 mx-4" onClick={e => e.stopPropagation()}>
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-slate-100 dark:border-gray-700 w-full max-w-md p-6 space-y-4 mx-4" onClick={e => e.stopPropagation()}>
                                 <div className="space-y-1">
-                                    <h3 className="font-bold text-gray-900 text-lg">Відхилити заявку</h3>
-                                    <p className="text-xs text-gray-500">Вкажіть причину відхилення (необов'язково). Студент побачить це пояснення.</p>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">Відхилити заявку</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Вкажіть причину відхилення (необов'язково). Студент побачить це пояснення.</p>
                                 </div>
 
                                 <textarea
                                     value={rejectReason}
                                     onChange={e => setRejectReason(e.target.value)}
                                     placeholder="Наприклад: Перевищено ліміт мешканців у кімнаті, оберіть іншу..."
-                                    className="w-full text-sm rounded-xl border border-gray-200 p-3 focus:border-red-400 focus:ring-0 bg-gray-50 resize-none h-24"
+                                    className="w-full text-sm rounded-xl border border-slate-100 dark:border-gray-700 p-3 focus:border-red-400 focus:ring-0 bg-slate-50/50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none h-24"
                                     maxLength={500}
                                 />
                                 <p className="text-[10px] text-gray-400 text-right">{rejectReason.length}/500</p>
@@ -1302,7 +1294,7 @@ export default function Dashboard({
                                     <button
                                         type="button"
                                         onClick={() => setRejectModalBookingId(null)}
-                                        className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                        className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
                                     >
                                         Скасувати
                                     </button>

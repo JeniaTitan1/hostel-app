@@ -174,40 +174,44 @@ export default function Dashboard({
 
         if (freeSpots === 0) {
             return {
-                bg: "bg-red-50/60 border-red-200 hover:border-red-300",
-                badge: "bg-red-100 text-red-800 border-red-200/50",
+                bg: "bg-red-50/60 dark:bg-red-950/20 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700",
+                badge: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 border-red-200/50 dark:border-red-800/30",
                 text: "Усі місця зайняті",
                 indicator: "bg-red-500",
             };
         } else if (freeSpots / capacity <= 0.5) {
             return {
-                bg: "bg-amber-50/60 border-amber-200 hover:border-amber-300",
-                badge: "bg-amber-100 text-amber-800 border-amber-200/50",
+                bg: "bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700",
+                badge: "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border-amber-200/50 dark:border-amber-800/30",
                 text: `Мало місць (${freeSpots} вільне)`,
                 indicator: "bg-amber-500",
             };
         } else {
             return {
-                bg: "bg-emerald-50/60 border-emerald-200 hover:border-emerald-300",
-                badge: "bg-emerald-100 text-emerald-800 border-emerald-200/50",
+                bg: "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700",
+                badge: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200 border-emerald-200/50 dark:border-emerald-800/30",
                 text: `Вільно (${freeSpots} з ${capacity})`,
                 indicator: "bg-emerald-500",
             };
         }
     };
 
-    const currentBuilding = buildings.find((b) => b.id === selectedBuildingId);
+    const currentBuilding = buildings.find((b) => Number(b.id) === Number(selectedBuildingId));
     const hasApprovedBooking = userBooking && userBooking.status === "approved";
     const hasPendingBooking = userBooking && userBooking.status === "pending";
     const hasRejectedBooking = userBooking && userBooking.status === "rejected";
     const hasPendingReallocation =
         userBooking && userBooking.new_room_id !== null;
     const isCurrentUsersRoom =
-        userBooking && selectedRoom && userBooking.room_id === selectedRoom.id;
+        userBooking &&
+        selectedRoom &&
+        Number(userBooking.room_id) === Number(selectedRoom.id) &&
+        userBooking.status === "approved";
     const isTargetReallocationRoom =
         userBooking &&
         selectedRoom &&
-        userBooking.new_room_id === selectedRoom.id;
+        userBooking.new_room_id !== null &&
+        Number(userBooking.new_room_id) === Number(selectedRoom.id);
 
     return (
         <AuthenticatedLayout
@@ -215,12 +219,12 @@ export default function Dashboard({
             header={
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
                     <div className="flex flex-col gap-1">
-                        <h2 className="font-bold text-2xl text-gray-900 tracking-tight">
+                        <h2 className="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">
                             {!selectedBuildingId
                                 ? "Вибір корпусу"
                                 : `${currentBuilding?.name}`}
                         </h2>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                             {!selectedBuildingId
                                 ? "Оберіть об'єкт для роботи з системою"
                                 : `Виберіть поверх та кімнату для проживання`}
@@ -229,7 +233,7 @@ export default function Dashboard({
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-center">
                         {!hasApprovedBooking && !hasPendingBooking && (
-                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200/60 shadow-3xs animate-pulse">
+                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
                                 <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                                 <span className="text-xs font-bold text-amber-800 leading-tight">
                                     На даний момент ви ніде не проживаєте. Будь
@@ -239,7 +243,7 @@ export default function Dashboard({
                         )}
 
                         {hasRejectedBooking && (
-                            <div className="flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200/60">
+                            <div className="flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/40">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
                                     <span className="text-xs font-bold text-red-800">
@@ -260,7 +264,7 @@ export default function Dashboard({
                         {hasApprovedBooking && (
                             <button
                                 onClick={handleDownloadSlip}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 text-emerald-800 text-xs font-bold rounded-lg transition-colors"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-lg transition-colors"
                                 title="Завантажити підтвердження заселення"
                             >
                                 <svg
@@ -281,7 +285,7 @@ export default function Dashboard({
                         )}
 
                         {userBooking && (
-                            <div className="flex flex-col gap-1 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
+                            <div className="flex flex-col gap-1 px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm">
                                 <div className="flex items-center gap-2">
                                     <span
                                         className={`w-2 h-2 rounded-full animate-pulse ${
@@ -296,7 +300,7 @@ export default function Dashboard({
                                                     : "bg-red-500"
                                         }`}
                                     />
-                                    <span className="text-xs font-bold text-gray-900">
+                                    <span className="text-xs font-bold text-gray-900 dark:text-white">
                                         {hasPendingReallocation
                                             ? "Очікується переселення"
                                             : userBooking.status === "approved"
@@ -324,7 +328,7 @@ export default function Dashboard({
                         {selectedBuildingId && (
                             <button
                                 onClick={() => router.visit(route("dashboard"))}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors h-fit"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-100 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-slate-50/50 hover:text-gray-900 transition-colors h-fit"
                             >
                                 <svg
                                     className="w-3.5 h-3.5"
@@ -348,7 +352,7 @@ export default function Dashboard({
         >
             <Head title="Вибір кімнати" />
 
-            <div className="py-8 min-h-[calc(100vh-73px)] bg-gray-50">
+            <div className="py-8 min-h-[calc(100vh-73px)] bg-slate-50/50 dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                     {!selectedBuildingId && (
                         <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-6 md:p-8 text-white shadow-md border border-emerald-700/30 relative overflow-hidden">
@@ -389,12 +393,10 @@ export default function Dashboard({
                         userBooking.status === "approved" && (
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* Сусіди по кімнаті */}
-                                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-gray-100 pb-3 flex justify-between items-center">
+                                <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3 flex justify-between items-center">
                                         <div>
-                                            <h3 className="font-bold text-gray-900 tracking-tight">
-                                                Мої сусіди по кімнаті
-                                            </h3>
+                                            <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Мої сусіди по кімнаті</h3>
                                             <p className="text-xs text-gray-400">
                                                 Контакти студентів, що
                                                 проживають з вами
@@ -416,17 +418,17 @@ export default function Dashboard({
                                             {roommates.map((r, index) => (
                                                 <div
                                                     key={index}
-                                                    className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 flex flex-col justify-between space-y-2"
+                                                    className="p-4 rounded-xl border border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2"
                                                 >
                                                     <div>
-                                                        <h4 className="font-bold text-gray-900 text-sm">
+                                                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">
                                                             {r.name}
                                                         </h4>
                                                         <p className="text-xs text-gray-400">
                                                             {r.email}
                                                         </p>
                                                     </div>
-                                                    <div className="flex flex-col gap-1 pt-1 border-t border-gray-100 text-[11px] text-gray-500">
+                                                    <div className="flex flex-col gap-1 pt-1 border-t border-slate-100/80 text-[11px] text-gray-500">
                                                         {r.telegram && (
                                                             <span className="flex items-center gap-1.5">
                                                                 <strong className="text-gray-400">
@@ -470,11 +472,9 @@ export default function Dashboard({
                                 </div>
 
                                 {/* Технічна підтримка / Ремонт */}
-                                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-gray-100 pb-3">
-                                        <h3 className="font-bold text-gray-900 tracking-tight">
-                                            Технічна підтримка
-                                        </h3>
+                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
+                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Технічна підтримка</h3>
                                         <p className="text-xs text-gray-400">
                                             Повідомити про поломку в кімнаті
                                         </p>
@@ -494,7 +494,7 @@ export default function Dashboard({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full text-xs rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white"
+                                            className="w-full text-xs rounded-lg border border-slate-100 dark:border-gray-700 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                                             required
                                             disabled={ticketForm.processing}
                                         />
@@ -510,10 +510,8 @@ export default function Dashboard({
                                     </form>
 
                                     {/* Список заявок */}
-                                    <div className="space-y-2 pt-2 border-t border-gray-100 max-h-40 overflow-y-auto">
-                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                            Мої заявки
-                                        </h4>
+                                    <div className="space-y-2 pt-2 border-t border-slate-100/80 max-h-40 overflow-y-auto">
+                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Мої заявки</h4>
                                         {tickets.length === 0 ? (
                                             <p className="text-[10px] text-gray-400 italic">
                                                 Немає поданих заявок
@@ -522,10 +520,10 @@ export default function Dashboard({
                                             tickets.map((t) => (
                                                 <div
                                                     key={t.id}
-                                                    className="p-2 rounded-lg border border-gray-100 flex items-start justify-between gap-2 text-xs"
+                                                    className="p-2 rounded-lg border border-gray-105 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/30 flex items-start justify-between gap-2 text-xs"
                                                 >
                                                     <div className="space-y-1">
-                                                        <p className="text-gray-700 leading-tight text-[11px] line-clamp-2">
+                                                        <p className="text-gray-700 dark:text-gray-300 leading-tight text-[11px] line-clamp-2">
                                                             {t.description}
                                                         </p>
                                                         <span className="text-[9px] text-gray-400 block">
@@ -538,8 +536,8 @@ export default function Dashboard({
                                                         className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                                                             t.status ===
                                                             "resolved"
-                                                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
-                                                                : "bg-amber-50 text-amber-700 border border-amber-200/50"
+                                                                ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/30"
+                                                                : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/30"
                                                         }`}
                                                     >
                                                         {t.status === "resolved"
@@ -556,7 +554,7 @@ export default function Dashboard({
 
                     {!selectedBuildingId &&
                         (buildings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-gray-200 bg-white max-w-md mx-auto shadow-sm">
+                            <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-md mx-auto shadow-sm">
                                 <svg
                                     className="w-10 h-10 text-gray-400 mb-3"
                                     fill="none"
@@ -570,9 +568,7 @@ export default function Dashboard({
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                                     />
                                 </svg>
-                                <h3 className="text-base font-medium text-gray-900">
-                                    Корпуси відсутні
-                                </h3>
+                                <h3 className="text-base font-medium text-gray-900 dark:text-white">Корпуси відсутні</h3>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -583,10 +579,10 @@ export default function Dashboard({
                                             handleSelectBuilding(building.id)
                                         }
                                         title={building.name}
-                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white border border-gray-200 shadow-sm hover:border-gray-300 hover:bg-gray-50/40 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 transition-all duration-200 ease-in-out"
+                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-slate-50/50/40 dark:hover:bg-gray-800/40 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 transition-all duration-200 ease-in-out"
                                     >
                                         <div className="w-full flex justify-between items-start">
-                                            <div className="p-2.5 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white transition-all duration-200">
+                                            <div className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 group-hover:bg-gray-900 dark:group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
                                                 <svg
                                                     className="w-5 h-5"
                                                     fill="none"
@@ -601,18 +597,18 @@ export default function Dashboard({
                                                     />
                                                 </svg>
                                             </div>
-                                            <span className="h-1.5 w-1.5 rounded-full bg-gray-200 group-hover:bg-gray-400 transition-colors duration-200 mt-1" />
+                                            <span className="h-1.5 w-1.5 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-slate-50/500 transition-colors duration-200 mt-1" />
                                         </div>
                                         <div className="w-full mt-4 flex justify-between items-end">
                                             <div className="flex flex-col max-w-[85%] gap-0.5">
                                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                                     Об'єкт
                                                 </span>
-                                                <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 leading-snug">
+                                                <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 leading-snug">
                                                     {building.name}
                                                 </h3>
                                             </div>
-                                            <div className="text-gray-400 group-hover:text-gray-900 transform translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200 mb-0.5 shrink-0">
+                                            <div className="text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-emerald-400 transform translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200 mb-0.5 shrink-0">
                                                 <svg
                                                     className="w-4 h-4"
                                                     fill="none"
@@ -635,12 +631,12 @@ export default function Dashboard({
 
                     {selectedBuildingId && (
                         <div className="space-y-6">
-                            <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm space-y-3">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-4 rounded-xl shadow-sm space-y-3">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
                                     Поверх
                                 </span>
                                 {floors.length === 0 ? (
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         У цьому корпусі поки що немає створених
                                         поверхів.
                                     </p>
@@ -653,9 +649,9 @@ export default function Dashboard({
                                                     handleSelectFloor(floor)
                                                 }
                                                 className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-150 ${
-                                                    selectedFloor === floor
-                                                        ? "bg-gray-900 border-gray-900 text-white shadow-sm"
-                                                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                                    Number(selectedFloor) === Number(floor)
+                                                        ? "bg-gray-900 dark:bg-emerald-600 border-gray-900 dark:border-emerald-600 text-white shadow-sm"
+                                                        : "bg-white dark:bg-gray-700 border-slate-100 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-slate-50/50 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white"
                                                 }`}
                                             >
                                                 Поверх {floor}
@@ -667,8 +663,8 @@ export default function Dashboard({
 
                             {selectedFloor &&
                                 (rooms.length === 0 ? (
-                                    <div className="bg-white border border-gray-200 p-12 text-center rounded-xl shadow-sm">
-                                        <p className="text-sm text-gray-500">
+                                    <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-12 text-center rounded-xl shadow-sm">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
                                             Немає кімнат на цьому поверсі.
                                         </p>
                                     </div>
@@ -680,8 +676,8 @@ export default function Dashboard({
                                                     room.status === "closed";
                                                 const styles = isClosed
                                                     ? {
-                                                          bg: "bg-gray-100/80 border-gray-200 cursor-not-allowed opacity-60",
-                                                          badge: "bg-gray-200 text-gray-500 border-gray-200",
+                                                          bg: "bg-gray-100/80 border-slate-100 cursor-not-allowed opacity-60",
+                                                          badge: "bg-gray-200 text-gray-500 border-slate-100",
                                                           text: "Зачинена на обслуговування",
                                                           indicator:
                                                               "bg-gray-400",
@@ -689,15 +685,16 @@ export default function Dashboard({
                                                     : getRoomStatusColor(room);
 
                                                 const isSelected =
-                                                    selectedRoom?.id ===
-                                                    room.id;
+                                                    selectedRoom &&
+                                                    Number(selectedRoom.id) ===
+                                                    Number(room.id);
 
                                                 // Перевірка: чи це кімната поточного юзера (статус броні approved)
                                                 const isMyRoom =
                                                     userBooking?.status ===
                                                         "approved" &&
-                                                    userBooking?.room_id ===
-                                                        room.id;
+                                                    Number(userBooking?.room_id) ===
+                                                        Number(room.id);
 
                                                 return (
                                                     <button
@@ -714,7 +711,7 @@ export default function Dashboard({
                                                             !isClosed
                                                                 ? "ring-2 ring-gray-900 ring-offset-2"
                                                                 : ""
-                                                        } ${isMyRoom ? "ring-2 ring-indigo-500 ring-offset-2 border-indigo-500 bg-indigo-50/50" : ""}`}
+                                                        } ${isMyRoom ? "ring-2 ring-indigo-500 ring-offset-2 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30" : ""}`}
                                                     >
                                                         {/* --- БЕЙДЖИК "Моя кімната" --- */}
                                                         {isMyRoom && (
@@ -783,20 +780,20 @@ export default function Dashboard({
                                             })}
                                         </div>
 
-                                        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
+                                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
                                             {selectedRoom ? (
                                                 <>
-                                                    <div className="border-b border-gray-100 pb-4 space-y-1">
+                                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-4 space-y-1">
                                                         <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
                                                             Обраний об'єкт
                                                         </span>
-                                                        <h3 className="text-xl font-bold text-gray-900">
+                                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                                             Кімната №
                                                             {
                                                                 selectedRoom.room_number
                                                             }
                                                         </h3>
-                                                        <p className="text-xs text-gray-500">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                                             Поверх{" "}
                                                             {selectedRoom.floor}{" "}
                                                             • Корпус{" "}
@@ -807,7 +804,7 @@ export default function Dashboard({
                                                     </div>
 
                                                     <div className="space-y-4">
-                                                        <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                                                        <div className="flex justify-between items-center text-sm border-b border-slate-100/80 pb-2">
                                                             <span className="text-gray-500">
                                                                 Загальна
                                                                 місткість:
@@ -819,7 +816,7 @@ export default function Dashboard({
                                                                 місць
                                                             </span>
                                                         </div>
-                                                        <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                                                        <div className="flex justify-between items-center text-sm border-b border-slate-100/80 pb-2">
                                                             <span className="text-gray-500">
                                                                 Вже заселено:
                                                             </span>
@@ -842,8 +839,8 @@ export default function Dashboard({
 
                                                     {isCurrentUsersRoom ? (
                                                         <div className="space-y-3">
-                                                            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
-                                                                <p className="text-xs text-emerald-800 font-medium">
+                                                            <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 text-center">
+                                                                <p className="text-xs text-emerald-800 dark:text-emerald-200 font-medium">
                                                                     Ви вже
                                                                     проживаєте в
                                                                     цій кімнаті.
@@ -856,15 +853,15 @@ export default function Dashboard({
                                                                 onClick={
                                                                     handleDownloadSlip
                                                                 }
-                                                                className="w-full text-center bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition-all duration-150"
+                                                                className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:bg-slate-50/50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-2.5 px-4 rounded-xl text-sm transition-all duration-150"
                                                             >
                                                                 Завантажити
                                                                 ордер (TXT)
                                                             </button>
                                                         </div>
                                                     ) : isTargetReallocationRoom ? (
-                                                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-center">
-                                                            <p className="text-xs text-indigo-800 font-medium">
+                                                        <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-indigo-800 dark:text-indigo-200 font-medium">
                                                                 Ви вже подали
                                                                 запит на
                                                                 переселення
@@ -874,8 +871,8 @@ export default function Dashboard({
                                                             </p>
                                                         </div>
                                                     ) : hasPendingReallocation ? (
-                                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                                                            <p className="text-xs text-amber-800 font-medium">
+                                                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">
                                                                 Ви не можете
                                                                 подати нову
                                                                 заявку, поки ваш
@@ -885,8 +882,8 @@ export default function Dashboard({
                                                             </p>
                                                         </div>
                                                     ) : hasPendingBooking ? (
-                                                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-                                                            <p className="text-xs text-gray-500">
+                                                        <div className="bg-slate-50/50 dark:bg-gray-800/40 border border-slate-100 dark:border-gray-700 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400">
                                                                 Ви не можете
                                                                 подати заявку,
                                                                 поки ваша перша
@@ -899,8 +896,8 @@ export default function Dashboard({
                                                           (selectedRoom.approved_bookings_count ||
                                                               0) ===
                                                       0 ? (
-                                                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-                                                            <p className="text-xs text-red-600 font-medium">
+                                                        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-red-600 dark:text-red-300 font-medium">
                                                                 Заселення
                                                                 неможливе. У
                                                                 кімнаті немає
@@ -917,7 +914,7 @@ export default function Dashboard({
                                                             disabled={
                                                                 processing
                                                             }
-                                                            className="w-full text-center bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                                            className="w-full text-center bg-gray-900 dark:bg-emerald-600 hover:bg-gray-800 dark:hover:bg-emerald-500 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-850"
                                                         >
                                                             {processing
                                                                 ? "Надсилання..."
@@ -942,7 +939,7 @@ export default function Dashboard({
                                                             d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
                                                         />
                                                     </svg>
-                                                    <p className="text-sm text-gray-500">
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                                         Виберіть кімнату з сітки
                                                         ліворуч, щоб переглянути
                                                         деталі та подати заявку.

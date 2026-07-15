@@ -26,9 +26,9 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
     const isDashboardActive = route().current('dashboard');
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased selection:bg-gray-200 dark:selection:bg-gray-700 transition-colors duration-200">
+        <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 antialiased selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
             {/* Головна навігаційна панель */}
-            <nav className="border-b border-gray-200/80 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-50 transition-colors duration-200">
+            <nav className="border-b border-slate-100 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
@@ -184,7 +184,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
 
             {/* Підзаголовок сторінки (Шапка) */}
             {header && (
-                <header className="bg-white dark:bg-gray-800 border-b border-gray-200/60 dark:border-gray-700 transition-colors duration-200">
+                <header className="bg-white/90 dark:bg-gray-800/90 border-b border-slate-100 dark:border-gray-700/60 backdrop-blur-xs transition-colors duration-200">
                     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                         {header}
                     </div>

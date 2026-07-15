@@ -48,11 +48,11 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                     Видалення акаунта
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     Після видалення вашого акаунта всі його ресурси та дані будуть безповоротно видалені. Перед видаленням акаунта завантажте будь-які дані або інформацію, яку ви бажаєте зберегти.
                 </p>
             </header>
@@ -63,11 +63,11 @@ export default function DeleteUserForm({ className = '' }) {
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                         Ви впевнені, що хочете видалити свій акаунт?
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-600">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Після видалення вашого акаунта всі його ресурси та дані будуть безповоротно видалені. Будь ласка, введіть свій пароль, щоб підтвердити, що ви хочете назавжди видалити свій акаунт.
                     </p>
 
