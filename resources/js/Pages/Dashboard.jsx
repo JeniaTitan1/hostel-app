@@ -1,0 +1,383 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
+
+export default function Dashboard({
+    auth,
+    buildings = [],
+    floors = [],
+    rooms = [],
+    selectedBuildingId,
+    selectedFloor,
+    userBooking
+}) {
+    console.log(userBooking)
+
+    // Використовуємо локальний стан для керування завантаженням (processing)
+    const [processing, setProcessing] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState(null);
+
+    // Функція вибору корпусу
+    const handleSelectBuilding = (buildingId) => {
+        setSelectedRoom(null);
+        router.visit(route('dashboard', { building_id: buildingId }), {
+            preserveState: true,
+            replace: true
+        });
+    };
+
+    // Функція вибору поверху
+    const handleSelectFloor = (floorNum) => {
+        setSelectedRoom(null);
+        router.visit(route('dashboard', { building_id: selectedBuildingId, floor: floorNum }), {
+            preserveState: true,
+            replace: true
+        });
+    };
+
+    // Функція відправки заявки на первинне бронювання та переселення
+    const handleRequestRoom = (roomId) => {
+        // Определяем, это первичный выбор комнаты или переселение из уже одобренной
+        const isReallocation = userBooking && userBooking.status === 'approved';
+
+        const confirmMessage = isReallocation
+            ? 'Ви впевнені, що хочете подати заявку на переселення в цю кімнату?'
+            : 'Ви впевнені, що хочете надіслати заявку на заселення в цю кімнату?';
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        setProcessing(true);
+
+        // Всегда шлем на один и тот же экшен! Бэкенд сам разберется с ролями и статусами.
+        router.post(route('bookings.store'), {
+            room_id: roomId
+        }, {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setProcessing(false);
+                setSelectedRoom(null);
+
+                const flashSuccess = page.props.flash?.success;
+                const flashError = page.props.flash?.error;
+
+                if (flashSuccess) {
+                    alert(flashSuccess);
+                } else if (flashError) {
+                    alert(flashError);
+                } else {
+                    if (isReallocation) {
+                        alert('Заявку на переселення успішно надіслано!');
+                    } else {
+                        alert('Заявку на заселення успішно надіслано!');
+                    }
+                }
+            },
+            onError: (errors) => {
+                setProcessing(false);
+                // Если бэкенд вернул ошибку через с ошибкой валидации
+                alert(errors.error || errors.room_id || 'Сталася помилка при обробці запиту.');
+            },
+            onFinish: () => {
+                setProcessing(false);
+            }
+        });
+    };
+
+    // Визначення кольору кімнати залежно від її заповненості
+    const getRoomStatusColor = (room) => {
+        const booked = room.approved_bookings_count || 0;
+        const capacity = room.max_capacity;
+        const freeSpots = capacity - booked;
+
+        if (freeSpots === 0) {
+            return {
+                bg: 'bg-red-50/60 border-red-200 hover:border-red-300',
+                badge: 'bg-red-100 text-red-800 border-red-200/50',
+                text: 'Усі місця зайняті',
+                indicator: 'bg-red-500'
+            };
+        } else if (freeSpots / capacity <= 0.5) {
+            return {
+                bg: 'bg-amber-50/60 border-amber-200 hover:border-amber-300',
+                badge: 'bg-amber-100 text-amber-800 border-amber-200/50',
+                text: `Мало місць (${freeSpots} вільне)`,
+                indicator: 'bg-amber-500'
+            };
+        } else {
+            return {
+                bg: 'bg-emerald-50/60 border-emerald-200 hover:border-emerald-300',
+                badge: 'bg-emerald-100 text-emerald-800 border-emerald-200/50',
+                text: `Вільно (${freeSpots} з ${capacity})`,
+                indicator: 'bg-emerald-500'
+            };
+        }
+    };
+
+    const currentBuilding = buildings.find(b => b.id === selectedBuildingId);
+    const hasApprovedBooking = userBooking && userBooking.status === 'approved';
+    const hasPendingBooking = userBooking && userBooking.status === 'pending';
+    const hasPendingReallocation = userBooking && userBooking.new_room_id !== null;
+    const isCurrentUsersRoom = userBooking && selectedRoom && userBooking.room_id === selectedRoom.id;
+    const isTargetReallocationRoom = userBooking && selectedRoom && userBooking.new_room_id === selectedRoom.id;
+
+    return (
+        <AuthenticatedLayout
+            header={
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                    <div className="flex flex-col gap-1">
+                        <h2 className="font-bold text-2xl text-gray-900 tracking-tight">
+                            {!selectedBuildingId ? 'Вибір корпусу' : `${currentBuilding?.name}`}
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                            {!selectedBuildingId
+                                ? "Оберіть об'єкт для роботи з системою"
+                                : `Виберіть поверх та кімнату для проживання`
+                            }
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-center">
+                        {userBooking && (
+                            <div className="flex flex-col gap-1 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full animate-pulse ${
+                                        hasPendingReallocation ? 'bg-indigo-500' :
+                                        userBooking.status === 'approved' ? 'bg-emerald-500' :
+                                        userBooking.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
+                                    }`} />
+                                    <span className="text-xs font-bold text-gray-900">
+                                        {hasPendingReallocation ? 'Очікується переселення' : (
+                                            userBooking.status === 'approved' ? 'Затверджено' : (
+                                                userBooking.status === 'pending' ? 'Заявка на розгляді' : 'Відхилено'
+                                            )
+                                        )}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] text-gray-500 font-medium">
+                                    {userBooking.room?.building?.name} • Пв. {userBooking.room?.floor} • Км. №{userBooking.room?.room_number}
+                                    {hasPendingReallocation && (
+                                        <span className="text-indigo-600 font-semibold block mt-0.5">
+                                            → Очікує переїзду в кімн. №{userBooking.new_room?.room_number || '?' }
+                                        </span>
+                                    )}
+                                </span>
+                            </div>
+                        )}
+
+                        {selectedBuildingId && (
+                            <button
+                                onClick={() => router.visit(route('dashboard'))}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors h-fit"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Назад до корпусів
+                            </button>
+                        )}
+                    </div>
+                </div>
+            }
+        >
+            <Head title="Вибір кімнати" />
+
+            <div className="py-8 min-h-[calc(100vh-73px)] bg-gray-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                    {!selectedBuildingId && (
+                        buildings.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-gray-200 bg-white max-w-md mx-auto shadow-sm">
+                                <svg className="w-10 h-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                <h3 className="text-base font-medium text-gray-900">Корпуси відсутні</h3>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                {buildings.map((building) => (
+                                    <button
+                                        key={building.id}
+                                        onClick={() => handleSelectBuilding(building.id)}
+                                        title={building.name}
+                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white border border-gray-200 shadow-sm hover:border-gray-300 hover:bg-gray-50/40 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 transition-all duration-200 ease-in-out"
+                                    >
+                                        <div className="w-full flex justify-between items-start">
+                                            <div className="p-2.5 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white transition-all duration-200">
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                            </div>
+                                            <span className="h-1.5 w-1.5 rounded-full bg-gray-200 group-hover:bg-gray-400 transition-colors duration-200 mt-1" />
+                                        </div>
+                                        <div className="w-full mt-4 flex justify-between items-end">
+                                            <div className="flex flex-col max-w-[85%] gap-0.5">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Об'єкт</span>
+                                                <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 leading-snug">{building.name}</h3>
+                                            </div>
+                                            <div className="text-gray-400 group-hover:text-gray-900 transform translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200 mb-0.5 shrink-0">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )
+                    )}
+
+                    {selectedBuildingId && (
+                        <div className="space-y-6">
+                            <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm space-y-3">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Поверх</span>
+                                {floors.length === 0 ? (
+                                    <p className="text-sm text-gray-500">У цьому корпусі поки що немає створених поверхів.</p>
+                                ) : (
+                                    <div className="flex flex-wrap gap-2">
+                                        {floors.map((floor) => (
+                                            <button
+                                                key={floor}
+                                                onClick={() => handleSelectFloor(floor)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-150 ${
+                                                    selectedFloor === floor
+                                                        ? 'bg-gray-900 border-gray-900 text-white shadow-sm'
+                                                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                }`}
+                                            >
+                                                Поверх {floor}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedFloor && (
+                                rooms.length === 0 ? (
+                                    <div className="bg-white border border-gray-200 p-12 text-center rounded-xl shadow-sm">
+                                        <p className="text-sm text-gray-500">Немає кімнат на цьому поверсі.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                                        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {rooms.map((room) => {
+                                                const styles = getRoomStatusColor(room);
+                                                const isSelected = selectedRoom?.id === room.id;
+
+                                                return (
+                                                    <button
+                                                        key={room.id}
+                                                        onClick={() => setSelectedRoom(room)}
+                                                        className={`group p-5 text-left border rounded-xl shadow-sm flex flex-col justify-between h-36 transition-all duration-200 ${styles.bg} ${
+                                                            isSelected ? 'ring-2 ring-gray-900 ring-offset-2' : ''
+                                                        }`}
+                                                    >
+                                                        <div className="w-full flex justify-between items-center">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`w-2 h-2 rounded-full ${styles.indicator}`} />
+                                                                <span className="font-bold text-lg text-gray-900">Кімната №{room.room_number}</span>
+                                                            </div>
+                                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}>
+                                                                {room.max_capacity} місна
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-full flex justify-between items-end mt-4">
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Статус заповненості</span>
+                                                                <span className="text-xs font-semibold text-gray-600">{styles.text}</span>
+                                                            </div>
+                                                            <span className="text-xs font-bold text-gray-400 group-hover:text-gray-900 transition-colors">Переглянути →</span>
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
+                                            {selectedRoom ? (
+                                                <>
+                                                    <div className="border-b border-gray-100 pb-4 space-y-1">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Обраний об'єкт</span>
+                                                        <h3 className="text-xl font-bold text-gray-900">Кімната №{selectedRoom.room_number}</h3>
+                                                        <p className="text-xs text-gray-500">Поверх {selectedRoom.floor} • Корпус {currentBuilding?.name}</p>
+                                                    </div>
+
+                                                    <div className="space-y-4">
+                                                        <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                                                            <span className="text-gray-500">Загальна місткість:</span>
+                                                            <span className="font-bold text-gray-900">{selectedRoom.max_capacity} місць</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                                                            <span className="text-gray-500">Вже заселено:</span>
+                                                            <span className="font-bold text-gray-900">{selectedRoom.approved_bookings_count || 0}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-gray-500">Вільних місць:</span>
+                                                            <span className="font-bold text-emerald-600">
+                                                                {selectedRoom.max_capacity - (selectedRoom.approved_bookings_count || 0)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {isCurrentUsersRoom ? (
+                                                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-emerald-800 font-medium">Ви вже проживаєте в цій кімнаті.</p>
+                                                        </div>
+                                                    ) : isTargetReallocationRoom ? (
+                                                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-indigo-800 font-medium">Ви вже подали запит на переселення сюди. Очікуйте рішення адміністратора.</p>
+                                                        </div>
+                                                    ) : hasPendingReallocation ? (
+                                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-amber-800 font-medium">Ви не можете подати нову заявку, поки ваш попередній запит на переселення розглядається.</p>
+                                                        </div>
+                                                    ) : hasPendingBooking ? (
+                                                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                                                            <p className="text-xs text-gray-500">Ви не можете подати заявку, поки ваша перша заявка знаходиться на розгляді.</p>
+                                                        </div>
+                                                    ) : (
+                                                        selectedRoom.max_capacity - (selectedRoom.approved_bookings_count || 0) === 0 ? (
+                                                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                                                                <p className="text-xs text-red-600 font-medium">Заселення неможливе. У кімнаті немає вільних місць.</p>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (hasApprovedBooking) {
+                                                                        handleRequestRoom(selectedRoom.id);
+                                                                    } else {
+                                                                        handleRequestRoom(selectedRoom.id);
+                                                                    }
+                                                                }}
+                                                                disabled={processing}
+                                                                className="w-full text-center bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                                            >
+                                                                {processing
+                                                                    ? 'Надсилання...'
+                                                                    : hasApprovedBooking
+                                                                        ? 'Подати заявку на переселення'
+                                                                        : 'Подати заявку на проживання'
+                                                                }
+                                                            </button>
+                                                        )
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                                    </svg>
+                                                    <p className="text-sm text-gray-500">Виберіть кімнату з сітки ліворуч, щоб переглянути деталі та подати заявку.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </AuthenticatedLayout>
+    );
+}
