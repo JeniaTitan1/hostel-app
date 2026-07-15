@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Если обычный юзер — шлем на стандартный дашборд
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 
     /**

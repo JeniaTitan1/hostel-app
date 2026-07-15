@@ -19,13 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // 2. Умное перенаправление (заменяет RouteServiceProvider::HOME)
         $middleware->redirectTo(
-            guests: '/login', // Куда отправлять гостей
+            guests: '/', // Куда отправлять гостей
             users: function (Request $request) {
                 // Куда отправлять уже залогиненных пользователей, если они пытаются зайти на /login или /register
                 $user = $request->user();
 
                 if ($user && $user->role === 'admin') {
-                    return '/admin'; // Если админ — шлем в админку
+                    return '/admin/dashboard'; // Если админ — шлем в админку
                 }
 
                 return '/dashboard'; // Если обычный — на дашборд

@@ -19,6 +19,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Добавили роль
+        'telegram',
+        'phone',
     ];
 
     protected $hidden = [

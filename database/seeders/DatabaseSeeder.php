@@ -28,12 +28,20 @@ class DatabaseSeeder extends Seeder
             'role' => 'user',
         ]);
 
-        // 3. Создаем тестовый корпус
+         // 3. Создаем 2-ого тестового пользователя
+        User::create([
+            'name' => 'Лёха Шкипер',
+            'email' => 'alex@test.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+        ]);
+
+        // 4. Создаем тестовый корпус
         $building = Building::create([
             'name' => 'Корпус А',
         ]);
 
-        // 4. Генерируем тестовые комнаты
+        // 5. Генерируем тестовые комнаты
         // 1 этаж
         for ($i = 1; $i <= 5; $i++) {
             Room::create([

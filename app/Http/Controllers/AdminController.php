@@ -6,6 +6,8 @@ use App\Models\Building;
 use App\Models\Booking;
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Ticket;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -23,18 +25,21 @@ class AdminController extends Controller
             ->where('status', 'pending')
             ->get();
 
-
-
         $users = User::where('role', 'user')
             ->whereDoesntHave('bookings', function ($query) {
                 $query->whereIn('status', ['pending', 'approved']);
             })
             ->get(['id', 'name', 'email']);
 
+        $tickets = Ticket::with(['user', 'room.building'])->orderBy('created_at', 'desc')->get();
+        $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
+
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings' => $pendingBookings,
             'buildings' => $buildings,
             'users' => $users,
+            'tickets' => $tickets,
+            'auditLogs' => $auditLogs,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -63,6 +68,8 @@ class AdminController extends Controller
         $booking->update([
             'new_room_id' => $targetRoom->id,
         ]);
+
+        AuditLog::log($booking->user_id, 'relocation_requested', "Надіслано запит на переселення з кімнати №" . ($booking->room->room_number ?? '?') . " до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
         return redirect()->back()->with('success', 'Заявку на переселення успішно надіслано на розгляд адміну!');
     }
@@ -100,6 +107,9 @@ class AdminController extends Controller
             ]);
         }
 
+        $building = Building::find($buildingId);
+        AuditLog::log(null, 'rooms_bulk_created', "Створено {$count} кімнат на {$floor} поверсі для корпусу \"{$building->name}\"");
+
         return redirect()->back()->with('success', "Успішно створено {$count} кімнат!");
     }
 
@@ -129,14 +139,20 @@ class AdminController extends Controller
 
         // 2. Оновлюємо дані
         $updateData = ['status' => 'approved'];
+        $oldRoomNumber = $booking->room->room_number ?? '?';
 
         // Якщо це був запит на переїзд, переносимо жильця
         if ($booking->new_room_id) {
+            $newRoom = Room::find($booking->new_room_id);
             $updateData['room_id'] = $booking->new_room_id;
             $updateData['new_room_id'] = null;
+            
+            $booking->update($updateData);
+            AuditLog::log($booking->user_id, 'relocation_approved', "Ухвалено переїзд користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$newRoom->room_number}");
+        } else {
+            $booking->update($updateData);
+            AuditLog::log($booking->user_id, 'booking_approved', "Ухвалено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
         }
-
-        $booking->update($updateData);
 
         return redirect()->back()->with('success', 'Заявку успішно оброблено!');
     }
@@ -146,15 +162,18 @@ class AdminController extends Controller
     public function rejectBooking(Booking $booking)
     {
         if ($booking->new_room_id) {
+            $targetRoom = Room::find($booking->new_room_id);
             $booking->update([
                 'new_room_id' => null,
                 'status' => 'approved'
             ]);
 
+            AuditLog::log($booking->user_id, 'relocation_rejected', "Відхилено переїзд користувача {$booking->user->name} до кімнати №{$targetRoom->room_number}");
             return redirect()->back()->with('success', 'Запит на переселення відхилено. Користувач залишається в поточній кімнаті.');
         }
 
         $booking->update(['status' => 'rejected']);
+        AuditLog::log($booking->user_id, 'booking_rejected', "Відхилено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
 
         return redirect()->back()->with('success', 'Бронювання відхилено.');
     }
@@ -183,11 +202,14 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'В обраній кімнаті немає місць!');
         }
 
+        $oldRoomNumber = $booking->room->room_number ?? '?';
         $booking->update([
             'room_id' => $targetRoom->id,
             'new_room_id' => null,
             'status' => 'approved', // ЯВНО ВОЗВРАЩАЕМ СТАТУС APPROVED
         ]);
+
+        AuditLog::log($booking->user_id, 'manual_relocation', "Адміністратор переселив користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
         return redirect()->back()->with('success', 'Користувача успішно переселено.');
     }
@@ -197,8 +219,14 @@ class AdminController extends Controller
      */
     public function deleteBooking($id)
     {
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('user', 'room')->findOrFail($id);
+        $userName = $booking->user->name ?? 'Невідомий';
+        $roomNumber = $booking->room->room_number ?? '?';
+        $userId = $booking->user_id;
+
         $booking->delete();
+
+        AuditLog::log($userId, 'evicted', "Виселено користувача {$userName} з кімнати №{$roomNumber}");
 
         return redirect()->back()->with('message', 'Жильця успішно виселено!');
     }
@@ -228,11 +256,14 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'В цій кімнаті немає місць!');
         }
 
-        Booking::create([
+        $booking = Booking::create([
             'user_id' => $request->user_id,
             'room_id' => $request->room_id,
             'status' => 'approved',
         ]);
+
+        $user = User::find($request->user_id);
+        AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}");
 
         return redirect()->back()->with('success', 'Користувача успішно заселено вручную!');
     }
@@ -246,9 +277,11 @@ class AdminController extends Controller
             'name' => 'required|string|max:255|unique:buildings,name',
         ]);
 
-        Building::create([
+        $building = Building::create([
             'name' => $request->name,
         ]);
+
+        AuditLog::log(null, 'building_created', "Створено новий корпус \"{$building->name}\"");
 
         return redirect()->back()->with('success', 'Корпус успішно створено!');
     }

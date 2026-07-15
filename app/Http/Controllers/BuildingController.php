@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Building;
 use App\Models\Room;
 use App\Models\Booking;
+use App\Models\AuditLog;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -20,12 +23,12 @@ class BuildingController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $buildings = Building::all();
         $selectedBuildingId = $request->query('building_id');
         $selectedFloor = $request->query('floor');
 
-        $rooms = [];
+        $buildings = Building::all();
         $floors = [];
+        $rooms = [];
 
         if ($selectedBuildingId) {
             $floors = Room::where('building_id', $selectedBuildingId)
@@ -47,12 +50,36 @@ class BuildingController extends Controller
                           });
                     });
                 }])
+                ->with(['bookings.user'])
                 ->get();
         }
 
         $userBooking = Booking::with(['room.building', 'newRoom.building'])
             ->where('user_id', Auth::id())
             ->first();
+
+        $tickets = [];
+        $roommates = [];
+
+        if ($userBooking && $userBooking->status === 'approved') {
+            $tickets = Ticket::where('user_id', Auth::id())
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $roommates = Booking::with('user')
+                ->where('room_id', $userBooking->room_id)
+                ->where('status', 'approved')
+                ->where('user_id', '!=', Auth::id())
+                ->get()
+                ->map(function ($b) {
+                    return [
+                        'name' => $b->user->name,
+                        'email' => $b->user->email,
+                        'telegram' => $b->user->telegram,
+                        'phone' => $b->user->phone,
+                    ];
+                });
+        }
 
         return Inertia::render('Dashboard', [
             'buildings' => $buildings,
@@ -61,6 +88,8 @@ class BuildingController extends Controller
             'selectedBuildingId' => (int)$selectedBuildingId ?: null,
             'selectedFloor' => (int)$selectedFloor ?: null,
             'userBooking' => $userBooking,
+            'tickets' => $tickets,
+            'roommates' => $roommates,
         ]);
     }
 
@@ -107,11 +136,14 @@ class BuildingController extends Controller
                     return redirect()->back()->with('error', 'Ви вже тут живете!');
                 }
 
+                $oldRoomNumber = $existingBooking->room->room_number ?? '?';
                 // Выполняем обновление для переселения
                 $existingBooking->update([
                     'new_room_id' => $room->id,
                     'status' => 'pending' // Ставим PENDING на рассмотрение админу
                 ]);
+
+                AuditLog::log($userId, 'relocation_requested', "Надіслано запит на переселення з кімнати №{$oldRoomNumber} до №{$room->room_number} ({$room->building->name})");
 
                 return redirect()->back()->with('success', 'Заявка на переселення відправлена!');
             }
@@ -124,6 +156,8 @@ class BuildingController extends Controller
                     'status' => 'pending'  // Снова отправляем на рассмотрение
                 ]);
 
+                AuditLog::log($userId, 'booking_requested', "Повторно надіслано запит на заселення в кімнату №{$room->room_number} ({$room->building->name})");
+
                 return redirect()->back()->with('success', 'Заявку на заселення відправлено повторно!');
             }
         }
@@ -134,6 +168,8 @@ class BuildingController extends Controller
             'room_id' => $room->id,
             'status' => 'pending',
         ]);
+
+        AuditLog::log($userId, 'booking_requested', "Надіслано запит на заселення в кімнату №{$room->room_number} ({$room->building->name})");
 
         return redirect()->back()->with('success', 'Заявку на заселення відправлено!');
     }

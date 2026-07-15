@@ -3,14 +3,16 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BuildingController;
-
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
-Route::post('/', [AuthenticatedSessionController::class, 'store']);
+Route::middleware('guest')->group(function () {
+    Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/', [AuthenticatedSessionController::class, 'store']);
+});
 
 Route::get('/dashboard', [BuildingController::class, 'index'])
     ->middleware(['auth'])
@@ -46,7 +48,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Создание корпуса
     Route::post('/buildings', [AdminController::class, 'storeBuilding'])->name('buildings.store');
+
+    // Резолв заявки на ремонт
+    Route::post('/tickets/{ticket}/resolve', [TicketController::class, 'resolve'])->name('tickets.resolve');
 });
+
+// Заявка на ремонт от пользователя
+Route::post('/tickets', [TicketController::class, 'store'])->middleware('auth')->name('tickets.store');
 
 
 require __DIR__ . '/auth.php';

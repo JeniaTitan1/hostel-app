@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -15,16 +14,22 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
     const isDashboardActive = route().current('dashboard');
 
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-900 antialiased selection:bg-gray-200">
+        <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 antialiased selection:bg-gray-200">
             {/* Головна навігаційна панель */}
             <nav className="border-b border-gray-200/80 bg-white sticky top-0 z-50">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
-                            {/* Логотип */}
+                            {/* Логотип (университетский стиль без иконки Laravel) */}
                             <div className="flex shrink-0 items-center">
-                                <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-lg p-1">
-                                    <ApplicationLogo className="block h-8 w-auto fill-current text-gray-900" />
+                                <Link href={route('dashboard')} className="flex items-center gap-2 focus:outline-none rounded-lg p-1">
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-sm shadow-xs border border-emerald-500/30">
+                                        М
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold leading-none text-gray-900 tracking-tight">МНАУ</span>
+                                        <span className="text-[9px] font-medium leading-none text-gray-400 mt-0.5 uppercase tracking-wider">Гуртожитки</span>
+                                    </div>
                                 </Link>
                             </div>
 
@@ -38,7 +43,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
                                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                                 >
-                                    Dashboard
+                                    {user.role === 'admin' ? 'Адмін-панель' : 'Головна'}
                                 </Link>
                             </div>
                         </div>
@@ -124,7 +129,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
                                     : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50/50'
                             }`}
                         >
-                            Dashboard
+                            {user.role === 'admin' ? 'Адмін-панель' : 'Головна'}
                         </Link>
                     </div>
 
@@ -161,7 +166,62 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
             )}
 
             {/* Контент сторінки */}
-            <main>{children}</main>
+            <main className="flex-grow">{children}</main>
+
+            {/* Футер університету МНАУ */}
+            <footer className="bg-white border-t border-gray-200 mt-auto py-8">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-gray-100">
+                        {/* Лого / Назва */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-sm">
+                                    М
+                                </div>
+                                <span className="font-bold text-gray-900 text-sm tracking-tight">МНАУ Гуртожитки</span>
+                            </div>
+                            <p className="text-xs text-gray-500 leading-relaxed max-w-sm">
+                                Інформаційна система розселення та бронювання кімнат у гуртожитках Миколаївського національного аграрного університету.
+                            </p>
+                        </div>
+
+                        {/* Контакти */}
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Контакти</h4>
+                            <ul className="text-xs text-gray-500 space-y-2">
+                                <li><strong>Адреса:</strong> вул. Георгія Гонгадзе, 9, м. Миколаїв, 54020</li>
+                                <li><strong>Телефон:</strong> <a href="tel:+380512709331" className="hover:text-emerald-600 transition-colors">+38 (0512) 70-93-31</a></li>
+                                <li><strong>Email:</strong> <a href="mailto:rector@mnau.edu.ua" className="hover:text-emerald-600 transition-colors">rector@mnau.edu.ua</a></li>
+                            </ul>
+                        </div>
+
+                        {/* Корисні посилання */}
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Корисні посилання</h4>
+                            <ul className="text-xs text-gray-500 space-y-2">
+                                <li>
+                                    <a href="https://www.mnau.edu.ua" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 transition-colors flex items-center gap-1">
+                                        Офіційний сайт МНАУ
+                                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://registry.edbo.gov.ua/university/348/" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 transition-colors">
+                                        Реєстр суб'єктів освітньої діяльності
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+                        <span>© {new Date().getFullYear()} Миколаївський національний аграрний університет. Всі права захищені.</span>
+                        <span className="font-semibold text-gray-300">ЄДРПОУ 00497213</span>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

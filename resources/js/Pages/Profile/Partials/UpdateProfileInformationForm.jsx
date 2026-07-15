@@ -17,6 +17,8 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            telegram: user.telegram || '',
+            phone: user.phone || '',
         });
 
     const submit = (e) => {
@@ -68,6 +70,36 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="telegram" value="Telegram (нік або посилання)" />
+
+                    <TextInput
+                        id="telegram"
+                        type="text"
+                        className="mt-1 block w-full text-sm"
+                        value={data.telegram}
+                        onChange={(e) => setData('telegram', e.target.value)}
+                        placeholder="@username"
+                    />
+
+                    <InputError className="mt-2" message={errors.telegram} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="phone" value="Номер телефону" />
+
+                    <TextInput
+                        id="phone"
+                        type="text"
+                        className="mt-1 block w-full text-sm"
+                        value={data.phone}
+                        onChange={(e) => setData('phone', e.target.value)}
+                        placeholder="+380..."
+                    />
+
+                    <InputError className="mt-2" message={errors.phone} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

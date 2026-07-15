@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Dashboard({
@@ -9,13 +9,31 @@ export default function Dashboard({
     rooms = [],
     selectedBuildingId,
     selectedFloor,
-    userBooking
+    userBooking,
+    tickets = [],
+    roommates = []
 }) {
     console.log(userBooking)
 
     // Використовуємо локальний стан для керування завантаженням (processing)
     const [processing, setProcessing] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
+
+    // Форма для створення заявки на обслуговування
+    const ticketForm = useForm({
+        description: '',
+    });
+
+    const handleCreateTicket = (e) => {
+        e.preventDefault();
+        ticketForm.post(route('tickets.store'), {
+            onSuccess: () => {
+                alert('Заявку на обслуговування успішно надіслано!');
+                ticketForm.reset();
+            },
+            onError: (err) => alert(err.description || 'Помилка при відправці заявки.')
+        });
+    };
 
     // Функція вибору корпусу
     const handleSelectBuilding = (buildingId) => {
@@ -124,6 +142,7 @@ export default function Dashboard({
 
     return (
         <AuthenticatedLayout
+            user={auth?.user}
             header={
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
                     <div className="flex flex-col gap-1">
@@ -185,6 +204,131 @@ export default function Dashboard({
 
             <div className="py-8 min-h-[calc(100vh-73px)] bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                    {!selectedBuildingId && (
+                        <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-6 md:p-8 text-white shadow-md border border-emerald-700/30 relative overflow-hidden">
+                            <div className="relative z-10 space-y-3">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-700/60 border border-emerald-500/30 uppercase tracking-wide">
+                                    Офіційний сервіс
+                                </span>
+                                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight max-w-2xl">
+                                    Миколаївський національний аграрний університет
+                                </h1>
+                                <p className="text-emerald-100 text-sm max-w-xl leading-relaxed">
+                                    Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку.
+                                </p>
+                            </div>
+                            <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-10">
+                                <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
+                                    <path d="M22 9L12 3v12l10-5.45z" opacity=".15" />
+                                    <path d="M4.2 12.06L12 16.3l7.8-4.24V14.3l-7.8 4.25-7.8-4.25v-2.24z" />
+                                </svg>
+                            </div>
+                        </div>
+                    )}
+
+                    {!selectedBuildingId && userBooking && userBooking.status === 'approved' && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Сусіди по кімнаті */}
+                            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-gray-100 pb-3 flex justify-between items-center">
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 tracking-tight">Мої сусіди по кімнаті</h3>
+                                        <p className="text-xs text-gray-400">Контакти студентів, що проживають з вами</p>
+                                    </div>
+                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/50">
+                                        Кімната №{userBooking.room?.room_number}
+                                    </span>
+                                </div>
+
+                                {roommates.length === 0 ? (
+                                    <p className="text-xs text-gray-400 py-4 text-center">У вашій кімнаті більше ніхто не проживає.</p>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {roommates.map((r, index) => (
+                                            <div key={index} className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 flex flex-col justify-between space-y-2">
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900 text-sm">{r.name}</h4>
+                                                    <p className="text-xs text-gray-400">{r.email}</p>
+                                                </div>
+                                                <div className="flex flex-col gap-1 pt-1 border-t border-gray-100 text-[11px] text-gray-500">
+                                                    {r.telegram && (
+                                                        <span className="flex items-center gap-1.5">
+                                                            <strong className="text-gray-400">Telegram:</strong> 
+                                                            <a href={`https://t.me/${r.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
+                                                                {r.telegram}
+                                                            </a>
+                                                        </span>
+                                                    )}
+                                                    {r.phone && (
+                                                        <span className="flex items-center gap-1.5">
+                                                            <strong className="text-gray-400">Тел:</strong>
+                                                            <a href={`tel:${r.phone}`} className="hover:underline">{r.phone}</a>
+                                                        </span>
+                                                    )}
+                                                    {!r.telegram && !r.phone && (
+                                                        <span className="text-gray-400 italic">Контакти не вказані</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Технічна підтримка / Ремонт */}
+                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
+                                <div className="border-b border-gray-100 pb-3">
+                                    <h3 className="font-bold text-gray-900 tracking-tight">Технічна підтримка</h3>
+                                    <p className="text-xs text-gray-400">Повідомити про поломку в кімнаті</p>
+                                </div>
+
+                                <form onSubmit={handleCreateTicket} className="space-y-3">
+                                    <textarea
+                                        rows="2"
+                                        placeholder="Опишіть проблему (напр. протікає кран, зламався замок)..."
+                                        value={ticketForm.data.description}
+                                        onChange={e => ticketForm.setData('description', e.target.value)}
+                                        className="w-full text-xs rounded-lg border border-gray-200 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white"
+                                        required
+                                        disabled={ticketForm.processing}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={ticketForm.processing}
+                                        className="w-full py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs disabled:opacity-50"
+                                    >
+                                        {ticketForm.processing ? 'Надсилання...' : 'Надіслати заявку'}
+                                    </button>
+                                </form>
+
+                                {/* Список заявок */}
+                                <div className="space-y-2 pt-2 border-t border-gray-100 max-h-40 overflow-y-auto">
+                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Мої заявки</h4>
+                                    {tickets.length === 0 ? (
+                                        <p className="text-[10px] text-gray-400 italic">Немає поданих заявок</p>
+                                    ) : (
+                                        tickets.map(t => (
+                                            <div key={t.id} className="p-2 rounded-lg border border-gray-100 flex items-start justify-between gap-2 text-xs">
+                                                <div className="space-y-1">
+                                                    <p className="text-gray-700 leading-tight text-[11px] line-clamp-2">{t.description}</p>
+                                                    <span className="text-[9px] text-gray-400 block">{new Date(t.created_at).toLocaleDateString()}</span>
+                                                </div>
+                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                                    t.status === 'resolved' 
+                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' 
+                                                        : 'bg-amber-50 text-amber-700 border border-amber-200/50'
+                                                }`}>
+                                                    {t.status === 'resolved' ? 'Виконано' : 'В процесі'}
+                                                </span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {!selectedBuildingId && (
                         buildings.length === 0 ? (
                             <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-gray-200 bg-white max-w-md mx-auto shadow-sm">
