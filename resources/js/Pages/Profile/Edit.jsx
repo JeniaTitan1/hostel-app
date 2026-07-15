@@ -80,7 +80,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-700/60 border border-emerald-500/30 uppercase tracking-wider">
                                 Особистий кабінет
                             </span>
-                            <h1 className="text-xl md:text-2xl font-black tracking-tight">
+                            <h1 className="text-xl md:text-2xl font-black tracking-tight truncate max-w-lg">
                                 {auth?.user?.name}
                             </h1>
                             <p className="text-emerald-100 text-xs max-w-xl">

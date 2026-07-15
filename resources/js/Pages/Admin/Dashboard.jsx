@@ -10,7 +10,8 @@ export default function Dashboard({
     tickets = [],
     auditLogs = [],
     allUsers = [],
-    generatedUsers = null
+    generatedUsers = null,
+    stats = null
 }) {
     // Форма для Конструктора комнат (Групповое создание)
     const bulkForm = useForm({
@@ -38,6 +39,10 @@ export default function Dashboard({
     const [mapSearch, setMapSearch] = useState('');
     const [selectedBuildingFilter, setSelectedBuildingFilter] = useState('');
     const [ticketProcessingId, setTicketProcessingId] = useState(null);
+
+    // Стан модалки причини відхилення
+    const [rejectModalBookingId, setRejectModalBookingId] = useState(null);
+    const [rejectReason, setRejectReason] = useState('');
 
     // Форма для генератора користувачів
     const genForm = useForm({
@@ -258,15 +263,31 @@ export default function Dashboard({
         });
     };
 
-    // 3. Отклонение заявки
+    // 3. Відхилення заявки — відкриваємо модальне вікно
     const handleReject = (bookingId) => {
-        setActionProcessingId(bookingId);
-        router.post(route('admin.bookings.reject', bookingId), {}, {
+        setRejectModalBookingId(bookingId);
+        setRejectReason('');
+    };
+
+    const submitReject = () => {
+        setActionProcessingId(rejectModalBookingId);
+        router.post(route('admin.bookings.reject', rejectModalBookingId), {
+            rejection_reason: rejectReason || null,
+        }, {
             onSuccess: () => {
                 alert('Заявку відхилено!');
                 setActionProcessingId(null);
+                setRejectModalBookingId(null);
+                setRejectReason('');
             },
-            className: () => setActionProcessingId(null)
+            onError: () => setActionProcessingId(null)
+        });
+    };
+
+    // Перемкнути статус кімнати (active ↔ closed)
+    const handleToggleRoomStatus = (roomId) => {
+        router.post(route('admin.rooms.toggle-status', roomId), {}, {
+            preserveScroll: true,
         });
     };
 
@@ -352,6 +373,60 @@ export default function Dashboard({
                             </svg>
                         </div>
                     </div>
+
+                    {/* ===== АНАЛІТИКА ===== */}
+                    {stats && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Загальна місткість</p>
+                                <p className="text-2xl font-black text-gray-900">{stats.total_capacity}</p>
+                                <p className="text-[10px] text-gray-400">{stats.total_rooms} кімнат</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Заселено</p>
+                                <p className="text-2xl font-black text-emerald-600">{stats.occupied}</p>
+                                <p className="text-[10px] text-gray-400">{stats.total_capacity > 0 ? Math.round(stats.occupied / stats.total_capacity * 100) : 0}% завантаженість</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Вільних місць</p>
+                                <p className="text-2xl font-black text-gray-900">{stats.total_capacity - stats.occupied}</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Очікують</p>
+                                <p className="text-2xl font-black text-amber-600">{stats.pending}</p>
+                                <p className="text-[10px] text-gray-400">заявок на розгляді</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Відкриті тікети</p>
+                                <p className="text-2xl font-black text-red-600">{stats.open_tickets}</p>
+                                <p className="text-[10px] text-gray-400">ремонт / обслуговування</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Прогрес-бари по корпусах */}
+                    {stats?.buildings?.length > 0 && (
+                        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Завантаженість по корпусах</h3>
+                            {stats.buildings.map(b => (
+                                <div key={b.id} className="space-y-1">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="font-semibold text-gray-700">{b.name}</span>
+                                        <span className="text-gray-400">{b.occupied}/{b.capacity} ({b.capacity > 0 ? Math.round(b.occupied / b.capacity * 100) : 0}%)</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-2">
+                                        <div
+                                            className={`h-2 rounded-full transition-all duration-500 ${
+                                                b.capacity > 0 && b.occupied / b.capacity >= 0.9 ? 'bg-red-500' :
+                                                b.capacity > 0 && b.occupied / b.capacity >= 0.5 ? 'bg-amber-500' : 'bg-emerald-500'
+                                            }`}
+                                            style={{ width: `${b.capacity > 0 ? Math.min(100, Math.round(b.occupied / b.capacity * 100)) : 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Вкладки керування */}
                     <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-px">
@@ -771,6 +846,17 @@ export default function Dashboard({
                                                                                         + Заселити вручну
                                                                                     </button>
                                                                                 )}
+                                                                                {/* Кнопка блокування кімнати */}
+                                                                                <button
+                                                                                    onClick={() => handleToggleRoomStatus(room.id)}
+                                                                                    className={`w-full text-center text-xs py-1.5 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-1 ${
+                                                                                        room.status === 'closed'
+                                                                                            ? 'bg-emerald-50 border border-emerald-200 hover:border-emerald-300 text-emerald-700'
+                                                                                            : 'bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-500'
+                                                                                    }`}
+                                                                                >
+                                                                                    {room.status === 'closed' ? '🔓 Відкрити кімнату' : '🔒 Закрити на ремонт'}
+                                                                                </button>
                                                                             </div>
                                                                         );
                                                                     })}
@@ -913,7 +999,7 @@ export default function Dashboard({
                                                         {log.details}
                                                     </td>
                                                     <td className="p-4 text-gray-400">
-                                                        {new Date(log.created_at).toLocaleString()}
+                                                        {new Date(log.created_at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv' })}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -1190,6 +1276,45 @@ export default function Dashboard({
                                         </button>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ===== МОДАЛКА ПРИЧИНИ ВІДХИЛЕННЯ ===== */}
+                    {rejectModalBookingId && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setRejectModalBookingId(null)}>
+                            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 space-y-4 mx-4" onClick={e => e.stopPropagation()}>
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-gray-900 text-lg">Відхилити заявку</h3>
+                                    <p className="text-xs text-gray-500">Вкажіть причину відхилення (необов'язково). Студент побачить це пояснення.</p>
+                                </div>
+
+                                <textarea
+                                    value={rejectReason}
+                                    onChange={e => setRejectReason(e.target.value)}
+                                    placeholder="Наприклад: Перевищено ліміт мешканців у кімнаті, оберіть іншу..."
+                                    className="w-full text-sm rounded-xl border border-gray-200 p-3 focus:border-red-400 focus:ring-0 bg-gray-50 resize-none h-24"
+                                    maxLength={500}
+                                />
+                                <p className="text-[10px] text-gray-400 text-right">{rejectReason.length}/500</p>
+
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setRejectModalBookingId(null)}
+                                        className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+                                    >
+                                        Скасувати
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={submitReject}
+                                        disabled={actionProcessingId !== null}
+                                        className="px-4 py-2 rounded-lg text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-all shadow-sm disabled:opacity-50"
+                                    >
+                                        {actionProcessingId ? '...' : 'Підтвердити відхилення'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

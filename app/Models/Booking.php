@@ -12,6 +12,7 @@ class Booking extends Model
         'user_id',
         'status',
         'new_room_id',
+        'rejection_reason',
     ];
 
     /**

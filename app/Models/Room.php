@@ -13,6 +13,11 @@ class Room extends Model
         'floor',
         'room_number',
         'max_capacity',
+        'status',
+    ];
+
+    protected $attributes = [
+        'status' => 'active',
     ];
 
     /**

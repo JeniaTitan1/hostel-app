@@ -57,6 +57,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Очистити журнал аудиту
     Route::post('/audit-logs/clear', [AdminController::class, 'clearAuditLogs'])->name('audit-logs.clear');
+
+    // Перемкнути статус кімнати
+    Route::post('/rooms/{room}/toggle-status', [AdminController::class, 'toggleRoomStatus'])->name('rooms.toggle-status');
 });
 
 // Заявка на ремонт от пользователя

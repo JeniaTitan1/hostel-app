@@ -38,14 +38,35 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get(['id', 'name', 'email', 'telegram', 'phone', 'must_change_password', 'password_changed', 'created_at']);
 
+        // Аналітика по корпусах
+        $stats = [
+            'total_rooms'    => \App\Models\Room::count(),
+            'total_capacity' => \App\Models\Room::sum('max_capacity'),
+            'occupied'       => Booking::where('status', 'approved')->count(),
+            'pending'        => Booking::where('status', 'pending')->count(),
+            'open_tickets'   => \App\Models\Ticket::whereIn('status', ['open', 'in_progress'])->count(),
+            'buildings'      => $buildings->map(function ($b) {
+                $capacity = $b->rooms->sum('max_capacity');
+                $occupied = $b->rooms->flatMap->bookings->where('status', 'approved')->count();
+                return [
+                    'id'       => $b->id,
+                    'name'     => $b->name,
+                    'capacity' => $capacity,
+                    'occupied' => $occupied,
+                    'free'     => max(0, $capacity - $occupied),
+                ];
+            })->values(),
+        ];
+
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings' => $pendingBookings,
-            'buildings' => $buildings,
-            'users' => $users,
-            'tickets' => $tickets,
-            'auditLogs' => $auditLogs,
-            'allUsers' => $allUsers,
-            'generatedUsers' => session('generated_users'),
+            'buildings'       => $buildings,
+            'users'           => $users,
+            'tickets'         => $tickets,
+            'auditLogs'       => $auditLogs,
+            'allUsers'        => $allUsers,
+            'generatedUsers'  => session('generated_users'),
+            'stats'           => $stats,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -165,23 +186,44 @@ class AdminController extends Controller
     /**
      * Отклонение бронирования (Reject)
      */
-    public function rejectBooking(Booking $booking)
+    public function rejectBooking(Request $request, Booking $booking)
     {
+        $request->validate([
+            'rejection_reason' => 'nullable|string|max:500',
+        ]);
+
         if ($booking->new_room_id) {
             $targetRoom = Room::find($booking->new_room_id);
             $booking->update([
                 'new_room_id' => null,
-                'status' => 'approved'
+                'status'      => 'approved',
             ]);
 
             AuditLog::log($booking->user_id, 'relocation_rejected', "Відхилено переїзд користувача {$booking->user->name} до кімнати №{$targetRoom->room_number}");
             return redirect()->back()->with('success', 'Запит на переселення відхилено. Користувач залишається в поточній кімнаті.');
         }
 
-        $booking->update(['status' => 'rejected']);
+        $booking->update([
+            'status'           => 'rejected',
+            'rejection_reason' => $request->input('rejection_reason'),
+        ]);
         AuditLog::log($booking->user_id, 'booking_rejected', "Відхилено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
 
         return redirect()->back()->with('success', 'Бронювання відхилено.');
+    }
+
+    /**
+     * Перемкнути статус кімнати (active ↔ closed)
+     */
+    public function toggleRoomStatus(Request $request, Room $room)
+    {
+        $newStatus = $room->status === 'closed' ? 'active' : 'closed';
+        $room->update(['status' => $newStatus]);
+
+        $label = $newStatus === 'closed' ? 'закрита на обслуговування' : 'відкрита';
+        AuditLog::log($request->user()->id, 'room_status_toggled', "Кімната №{$room->room_number} {$label}");
+
+        return redirect()->back()->with('success', "Статус кімнати №{$room->room_number} змінено на «{$label}».");
     }
 
     /**
