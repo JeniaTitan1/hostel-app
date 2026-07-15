@@ -21,7 +21,7 @@ class AdminController extends Controller
         $buildings = Building::with(['rooms.bookings.user', 'rooms.bookings.newRoom'])->get();
 
         // Получаем все заявки, которые требуют внимания админа (только со статусом pending)
-        $pendingBookings = Booking::with(['user', 'room.building', 'newRoom.building'])
+        $pendingBookings = Booking::with(['user', 'room.building', 'room.bookings.user', 'newRoom.building', 'newRoom.bookings.user'])
             ->where('status', 'pending')
             ->get();
 
@@ -308,6 +308,7 @@ class AdminController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'room_id' => 'required|exists:rooms,id',
+            'force_mixed' => 'nullable|boolean',
         ]);
 
         $room = Room::findOrFail($request->room_id);
@@ -327,7 +328,9 @@ class AdminController extends Controller
 
         $user = User::findOrFail($request->user_id);
         $userGender = $user->gender;
-        if ($userGender) {
+
+        // Перевірка на змішування статей (пропускається, якщо force_mixed === true)
+        if ($userGender && !$request->boolean('force_mixed')) {
             $occupantGenders = User::whereIn('id', function($q) use ($room) {
                 $q->select('user_id')
                   ->from('bookings')
@@ -342,8 +345,11 @@ class AdminController extends Controller
             })->pluck('gender')->filter()->unique();
 
             if ($occupantGenders->isNotEmpty() && !$occupantGenders->contains($userGender)) {
-                $genderLabel = $userGender === 'male' ? 'жіноча' : 'чоловіча';
-                return redirect()->back()->with('error', "Помилка заселення: кімната є {$genderLabel}ською.");
+                $roomGenderLabel = $occupantGenders->first() === 'male' ? 'чоловічою' : 'жіночою';
+                $userGenderLabel = $userGender === 'male' ? 'чоловіка' : 'жінку';
+                return redirect()->back()->withErrors([
+                    'gender_conflict' => "Кімната наразі є {$roomGenderLabel}. Ви намагаєтесь заселити {$userGenderLabel}. Підтвердіть створення змішаної кімнати.",
+                ]);
             }
         }
 
@@ -354,7 +360,8 @@ class AdminController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}");
+        $mixedNote = $request->boolean('force_mixed') ? ' (змішана кімната)' : '';
+        AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}{$mixedNote}");
 
         return redirect()->back()->with('success', 'Користувача успішно заселено вручную!');
     }

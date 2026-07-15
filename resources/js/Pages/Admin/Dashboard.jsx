@@ -43,8 +43,9 @@ export default function Dashboard({
 
     // Форма для ручного заселения
     const manualForm = useForm({
-        user_id: '', // Инициализируем пустой строкой, чтобы сработал первый placeholder-вариант
+        user_id: '',
         room_id: '',
+        force_mixed: false,
     });
 
     // Окремі форми/стани для дій із заявками, щоб контролювати завантаження кнопок
@@ -52,6 +53,8 @@ export default function Dashboard({
     const [deleteProcessingId, setDeleteProcessingId] = useState(null);
 
     const [selectedRoomForManual, setSelectedRoomForManual] = useState(null);
+    const [allowMixedGender, setAllowMixedGender] = useState(false);
+    const [genderConflictWarning, setGenderConflictWarning] = useState(null);
 
     // Нові стани для вкладок, пошуку та фільтрації
     const [activeTab, setActiveTab] = useState('bookings');
@@ -489,18 +492,85 @@ export default function Dashboard({
     // 5. Открытие модалки ручного заселения
     const openManualBooking = (room) => {
         setSelectedRoomForManual(room);
-        manualForm.setData('room_id', room.id);
+        setAllowMixedGender(false);
+        setGenderConflictWarning(null);
+        manualForm.setData({
+            user_id: '',
+            room_id: room.id,
+            force_mixed: false,
+        });
+    };
+
+    // Визначаємо стать поточної кімнати для фільтрації користувачів
+    const getManualModalRoomGender = () => {
+        if (!selectedRoomForManual) return null;
+        const rg = getRoomGender(selectedRoomForManual);
+        if (rg.type === 'male' || rg.type === 'female') return rg.type;
+        return null; // empty або mixed — показуємо всіх
+    };
+
+    // Фільтруємо список користувачів для модалки ручного заселення
+    const getFilteredUsersForManual = () => {
+        const roomGender = getManualModalRoomGender();
+        if (!roomGender || allowMixedGender) {
+            // Порожня або змішана кімната, чи галочка "дозволити змішану" — показуємо всіх
+            return users;
+        }
+        // Фільтруємо за статтю кімнати (+ users без вказаної статі)
+        return users.filter(u => !u.gender || u.gender === roomGender);
     };
 
     const handleManualSubmit = (e) => {
         e.preventDefault();
+
+        // Перевіряємо конфлікт статей на клієнті та показуємо попередження
+        const roomGender = getManualModalRoomGender();
+        const selectedUser = users.find(u => String(u.id) === String(manualForm.data.user_id));
+        const isGenderConflict = roomGender && selectedUser?.gender && selectedUser.gender !== roomGender;
+
+        if (isGenderConflict && !manualForm.data.force_mixed) {
+            const roomLabel = roomGender === 'male' ? 'чоловічою' : 'жіночою';
+            const userLabel = selectedUser.gender === 'male' ? 'чоловіка' : 'жінку';
+            setGenderConflictWarning(`Кімната наразі є ${roomLabel}. Ви заселяєте ${userLabel}. Це створить змішану кімнату.`);
+            return;
+        }
+
         manualForm.post(route('admin.bookings.manual'), {
             onSuccess: () => {
-                alert('Користувача успешно заселено!');
+                alert('Користувача успішно заселено!');
                 setSelectedRoomForManual(null);
+                setGenderConflictWarning(null);
+                setAllowMixedGender(false);
                 manualForm.reset();
             },
-            onError: (err) => alert(err.error || 'Помилка при заселенні.')
+            onError: (err) => {
+                if (err.gender_conflict) {
+                    setGenderConflictWarning(err.gender_conflict);
+                } else {
+                    alert(err.error || 'Помилка при заселенні.');
+                }
+            }
+        });
+    };
+
+    const confirmForceMixed = () => {
+        setGenderConflictWarning(null);
+        // Надсилаємо напряму з force_mixed = true
+        router.post(route('admin.bookings.manual'), {
+            user_id: manualForm.data.user_id,
+            room_id: manualForm.data.room_id,
+            force_mixed: true,
+        }, {
+            onSuccess: () => {
+                alert('Користувача успішно заселено (змішана кімната)!');
+                setSelectedRoomForManual(null);
+                setGenderConflictWarning(null);
+                setAllowMixedGender(false);
+                manualForm.reset();
+            },
+            onError: (err) => {
+                alert(err.error || err.gender_conflict || 'Помилка при заселенні.');
+            }
         });
     };
 
@@ -701,11 +771,40 @@ export default function Dashboard({
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-sm text-gray-700">
-                                                {filteredPendingBookings.map((booking) => (
-                                                    <tr key={booking.id} className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors">
+                                                {filteredPendingBookings.map((booking) => {
+                                                    // Визначаємо, чи заявка створить змішану кімнату
+                                                    const targetRoom = booking.new_room_id ? booking.new_room : booking.room;
+                                                    const bookingUserGender = booking.user?.gender;
+                                                    let willCreateMixed = false;
+
+                                                    if (targetRoom && bookingUserGender && targetRoom.bookings) {
+                                                        const approvedOccupants = targetRoom.bookings.filter(
+                                                            b => (b.status === 'approved' || (b.status === 'pending' && b.new_room_id !== null)) && b.id !== booking.id
+                                                        );
+                                                        const occupantGenders = [...new Set(approvedOccupants.map(b => b.user?.gender).filter(Boolean))];
+                                                        if (occupantGenders.length > 0 && !occupantGenders.includes(bookingUserGender)) {
+                                                            willCreateMixed = true;
+                                                        }
+                                                    }
+
+                                                    return (
+                                                    <tr key={booking.id} className={`hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors ${willCreateMixed ? 'bg-amber-50/30 dark:bg-amber-950/10' : ''}`}>
                                                         <td className="p-4 font-medium text-gray-900 dark:text-white">
-                                                            <div>{booking.user?.name}</div>
-                                                            <div className="text-xs text-gray-400 dark:text-gray-500 font-normal">{booking.user?.email}</div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                {/* Індикатор статі користувача */}
+                                                                <span
+                                                                    className={`w-2 h-2 rounded-full shrink-0 ring-1 ${
+                                                                        bookingUserGender === 'male'
+                                                                            ? 'bg-blue-500 ring-blue-300 dark:ring-blue-600'
+                                                                            : bookingUserGender === 'female'
+                                                                                ? 'bg-pink-500 ring-pink-300 dark:ring-pink-600'
+                                                                                : 'bg-gray-300 ring-gray-200 dark:bg-gray-600 dark:ring-gray-500'
+                                                                    }`}
+                                                                    title={bookingUserGender === 'male' ? 'Чоловік' : bookingUserGender === 'female' ? 'Жінка' : 'Стать не вказана'}
+                                                                />
+                                                                <span>{booking.user?.name}</span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-400 dark:text-gray-500 font-normal ml-3.5">{booking.user?.email}</div>
                                                         </td>
                                                         <td className="p-4 text-gray-600 dark:text-gray-300">
                                                             {booking.new_room_id ? (
@@ -727,15 +826,25 @@ export default function Dashboard({
                                                             ) : (
                                                                 <>Поверх {booking.room?.floor}, Кімната №{booking.room?.room_number}</>
                                                             )}
+                                                            {/* Бейдж змішаної кімнати */}
+                                                            {willCreateMixed && (
+                                                                <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 animate-pulse">
+                                                                    ⚠️ Змішана кімната
+                                                                </span>
+                                                            )}
                                                         </td>
                                                         <td className="p-4 text-right space-x-2 whitespace-nowrap">
                                                             {/* Отображаем кнопки только если статус 'pending' */}
                                                                     <button
                                                                         onClick={() => handleApprove(booking.id)}
                                                                         disabled={actionProcessingId !== null}
-                                                                        className="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-800 dark:hover:text-emerald-350 disabled:opacity-50"
+                                                                        className={`inline-flex items-center font-bold disabled:opacity-50 ${
+                                                                            willCreateMixed 
+                                                                                ? 'text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-350' 
+                                                                                : 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-350'
+                                                                        }`}
                                                                     >
-                                                                        {actionProcessingId === booking.id ? '...' : 'Затвердити'}
+                                                                        {actionProcessingId === booking.id ? '...' : willCreateMixed ? '⚠️ Затвердити (мікс)' : 'Затвердити'}
                                                                     </button>
 
                                                                     <button
@@ -748,7 +857,8 @@ export default function Dashboard({
 
                                                         </td>
                                                     </tr>
-                                                ))}
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
@@ -991,26 +1101,39 @@ export default function Dashboard({
                                                                                     <div className="space-y-1 my-3">
                                                                                         {approvedBookings.map(b => (
                                                                                             <div key={b.id} className="flex justify-between items-center text-xs bg-white dark:bg-gray-900/40 border border-slate-100/80 dark:border-gray-700 p-1.5 rounded-lg shadow-3xs gap-1">
-                                                                                                <div className="flex flex-col truncate max-w-[125px]">
-                                                                                                    <span className="font-medium text-gray-700 truncate flex items-center gap-1.5">
-                                                                                                        {b.user?.name}
-                                                                                                        {b.user?.telegram && (
-                                                                                                            <a
-                                                                                                                href={`https://t.me/${b.user.telegram.replace('@', '')}`}
-                                                                                                                target="_blank"
-                                                                                                                rel="noopener noreferrer"
-                                                                                                                className="text-[10px] text-emerald-600 font-bold shrink-0 hover:underline"
-                                                                                                                title={`Telegram: ${b.user.telegram}`}
-                                                                                                            >
-                                                                                                                (tg)
-                                                                                                            </a>
-                                                                                                        )}
-                                                                                                    </span>
-                                                                                                    {b.new_room_id && (
-                                                                                                        <span className="text-[9px] text-indigo-600 font-semibold leading-none truncate mt-0.5">
-                                                                                                            Переїзд в №{b.new_room?.room_number || '?'}
+                                                                                                <div className="flex items-center gap-1.5 truncate max-w-[140px]">
+                                                                                                    {/* Кольоровий індикатор статі */}
+                                                                                                    <span
+                                                                                                        className={`w-2 h-2 rounded-full shrink-0 ring-1 ${
+                                                                                                            b.user?.gender === 'male'
+                                                                                                                ? 'bg-blue-500 ring-blue-300 dark:ring-blue-600'
+                                                                                                                : b.user?.gender === 'female'
+                                                                                                                    ? 'bg-pink-500 ring-pink-300 dark:ring-pink-600'
+                                                                                                                    : 'bg-gray-300 ring-gray-200 dark:bg-gray-600 dark:ring-gray-500'
+                                                                                                        }`}
+                                                                                                        title={b.user?.gender === 'male' ? 'Чоловік' : b.user?.gender === 'female' ? 'Жінка' : 'Стать не вказана'}
+                                                                                                    />
+                                                                                                    <div className="flex flex-col truncate">
+                                                                                                        <span className="font-medium text-gray-700 truncate flex items-center gap-1.5">
+                                                                                                            {b.user?.name}
+                                                                                                            {b.user?.telegram && (
+                                                                                                                <a
+                                                                                                                    href={`https://t.me/${b.user.telegram.replace('@', '')}`}
+                                                                                                                    target="_blank"
+                                                                                                                    rel="noopener noreferrer"
+                                                                                                                    className="text-[10px] text-emerald-600 font-bold shrink-0 hover:underline"
+                                                                                                                    title={`Telegram: ${b.user.telegram}`}
+                                                                                                                >
+                                                                                                                    (tg)
+                                                                                                                </a>
+                                                                                                            )}
                                                                                                         </span>
-                                                                                                    )}
+                                                                                                        {b.new_room_id && (
+                                                                                                            <span className="text-[9px] text-indigo-600 font-semibold leading-none truncate mt-0.5">
+                                                                                                                Переїзд в №{b.new_room?.room_number || '?'}
+                                                                                                            </span>
+                                                                                                        )}
+                                                                                                    </div>
                                                                                                 </div>
                                                                                                 <div className="flex items-center gap-1 shrink-0">
                                                                                                     <button
@@ -1619,45 +1742,123 @@ export default function Dashboard({
 
 
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ РУЧНОГО ЗАСЕЛЕНИЯ ================= */}
-                    {selectedRoomForManual && (
+                    {selectedRoomForManual && (() => {
+                        const roomGender = getManualModalRoomGender();
+                        const roomGenderLabel = roomGender === 'male' ? 'Чоловіча' : roomGender === 'female' ? 'Жіноча' : null;
+                        const filteredUsers = getFilteredUsersForManual();
+
+                        return (
                         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
                                 <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Пряме призначення</span>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         Заселення в кімнату №{selectedRoomForManual.room_number}
+                                        {roomGenderLabel && (
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(selectedRoomForManual).badgeBg}`}>
+                                                {roomGenderLabel}
+                                            </span>
+                                        )}
                                     </h3>
                                 </div>
+
+                                {/* Попередження про гендерний конфлікт */}
+                                {genderConflictWarning && (
+                                    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg p-3 space-y-2">
+                                        <div className="flex items-start gap-2">
+                                            <span className="text-amber-600 text-lg leading-none mt-0.5">⚠️</span>
+                                            <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                                                {genderConflictWarning}
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-2 justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => setGenderConflictWarning(null)}
+                                                className="px-3 py-1.5 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                                            >
+                                                Скасувати
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={confirmForceMixed}
+                                                disabled={manualForm.processing}
+                                                className="px-3 py-1.5 text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                                            >
+                                                {manualForm.processing ? 'Заселення...' : 'Підтвердити змішану кімнату'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <form onSubmit={handleManualSubmit} className="space-y-4">
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Оберіть користувача</label>
                                         <select
                                             value={manualForm.data.user_id}
-                                            onChange={e => manualForm.setData('user_id', e.target.value)}
+                                            onChange={e => {
+                                                manualForm.setData({
+                                                    ...manualForm.data,
+                                                    user_id: e.target.value,
+                                                    force_mixed: false,
+                                                });
+                                                setGenderConflictWarning(null);
+                                            }}
                                             className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
-                                                                        >
-                                            <option value="" disabled>-- Оберіть студента --</option>
-                                            {users.map(u => (
+                                        >
+                                            <option value="" disabled>-- Оберіть студента ({filteredUsers.length} доступно) --</option>
+                                            {filteredUsers.map(u => (
                                                 <option key={u.id} value={u.id}>
-                                                    {u.name} ({u.email}){u.gender ? ` — ${u.gender === 'male' ? 'Чоловік' : 'Жінка'}` : ''}
+                                                    {u.gender === 'male' ? '♂ ' : u.gender === 'female' ? '♀ ' : ''}{u.name} ({u.email})
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
 
+                                    {/* Галочка для дозволу змішаних кімнат */}
+                                    {roomGender && (
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <input
+                                                type="checkbox"
+                                                checked={allowMixedGender}
+                                                onChange={(e) => {
+                                                    setAllowMixedGender(e.target.checked);
+                                                    manualForm.setData('user_id', '');
+                                                    setGenderConflictWarning(null);
+                                                }}
+                                                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
+                                            />
+                                            <span className="text-xs text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                                                Показати протилежну стать <span className="text-[10px] text-gray-400">(змішана кімната)</span>
+                                            </span>
+                                        </label>
+                                    )}
+
+                                    {allowMixedGender && roomGender && (
+                                        <div className="flex items-start gap-2 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-800/30 rounded-lg px-3 py-2">
+                                            <span className="text-amber-500 text-sm leading-none mt-0.5">⚠️</span>
+                                            <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">
+                                                Ви увімкнули відображення всіх студентів. При заселенні протилежної статі буде створено змішану кімнату.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-end gap-2 pt-2">
                                         <button
                                             type="button"
-                                            onClick={() => setSelectedRoomForManual(null)}
+                                            onClick={() => {
+                                                setSelectedRoomForManual(null);
+                                                setGenderConflictWarning(null);
+                                                setAllowMixedGender(false);
+                                            }}
                                             className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
                                         >
                                             Скасувати
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={manualForm.processing}
+                                            disabled={manualForm.processing || !!genderConflictWarning}
                                             className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50"
                                         >
                                             {manualForm.processing ? 'Заселення...' : 'Заселити'}
@@ -1666,7 +1867,8 @@ export default function Dashboard({
                                 </form>
                             </div>
                         </div>
-                    )}
+                        );
+                    })()}
 
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ ПЕРЕСЕЛЕНИЯ (АДМИН) ================= */}
                     {reallocateBookingData && reallocateCurrentRoom && (
