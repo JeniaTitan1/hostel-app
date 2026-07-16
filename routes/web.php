@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/dismiss-reallocation', [ProfileController::class, 'dismissReallocation'])->name('profile.dismiss-reallocation');
 });
 
 Route::post('/bookings/{booking}/request-reallocate', [AdminController::class, 'requestReallocate'])->name('bookings.request-reallocate');
@@ -60,6 +61,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Перемкнути статус кімнати
     Route::post('/rooms/{room}/toggle-status', [AdminController::class, 'toggleRoomStatus'])->name('rooms.toggle-status');
+    Route::post('/rooms/{room}/toggle-intake', [AdminController::class, 'toggleIntake'])->name('rooms.toggle-intake');
+    Route::post('/rooms/{room}/toggle-visibility', [AdminController::class, 'toggleVisibility'])->name('rooms.toggle-visibility');
+    Route::post('/rooms/{room}/update-capacity', [AdminController::class, 'updateCapacity'])->name('rooms.update-capacity');
 
     // Академічні опції
     Route::post('/specialties', [AdminController::class, 'storeSpecialty'])->name('specialties.store');

@@ -67,4 +67,19 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Dismiss the reallocation notification.
+     */
+    public function dismissReallocation(Request $request): RedirectResponse
+    {
+        $request->user()->update([
+            'reallocated_notification' => false,
+            'reallocated_from' => null,
+            'reallocated_to' => null,
+            'reallocated_reason' => null,
+        ]);
+
+        return redirect()->back();
+    }
 }

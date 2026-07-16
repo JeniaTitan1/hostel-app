@@ -32,6 +32,7 @@ class BuildingController extends Controller
 
         if ($selectedBuildingId) {
             $floors = Room::where('building_id', $selectedBuildingId)
+                ->where('hide_from_frontend', false)
                 ->select('floor')
                 ->distinct()
                 ->orderBy('floor', 'asc')
@@ -41,6 +42,7 @@ class BuildingController extends Controller
         if ($selectedBuildingId && $selectedFloor) {
             $rooms = Room::where('building_id', $selectedBuildingId)
                 ->where('floor', $selectedFloor)
+                ->where('hide_from_frontend', false)
                 ->withCount(['bookings as approved_bookings_count' => function ($query) {
                     $query->where(function ($q) {
                         $q->where('status', 'approved')
@@ -82,11 +84,12 @@ class BuildingController extends Controller
         }
 
         return Inertia::render('Dashboard', [
-            'buildings' => $buildings,
+            'auth' => ['user' => $request->user()],
+            'buildings' => Building::all(),
             'floors' => $floors,
             'rooms' => $rooms,
-            'selectedBuildingId' => (int)$selectedBuildingId ?: null,
-            'selectedFloor' => (int)$selectedFloor ?: null,
+            'selectedBuildingId' => $selectedBuildingId,
+            'selectedFloor' => $selectedFloor,
             'userBooking' => $userBooking,
             'tickets' => $tickets,
             'roommates' => $roommates,
@@ -104,6 +107,10 @@ class BuildingController extends Controller
 
         $userId = Auth::id();
         $room = Room::findOrFail($request->room_id);
+
+        if ($room->status === 'closed' || $room->intake_closed || $room->hide_from_frontend) {
+            return redirect()->back()->with('error', 'Набір у цю кімнату закритий.');
+        }
 
         // 1. Проверка свободных мест в целевой комнате
         $approvedCount = Booking::where('room_id', $room->id)

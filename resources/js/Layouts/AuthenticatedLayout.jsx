@@ -25,8 +25,80 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
 
     const isDashboardActive = route().current('dashboard');
 
+    const [toasts, setToasts] = useState([]);
+
+    useEffect(() => {
+        const handleToast = (e) => {
+            const id = Date.now() + Math.random();
+            const newToast = {
+                id,
+                message: e.detail.message,
+                duration: e.detail.duration || 3000,
+            };
+            setToasts((prev) => [...prev, newToast]);
+        };
+        window.addEventListener('show-toast', handleToast);
+        
+        // Override global window.alert
+        window.alert = (message) => {
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message } }));
+        };
+
+        return () => {
+            window.removeEventListener('show-toast', handleToast);
+        };
+    }, []);
+
+    const flash = props?.flash || {};
+    const errors = props?.errors || {};
+
+    // Listen to flash messages
+    useEffect(() => {
+        if (flash.success) {
+            window.alert(flash.success);
+        }
+        if (flash.error) {
+            window.alert(flash.error);
+        }
+    }, [flash.success, flash.error]);
+
+    // Listen to validation errors
+    useEffect(() => {
+        const errorKeys = Object.keys(errors);
+        if (errorKeys.length > 0) {
+            const firstError = errors[errorKeys[0]];
+            window.alert(firstError);
+        }
+    }, [errors]);
+
     return (
         <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 antialiased selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
+            {/* Тоаст контейнер */}
+            <div className="fixed top-4 left-4 z-[9999] flex flex-col gap-2.5 pointer-events-none">
+                {toasts.map((toast) => (
+                    <Toast
+                        key={toast.id}
+                        toast={toast}
+                        onClose={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+                    />
+                ))}
+            </div>
+
+            <style>{`
+                @keyframes slideInLeft {
+                    from {
+                        opacity: 0;
+                        transform: translateX(-100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                .animate-slide-in-left {
+                    animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+            `}</style>
             {/* Головна навігаційна панель */}
             <nav className="border-b border-slate-100 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -248,6 +320,85 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
                     </div>
                 </div>
             </footer>
+        </div>
+    );
+}
+
+
+export function Toast({ toast, onClose }) {
+    const [progress, setProgress] = useState(100);
+
+    useEffect(() => {
+        const interval = 10;
+        const step = (interval / toast.duration) * 100;
+        const timer = setInterval(() => {
+            setProgress((prev) => {
+                if (prev <= 0) {
+                    clearInterval(timer);
+                    onClose();
+                    return 0;
+                }
+                return prev - step;
+            });
+        }, interval);
+
+        return () => clearInterval(timer);
+    }, [toast.duration, onClose]);
+
+    const isError = /помилка|не вдалося|error|не визначити/i.test(toast.message);
+    const isWarning = /увага|попередження|warning|змішана/i.test(toast.message);
+    
+    let icon = (
+        <svg className="w-5 h-5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    );
+    let progressBg = "bg-emerald-500";
+    if (isError) {
+        icon = (
+            <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+        progressBg = "bg-red-500";
+    } else if (isWarning) {
+        icon = (
+            <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        );
+        progressBg = "bg-amber-500";
+    } else if (/успішно|створено|видалено|затверджено|виселено|заселено/i.test(toast.message)) {
+        icon = (
+            <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+        progressBg = "bg-emerald-500";
+    }
+
+    return (
+        <div className="pointer-events-auto flex flex-col min-w-[280px] max-w-sm rounded-xl border bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg overflow-hidden border-gray-150 dark:border-gray-700 transition-all duration-300 animate-slide-in-left">
+            <div className="flex items-start p-3.5 gap-3">
+                {icon}
+                <div className="flex-1 text-xs font-semibold text-gray-800 dark:text-gray-200 leading-normal">
+                    {toast.message}
+                </div>
+                <button 
+                    onClick={onClose} 
+                    className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none"
+                >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div className="h-0.5 w-full bg-gray-100 dark:bg-gray-700/50">
+                <div 
+                    className={`h-full ${progressBg} transition-all duration-[10ms] ease-linear`}
+                    style={{ width: `${progress}%` }}
+                />
+            </div>
         </div>
     );
 }

@@ -44,6 +44,10 @@ class HandleInertiaRequests extends Middleware
                     'specialty' => $request->user()->specialty,
                     'course' => $request->user()->course,
                     'group' => $request->user()->group,
+                    'reallocated_notification' => $request->user()->reallocated_notification,
+                    'reallocated_from' => $request->user()->reallocated_from,
+                    'reallocated_to' => $request->user()->reallocated_to,
+                    'reallocated_reason' => $request->user()->reallocated_reason,
                 ] : null,
             ],
             // Если у тебя используются флеш-уведомления (например, статус изменения профиля)

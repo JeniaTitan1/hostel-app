@@ -14,6 +14,10 @@ class Room extends Model
         'room_number',
         'max_capacity',
         'status',
+        'intake_closed',
+        'hide_from_frontend',
+        'closure_reason',
+        'closure_duration',
     ];
 
     protected $attributes = [

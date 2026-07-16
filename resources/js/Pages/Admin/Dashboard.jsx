@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const BedIcon = ({ gender, isOccupied, name }) => {
     if (!isOccupied) {
@@ -63,6 +63,22 @@ export default function Dashboard({
     const [genderFilter, setGenderFilter] = useState('');
     const [ticketProcessingId, setTicketProcessingId] = useState(null);
 
+    // Стан попапу налаштувань кімнати
+    const [settingsRoomId, setSettingsRoomId] = useState(null);
+    const settingsRef = useRef(null);
+
+    // Закриття попапу при кліку поза ним
+    useEffect(() => {
+        if (!settingsRoomId) return;
+        const handleClickOutside = (e) => {
+            if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+                setSettingsRoomId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [settingsRoomId]);
+
     // Стан модалки причини відхилення
     const [rejectModalBookingId, setRejectModalBookingId] = useState(null);
     const [rejectReason, setRejectReason] = useState('');
@@ -122,20 +138,17 @@ export default function Dashboard({
         e.preventDefault();
         genForm.post(route('admin.users.generate'), {
             onSuccess: () => {
-                alert('Користувачів успішно згенеровано!');
                 genForm.reset();
-            },
-            onError: (err) => alert(err.count || 'Помилка при генерації.')
+            }
         });
     };
 
     const handleClearLogs = () => {
-        if (confirm('Ви впевнені, що хочете очистити весь журнал аудиту?')) {
+        triggerConfirm('Ви впевнені, що хочете очистити весь журнал аудиту?', () => {
             router.post(route('admin.audit-logs.clear'), {}, {
-                onSuccess: () => alert('Журнал аудиту очищено!'),
-                onError: () => alert('Помилка при очищенні журналу.')
+                preserveScroll: true
             });
-        }
+        });
     };
 
     const handleExportPDF = () => {
@@ -310,12 +323,11 @@ export default function Dashboard({
     const handleResolveTicket = (ticketId) => {
         setTicketProcessingId(ticketId);
         router.post(route('admin.tickets.resolve', ticketId), {}, {
+            preserveScroll: true,
             onSuccess: () => {
-                alert('Заявку успішно виконано!');
                 setTicketProcessingId(null);
             },
             onError: () => {
-                alert('Помилка при виконанні заявки.');
                 setTicketProcessingId(null);
             }
         });
@@ -330,28 +342,51 @@ export default function Dashboard({
     const [reallocateBookingData, setReallocateBookingData] = useState(null);
     const [reallocateCurrentRoom, setReallocateCurrentRoom] = useState(null);
     const [selectedReallocateRoomId, setSelectedReallocateRoomId] = useState('');
+    const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
+    const triggerConfirm = (message, onConfirm) => {
+        setConfirmDialog({ message, onConfirm });
+    };
+    const [reallocateReason, setReallocateReason] = useState('');
+    const [allowMixedReallocate, setAllowMixedReallocate] = useState(false);
+    const [closingRoomId, setClosingRoomId] = useState(null);
+    const [closureReason, setClosureReason] = useState('');
+    const [closureDuration, setClosureDuration] = useState('');
+    const [hideFromFrontendOnClosure, setHideFromFrontendOnClosure] = useState(false);
 
     const openReallocateModal = (booking, currentRoom) => {
         setReallocateBookingData(booking);
         setReallocateCurrentRoom(currentRoom);
         setSelectedReallocateRoomId('');
+        setReallocateReason('');
+        setAllowMixedReallocate(false);
     };
 
     const handleReallocateSubmit = (e) => {
         e.preventDefault();
         if (!selectedReallocateRoomId) return;
 
+        const allRooms = buildings.flatMap(b => b.rooms || []);
+        const targetRoom = allRooms.find(r => String(r.id) === String(selectedReallocateRoomId));
+        const targetRoomGender = targetRoom ? getRoomGender(targetRoom) : null;
+        const isGenderConflict = targetRoomGender && targetRoomGender.type !== 'empty' && reallocateBookingData?.user?.gender && reallocateBookingData.user.gender !== targetRoomGender.type;
+
+        if (isGenderConflict && !allowMixedReallocate) {
+            // Can display a validation error message here or rely on the UI checkbox
+            return;
+        }
+
         router.post(route('admin.bookings.reallocate', reallocateBookingData.id), {
-            room_id: selectedReallocateRoomId
+            room_id: selectedReallocateRoomId,
+            reason: reallocateReason,
+            force_mixed: isGenderConflict ? 1 : 0,
         }, {
+            preserveScroll: true,
             onSuccess: () => {
-                alert('Користувача успішно переселено!');
                 setReallocateBookingData(null);
                 setReallocateCurrentRoom(null);
                 setSelectedReallocateRoomId('');
-            },
-            onError: (err) => {
-                alert(err.error || 'Помилка при переселенні.');
+                setReallocateReason('');
+                setAllowMixedReallocate(false);
             }
         });
     };
@@ -387,10 +422,8 @@ export default function Dashboard({
         e.preventDefault();
         buildingForm.post(route('admin.buildings.store'), {
             onSuccess: () => {
-                alert('Корпус успішно створено!');
                 buildingForm.reset();
-            },
-            onError: (err) => alert(err.name || 'Помилка при створенні корпусу.')
+            }
         });
     };
 
@@ -412,10 +445,8 @@ export default function Dashboard({
 
         bulkForm.post(route('admin.rooms.bulk'), {
             onSuccess: () => {
-                alert('Кімнати успішно згенеровані!');
                 bulkForm.reset('floor', 'count', 'max_capacity');
-            },
-            onError: () => alert('Помилка при створенні кімнат.')
+            }
         });
     };
 
@@ -424,12 +455,11 @@ export default function Dashboard({
         setActionProcessingId(bookingId);
         // Викликаємо один універсальний метод для всіх 'pending' заявок
         router.post(route('admin.bookings.approve', bookingId), {}, {
+            preserveScroll: true,
             onSuccess: () => {
-                alert('Заявку успішно затверджено!');
                 setActionProcessingId(null);
             },
             onError: (err) => {
-                alert(err.error || 'Помилка при затвердженні.');
                 setActionProcessingId(null);
             }
         });
@@ -446,8 +476,8 @@ export default function Dashboard({
         router.post(route('admin.bookings.reject', rejectModalBookingId), {
             rejection_reason: rejectReason || null,
         }, {
+            preserveScroll: true,
             onSuccess: () => {
-                alert('Заявку відхилено!');
                 setActionProcessingId(null);
                 setRejectModalBookingId(null);
                 setRejectReason('');
@@ -456,11 +486,81 @@ export default function Dashboard({
         });
     };
 
-    // Перемкнути статус кімнати (active ↔ closed)
-    const handleToggleRoomStatus = (roomId) => {
-        router.post(route('admin.rooms.toggle-status', roomId), {}, {
+    // Перемкнути набір у кімнату
+    const handleToggleIntake = (roomId) => {
+        router.post(route('admin.rooms.toggle-intake', roomId), {}, {
+            preserveScroll: true
+        });
+    };
+
+    // Перемкнути видимість кімнати на фронтенді
+    const handleToggleVisibility = (roomId) => {
+        router.post(route('admin.rooms.toggle-visibility', roomId), {}, {
+            preserveScroll: true
+        });
+    };
+
+    // Оновити місткість кімнати
+    const handleUpdateCapacity = (roomId, newCapacity) => {
+        router.post(route('admin.rooms.update-capacity', roomId), {
+            max_capacity: newCapacity,
+        }, {
             preserveScroll: true,
         });
+    };
+
+    // Оформлення закриття кімнати на ремонт
+    const handleClosureSubmit = (e) => {
+        e.preventDefault();
+        if (!closingRoomId) return;
+
+        router.post(route('admin.rooms.toggle-status', closingRoomId), {
+            closure_reason: closureReason,
+            closure_duration: closureDuration,
+            hide_from_frontend: hideFromFrontendOnClosure ? 1 : 0,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setClosingRoomId(null);
+                setClosureReason('');
+                setClosureDuration('');
+                setHideFromFrontendOnClosure(false);
+            }
+        });
+    };
+
+    // Перемкнути статус кімнати (active ↔ closed)
+    const handleToggleRoomStatus = (roomId) => {
+        let foundRoom = null;
+        for (const building of buildings) {
+            const r = building.rooms.find(room => room.id === roomId);
+            if (r) {
+                foundRoom = r;
+                break;
+            }
+        }
+
+        if (foundRoom) {
+            if (foundRoom.status === 'closed') {
+                // Відкриття кімнати не потребує додаткових даних
+                router.post(route('admin.rooms.toggle-status', roomId), {}, {
+                    preserveScroll: true
+                });
+            } else {
+                // Перевірка на активних мешканців перед закриттям
+                const approvedBookings = foundRoom.bookings?.filter(b => b.status === 'approved' || (b.status === 'pending' && b.new_room_id !== null)) || [];
+                if (approvedBookings.length > 0) {
+                    alert('Не вдається закрити кімнату: спершу переселіть усіх мешканців у інші кімнати!');
+                    return;
+                }
+
+                // Показуємо модальне вікно для закриття
+                setClosingRoomId(roomId);
+                setClosureReason('');
+                setClosureDuration('');
+                setHideFromFrontendOnClosure(false);
+            }
+        }
     };
 
     // 4. Выселение жильца
@@ -472,24 +572,24 @@ export default function Dashboard({
             return;
         }
 
-        if (confirm('Ви впевнені, що хочете виселити цього жильця?')) {
+        triggerConfirm('Ви впевнені, що хочете виселити цього жильця?', () => {
             setDeleteProcessingId(bookingId);
             router.post(`/admin/bookings/${bookingId}/delete`, {}, {
+                preserveScroll: true,
                 onSuccess: () => {
-                    alert('Жильця успішно виселено!');
                     setDeleteProcessingId(null);
                 },
                 onError: (err) => {
                     console.error("Помилка:", err);
-                    alert('Помилка при виселенні.');
                     setDeleteProcessingId(null);
                 }
             });
-        }
+        });
     };
 
     // 5. Открытие модалки ручного заселения
     const openManualBooking = (room) => {
+        manualForm.clearErrors();
         setSelectedRoomForManual(room);
         setAllowMixedGender(false);
         manualForm.setData({
@@ -510,33 +610,44 @@ export default function Dashboard({
     // Фільтруємо список користувачів для модалки ручного заселення
     const getFilteredUsersForManual = () => {
         const roomGender = getManualModalRoomGender();
+        const safeUsers = users || [];
         if (!roomGender || allowMixedGender) {
             // Порожня або змішана кімната, чи галочка "дозволити змішану" — показуємо всіх
-            return users;
+            return safeUsers;
         }
         // Фільтруємо за статтю кімнати (+ users без вказаної статі)
-        return users.filter(u => !u.gender || u.gender === roomGender);
+        return safeUsers.filter(u => !u.gender || u.gender === roomGender);
     };
+
+    const [isManualBookingSubmitting, setIsManualBookingSubmitting] = useState(false);
 
     const handleManualSubmit = (e) => {
         e.preventDefault();
 
         const roomGender = getManualModalRoomGender();
-        const selectedUser = users.find(u => String(u.id) === String(manualForm.data.user_id));
+        const selectedUser = (users || []).find(u => String(u.id) === String(manualForm.data.user_id));
         const isGenderConflict = roomGender && selectedUser?.gender && selectedUser.gender !== roomGender;
 
-        manualForm.transform((data) => ({
-            ...data,
+        setIsManualBookingSubmitting(true);
+        router.post(route('admin.bookings.manual'), {
+            user_id: manualForm.data.user_id,
+            room_id: selectedRoomForManual.id,
             force_mixed: isGenderConflict ? true : false,
-        })).post(route('admin.bookings.manual'), {
+        }, {
             onSuccess: () => {
-                alert('Користувача успішно заселено!');
                 setSelectedRoomForManual(null);
                 setAllowMixedGender(false);
                 manualForm.reset();
+                setIsManualBookingSubmitting(false);
             },
-            onError: (err) => {
-                alert(err.error || err.gender_conflict || 'Помилка при заселенні.');
+            onError: (errors) => {
+                Object.keys(errors).forEach(key => {
+                    manualForm.setError(key, errors[key]);
+                });
+                setIsManualBookingSubmitting(false);
+            },
+            onFinish: () => {
+                setIsManualBookingSubmitting(false);
             }
         });
     };
@@ -1026,31 +1137,196 @@ export default function Dashboard({
                                                         .map(room => {
                                                                         const approvedBookings = room.bookings?.filter(b => b.status === 'approved' || (b.status === 'pending' && b.new_room_id !== null)) || [];
                                                                         const isFull = approvedBookings.length >= room.max_capacity;
+                                                                        const isSettingsOpen = settingsRoomId === room.id;
 
                                                                         return (
                                                                             <div
                                                                                 key={room.id}
                                                                                 className={`p-4 rounded-xl border flex flex-col justify-between min-h-[180px] transition-all relative ${
-                                                                                    isFull 
-                                                                                        ? 'bg-red-50/20 dark:bg-red-950/10 border-red-200/50 dark:border-red-800/40 shadow-2xs' 
-                                                                                        : 'bg-emerald-50/10 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-800/40 shadow-2xs'
+                                                                                    room.status === 'closed'
+                                                                                        ? 'bg-slate-100/50 dark:bg-gray-800/40 border-slate-300 dark:border-gray-700/60 shadow-3xs opacity-65'
+                                                                                        : room.hide_from_frontend
+                                                                                            ? 'bg-violet-50/15 dark:bg-violet-950/5 border-violet-300/50 dark:border-violet-800/40 shadow-3xs'
+                                                                                            : room.intake_closed
+                                                                                                ? 'bg-amber-50/10 dark:bg-amber-950/5 border-amber-300/60 dark:border-amber-800/45 shadow-3xs'
+                                                                                                : isFull 
+                                                                                                    ? 'bg-red-50/20 dark:bg-red-950/10 border-red-200/50 dark:border-red-800/40 shadow-2xs' 
+                                                                                                    : 'bg-emerald-50/10 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-800/40 shadow-2xs'
                                                                                 }`}
                                                                             >
                                                                                 <div>
-                                                                                    <div className="flex justify-between items-center mb-1.5">
-                                                                                        <span className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
-                                                                                            <span>Кімната №{room.room_number}</span>
-                                                                                            {room.status !== 'closed' && (
-                                                                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(room).badgeBg}`}>
-                                                                                                    {getRoomGender(room).label}
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </span>
-                                                                                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">Місткість: {room.max_capacity}</span>
+                                                                                    {/* === Заголовок карточки === */}
+                                                                                    <div className="flex justify-between items-start mb-1.5">
+                                                                                        <div className="flex flex-col gap-1">
+                                                                                            <span className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-1.5">
+                                                                                                <span>Кімната №{room.room_number}</span>
+                                                                                                {room.status !== 'closed' ? (
+                                                                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(room).badgeBg}`}>
+                                                                                                        {getRoomGender(room).label}
+                                                                                                    </span>
+                                                                                                ) : (
+                                                                                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300 border-red-100 dark:border-red-800/40">
+                                                                                                        Ремонт
+                                                                                                    </span>
+                                                                                                )}
+                                                                                            </span>
+                                                                                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
+                                                                                                {approvedBookings.length}/{room.max_capacity} ліжок
+                                                                                            </span>
+                                                                                        </div>
+
+                                                                                        {/* ⚙️ Кнопка налаштувань */}
+                                                                                        {room.status !== 'closed' && (
+                                                                                            <div className="relative" ref={isSettingsOpen ? settingsRef : null}>
+                                                                                                <button
+                                                                                                    onClick={(e) => {
+                                                                                                        e.stopPropagation();
+                                                                                                        setSettingsRoomId(isSettingsOpen ? null : room.id);
+                                                                                                    }}
+                                                                                                    className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all active:scale-90 ${
+                                                                                                        isSettingsOpen
+                                                                                                            ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                                                                                            : 'bg-white dark:bg-gray-700 border-slate-150 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
+                                                                                                    }`}
+                                                                                                    title="Налаштування кімнати"
+                                                                                                >
+                                                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                                    </svg>
+                                                                                                </button>
+
+                                                                                                {/* === Settings Popover === */}
+                                                                                                {isSettingsOpen && (
+                                                                                                    <div className="absolute right-0 top-9 z-50 w-64 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl shadow-xl p-4 space-y-3 animate-fade-in">
+                                                                                                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                                                                                            Налаштування кімнати №{room.room_number}
+                                                                                                        </div>
+
+                                                                                                        {/* Місткість (−/+) */}
+                                                                                                        <div className="space-y-1.5">
+                                                                                                            <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Місткість</span>
+                                                                                                            <div className="flex items-center justify-between bg-slate-50 dark:bg-gray-750 rounded-lg border border-slate-100 dark:border-gray-700 p-1">
+                                                                                                                <button
+                                                                                                                    onClick={() => handleUpdateCapacity(room.id, room.max_capacity - 1)}
+                                                                                                                    disabled={room.max_capacity <= 1 || room.max_capacity <= approvedBookings.length}
+                                                                                                                    className="w-8 h-8 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 border border-slate-150 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 transition-all active:scale-90 disabled:opacity-30 disabled:hover:bg-white dark:disabled:hover:bg-gray-700 disabled:hover:text-gray-600 dark:disabled:hover:text-gray-300 disabled:hover:border-slate-150 dark:disabled:hover:border-gray-600 text-sm font-bold"
+                                                                                                                    title={room.max_capacity <= approvedBookings.length ? `Не можна зменшити: ${approvedBookings.length} мешканців` : 'Зменшити'}
+                                                                                                                >
+                                                                                                                    −
+                                                                                                                </button>
+                                                                                                                <span className="text-sm font-bold text-gray-800 dark:text-white tabular-nums min-w-[2ch] text-center">
+                                                                                                                    {room.max_capacity}
+                                                                                                                </span>
+                                                                                                                <button
+                                                                                                                    onClick={() => handleUpdateCapacity(room.id, room.max_capacity + 1)}
+                                                                                                                    disabled={room.max_capacity >= 20}
+                                                                                                                    className="w-8 h-8 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 border border-slate-150 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all active:scale-90 disabled:opacity-30 text-sm font-bold"
+                                                                                                                    title="Збільшити"
+                                                                                                                >
+                                                                                                                    +
+                                                                                                                </button>
+                                                                                                            </div>
+                                                                                                        </div>
+
+                                                                                                        <div className="border-t border-slate-100 dark:border-gray-700" />
+
+                                                                                                        {/* Toggle: Видимість */}
+                                                                                                        <div className="flex items-center justify-between">
+                                                                                                            <div className="flex items-center gap-2">
+                                                                                                                <span className="text-sm">{room.hide_from_frontend ? '🙈' : '👁️'}</span>
+                                                                                                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Видимість</span>
+                                                                                                            </div>
+                                                                                                            <button
+                                                                                                                onClick={() => handleToggleVisibility(room.id)}
+                                                                                                                className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
+                                                                                                                    room.hide_from_frontend
+                                                                                                                        ? 'bg-red-400 dark:bg-red-500'
+                                                                                                                        : 'bg-emerald-500 dark:bg-emerald-500'
+                                                                                                                }`}
+                                                                                                                title={room.hide_from_frontend ? 'Прихована — натисніть щоб показати' : 'Видима — натисніть щоб приховати'}
+                                                                                                            >
+                                                                                                                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                                                                                                                    room.hide_from_frontend ? 'left-0.5' : 'left-[18px]'
+                                                                                                                }`} />
+                                                                                                            </button>
+                                                                                                        </div>
+
+                                                                                                        {/* Toggle: Набір */}
+                                                                                                        <div className="flex items-center justify-between">
+                                                                                                            <div className="flex items-center gap-2">
+                                                                                                                <span className="text-sm">{room.intake_closed ? '🔒' : '🔓'}</span>
+                                                                                                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Набір</span>
+                                                                                                            </div>
+                                                                                                            <button
+                                                                                                                onClick={() => handleToggleIntake(room.id)}
+                                                                                                                className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
+                                                                                                                    room.intake_closed
+                                                                                                                        ? 'bg-red-400 dark:bg-red-500'
+                                                                                                                        : 'bg-emerald-500 dark:bg-emerald-500'
+                                                                                                                }`}
+                                                                                                                title={room.intake_closed ? 'Набір закритий — натисніть щоб відкрити' : 'Набір відкритий — натисніть щоб закрити'}
+                                                                                                            >
+                                                                                                                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                                                                                                                    room.intake_closed ? 'left-0.5' : 'left-[18px]'
+                                                                                                                }`} />
+                                                                                                            </button>
+                                                                                                        </div>
+
+                                                                                                        <div className="border-t border-slate-100 dark:border-gray-700" />
+
+                                                                                                        {/* Кнопка: Закрити на ремонт */}
+                                                                                                        <button
+                                                                                                            onClick={() => {
+                                                                                                                setSettingsRoomId(null);
+                                                                                                                handleToggleRoomStatus(room.id);
+                                                                                                            }}
+                                                                                                            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold border bg-slate-50 dark:bg-gray-750 border-slate-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 transition-all active:scale-[0.97]"
+                                                                                                        >
+                                                                                                            <span>🔧</span>
+                                                                                                            <span>Закрити на ремонт</span>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
 
-                                                                                    {/* Слот-візуалізатор (Occupancy beds) */}
-                                                                                    <div className="flex gap-1.5 my-2 flex-wrap">
+                                                                                    {/* === Статус-бейджі === */}
+                                                                                    {room.status !== 'closed' && (room.hide_from_frontend || room.intake_closed) && (
+                                                                                        <div className="flex flex-wrap gap-1 mb-2">
+                                                                                            {room.hide_from_frontend && (
+                                                                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-50/60 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400 border border-violet-200/60 dark:border-violet-800/40 select-none leading-none">
+                                                                                                    🙈 Прихована
+                                                                                                </span>
+                                                                                            )}
+                                                                                            {room.intake_closed && (
+                                                                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50/60 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40 select-none leading-none">
+                                                                                                    🔒 Набір закритий
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    )}
+
+                                                                                    {room.status === 'closed' ? (
+                                                                                        <div className="mt-3 bg-red-50/40 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 rounded-xl p-3 space-y-2">
+                                                                                            <div className="flex items-center gap-1.5 text-xs font-bold text-red-700 dark:text-red-400">
+                                                                                                <span>🛠️</span>
+                                                                                                <span>ЗАЧИНЕНО НА РЕМОНТ</span>
+                                                                                            </div>
+                                                                                            <div className="space-y-1">
+                                                                                                <div className="text-[10px] text-gray-650 dark:text-gray-400">
+                                                                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">Термін:</span> {room.closure_duration || 'не вказано'}
+                                                                                                </div>
+                                                                                                <div className="text-[10px] text-gray-650 dark:text-gray-400 leading-normal">
+                                                                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">Причина:</span> {room.closure_reason || 'не вказано'}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <>
+                                                                                            {/* Слот-візуалізатор (Occupancy beds) */}
+                                                                                            <div className="flex gap-1.5 my-2 flex-wrap">
                                                                                         {Array.from({ length: room.max_capacity }).map((_, slotIdx) => {
                                                                                             const isOccupied = slotIdx < approvedBookings.length;
                                                                                             const occupantGender = isOccupied ? approvedBookings[slotIdx]?.user?.gender : null;
@@ -1124,27 +1400,30 @@ export default function Dashboard({
                                                                                             </div>
                                                                                         ))}
                                                                                     </div>
+                                                                                        </>
+                                                                                    )}
                                                                                 </div>
 
-                                                                                {!isFull && (
+                                                                                {/* === Нижня частина карточки: дії === */}
+                                                                                {room.status === 'closed' ? (
                                                                                     <button
-                                                                                        onClick={() => openManualBooking(room)}
-                                                                                        className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 text-xs py-2 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-2"
+                                                                                        onClick={() => handleToggleRoomStatus(room.id)}
+                                                                                        className="w-full text-center bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-xs py-2 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-2"
                                                                                     >
-                                                                                        + Заселити вручну
+                                                                                        🔓 Відкрити кімнату
                                                                                     </button>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        {!isFull && (
+                                                                                            <button
+                                                                                                onClick={() => openManualBooking(room)}
+                                                                                                className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 text-xs py-2 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-2"
+                                                                                            >
+                                                                                                + Заселити вручну
+                                                                                            </button>
+                                                                                        )}
+                                                                                    </>
                                                                                 )}
-                                                                                {/* Кнопка блокування кімнати */}
-                                                                                <button
-                                                                                    onClick={() => handleToggleRoomStatus(room.id)}
-                                                                                    className={`w-full text-center text-xs py-1.5 font-medium rounded-lg transition-all shadow-3xs active:scale-[0.98] mt-1 ${
-                                                                                        room.status === 'closed'
-                                                                                            ? 'bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 text-emerald-700 dark:text-emerald-300'
-                                                                                            : 'bg-slate-50/50 dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400'
-                                                                                    }`}
-                                                                                >
-                                                                                    {room.status === 'closed' ? '🔓 Відкрити кімнату' : '🔒 Закрити на ремонт'}
-                                                                                </button>
                                                                             </div>
                                                                         );
                                                                     })}
@@ -1332,9 +1611,9 @@ export default function Dashboard({
                                                     <span className="font-bold">{spec.name}</span>
                                                     <button
                                                         onClick={() => {
-                                                            if (confirm(`Ви впевнені, що хочете видалити напрям ${spec.name}?`)) {
+                                                            triggerConfirm(`Ви впевнені, що хочете видалити напрям ${spec.name}?`, () => {
                                                                 router.post(route('admin.specialties.destroy', spec.id));
-                                                            }
+                                                            });
                                                         }}
                                                         className="text-red-500 font-bold hover:underline"
                                                     >
@@ -1385,9 +1664,9 @@ export default function Dashboard({
                                                     <span className="font-bold">{c.number} курс</span>
                                                     <button
                                                         onClick={() => {
-                                                            if (confirm(`Ви впевнені, що хочете видалити курс ${c.number}?`)) {
+                                                            triggerConfirm(`Ви впевнені, що хочете видалити курс ${c.number}?`, () => {
                                                                 router.post(route('admin.courses.destroy', c.id));
-                                                            }
+                                                            });
                                                         }}
                                                         className="text-red-500 font-bold hover:underline"
                                                     >
@@ -1436,9 +1715,9 @@ export default function Dashboard({
                                                     <span className="font-bold">Група {g.name}</span>
                                                     <button
                                                         onClick={() => {
-                                                            if (confirm(`Ви впевнені, що хочете видалити групу ${g.name}?`)) {
+                                                            triggerConfirm(`Ви впевнені, що хочете видалити групу ${g.name}?`, () => {
                                                                 router.post(route('admin.groups.destroy', g.id));
-                                                            }
+                                                            });
                                                         }}
                                                         className="text-red-500 font-bold hover:underline"
                                                     >
@@ -1715,11 +1994,11 @@ export default function Dashboard({
                         const roomGender = getManualModalRoomGender();
                         const roomGenderLabel = roomGender === 'male' ? 'Чоловіча' : roomGender === 'female' ? 'Жіноча' : null;
                         const filteredUsers = getFilteredUsersForManual();
-                        const selectedUser = users.find(u => String(u.id) === String(manualForm.data.user_id));
+                        const selectedUser = (users || []).find(u => String(u.id) === String(manualForm.data.user_id));
                         const isGenderConflict = roomGender && selectedUser?.gender && selectedUser.gender !== roomGender;
 
                         return (
-                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-[60] animate-fade-in">
                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
                                 <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Пряме призначення</span>
@@ -1748,25 +2027,36 @@ export default function Dashboard({
                                 <form onSubmit={handleManualSubmit} className="space-y-4">
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Оберіть користувача</label>
-                                        <select
+                                         <select
                                             value={manualForm.data.user_id}
                                             onChange={e => {
-                                                manualForm.setData({
-                                                    ...manualForm.data,
-                                                    user_id: e.target.value,
-                                                    force_mixed: false,
-                                                });
+                                                manualForm.setData('user_id', e.target.value);
                                             }}
                                             className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
                                         >
                                             <option value="" disabled>-- Оберіть студента ({filteredUsers.length} доступно) --</option>
                                             {filteredUsers.map(u => (
-                                                <option key={u.id} value={u.id}>
+                                                <option key={u.id} value={String(u.id)}>
                                                     {u.gender === 'male' ? '♂ ' : u.gender === 'female' ? '♀ ' : ''}{u.name} ({u.email})
                                                 </option>
                                             ))}
                                         </select>
+                                        {manualForm.errors.user_id && (
+                                            <p className="text-xs text-red-650 dark:text-red-400 font-medium pt-1">
+                                                {manualForm.errors.user_id}
+                                            </p>
+                                        )}
+                                        {manualForm.errors.room_id && (
+                                            <p className="text-xs text-red-650 dark:text-red-400 font-medium pt-1">
+                                                {manualForm.errors.room_id}
+                                            </p>
+                                        )}
+                                        {manualForm.errors.gender_conflict && (
+                                            <p className="text-xs text-red-650 dark:text-red-400 font-medium pt-1">
+                                                {manualForm.errors.gender_conflict}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Галочка для дозволу змішаних кімнат */}
@@ -1792,7 +2082,7 @@ export default function Dashboard({
                                             <span className="text-amber-500 text-sm leading-none mt-0.5">⚠️</span>
                                             <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">
                                                 Ви увімкнули відображення всіх студентів. При заселенні протилежної статі буде створено змішану кімнату.
-                                            </p>
+                                             </p>
                                         </div>
                                     )}
 
@@ -1809,10 +2099,18 @@ export default function Dashboard({
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={manualForm.processing}
-                                            className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50"
+                                            disabled={isManualBookingSubmitting || manualForm.processing}
+                                            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-sm disabled:opacity-50 ${
+                                                isGenderConflict 
+                                                    ? 'bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-500' 
+                                                    : 'bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500'
+                                            }`}
                                         >
-                                            {manualForm.processing ? 'Заселення...' : 'Заселити'}
+                                            {isManualBookingSubmitting || manualForm.processing 
+                                                ? 'Заселення...' 
+                                                : isGenderConflict 
+                                                    ? 'Заселити (Змішана кімната)' 
+                                                    : 'Заселити'}
                                         </button>
                                     </div>
                                 </form>
@@ -1823,7 +2121,7 @@ export default function Dashboard({
 
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ ПЕРЕСЕЛЕНИЯ (АДМИН) ================= */}
                     {reallocateBookingData && reallocateCurrentRoom && (
-                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-[60] animate-fade-in">
                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
                                 <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Переселення жильця</span>
@@ -1853,6 +2151,46 @@ export default function Dashboard({
                                         </select>
                                     </div>
 
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Причина переселення</label>
+                                        <textarea
+                                            placeholder="напр., Аварійний стан кімнати, заміна сантехніки"
+                                            value={reallocateReason}
+                                            onChange={e => setReallocateReason(e.target.value)}
+                                            rows={2}
+                                            className="w-full text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                                        />
+                                    </div>
+
+                                    {(() => {
+                                        const allRooms = buildings.flatMap(b => b.rooms || []);
+                                        const targetRoom = allRooms.find(r => String(r.id) === String(selectedReallocateRoomId));
+                                        const targetRoomGender = targetRoom ? getRoomGender(targetRoom) : null;
+                                        const isGenderConflict = targetRoomGender && targetRoomGender.type !== 'empty' && reallocateBookingData?.user?.gender && reallocateBookingData.user.gender !== targetRoomGender.type;
+
+                                        return isGenderConflict && (
+                                            <div className="space-y-3 pt-1">
+                                                <div className="flex items-start gap-2.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/50 rounded-xl p-3.5 shadow-3xs">
+                                                    <span className="text-amber-500 text-base leading-none select-none">⚠️</span>
+                                                    <p className="text-xs text-amber-850 dark:text-amber-300 font-semibold leading-normal">
+                                                        Цільова кімната призначена для {targetRoomGender.type === 'male' ? 'чоловіків' : 'жінок'}. Переселення створить змішану кімнату.
+                                                    </p>
+                                                </div>
+                                                <label className="flex items-center gap-2 cursor-pointer group">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allowMixedReallocate}
+                                                        onChange={(e) => setAllowMixedReallocate(e.target.checked)}
+                                                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
+                                                    />
+                                                    <span className="text-xs text-gray-650 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                                                        Підтверджую створення змішаної кімнати
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        );
+                                    })()}
+
                                     <div className="flex justify-end gap-2 pt-2">
                                         <button
                                             type="button"
@@ -1860,6 +2198,8 @@ export default function Dashboard({
                                                 setReallocateBookingData(null);
                                                 setReallocateCurrentRoom(null);
                                                 setSelectedReallocateRoomId('');
+                                                setReallocateReason('');
+                                                setAllowMixedReallocate(false);
                                             }}
                                             className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
                                         >
@@ -1873,6 +2213,109 @@ export default function Dashboard({
                                         </button>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Модальне вікно закриття кімнати на ремонт */}
+                    {closingRoomId && (
+                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-[60] animate-fade-in">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-xl leading-none mt-0.5 select-none">🔒</span>
+                                    <div className="space-y-1.5 w-full">
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider text-[10px] text-gray-400">Закриття кімнати на ремонт</h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            Будь ласка, вкажіть термін та причину закриття кімнати.
+                                        </p>
+                                    </div>
+                                </div>
+                                <form onSubmit={handleClosureSubmit} className="space-y-3.5">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Термін закриття</label>
+                                        <input
+                                            type="text"
+                                            placeholder="напр., 2 тижні, до 1 вересня"
+                                            value={closureDuration}
+                                            onChange={e => setClosureDuration(e.target.value)}
+                                            className="w-full text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Причина закриття</label>
+                                        <textarea
+                                            placeholder="напр., Косметичний ремонт, заміна сантехніки"
+                                            value={closureReason}
+                                            onChange={e => setClosureReason(e.target.value)}
+                                            rows={3}
+                                            className="w-full text-xs rounded-lg border border-slate-100 dark:border-gray-600 p-2 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                                            required
+                                        />
+                                    </div>
+                                    <label className="flex items-center gap-2 cursor-pointer group pb-1">
+                                        <input
+                                            type="checkbox"
+                                            checked={hideFromFrontendOnClosure}
+                                            onChange={e => setHideFromFrontendOnClosure(e.target.checked)}
+                                            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
+                                        />
+                                        <span className="text-xs text-gray-650 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                                            Приховати кімнату на фронтенді
+                                        </span>
+                                    </label>
+                                    <div className="flex gap-2 justify-end pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setClosingRoomId(null)}
+                                            className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
+                                        >
+                                            Скасувати
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-sm"
+                                        >
+                                            Закрити кімнату
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Custom Confirmation Modal */}
+                    {confirmDialog && (
+                        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-[9999] animate-fade-in">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <span className="text-xl leading-none mt-0.5 select-none">❓</span>
+                                    <div className="space-y-1.5">
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider text-[10px] text-gray-400">Підтвердження дії</h3>
+                                        <p className="text-xs text-gray-600 dark:text-gray-300 font-semibold leading-normal">
+                                            {confirmDialog.message}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 justify-end pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmDialog(null)}
+                                        className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
+                                    >
+                                        Скасувати
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            confirmDialog.onConfirm();
+                                            setConfirmDialog(null);
+                                        }}
+                                        className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition-all shadow-sm"
+                                    >
+                                        Підтвердити
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

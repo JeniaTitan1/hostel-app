@@ -39,11 +39,11 @@ class DatabaseSeeder extends Seeder
 
         // 2. Создаем тестовых пользователей (постоянных)
         $user1 = User::create([
-            'name' => 'Іван Іванов',
+            'name' => 'user1',
             'email' => 'user@test.com',
             'password' => Hash::make('password'),
             'role' => 'user',
-            'telegram' => '@ivan_stud',
+            'telegram' => '@user1',
             'phone' => '+380991112233',
             'password_changed' => true,
             'gender' => 'male',
@@ -53,8 +53,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user2 = User::create([
-            'name' => 'Льоха Шкіпер',
-            'email' => 'alex@test.com',
+            'name' => 'user2',
+            'email' => 'user2@test.com',
             'password' => Hash::make('password'),
             'role' => 'user',
             'telegram' => '@alex_skipper',

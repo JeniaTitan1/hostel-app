@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const BedIcon = ({ gender, isOccupied, name }) => {
     if (!isOccupied) {
@@ -35,6 +35,23 @@ export default function Dashboard({
 }) {
     // Використовуємо локальний стан для керування завантаженням (processing)
     const [processing, setProcessing] = useState(false);
+
+    useEffect(() => {
+        if (auth.user?.reallocated_notification) {
+            const msg = `Увага! Адміністратор перевів вас із ${auth.user.reallocated_from} до ${auth.user.reallocated_to}. Причина: ${auth.user.reallocated_reason}`;
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { 
+                    message: msg, 
+                    duration: 30000 
+                } 
+            }));
+            
+            // Dismiss notification in the database immediately
+            router.post(route('profile.dismiss-reallocation'), {}, {
+                preserveScroll: true
+            });
+        }
+    }, [auth.user]);
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [genderFilter, setGenderFilter] = useState("");
     const [hideOppositeGender, setHideOppositeGender] = useState(false);
@@ -48,11 +65,8 @@ export default function Dashboard({
         e.preventDefault();
         ticketForm.post(route("tickets.store"), {
             onSuccess: () => {
-                alert("Заявку на обслуговування успішно надіслано!");
                 ticketForm.reset();
             },
-            onError: (err) =>
-                alert(err.description || "Помилка при відправці заявки."),
         });
     };
 
@@ -93,32 +107,8 @@ export default function Dashboard({
             },
             {
                 preserveScroll: true,
-                onSuccess: (page) => {
-                    setProcessing(false);
+                onSuccess: () => {
                     setSelectedRoom(null);
-
-                    const flashSuccess = page.props.flash?.success;
-                    const flashError = page.props.flash?.error;
-
-                    if (flashSuccess) {
-                        alert(flashSuccess);
-                    } else if (flashError) {
-                        alert(flashError);
-                    } else {
-                        alert(
-                            isReallocation
-                                ? "Заявку на переселення успішно надіслано!"
-                                : "Заявку на заселення успішно надіслано!",
-                        );
-                    }
-                },
-                onError: (errors) => {
-                    setProcessing(false);
-                    alert(
-                        errors.error ||
-                            errors.room_id ||
-                            "Сталася помилка при обробці запиту.",
-                    );
                 },
                 onFinish: () => {
                     setProcessing(false);
@@ -225,6 +215,15 @@ export default function Dashboard({
     };
 
     const getRoomStatusColor = (room) => {
+        if (room.intake_closed) {
+            return {
+                bg: "bg-slate-150/50 dark:bg-gray-850/40 border-slate-200 dark:border-gray-700/60 shadow-3xs opacity-75",
+                badge: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-800/30",
+                text: "Набір припинено",
+                indicator: "bg-amber-500",
+            };
+        }
+
         const booked = room.approved_bookings_count || 0;
         const capacity = room.max_capacity;
         const freeSpots = capacity - booked;
@@ -1017,7 +1016,13 @@ export default function Dashboard({
                                                                 розгляді.
                                                             </p>
                                                         </div>
-                                                    ) : selectedRoom.max_capacity -
+                                                     ) : selectedRoom.intake_closed ? (
+                                                         <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center">
+                                                             <p className="text-xs text-amber-600 dark:text-amber-300 font-medium">
+                                                                 Заселення неможливе. Прийом нових мешканців у цю кімнату призупинено адміністратором.
+                                                             </p>
+                                                         </div>
+                                                     ) : selectedRoom.max_capacity -
                                                           (selectedRoom.approved_bookings_count ||
                                                               0) ===
                                                       0 ? (

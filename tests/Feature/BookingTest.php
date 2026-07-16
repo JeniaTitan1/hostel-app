@@ -238,4 +238,21 @@ class BookingTest extends TestCase
 
         $this->assertEquals(5, Room::where('building_id', $building->id)->count());
     }
+
+    public function test_admin_can_manually_book_user_to_room()
+    {
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.bookings.manual'), [
+                'user_id' => $this->user1->id,
+                'room_id' => $this->room1->id,
+            ]);
+
+        $response->assertRedirect();
+        
+        $this->assertDatabaseHas('bookings', [
+            'user_id' => $this->user1->id,
+            'room_id' => $this->room1->id,
+            'status' => 'approved',
+        ]);
+    }
 }

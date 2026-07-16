@@ -27,7 +27,7 @@ class AdminController extends Controller
 
         $users = User::where('role', 'user')
             ->whereDoesntHave('bookings', function ($query) {
-                $query->whereIn('status', ['pending', 'approved']);
+                $query->where('status', 'approved');
             })
             ->get(['id', 'name', 'email', 'gender']);
 
@@ -36,7 +36,11 @@ class AdminController extends Controller
 
         $allUsers = User::where('role', 'user')
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'name', 'email', 'gender', 'telegram', 'phone', 'must_change_password', 'password_changed', 'created_at']);
+            ->get([
+                'id', 'name', 'email', 'gender', 'telegram', 'phone', 
+                'must_change_password', 'password_changed', 'created_at',
+                'specialty', 'course', 'group'
+            ]);
 
         // Аналітика по корпусах
         $stats = [
@@ -218,12 +222,106 @@ class AdminController extends Controller
     public function toggleRoomStatus(Request $request, Room $room)
     {
         $newStatus = $room->status === 'closed' ? 'active' : 'closed';
-        $room->update(['status' => $newStatus]);
+
+        if ($newStatus === 'closed') {
+            $activeBookingsCount = Booking::where('room_id', $room->id)
+                ->where(function ($query) {
+                    $query->where('status', 'approved')
+                          ->orWhere(function ($q) {
+                              $q->where('status', 'pending')
+                                ->whereNotNull('new_room_id');
+                          });
+                })
+                ->count();
+
+            if ($activeBookingsCount > 0) {
+                return redirect()->back()->withErrors([
+                    'error' => 'Не вдається закрити кімнату: спершу переселіть усіх мешканців у інші кімнати!'
+                ]);
+            }
+
+            $request->validate([
+                'closure_reason' => 'required|string|max:255',
+                'closure_duration' => 'required|string|max:255',
+                'hide_from_frontend' => 'nullable|boolean',
+            ]);
+
+            $room->update([
+                'status' => 'closed',
+                'closure_reason' => $request->closure_reason,
+                'closure_duration' => $request->closure_duration,
+                'hide_from_frontend' => $request->boolean('hide_from_frontend'),
+            ]);
+        } else {
+            $room->update([
+                'status' => 'active',
+                'closure_reason' => null,
+                'closure_duration' => null,
+                'hide_from_frontend' => false,
+            ]);
+        }
 
         $label = $newStatus === 'closed' ? 'закрита на обслуговування' : 'відкрита';
         AuditLog::log($request->user()->id, 'room_status_toggled', "Кімната №{$room->room_number} {$label}");
 
         return redirect()->back()->with('success', "Статус кімнати №{$room->room_number} змінено на «{$label}».");
+    }
+
+    /**
+     * Перемкнути набір у кімнату
+     */
+    public function toggleIntake(Request $request, Room $room)
+    {
+        $room->update(['intake_closed' => !$room->intake_closed]);
+        $status = $room->intake_closed ? 'закритий' : 'відкритий';
+        AuditLog::log($request->user()->id, 'room_intake_toggled', "Набір у кімнату №{$room->room_number} тепер {$status}");
+        return redirect()->back()->with('success', "Набір у кімнату №{$room->room_number} тепер {$status}.");
+    }
+
+    /**
+     * Перемкнути видимість кімнати на фронтенді
+     */
+    public function toggleVisibility(Request $request, Room $room)
+    {
+        $room->update(['hide_from_frontend' => !$room->hide_from_frontend]);
+        $status = $room->hide_from_frontend ? 'прихована' : 'відображається';
+        AuditLog::log($request->user()->id, 'room_visibility_toggled', "Кімната №{$room->room_number} тепер {$status} на фронтенді");
+        return redirect()->back()->with('success', "Кімната №{$room->room_number} тепер {$status} на фронтенді.");
+    }
+
+    /**
+     * Оновити місткість кімнати (кількість ліжок)
+     */
+    public function updateCapacity(Request $request, Room $room)
+    {
+        $request->validate([
+            'max_capacity' => 'required|integer|min:1|max:20',
+        ]);
+
+        $newCapacity = $request->max_capacity;
+
+        // Перевіряємо що нова місткість не менша за кількість поточних мешканців
+        $activeBookingsCount = Booking::where('room_id', $room->id)
+            ->where(function ($query) {
+                $query->where('status', 'approved')
+                      ->orWhere(function ($q) {
+                          $q->where('status', 'pending')
+                            ->whereNotNull('new_room_id');
+                      });
+            })
+            ->count();
+
+        if ($newCapacity < $activeBookingsCount) {
+            return redirect()->back()->withErrors([
+                'error' => "Неможливо зменшити місткість до {$newCapacity}: у кімнаті вже {$activeBookingsCount} мешканців."
+            ]);
+        }
+
+        $oldCapacity = $room->max_capacity;
+        $room->update(['max_capacity' => $newCapacity]);
+
+        AuditLog::log($request->user()->id, 'room_capacity_updated', "Місткість кімнати №{$room->room_number} змінено з {$oldCapacity} на {$newCapacity}");
+        return redirect()->back()->with('success', "Місткість кімнати №{$room->room_number} змінено на {$newCapacity}.");
     }
 
     /**
@@ -233,6 +331,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'room_id' => 'required|exists:rooms,id',
+            'reason' => 'nullable|string|max:255',
+            'force_mixed' => 'nullable|boolean',
         ]);
 
         $targetRoom = Room::findOrFail($request->room_id);
@@ -247,11 +347,11 @@ class AdminController extends Controller
             ->count();
 
         if ($activeBookingsCount >= $targetRoom->max_capacity) {
-            return redirect()->back()->with('error', 'В обраній кімнаті немає місць!');
+            return redirect()->back()->withErrors(['error' => 'В обраній кімнаті немає місць!']);
         }
 
         $userGender = $booking->user->gender;
-        if ($userGender) {
+        if ($userGender && !$request->boolean('force_mixed')) {
             $occupantGenders = User::whereIn('id', function($q) use ($targetRoom) {
                 $q->select('user_id')
                   ->from('bookings')
@@ -266,8 +366,11 @@ class AdminController extends Controller
             })->pluck('gender')->filter()->unique();
 
             if ($occupantGenders->isNotEmpty() && !$occupantGenders->contains($userGender)) {
-                $genderLabel = $userGender === 'male' ? 'жіноча' : 'чоловіча';
-                return redirect()->back()->with('error', "Помилка переселення: цільова кімната є {$genderLabel}ською.");
+                $genderLabel = $userGender === 'male' ? 'жіночу' : 'чоловічу';
+                $targetGenderLabel = $occupantGenders->first() === 'male' ? 'чоловічою' : 'жіночою';
+                return redirect()->back()->withErrors([
+                    'error' => "Цільова кімната наразі є {$targetGenderLabel}. Ви намагаєтесь переселити {$genderLabel}. Підтвердіть створення змішаної кімнати.",
+                ]);
             }
         }
 
@@ -275,7 +378,15 @@ class AdminController extends Controller
         $booking->update([
             'room_id' => $targetRoom->id,
             'new_room_id' => null,
-            'status' => 'approved', // ЯВНО ВОЗВРАЩАЕМ СТАТУС APPROVED
+            'status' => 'approved',
+        ]);
+
+        // Оновлюємо дані сповіщення для переселеного користувача
+        $booking->user->update([
+            'reallocated_notification' => true,
+            'reallocated_from' => "кімнати №{$oldRoomNumber}",
+            'reallocated_to' => "кімнати №{$targetRoom->room_number} ({$targetRoom->building->name})",
+            'reallocated_reason' => $request->input('reason') ?: 'Виробнича необхідність',
         ]);
 
         AuditLog::log($booking->user_id, 'manual_relocation', "Адміністратор переселив користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$targetRoom->room_number} ({$targetRoom->building->name})");
@@ -297,7 +408,7 @@ class AdminController extends Controller
 
         AuditLog::log($userId, 'evicted', "Виселено користувача {$userName} з кімнати №{$roomNumber}");
 
-        return redirect()->back()->with('message', 'Жильця успішно виселено!');
+        return redirect()->back()->with('success', 'Жильця успішно виселено!');
     }
 
     /**
@@ -352,6 +463,9 @@ class AdminController extends Controller
                 ]);
             }
         }
+
+        // Delete any existing bookings for this user to avoid duplicates!
+        Booking::where('user_id', $request->user_id)->delete();
 
         $booking = Booking::create([
             'user_id' => $request->user_id,
