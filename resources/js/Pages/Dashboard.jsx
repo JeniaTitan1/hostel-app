@@ -37,7 +37,7 @@ export default function Dashboard({
     const [processing, setProcessing] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [genderFilter, setGenderFilter] = useState("");
-    const [mixedRoomConfirm, setMixedRoomConfirm] = useState(null);
+    const [hideOppositeGender, setHideOppositeGender] = useState(false);
 
     // Форма для створення заявки на обслуговування
     const ticketForm = useForm({
@@ -81,43 +81,9 @@ export default function Dashboard({
     };
 
     // Функція відправки заявки на первинне бронювання та переселення
-    const handleRequestRoom = (roomId, isMixedConfirmed = false) => {
-        // Визначаємо, це первинне заселення чи переселення з вже затвердженої кімнати
+    const handleRequestRoom = (roomId) => {
         const isReallocation = userBooking && userBooking.status === "approved";
-
-        // Перевіряємо, чи це створить змішану кімнату
-        const targetRoom = rooms.find(r => Number(r.id) === Number(roomId));
-        const targetRoomGender = targetRoom ? getRoomGender(targetRoom) : null;
-        const isMixedRequest = userGender && targetRoomGender && 
-            targetRoomGender.type !== 'empty' && 
-            targetRoomGender.type !== 'mixed' && 
-            targetRoomGender.type !== userGender;
-
-        // Якщо буде змішана кімната і ще не підтверджено — показуємо попередження
-        if (isMixedRequest && !isMixedConfirmed) {
-            const roomLabel = targetRoomGender.type === 'male' ? 'чоловічою' : 'жіночою';
-            const userLabel = userGender === 'male' ? 'чоловік' : 'жінка';
-            setMixedRoomConfirm({
-                roomId,
-                message: `Кімната наразі є ${roomLabel}. Ви — ${userLabel}. Якщо ви продовжите, буде створено запит на змішану кімнату. Адміністратор побачить це при розгляді вашої заявки.`,
-            });
-            return;
-        }
-
-        const confirmMessage = isReallocation
-            ? (isMixedRequest 
-                ? "Ви впевнені, що хочете подати заявку на переселення до кімнати протилежної статі?"
-                : "Ви впевнені, що хочете подати заявку на переселення в цю кімнату?")
-            : (isMixedRequest
-                ? "Ви впевнені, що хочете подати заявку на заселення до кімнати протилежної статі?"
-                : "Ви впевнені, що хочете надіслати заявку на заселення в цю кімнату?");
-
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
         setProcessing(true);
-        setMixedRoomConfirm(null);
 
         // Завжди шлемо на один екшен. Бекенд сам розбереться.
         router.post(
@@ -300,6 +266,12 @@ export default function Dashboard({
         userBooking.status === "approved";
     
     const userGender = auth?.user?.gender;
+    const oppositeGender =
+        userGender === "male"
+            ? "female"
+            : userGender === "female"
+            ? "male"
+            : null;
     const rGenderObj = selectedRoom ? getRoomGender(selectedRoom) : null;
     const isGenderMismatch = userGender && rGenderObj && rGenderObj.type !== 'empty' && rGenderObj.type !== 'mixed' && rGenderObj.type !== userGender;
 
@@ -755,6 +727,22 @@ export default function Dashboard({
                                         ))}
                                     </div>
                                 )}
+
+                                {userGender && (userGender === 'male' || userGender === 'female') && (
+                                    <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-gray-700/50 mt-2">
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <input
+                                                type="checkbox"
+                                                checked={hideOppositeGender}
+                                                onChange={(e) => setHideOppositeGender(e.target.checked)}
+                                                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 dark:bg-gray-700"
+                                            />
+                                            <span className="text-xs text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors select-none">
+                                                Приховати кімнати для протилежної статі ({userGender === 'male' ? 'жіночі' : 'чоловічі'})
+                                            </span>
+                                        </label>
+                                    </div>
+                                )}
                             </div>
 
                             {selectedFloor &&
@@ -769,10 +757,16 @@ export default function Dashboard({
                                         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {rooms
                                                 .filter((room) => {
-                                                    if (!genderFilter) return true;
-                                                    const rg = getRoomGender(room);
-                                                    if (genderFilter === 'empty') return rg.type === 'empty';
-                                                    return rg.type === genderFilter;
+                                                    if (genderFilter) {
+                                                        const rg = getRoomGender(room);
+                                                        if (genderFilter === 'empty' && rg.type !== 'empty') return false;
+                                                        if (genderFilter !== 'empty' && rg.type !== genderFilter) return false;
+                                                    }
+                                                    if (hideOppositeGender && oppositeGender) {
+                                                        const rg = getRoomGender(room);
+                                                        if (rg.type === oppositeGender) return false;
+                                                    }
+                                                    return true;
                                                 })
                                                 .map((room) => {
                                                 const isClosed =
@@ -1036,64 +1030,36 @@ export default function Dashboard({
                                                             </p>
                                                         </div>
                                                     ) : isGenderMismatch ? (
-                                                        <div className="space-y-2">
-                                                            {/* Попередження про змішану кімнату */}
-                                                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                                                                <div className="flex items-start gap-2">
-                                                                    <span className="text-amber-600 text-base leading-none mt-0.5">⚠️</span>
-                                                                    <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
-                                                                        Кімната призначена для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}. Ви можете подати заявку, але вона буде позначена як запит на створення змішаної кімнати.
-                                                                    </p>
-                                                                </div>
-                                                            </div>
+                                                         <div className="space-y-2">
+                                                             {/* Попередження про змішану кімнату */}
+                                                             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                                                                 <div className="flex items-start gap-2">
+                                                                     <span className="text-amber-600 text-base leading-none mt-0.5">⚠️</span>
+                                                                     <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                                                                         Кімната призначена для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}. Подання заявки створить запит на змішану кімнату.
+                                                                     </p>
+                                                                 </div>
+                                                             </div>
 
-                                                            {/* Попередження-підтвердження якщо mixedRoomConfirm активний */}
-                                                            {mixedRoomConfirm && (
-                                                                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 rounded-lg p-3 space-y-2">
-                                                                    <p className="text-xs text-amber-900 dark:text-amber-200 font-medium">
-                                                                        {mixedRoomConfirm.message}
-                                                                    </p>
-                                                                    <div className="flex gap-2 justify-end">
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => setMixedRoomConfirm(null)}
-                                                                            className="px-3 py-1.5 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                                                                        >
-                                                                            Скасувати
-                                                                        </button>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => handleRequestRoom(mixedRoomConfirm.roomId, true)}
-                                                                            disabled={processing}
-                                                                            className="px-3 py-1.5 text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                                                                        >
-                                                                            {processing ? 'Надсилання...' : 'Підтвердити змішану кімнату'}
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
-                                                            {!mixedRoomConfirm && (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        handleRequestRoom(
-                                                                            selectedRoom.id,
-                                                                        )
-                                                                    }
-                                                                    disabled={
-                                                                        processing
-                                                                    }
-                                                                    className="w-full text-center bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                                                >
-                                                                    {processing
-                                                                        ? "Надсилання..."
-                                                                        : hasApprovedBooking
-                                                                          ? "⚠️ Подати заявку на переселення (змішана)"
-                                                                          : "⚠️ Подати заявку (змішана кімната)"}
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ) : (
+                                                             <button
+                                                                 onClick={() =>
+                                                                     handleRequestRoom(
+                                                                         selectedRoom.id,
+                                                                     )
+                                                                 }
+                                                                 disabled={
+                                                                     processing
+                                                                 }
+                                                                 className="w-full text-center bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                                             >
+                                                                 {processing
+                                                                     ? "Надсилання..."
+                                                                     : hasApprovedBooking
+                                                                       ? "Подати заявку на переселення"
+                                                                       : "Подати заявку на проживання"}
+                                                             </button>
+                                                         </div>
+                                                     ) : (
                                                         <button
                                                             onClick={() =>
                                                                 handleRequestRoom(

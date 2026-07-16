@@ -54,7 +54,6 @@ export default function Dashboard({
 
     const [selectedRoomForManual, setSelectedRoomForManual] = useState(null);
     const [allowMixedGender, setAllowMixedGender] = useState(false);
-    const [genderConflictWarning, setGenderConflictWarning] = useState(null);
 
     // Нові стани для вкладок, пошуку та фільтрації
     const [activeTab, setActiveTab] = useState('bookings');
@@ -493,7 +492,6 @@ export default function Dashboard({
     const openManualBooking = (room) => {
         setSelectedRoomForManual(room);
         setAllowMixedGender(false);
-        setGenderConflictWarning(null);
         manualForm.setData({
             user_id: '',
             room_id: room.id,
@@ -523,48 +521,17 @@ export default function Dashboard({
     const handleManualSubmit = (e) => {
         e.preventDefault();
 
-        // Перевіряємо конфлікт статей на клієнті та показуємо попередження
         const roomGender = getManualModalRoomGender();
         const selectedUser = users.find(u => String(u.id) === String(manualForm.data.user_id));
         const isGenderConflict = roomGender && selectedUser?.gender && selectedUser.gender !== roomGender;
 
-        if (isGenderConflict && !manualForm.data.force_mixed) {
-            const roomLabel = roomGender === 'male' ? 'чоловічою' : 'жіночою';
-            const userLabel = selectedUser.gender === 'male' ? 'чоловіка' : 'жінку';
-            setGenderConflictWarning(`Кімната наразі є ${roomLabel}. Ви заселяєте ${userLabel}. Це створить змішану кімнату.`);
-            return;
-        }
-
-        manualForm.post(route('admin.bookings.manual'), {
+        manualForm.transform((data) => ({
+            ...data,
+            force_mixed: isGenderConflict ? true : false,
+        })).post(route('admin.bookings.manual'), {
             onSuccess: () => {
                 alert('Користувача успішно заселено!');
                 setSelectedRoomForManual(null);
-                setGenderConflictWarning(null);
-                setAllowMixedGender(false);
-                manualForm.reset();
-            },
-            onError: (err) => {
-                if (err.gender_conflict) {
-                    setGenderConflictWarning(err.gender_conflict);
-                } else {
-                    alert(err.error || 'Помилка при заселенні.');
-                }
-            }
-        });
-    };
-
-    const confirmForceMixed = () => {
-        setGenderConflictWarning(null);
-        // Надсилаємо напряму з force_mixed = true
-        router.post(route('admin.bookings.manual'), {
-            user_id: manualForm.data.user_id,
-            room_id: manualForm.data.room_id,
-            force_mixed: true,
-        }, {
-            onSuccess: () => {
-                alert('Користувача успішно заселено (змішана кімната)!');
-                setSelectedRoomForManual(null);
-                setGenderConflictWarning(null);
                 setAllowMixedGender(false);
                 manualForm.reset();
             },
@@ -818,20 +785,22 @@ export default function Dashboard({
                                                             )}
                                                         </td>
                                                         <td className="p-4 text-gray-600 dark:text-gray-300">
-                                                            {booking.new_room_id ? (
-                                                                <>
-                                                                    <span className="line-through text-gray-400 dark:text-gray-550">№{booking.room?.room_number}</span> →
-                                                                    <span className="font-bold text-amber-600 dark:text-amber-400"> №{booking.new_room?.room_number}</span>
-                                                                </>
-                                                            ) : (
-                                                                <>Поверх {booking.room?.floor}, Кімната №{booking.room?.room_number}</>
-                                                            )}
-                                                            {/* Бейдж змішаної кімнати */}
-                                                            {willCreateMixed && (
-                                                                <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 animate-pulse">
-                                                                    ⚠️ Змішана кімната
-                                                                </span>
-                                                            )}
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                {booking.new_room_id ? (
+                                                                    <div>
+                                                                        <span className="line-through text-gray-400 dark:text-gray-555">№{booking.room?.room_number}</span> →
+                                                                        <span className="font-bold text-amber-600 dark:text-amber-400"> №{booking.new_room?.room_number}</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span>Поверх {booking.room?.floor}, Кімната №{booking.room?.room_number}</span>
+                                                                )}
+                                                                {/* Бейдж змішаної кімнати */}
+                                                                {willCreateMixed && (
+                                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 animate-pulse">
+                                                                        ⚠️ Змішана кімната
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td className="p-4 text-right space-x-2 whitespace-nowrap">
                                                             {/* Отображаем кнопки только если статус 'pending' */}
@@ -1746,6 +1715,8 @@ export default function Dashboard({
                         const roomGender = getManualModalRoomGender();
                         const roomGenderLabel = roomGender === 'male' ? 'Чоловіча' : roomGender === 'female' ? 'Жіноча' : null;
                         const filteredUsers = getFilteredUsersForManual();
+                        const selectedUser = users.find(u => String(u.id) === String(manualForm.data.user_id));
+                        const isGenderConflict = roomGender && selectedUser?.gender && selectedUser.gender !== roomGender;
 
                         return (
                         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
@@ -1762,31 +1733,14 @@ export default function Dashboard({
                                     </h3>
                                 </div>
 
-                                {/* Попередження про гендерний конфлікт */}
-                                {genderConflictWarning && (
-                                    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg p-3 space-y-2">
+                                {/* Попередження про змішану кімнату */}
+                                {isGenderConflict && (
+                                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
                                         <div className="flex items-start gap-2">
-                                            <span className="text-amber-600 text-lg leading-none mt-0.5">⚠️</span>
-                                            <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
-                                                {genderConflictWarning}
+                                            <span className="text-amber-600 text-base leading-none mt-0.5">⚠️</span>
+                                            <p className="text-xs text-amber-850 dark:text-amber-300 font-medium">
+                                                Кімната призначена для {roomGender === 'male' ? 'чоловіків' : 'жінок'}. Заселення {selectedUser?.gender === 'male' ? 'чоловіка' : 'жінку'} створить змішану кімнату.
                                             </p>
-                                        </div>
-                                        <div className="flex gap-2 justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => setGenderConflictWarning(null)}
-                                                className="px-3 py-1.5 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                                            >
-                                                Скасувати
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={confirmForceMixed}
-                                                disabled={manualForm.processing}
-                                                className="px-3 py-1.5 text-[10px] font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                                            >
-                                                {manualForm.processing ? 'Заселення...' : 'Підтвердити змішану кімнату'}
-                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -1802,7 +1756,6 @@ export default function Dashboard({
                                                     user_id: e.target.value,
                                                     force_mixed: false,
                                                 });
-                                                setGenderConflictWarning(null);
                                             }}
                                             className="w-full text-sm rounded-lg border border-slate-100 dark:border-gray-600 p-2.5 focus:border-emerald-500 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                             required
@@ -1825,7 +1778,6 @@ export default function Dashboard({
                                                 onChange={(e) => {
                                                     setAllowMixedGender(e.target.checked);
                                                     manualForm.setData('user_id', '');
-                                                    setGenderConflictWarning(null);
                                                 }}
                                                 className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
                                             />
@@ -1849,7 +1801,6 @@ export default function Dashboard({
                                             type="button"
                                             onClick={() => {
                                                 setSelectedRoomForManual(null);
-                                                setGenderConflictWarning(null);
                                                 setAllowMixedGender(false);
                                             }}
                                             className="px-4 py-2 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-700 transition-colors"
@@ -1858,7 +1809,7 @@ export default function Dashboard({
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={manualForm.processing || !!genderConflictWarning}
+                                            disabled={manualForm.processing}
                                             className="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-900 dark:bg-emerald-600 text-white hover:bg-gray-800 dark:hover:bg-emerald-500 transition-all shadow-sm disabled:opacity-50"
                                         >
                                             {manualForm.processing ? 'Заселення...' : 'Заселити'}
