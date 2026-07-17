@@ -634,6 +634,7 @@ export default function Dashboard({
             room_id: selectedRoomForManual.id,
             force_mixed: isGenderConflict ? true : false,
         }, {
+            preserveScroll: true,
             onSuccess: () => {
                 setSelectedRoomForManual(null);
                 setAllowMixedGender(false);
@@ -1988,6 +1989,9 @@ export default function Dashboard({
                         </div>
                     )}
 
+                </div>
+            </div>
+
 
                     {/* ================= МОДАЛЬНОЕ ОКНО ДЛЯ РУЧНОГО ЗАСЕЛЕНИЯ ================= */}
                     {selectedRoomForManual && (() => {
@@ -2358,9 +2362,6 @@ export default function Dashboard({
                             </div>
                         </div>
                     )}
-
-                </div>
-            </div>
         </AuthenticatedLayout>
     );
 }

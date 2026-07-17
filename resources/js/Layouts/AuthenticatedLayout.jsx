@@ -1,5 +1,5 @@
 import Dropdown from '@/Components/Dropdown';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 export default function AuthenticatedLayout({ header, children, user: passedUser }) {
@@ -52,7 +52,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
     const flash = props?.flash || {};
     const errors = props?.errors || {};
 
-    // Listen to flash messages
+    // 1. Show flash messages and validation errors on initial mount if present
     useEffect(() => {
         if (flash.success) {
             window.alert(flash.success);
@@ -60,16 +60,33 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
         if (flash.error) {
             window.alert(flash.error);
         }
-    }, [flash.success, flash.error]);
-
-    // Listen to validation errors
-    useEffect(() => {
         const errorKeys = Object.keys(errors);
         if (errorKeys.length > 0) {
-            const firstError = errors[errorKeys[0]];
-            window.alert(firstError);
+            window.alert(errors[errorKeys[0]]);
         }
-    }, [errors]);
+    }, []); // Only on mount
+
+    // 2. Listen to subsequent Inertia success events to show flash messages & validation errors
+    useEffect(() => {
+        const removeEventListener = router.on('success', (event) => {
+            const pageFlash = event.detail.page.props.flash || {};
+            if (pageFlash.success) {
+                window.alert(pageFlash.success);
+            }
+            if (pageFlash.error) {
+                window.alert(pageFlash.error);
+            }
+            const pageErrors = event.detail.page.props.errors || {};
+            const errorKeys = Object.keys(pageErrors);
+            if (errorKeys.length > 0) {
+                window.alert(pageErrors[errorKeys[0]]);
+            }
+        });
+
+        return () => {
+            removeEventListener();
+        };
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 antialiased selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
