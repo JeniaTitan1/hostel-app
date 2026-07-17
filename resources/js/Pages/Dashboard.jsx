@@ -639,14 +639,15 @@ export default function Dashboard({
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                {buildings.map((building) => (
+                                {buildings.map((building, idx) => (
                                     <button
                                         key={building.id}
                                         onClick={() =>
                                             handleSelectBuilding(building.id)
                                         }
                                         title={building.name}
-                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-slate-50/50/40 dark:hover:bg-gray-800/40 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 transition-all duration-200 ease-in-out"
+                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-slate-50/50/40 dark:hover:bg-gray-800/40 hover:shadow-md hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 transition-all duration-300 ease-out animate-card-fade-in"
+                                        style={{ animationDelay: `${idx * 60}ms` }}
                                     >
                                         <div className="w-full flex justify-between items-start">
                                             <div className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 group-hover:bg-gray-900 dark:group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">

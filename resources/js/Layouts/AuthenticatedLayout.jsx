@@ -1,6 +1,6 @@
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function AuthenticatedLayout({ header, children, user: passedUser }) {
     const { props } = usePage();
@@ -26,6 +26,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
     const isDashboardActive = route().current('dashboard');
 
     const [toasts, setToasts] = useState([]);
+    const [animating, setAnimating] = useState(true);
 
     const notifications = props.auth?.notifications || [];
 
@@ -170,7 +171,54 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
                 .animate-slide-in-left {
                     animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
+                @keyframes waveUp {
+                    0% { transform: translateY(100%); }
+                    30% { transform: translateY(10%); }
+                    42% { transform: translateY(0%); }
+                    75% { transform: translateY(0%); }
+                    100% { transform: translateY(-100%); }
+                }
+                .wave-layer-3 {
+                    animation: waveUp 2.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+                }
+                @keyframes cardFadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(12px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-card-fade-in {
+                    opacity: 0;
+                    animation: cardFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                @keyframes floatAndFadeM {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    25% {
+                        opacity: 0.85;
+                        transform: translateY(0px);
+                    }
+                    75% {
+                        opacity: 0.85;
+                        transform: translateY(-10px);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translateY(-35px);
+                    }
+                }
             `}</style>
+
+            {/* Monolithic Wave Loading Canvas Animation */}
+            {animating && (
+                <MonolithicWave onClose={() => setAnimating(false)} />
+            )}
             {/* Головна навігаційна панель */}
             <nav className="border-b border-slate-100 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -407,7 +455,7 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
 
             {/* Підзаголовок сторінки (Шапка) */}
             {header && (
-                <header className="bg-white/90 dark:bg-gray-800/90 border-b border-slate-100 dark:border-gray-700/60 backdrop-blur-xs transition-colors duration-200">
+                <header className="bg-white/90 dark:bg-gray-800/90 border-b border-slate-100 dark:border-gray-700/60 backdrop-blur-xs transition-colors duration-200 relative z-10">
                     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                         {header}
                     </div>
@@ -415,10 +463,10 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
             )}
 
             {/* Контент сторінки */}
-            <main className="flex-grow">{children}</main>
+            <main className="flex-grow animate-fade-in relative z-10">{children}</main>
 
             {/* Футер університету МНАУ */}
-            <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8 transition-colors duration-200">
+            <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8 transition-colors duration-200 relative z-10">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-gray-100 dark:border-gray-700">
                         {/* Лого / Назва */}
@@ -551,5 +599,162 @@ export function Toast({ toast, onClose }) {
                 />
             </div>
         </div>
+    );
+}
+
+function MonolithicWave({ onClose }) {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let animationFrameId;
+        const startTime = Date.now();
+        const duration = 2800; 
+        let phase = 0;
+
+        const particlesCount = 45;
+        const particles = Array.from({ length: particlesCount }).map(() => ({
+            x: Math.random() * window.innerWidth,
+            y: window.innerHeight + Math.random() * 200,
+            vy: 0.8 + Math.random() * 1.5,
+            scale: 0.6 + Math.random() * 0.9,
+            rotation: (Math.random() * 90 - 45) * Math.PI / 180, 
+            rotationSpeed: (Math.random() * 2 - 1) * 0.008,
+            alpha: 0,
+            fadeInSpeed: 0.02 + Math.random() * 0.03,
+            fadeOutStarted: false,
+        }));
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            if (elapsed >= duration) {
+                cancelAnimationFrame(animationFrameId);
+                onClose();
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            phase += 0.015;
+
+            let waveY;
+            let canvasOpacity = 1;
+
+            if (elapsed < 1100) {
+                const progress = elapsed / 1100;
+                const ease = 1 - Math.pow(1 - progress, 3);
+                waveY = window.innerHeight * (1 - ease);
+            } else if (elapsed < 2000) {
+                waveY = 0;
+            } else {
+                waveY = 0;
+                const fadeProgress = (elapsed - 2000) / 800;
+                canvasOpacity = 1 - fadeProgress;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = canvasOpacity;
+
+            if (waveY < window.innerHeight) {
+                const glowGrad = ctx.createLinearGradient(0, waveY - 45, 0, waveY + 25);
+                glowGrad.addColorStop(0, 'rgba(52, 211, 153, 0)');
+                glowGrad.addColorStop(0.5, 'rgba(52, 211, 153, 0.45)');
+                glowGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+                ctx.fillStyle = glowGrad;
+                ctx.fillRect(0, waveY - 45, canvas.width, 70);
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            const startY = waveY + Math.sin(phase) * 15;
+            ctx.lineTo(0, startY);
+
+            for (let x = 0; x <= canvas.width; x += 15) {
+                const wave1 = Math.sin(x * 0.003 + phase) * 20;
+                const wave2 = Math.cos(x * 0.006 - phase * 0.5) * 10;
+                const y = waveY + wave1 + wave2;
+                ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+
+            ctx.fillStyle = '#059669';
+            ctx.fill();
+
+            ctx.clip();
+
+            particles.forEach((p) => {
+                p.y -= p.vy;
+                p.rotation += p.rotationSpeed;
+
+                const limitY = waveY - 30;
+                if (p.y < limitY || p.y < -50) {
+                    p.y = canvas.height + 50;
+                    p.x = Math.random() * canvas.width;
+                    p.alpha = 0;
+                    p.fadeOutStarted = false;
+                }
+
+                if (!p.fadeOutStarted) {
+                    if (p.alpha < 0.9) {
+                        p.alpha += p.fadeInSpeed;
+                    }
+                    if (p.y < waveY + 140) {
+                        p.fadeOutStarted = true;
+                    }
+                } else {
+                    if (p.alpha > 0) {
+                        p.alpha -= 0.015;
+                    }
+                }
+
+                ctx.save();
+                ctx.globalAlpha = canvasOpacity * Math.max(0, Math.min(1, p.alpha));
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.scale(p.scale, p.scale);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '900 15px sans-serif';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('М', 0, 0);
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+                ctx.font = '700 11px sans-serif';
+                ctx.fillText('нау', ctx.measureText('М').width + 1.5, -0.5);
+
+                ctx.restore();
+            });
+
+            ctx.restore();
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        animationFrameId = requestAnimationFrame(animate);
+
+        return () => {
+            window.removeEventListener('resize', resizeCanvas);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [onClose]);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="fixed inset-0 z-0 pointer-events-none"
+            style={{ width: '100vw', height: '100vh' }}
+        />
     );
 }
