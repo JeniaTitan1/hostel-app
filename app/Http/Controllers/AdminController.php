@@ -354,6 +354,35 @@ class AdminController extends Controller
     }
 
     /**
+     * Оновити глобальні налаштування системи
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'min_beds_per_room' => 'required|integer|min:1|max:20',
+            'max_beds_per_room' => 'required|integer|min:1|max:20',
+            'global_intake_closed' => 'required|boolean',
+        ]);
+
+        $min = (int) $request->min_beds_per_room;
+        $max = (int) $request->max_beds_per_room;
+
+        if ($min > $max) {
+            return redirect()->back()->withErrors([
+                'min_beds_per_room' => 'Мінімальна місткість не може бути більшою за максимальну.'
+            ]);
+        }
+
+        \App\Models\Setting::set('min_beds_per_room', $min);
+        \App\Models\Setting::set('max_beds_per_room', $max);
+        \App\Models\Setting::set('global_intake_closed', $request->global_intake_closed ? '1' : '0');
+
+        AuditLog::log($request->user()->id, 'settings_updated', "Оновлено глобальні налаштування: мін. ліжок={$min}, макс. ліжок={$max}, глобальний набір=" . ($request->global_intake_closed ? 'закритий' : 'відкритий'));
+
+        return redirect()->back()->with('success', 'Глобальні налаштування успішно збережено.');
+    }
+
+    /**
      * Переселение жильца в другую комнату
      */
     public function reallocateBooking(Request $request, Booking $booking)

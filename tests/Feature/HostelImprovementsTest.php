@@ -228,4 +228,44 @@ class HostelImprovementsTest extends TestCase
             'action' => 'logs_cleared',
         ]);
     }
+
+    public function test_admin_can_update_system_settings()
+    {
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.settings.update'), [
+                'min_beds_per_room' => 2,
+                'max_beds_per_room' => 8,
+                'global_intake_closed' => true,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertEquals('2', \App\Models\Setting::get('min_beds_per_room'));
+        $this->assertEquals('8', \App\Models\Setting::get('max_beds_per_room'));
+        $this->assertEquals('1', \App\Models\Setting::get('global_intake_closed'));
+    }
+
+    public function test_booking_creation_fails_when_global_intake_is_closed()
+    {
+        // 1. Close global intake
+        \App\Models\Setting::set('global_intake_closed', '1');
+
+        $building = \App\Models\Building::create(['name' => 'Test Building #99']);
+        $room = \App\Models\Room::create([
+            'building_id' => $building->id,
+            'room_number' => '999',
+            'floor' => 1,
+            'max_capacity' => 4,
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('bookings.store'), [
+                'room_id' => $room->id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Подача нових заявок на заселення тимчасово закрита адміністрацією.');
+    }
 }

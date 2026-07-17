@@ -65,19 +65,80 @@ export default function Dashboard({
 
     // Стан попапу налаштувань кімнати
     const [settingsRoomId, setSettingsRoomId] = useState(null);
+    const [editingCapacityRoomId, setEditingCapacityRoomId] = useState(null);
+    const [tempCapacity, setTempCapacity] = useState('');
     const settingsRef = useRef(null);
+
+    // Стан автозбереження місткості
+    const tempCapacityRef = useRef(tempCapacity);
+    const originalCapacityRef = useRef(null);
+    const settingsRoomIdRef = useRef(null);
+    const approvedBookingsLengthRef = useRef(0);
+
+    const { settings } = usePage().props;
+
+    useEffect(() => {
+        tempCapacityRef.current = tempCapacity;
+    }, [tempCapacity]);
+
+    const saveAndCloseCapacityDraft = () => {
+        const newCap = parseInt(tempCapacityRef.current);
+        const origCap = parseInt(originalCapacityRef.current);
+        const activeRoomId = settingsRoomIdRef.current;
+        const minL = Math.max(settings?.min_beds_per_room || 1, approvedBookingsLengthRef.current);
+        const maxL = settings?.max_beds_per_room || 20;
+
+        if (activeRoomId && !isNaN(newCap) && newCap !== origCap) {
+            if (newCap >= minL && newCap <= maxL) {
+                router.post(route('rooms.update-capacity', activeRoomId), {
+                    max_capacity: newCap
+                }, {
+                    preserveScroll: true
+                });
+            }
+        }
+
+        setSettingsRoomId(null);
+        setEditingCapacityRoomId(null);
+        setTempCapacity('');
+        originalCapacityRef.current = null;
+        settingsRoomIdRef.current = null;
+        approvedBookingsLengthRef.current = 0;
+    };
 
     // Закриття попапу при кліку поза ним
     useEffect(() => {
         if (!settingsRoomId) return;
         const handleClickOutside = (e) => {
             if (settingsRef.current && !settingsRef.current.contains(e.target)) {
-                setSettingsRoomId(null);
+                saveAndCloseCapacityDraft();
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [settingsRoomId]);
+
+    // Глобальні налаштування системи
+    const systemSettingsForm = useForm({
+        min_beds_per_room: settings?.min_beds_per_room || 1,
+        max_beds_per_room: settings?.max_beds_per_room || 20,
+        global_intake_closed: settings?.global_intake_closed || false,
+    });
+
+    useEffect(() => {
+        systemSettingsForm.setData({
+            min_beds_per_room: settings?.min_beds_per_room || 1,
+            max_beds_per_room: settings?.max_beds_per_room || 20,
+            global_intake_closed: settings?.global_intake_closed || false,
+        });
+    }, [settings]);
+
+    const handleUpdateSystemSettings = (e) => {
+        e.preventDefault();
+        systemSettingsForm.post(route('settings.update'), {
+            preserveScroll: true
+        });
+    };
 
     // Стан модалки причини відхилення
     const [rejectModalBookingId, setRejectModalBookingId] = useState(null);
@@ -748,66 +809,76 @@ export default function Dashboard({
                     )}
 
                     {/* Вкладки керування */}
-                    <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-px">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5 border-b border-slate-100 pb-px text-xs md:text-sm">
                         <button
                             onClick={() => setActiveTab('bookings')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'bookings'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Заявки та конструктор
+                            Заявки
                         </button>
                         <button
                             onClick={() => setActiveTab('map')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'map'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Карта гуртожитків
+                            Карта
                         </button>
                         <button
                             onClick={() => setActiveTab('tickets')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'tickets'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Заявки на ремонт ({tickets.filter(t => t.status === 'pending').length})
+                            Ремонт ({tickets.filter(t => t.status === 'pending').length})
                         </button>
                         <button
                             onClick={() => setActiveTab('logs')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'logs'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Журнал аудиту
+                            Аудит
                         </button>
                         <button
                             onClick={() => setActiveTab('users_gen')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'users_gen'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Генератор користувачів
+                            Генератор
                         </button>
                         <button
                             onClick={() => setActiveTab('academic_settings')}
-                            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all ${
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
                                 activeTab === 'academic_settings'
                                     ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                                    : 'border-transparent text-gray-500 hover:text-gray-950'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             }`}
                         >
-                            Академічні налаштування
+                            Академічні
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('settings')}
+                            className={`pb-2.5 px-2 md:px-3 text-xs md:text-sm font-bold border-b-2 transition-all ${
+                                activeTab === 'settings'
+                                    ? 'border-emerald-600 dark:border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+                            }`}
+                        >
+                            Налаштування
                         </button>
                     </div>
 
@@ -1986,6 +2057,79 @@ export default function Dashboard({
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'settings' && (
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
+                            <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3 flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Глобальні налаштування системи</h3>
+                                    <p className="text-xs text-gray-400">Налаштування місткості номерного фонду та прийому заявок</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleUpdateSystemSettings} className="space-y-4 max-w-2xl">
+                                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-gray-750/30 p-3 rounded-lg border border-slate-100 dark:border-gray-700/60 w-fit">
+                                    <span>Встановлювана місткість кімнат: від</span>
+                                    <select
+                                        value={systemSettingsForm.data.min_beds_per_room}
+                                        onChange={e => systemSettingsForm.setData('min_beds_per_room', e.target.value)}
+                                        className="text-xs font-bold rounded border border-slate-200 dark:border-gray-600 pl-2.5 pr-7 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 cursor-pointer min-w-[3.5rem] text-center"
+                                    >
+                                        {[...Array(20).keys()].map(n => (
+                                            <option key={n+1} value={n+1}>{n+1}</option>
+                                        ))}
+                                    </select>
+                                    <span>до</span>
+                                    <select
+                                        value={systemSettingsForm.data.max_beds_per_room}
+                                        onChange={e => systemSettingsForm.setData('max_beds_per_room', e.target.value)}
+                                        className="text-xs font-bold rounded border border-slate-200 dark:border-gray-600 pl-2.5 pr-7 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 cursor-pointer min-w-[3.5rem] text-center"
+                                    >
+                                        {[...Array(20).keys()].map(n => (
+                                            <option key={n+1} value={n+1}>{n+1}</option>
+                                        ))}
+                                    </select>
+                                    <span>ліжок</span>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between bg-slate-50 dark:bg-gray-750/30 py-2 px-3.5 rounded-lg border border-slate-100 dark:border-gray-700/50 shadow-sm w-fit gap-6">
+                                        <div className="space-y-0.5">
+                                            <label className="text-xs font-bold text-gray-805 dark:text-gray-200 block">
+                                                Глобальне закриття прийому заявок
+                                            </label>
+                                            <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                Заборонити студентам подавати нові заявки на заселення/переселення
+                                            </span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => systemSettingsForm.setData('global_intake_closed', !systemSettingsForm.data.global_intake_closed)}
+                                            className={`relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0 ${
+                                                systemSettingsForm.data.global_intake_closed
+                                                    ? 'bg-red-500'
+                                                    : 'bg-emerald-500'
+                                            }`}
+                                        >
+                                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                                                systemSettingsForm.data.global_intake_closed ? 'translate-x-4' : 'translate-x-0'
+                                            }`} style={{ left: '2px' }} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={systemSettingsForm.processing}
+                                        className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white transition-all shadow-sm disabled:opacity-50"
+                                    >
+                                        {systemSettingsForm.processing ? 'Збереження...' : 'Зберегти налаштування'}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     )}
 

@@ -62,6 +62,11 @@ class HandleInertiaRequests extends Middleware
                 'courses' => \App\Models\AcademicCourse::orderBy('number')->get(),
                 'groups' => \App\Models\AcademicGroup::all(),
             ],
+            'settings' => [
+                'min_beds_per_room' => (int) \App\Models\Setting::get('min_beds_per_room', 1),
+                'max_beds_per_room' => (int) \App\Models\Setting::get('max_beds_per_room', 20),
+                'global_intake_closed' => (bool) \App\Models\Setting::get('global_intake_closed', false),
+            ],
         ]);
     }
 

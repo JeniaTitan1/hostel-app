@@ -107,6 +107,10 @@ class BuildingController extends Controller
         $userId = Auth::id();
         $room = Room::findOrFail($request->room_id);
 
+        if ((bool) \App\Models\Setting::get('global_intake_closed', false)) {
+            return redirect()->back()->with('error', 'Подача нових заявок на заселення тимчасово закрита адміністрацією.');
+        }
+
         if ($room->status === 'closed' || $room->intake_closed || $room->hide_from_frontend) {
             return redirect()->back()->with('error', 'Набір у цю кімнату закритий.');
         }
