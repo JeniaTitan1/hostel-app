@@ -180,9 +180,21 @@ class AdminController extends Controller
             
             $booking->update($updateData);
             AuditLog::log($booking->user_id, 'relocation_approved', "Ухвалено переїзд користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$newRoom->room_number}");
+            
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'title' => 'Запит на переселення схвалено',
+                'message' => "Ваш запит на переселення з кімнати №{$oldRoomNumber} до кімнати №{$newRoom->room_number} схвалено.",
+            ]);
         } else {
             $booking->update($updateData);
             AuditLog::log($booking->user_id, 'booking_approved', "Ухвалено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
+            
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'title' => 'Заявку на заселення схвалено',
+                'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} схвалено.",
+            ]);
         }
 
         return redirect()->back()->with('success', 'Заявку успішно оброблено!');
@@ -204,6 +216,15 @@ class AdminController extends Controller
             ]);
 
             AuditLog::log($booking->user_id, 'relocation_rejected', "Відхилено переїзд користувача {$booking->user->name} до кімнати №{$targetRoom->room_number}");
+            
+            $reason = $request->input('rejection_reason');
+            $reasonText = $reason ? " Причина: {$reason}." : "";
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'title' => 'Запит на переселення відхилено',
+                'message' => "Ваш запит на переселення до кімнати №{$targetRoom->room_number} відхилено.{$reasonText}",
+            ]);
+
             return redirect()->back()->with('success', 'Запит на переселення відхилено. Користувач залишається в поточній кімнаті.');
         }
 
@@ -212,6 +233,14 @@ class AdminController extends Controller
             'rejection_reason' => $request->input('rejection_reason'),
         ]);
         AuditLog::log($booking->user_id, 'booking_rejected', "Відхилено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
+
+        $reason = $request->input('rejection_reason');
+        $reasonText = $reason ? " Причина: {$reason}." : " Без вказання причини.";
+        \App\Models\Notification::create([
+            'user_id' => $booking->user_id,
+            'title' => 'Заявку на заселення відхилено',
+            'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} відхилено.{$reasonText}",
+        ]);
 
         return redirect()->back()->with('success', 'Бронювання відхилено.');
     }
@@ -389,6 +418,12 @@ class AdminController extends Controller
             'reallocated_reason' => $request->input('reason') ?: 'Виробнича необхідність',
         ]);
 
+        \App\Models\Notification::create([
+            'user_id' => $booking->user_id,
+            'title' => 'Переселення',
+            'message' => "Адміністратор переселив вас з кімнати №{$oldRoomNumber} до кімнати №{$targetRoom->room_number} ({$targetRoom->building->name}). Причина: " . ($request->input('reason') ?: 'Виробнича необхідність') . ".",
+        ]);
+
         AuditLog::log($booking->user_id, 'manual_relocation', "Адміністратор переселив користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
         return redirect()->back()->with('success', 'Користувача успішно переселено.');
@@ -405,6 +440,12 @@ class AdminController extends Controller
         $userId = $booking->user_id;
 
         $booking->delete();
+
+        \App\Models\Notification::create([
+            'user_id' => $userId,
+            'title' => 'Виселення',
+            'message' => "Вас виселено з кімнати №{$roomNumber}.",
+        ]);
 
         AuditLog::log($userId, 'evicted', "Виселено користувача {$userName} з кімнати №{$roomNumber}");
 
@@ -474,6 +515,13 @@ class AdminController extends Controller
         ]);
 
         $user = User::find($request->user_id);
+        
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Заселення',
+            'message' => "Адміністратор заселив вас до кімнати №{$room->room_number} ({$room->building->name}).",
+        ]);
+
         $mixedNote = $request->boolean('force_mixed') ? ' (змішана кімната)' : '';
         AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}{$mixedNote}");
 

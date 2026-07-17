@@ -53,6 +53,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Сповіщення користувача
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
      * Перевірка повної готовності профілю
      */
     public function isProfileSetupComplete(): bool

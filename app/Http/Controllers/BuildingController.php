@@ -84,7 +84,6 @@ class BuildingController extends Controller
         }
 
         return Inertia::render('Dashboard', [
-            'auth' => ['user' => $request->user()],
             'buildings' => Building::all(),
             'floors' => $floors,
             'rooms' => $rooms,
