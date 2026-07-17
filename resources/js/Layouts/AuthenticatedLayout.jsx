@@ -26,7 +26,15 @@ export default function AuthenticatedLayout({ header, children, user: passedUser
     const isDashboardActive = route().current('dashboard');
 
     const [toasts, setToasts] = useState([]);
-    const [animating, setAnimating] = useState(true);
+    const [animating, setAnimating] = useState(() => {
+        if (typeof window !== 'undefined') {
+            if (!window.__entranceAnimationPlayed) {
+                window.__entranceAnimationPlayed = true;
+                return true;
+            }
+        }
+        return false;
+    });
 
     const notifications = props.auth?.notifications || [];
 
