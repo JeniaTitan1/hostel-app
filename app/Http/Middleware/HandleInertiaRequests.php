@@ -35,7 +35,12 @@ class HandleInertiaRequests extends Middleware
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
-                    'role' => $request->user()->role, // Передаем роль админа/юзера
+                    'role' => $request->user()->role,
+                    'building_id' => $request->user()->building_id,
+                    'building' => $request->user()->building ? [
+                        'id' => $request->user()->building->id,
+                        'name' => $request->user()->building->name,
+                    ] : null,
                     'telegram' => $request->user()->telegram,
                     'phone' => $request->user()->phone,
                     'must_change_password' => $request->user()->must_change_password,
@@ -44,12 +49,14 @@ class HandleInertiaRequests extends Middleware
                     'specialty' => $request->user()->specialty,
                     'course' => $request->user()->course,
                     'group' => $request->user()->group,
+                    'email_changes_count' => $request->user()->email_changes_count,
+                    'pending_email_change_request' => $request->user()->pendingEmailChangeRequest,
                     'reallocated_notification' => $request->user()->reallocated_notification,
                     'reallocated_from' => $request->user()->reallocated_from,
                     'reallocated_to' => $request->user()->reallocated_to,
                     'reallocated_reason' => $request->user()->reallocated_reason,
                 ] : null,
-                'notifications' => $request->user() ? ($request->user()->role === 'admin' ? $this->getAdminNotifications() : $request->user()->notifications()->latest()->get()) : [],
+                'notifications' => $request->user() ? (in_array($request->user()->role, ['admin', 'commandant']) ? $this->getAdminNotifications($request->user()) : $request->user()->notifications()->latest()->get()) : [],
             ],
             // Если у тебя используются флеш-уведомления (например, статус изменения профиля)
             'status' => $request->session()->get('status'),
@@ -70,11 +77,24 @@ class HandleInertiaRequests extends Middleware
         ]);
     }
 
-    protected function getAdminNotifications(): array
+    protected function getAdminNotifications($user = null): array
     {
-        $tickets = \App\Models\Ticket::where('status', 'pending')
-            ->with('user')
-            ->latest()
+        $ticketQuery = \App\Models\Ticket::where('status', 'pending')->with(['user', 'room']);
+        $bookingQuery = \App\Models\Booking::where('status', 'pending')->with(['user', 'room', 'newRoom']);
+
+        if ($user && $user->role === 'commandant') {
+            $buildingId = $user->building_id;
+            $ticketQuery->whereHas('room', function ($q) use ($buildingId) {
+                $q->where('building_id', $buildingId);
+            });
+            // Комендантам доступні лише звичайні заселення (без переселень) у їхньому корпусі
+            $bookingQuery->whereNull('new_room_id')
+                ->whereHas('room', function ($q) use ($buildingId) {
+                    $q->where('building_id', $buildingId);
+                });
+        }
+
+        $tickets = $ticketQuery->latest()
             ->get()
             ->toBase()
             ->map(function ($ticket) {
@@ -87,9 +107,7 @@ class HandleInertiaRequests extends Middleware
                 ];
             });
 
-        $bookings = \App\Models\Booking::where('status', 'pending')
-            ->with(['user', 'room', 'newRoom'])
-            ->latest()
+        $bookings = $bookingQuery->latest()
             ->get()
             ->toBase()
             ->map(function ($booking) {
@@ -109,7 +127,28 @@ class HandleInertiaRequests extends Middleware
                 ];
             });
 
-        return $tickets->merge($bookings)
+        $items = $tickets->merge($bookings);
+
+        if ($user && $user->role === 'admin') {
+            $emailRequests = \App\Models\EmailChangeRequest::where('status', 'pending')
+                ->with('user')
+                ->latest()
+                ->get()
+                ->toBase()
+                ->map(function ($req) {
+                    return [
+                        'id' => 'email-req-' . $req->id,
+                        'title' => 'Запит на зміну Email',
+                        'message' => 'Студент ' . ($req->user->name ?? 'Невідомий') . ' просить змінити email на ' . $req->new_email,
+                        'created_at' => $req->created_at ? $req->created_at->toIso8601String() : now()->toIso8601String(),
+                        'type' => 'email_change',
+                    ];
+                });
+
+            $items = $items->merge($emailRequests);
+        }
+
+        return $items
             ->sortByDesc('created_at')
             ->values()
             ->all();

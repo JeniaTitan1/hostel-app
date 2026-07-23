@@ -36,8 +36,8 @@ class AuthenticatedSessionController extends Controller
         // Проверяем роль вошедшего пользователя
         $user = $request->user();
 
-        if ($user->role === 'admin') {
-            // Если админ — принудительно шлем в админку
+        if (in_array($user->role, ['admin', 'commandant'])) {
+            // Якщо адмін або комендант — шлем в адмінку
             return redirect()->route('admin.dashboard');
         }
 

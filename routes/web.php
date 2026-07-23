@@ -6,6 +6,7 @@ use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderVerificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,6 +34,9 @@ Route::middleware('auth')->group(function () {
     // Notifications routes
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
+    // Перевірка справжності ордерів
+    Route::get('/verify-order/{orderNumber?}', [OrderVerificationController::class, 'verify'])->name('verify-order');
 });
 
 Route::post('/bookings/{booking}/request-reallocate', [AdminController::class, 'requestReallocate'])->name('bookings.request-reallocate');
@@ -78,6 +82,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/academic-courses/{course}/delete', [AdminController::class, 'destroyCourse'])->name('courses.destroy');
     Route::post('/academic-groups', [AdminController::class, 'storeGroup'])->name('groups.store');
     Route::post('/academic-groups/{group}/delete', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
+
+    // Керування комендантами
+    Route::post('/commandants', [AdminController::class, 'storeCommandant'])->name('commandants.store');
+    Route::post('/commandants/generate', [AdminController::class, 'generateCommandant'])->name('commandants.generate');
+    Route::post('/commandants/{user}/delete', [AdminController::class, 'deleteCommandant'])->name('commandants.delete');
+
+    // Модерація запитів на зміну електронної пошти
+    Route::post('/email-requests/{emailRequest}/approve', [AdminController::class, 'approveEmailChange'])->name('email-requests.approve');
+    Route::post('/email-requests/{emailRequest}/reject', [AdminController::class, 'rejectEmailChange'])->name('email-requests.reject');
+
+    // Редагування та імперсонація користувача (студента/коменданта)
+    Route::post('/users/{user}/update', [AdminController::class, 'updateUser'])->name('users.update');
+    Route::post('/users/{user}/impersonate', [AdminController::class, 'impersonate'])->name('users.impersonate');
 });
 
 // Заявка на ремонт от пользователя

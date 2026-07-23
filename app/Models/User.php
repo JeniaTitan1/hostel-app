@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -19,6 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Добавили роль
+        'building_id', // Прив'язка коменданта до корпусу
         'telegram',
         'phone',
         'must_change_password',
@@ -27,6 +30,7 @@ class User extends Authenticatable
         'specialty',
         'course',
         'group',
+        'email_changes_count',
     ];
 
     protected $hidden = [
@@ -41,7 +45,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'must_change_password' => 'boolean',
             'password_changed' => 'boolean',
+            'email_changes_count' => 'integer',
         ];
+    }
+
+    /**
+     * Связь с корпусом (для комендантов)
+     */
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class);
     }
 
     /**
@@ -61,13 +74,25 @@ class User extends Authenticatable
     }
 
     /**
+     * Запити на зміну емейлу
+     */
+    public function emailChangeRequests(): HasMany
+    {
+        return $this->hasMany(EmailChangeRequest::class);
+    }
+
+    public function pendingEmailChangeRequest()
+    {
+        return $this->hasOne(EmailChangeRequest::class)->where('status', 'pending');
+    }
+
+    /**
      * Перевірка повної готовності профілю
      */
     public function isProfileSetupComplete(): bool
     {
         $nameTemp = str_starts_with($this->name, 'Тимчасовий') || str_starts_with($this->name, 'Temporary');
-        $emailTemp = str_starts_with($this->email, 'student') && str_ends_with($this->email, '@mnau.edu.ua');
 
-        return !$nameTemp && !$emailTemp && $this->password_changed && !empty($this->phone) && !empty($this->gender) && !empty($this->specialty) && !empty($this->course) && !empty($this->group);
+        return !$nameTemp && $this->password_changed && !empty($this->phone) && !empty($this->gender) && !empty($this->specialty) && !empty($this->course) && !empty($this->group);
     }
 }

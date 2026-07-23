@@ -64,6 +64,11 @@ class BuildingController extends Controller
         $roommates = [];
 
         if ($userBooking && $userBooking->status === 'approved') {
+            if (empty($userBooking->order_number)) {
+                $userBooking->order_number = Booking::generateUniqueOrderNumber();
+                $userBooking->save();
+            }
+
             $tickets = Ticket::where('user_id', Auth::id())
                 ->orderBy('created_at', 'desc')
                 ->get();

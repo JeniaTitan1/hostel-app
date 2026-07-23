@@ -8,22 +8,79 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\AuditLog;
+use App\Models\EmailChangeRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AdminController extends Controller
 {
+    protected function checkBuildingAccess($user, $buildingId)
+    {
+        if ($user->role === 'commandant' && $user->building_id != $buildingId) {
+            abort(403, 'Доступ заборонено. Ви можете керувати лише своїм корпусом.');
+        }
+    }
+
+    protected function ensureSuperAdmin($user)
+    {
+        if ($user->role !== 'admin') {
+            abort(403, 'Ця дія доступна лише Головному Адміністратору.');
+        }
+    }
+
     /**
      * Главная страница админки (список заявок, комнат и свободных пользователей)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $buildings = Building::with(['rooms.bookings.user', 'rooms.bookings.newRoom'])->get();
+        $currentUser = $request->user();
+        $isCommandant = $currentUser->role === 'commandant';
+        $commandantBuildingId = $currentUser->building_id;
 
-        // Получаем все заявки, которые требуют внимания админа (только со статусом pending)
-        $pendingBookings = Booking::with(['user', 'room.building', 'room.bookings.user', 'newRoom.building', 'newRoom.bookings.user'])
-            ->where('status', 'pending')
-            ->get();
+        if ($isCommandant) {
+            $buildings = Building::where('id', $commandantBuildingId)
+                ->with(['rooms.bookings.user', 'rooms.bookings.newRoom'])
+                ->get();
+
+            // Комендант бачить лише звичайні бронювання у своєму корпусі (без запитів на переселення)
+            $pendingBookings = Booking::with(['user', 'room.building', 'room.bookings.user', 'newRoom.building', 'newRoom.bookings.user'])
+                ->where('status', 'pending')
+                ->whereNull('new_room_id')
+                ->whereHas('room', function ($q) use ($commandantBuildingId) {
+                    $q->where('building_id', $commandantBuildingId);
+                })
+                ->get();
+
+            $tickets = Ticket::with(['user', 'room.building'])
+                ->whereHas('room', function ($q) use ($commandantBuildingId) {
+                    $q->where('building_id', $commandantBuildingId);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $commandants = [];
+            $emailChangeRequests = [];
+        } else {
+            $buildings = Building::with(['rooms.bookings.user', 'rooms.bookings.newRoom'])->get();
+
+            $pendingBookings = Booking::with(['user', 'room.building', 'room.bookings.user', 'newRoom.building', 'newRoom.bookings.user'])
+                ->where('status', 'pending')
+                ->get();
+
+            $tickets = Ticket::with(['user', 'room.building'])->orderBy('created_at', 'desc')->get();
+
+            $commandants = User::where('role', 'commandant')
+                ->with('building')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $emailChangeRequests = EmailChangeRequest::with('user')
+                ->where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         $users = User::where('role', 'user')
             ->whereDoesntHave('bookings', function ($query) {
@@ -31,7 +88,6 @@ class AdminController extends Controller
             })
             ->get(['id', 'name', 'email', 'gender']);
 
-        $tickets = Ticket::with(['user', 'room.building'])->orderBy('created_at', 'desc')->get();
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
         $allUsers = User::where('role', 'user')
@@ -43,12 +99,20 @@ class AdminController extends Controller
             ]);
 
         // Аналітика по корпусах
+        $roomsQuery = $isCommandant ? Room::where('building_id', $commandantBuildingId) : Room::query();
+        $approvedBookingsQuery = Booking::where('status', 'approved');
+        if ($isCommandant) {
+            $approvedBookingsQuery->whereHas('room', function ($q) use ($commandantBuildingId) {
+                $q->where('building_id', $commandantBuildingId);
+            });
+        }
+
         $stats = [
-            'total_rooms'    => \App\Models\Room::count(),
-            'total_capacity' => \App\Models\Room::sum('max_capacity'),
-            'occupied'       => Booking::where('status', 'approved')->count(),
-            'pending'        => Booking::where('status', 'pending')->count(),
-            'open_tickets'   => \App\Models\Ticket::whereIn('status', ['open', 'in_progress'])->count(),
+            'total_rooms'    => (clone $roomsQuery)->count(),
+            'total_capacity' => (clone $roomsQuery)->sum('max_capacity'),
+            'occupied'       => $approvedBookingsQuery->count(),
+            'pending'        => $pendingBookings->count(),
+            'open_tickets'   => $tickets->whereIn('status', ['open', 'in_progress', 'pending'])->count(),
             'buildings'      => $buildings->map(function ($b) {
                 $capacity = $b->rooms->sum('max_capacity');
                 $occupied = $b->rooms->flatMap->bookings->where('status', 'approved')->count();
@@ -63,14 +127,18 @@ class AdminController extends Controller
         ];
 
         return Inertia::render('Admin/Dashboard', [
-            'pendingBookings' => $pendingBookings,
-            'buildings'       => $buildings,
-            'users'           => $users,
-            'tickets'         => $tickets,
-            'auditLogs'       => $auditLogs,
-            'allUsers'        => $allUsers,
-            'generatedUsers'  => session('generated_users'),
-            'stats'           => $stats,
+            'pendingBookings'     => $pendingBookings,
+            'buildings'           => $buildings,
+            'users'               => $users,
+            'tickets'             => $tickets,
+            'auditLogs'           => $auditLogs,
+            'allUsers'            => $allUsers,
+            'commandants'         => $commandants,
+            'emailChangeRequests' => $emailChangeRequests,
+            'allBuildings'        => $isCommandant ? [] : Building::all(['id', 'name']),
+            'generatedUsers'      => session('generated_users'),
+            'generatedCommandant' => session('generated_commandant'),
+            'stats'               => $stats,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -117,6 +185,8 @@ class AdminController extends Controller
             'max_capacity' => 'required|integer|min:1|max:20',
         ]);
 
+        $this->checkBuildingAccess($request->user(), $request->building_id);
+
         $buildingId = $request->building_id;
         $floor = $request->floor;
         $count = $request->count;
@@ -147,12 +217,16 @@ class AdminController extends Controller
     /**
      * Подтверждение бронирования (Approve)
      */
-    public function approveBooking(Booking $booking)
+    public function approveBooking(Request $request, Booking $booking)
     {
-        // 1. Перевіряємо місткість кімнати
-        // Якщо це переїзд (є new_room_id), перевіряємо нову кімнату, інакше - поточну
+        if ($booking->new_room_id && $request->user()->role === 'commandant') {
+            abort(403, 'Механіка переселення доступна лише Головному Адміністратору.');
+        }
+
         $targetRoomId = $booking->new_room_id ?? $booking->room_id;
         $targetRoom = Room::findOrFail($targetRoomId);
+
+        $this->checkBuildingAccess($request->user(), $targetRoom->building_id);
 
         $activeBookingsCount = Booking::where('room_id', $targetRoom->id)
             ->where(function ($query) {
@@ -197,13 +271,19 @@ class AdminController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Заявку успішно оброблено!');
+        return redirect()->back()->with('success', 'Заявку успішно обролено!');
     }
+
     /**
      * Отклонение бронирования (Reject)
      */
     public function rejectBooking(Request $request, Booking $booking)
     {
+        if ($booking->new_room_id && $request->user()->role === 'commandant') {
+            abort(403, 'Механіка переселення доступна лише Головному Адміністратору.');
+        }
+
+        $this->checkBuildingAccess($request->user(), $booking->room->building_id);
         $request->validate([
             'rejection_reason' => 'nullable|string|max:500',
         ]);
@@ -250,6 +330,8 @@ class AdminController extends Controller
      */
     public function toggleRoomStatus(Request $request, Room $room)
     {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
         $newStatus = $room->status === 'closed' ? 'active' : 'closed';
 
         if ($newStatus === 'closed') {
@@ -301,6 +383,8 @@ class AdminController extends Controller
      */
     public function toggleIntake(Request $request, Room $room)
     {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
         $room->update(['intake_closed' => !$room->intake_closed]);
         $status = $room->intake_closed ? 'закритий' : 'відкритий';
         AuditLog::log($request->user()->id, 'room_intake_toggled', "Набір у кімнату №{$room->room_number} тепер {$status}");
@@ -312,6 +396,8 @@ class AdminController extends Controller
      */
     public function toggleVisibility(Request $request, Room $room)
     {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
         $room->update(['hide_from_frontend' => !$room->hide_from_frontend]);
         $status = $room->hide_from_frontend ? 'прихована' : 'відображається';
         AuditLog::log($request->user()->id, 'room_visibility_toggled', "Кімната №{$room->room_number} тепер {$status} на фронтенді");
@@ -323,6 +409,8 @@ class AdminController extends Controller
      */
     public function updateCapacity(Request $request, Room $room)
     {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
         $request->validate([
             'max_capacity' => 'required|integer|min:1|max:20',
         ]);
@@ -358,6 +446,8 @@ class AdminController extends Controller
      */
     public function updateSettings(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate([
             'min_beds_per_room' => 'required|integer|min:1|max:20',
             'max_beds_per_room' => 'required|integer|min:1|max:20',
@@ -387,6 +477,8 @@ class AdminController extends Controller
      */
     public function reallocateBooking(Request $request, Booking $booking)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate([
             'room_id' => 'required|exists:rooms,id',
             'reason' => 'nullable|string|max:255',
@@ -464,6 +556,8 @@ class AdminController extends Controller
     public function deleteBooking($id)
     {
         $booking = Booking::with('user', 'room')->findOrFail($id);
+        $this->checkBuildingAccess(auth()->user(), $booking->room->building_id);
+
         $userName = $booking->user->name ?? 'Невідомий';
         $roomNumber = $booking->room->room_number ?? '?';
         $userId = $booking->user_id;
@@ -493,6 +587,8 @@ class AdminController extends Controller
         ]);
 
         $room = Room::findOrFail($request->room_id);
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
         $activeBookingsCount = Booking::where('room_id', $room->id)
             ->where(function ($query) {
                 $query->where('status', 'approved')
@@ -562,6 +658,8 @@ class AdminController extends Controller
      */
     public function storeBuilding(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate([
             'name' => 'required|string|max:255|unique:buildings,name',
         ]);
@@ -632,6 +730,8 @@ class AdminController extends Controller
      */
     public function clearAuditLogs(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         \App\Models\AuditLog::truncate();
 
         \App\Models\AuditLog::log($request->user()->id, 'logs_cleared', "Адміністратор очистив весь журнал аудиту");
@@ -641,6 +741,8 @@ class AdminController extends Controller
 
     public function storeSpecialty(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate(['name' => 'required|string|unique:specialties,name|max:10']);
         \App\Models\Specialty::create(['name' => strtoupper($request->name)]);
         \App\Models\AuditLog::log($request->user()->id, 'specialty_created', "Адміністратор створив напрям " . strtoupper($request->name));
@@ -649,6 +751,8 @@ class AdminController extends Controller
 
     public function destroySpecialty(Request $request, \App\Models\Specialty $specialty)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $name = $specialty->name;
         $specialty->delete();
         \App\Models\AuditLog::log($request->user()->id, 'specialty_deleted', "Адміністратор видалив напрям " . $name);
@@ -657,6 +761,8 @@ class AdminController extends Controller
 
     public function storeCourse(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate(['number' => 'required|integer|min:1|max:10|unique:academic_courses,number']);
         \App\Models\AcademicCourse::create(['number' => $request->number]);
         \App\Models\AuditLog::log($request->user()->id, 'course_created', "Адміністратор створив курс " . $request->number);
@@ -665,6 +771,8 @@ class AdminController extends Controller
 
     public function destroyCourse(Request $request, \App\Models\AcademicCourse $course)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $num = $course->number;
         $course->delete();
         \App\Models\AuditLog::log($request->user()->id, 'course_deleted', "Адміністратор видалив курс " . $num);
@@ -673,6 +781,8 @@ class AdminController extends Controller
 
     public function storeGroup(Request $request)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $request->validate(['name' => 'required|string|unique:academic_groups,name|max:15']);
         \App\Models\AcademicGroup::create(['name' => $request->name]);
         \App\Models\AuditLog::log($request->user()->id, 'group_created', "Адміністратор створив групу " . $request->name);
@@ -681,9 +791,244 @@ class AdminController extends Controller
 
     public function destroyGroup(Request $request, \App\Models\AcademicGroup $group)
     {
+        $this->ensureSuperAdmin($request->user());
+
         $name = $group->name;
         $group->delete();
         \App\Models\AuditLog::log($request->user()->id, 'group_deleted', "Адміністратор видалив групу " . $name);
         return redirect()->back()->with('success', 'Групу успішно видалено!');
+    }
+
+    /**
+     * Створення коменданта вручну
+     */
+    public function storeCommandant(Request $request)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+
+        $commandant = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => 'commandant',
+            'building_id' => $request->building_id,
+            'password_changed' => true,
+        ]);
+
+        $building = Building::find($request->building_id);
+        AuditLog::log($request->user()->id, 'commandant_created', "Створено коменданта {$commandant->name} ({$commandant->email}) для корпуса \"{$building->name}\"");
+
+        return redirect()->back()->with('success', "Коменданта {$commandant->name} успішно створено!");
+    }
+
+    /**
+     * Автоматична генерація коменданта для корпусу
+     */
+    public function generateCommandant(Request $request)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        $request->validate([
+            'building_id' => 'required|exists:buildings,id',
+        ]);
+
+        $building = Building::findOrFail($request->building_id);
+        $tempId = rand(100, 999);
+        $email = 'commandant.b' . $building->id . '.' . $tempId . '@mnau.edu.ua';
+        $password = \Illuminate\Support\Str::random(8);
+        $name = 'Комендант (' . $building->name . ') #' . $tempId;
+
+        $commandant = User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => \Illuminate\Support\Facades\Hash::make($password),
+            'role' => 'commandant',
+            'building_id' => $building->id,
+            'must_change_password' => false,
+            'password_changed' => true,
+        ]);
+
+        AuditLog::log($request->user()->id, 'commandant_generated', "Згенеровано акаунт коменданта {$email} для корпуса \"{$building->name}\"");
+
+        $generated = [
+            'id' => $commandant->id,
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'building_name' => $building->name,
+        ];
+
+        return redirect()->back()
+            ->with('generated_commandant', $generated)
+            ->with('success', "Акаунт коменданта для \"{$building->name}\" успішно згенеровано!");
+    }
+
+    /**
+     * Видалення коменданта
+     */
+    public function deleteCommandant(Request $request, User $user)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        if ($user->role !== 'commandant') {
+            return redirect()->back()->withErrors(['error' => 'Користувач не є комендантом.']);
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        AuditLog::log($request->user()->id, 'commandant_deleted', "Видалено коменданта {$name}");
+
+        return redirect()->back()->with('success', "Коменданта {$name} успішно видалено!");
+    }
+
+    /**
+     * Схвалення запиту на зміну електронної пошти
+     */
+    public function approveEmailChange(Request $request, EmailChangeRequest $emailRequest)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        if ($emailRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'Запит вже опрацьовано.');
+        }
+
+        $user = $emailRequest->user;
+        if (!$user) {
+            return redirect()->back()->with('error', 'Користувача не знайдено.');
+        }
+
+        // Перевіряємо унікальність емейлу
+        $existing = User::where('email', $emailRequest->new_email)->where('id', '!=', $user->id)->first();
+        if ($existing) {
+            $emailRequest->update([
+                'status' => 'rejected',
+                'rejection_reason' => 'Електронна пошта вже використовується іншим акаунтом.',
+            ]);
+
+            AuditLog::log($request->user()->id, 'email_change_rejected_auto', "Автоматично відхилено запит на зміну емейлу користувача {$user->name} на {$emailRequest->new_email} (пошта вже зайнята)");
+
+            return redirect()->back()->with('error', 'Запит відхилено: пошта вже зайнята іншим користувачем.');
+        }
+
+        $user->email = $emailRequest->new_email;
+        $user->email_verified_at = null;
+        $user->email_changes_count += 1;
+        $user->save();
+
+        $emailRequest->update(['status' => 'approved']);
+
+        AuditLog::log($request->user()->id, 'email_change_approved', "Схвалено зміну емейлу для користувача {$user->name} на {$emailRequest->new_email}");
+
+        return redirect()->back()->with('success', "Запит на зміну електронної пошти для {$user->name} успішно схвалено.");
+    }
+
+    /**
+     * Відхилення запиту на зміну електронної пошти
+     */
+    public function rejectEmailChange(Request $request, EmailChangeRequest $emailRequest)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        $request->validate([
+            'rejection_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($emailRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'Запит вже опрацьовано.');
+        }
+
+        $emailRequest->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason ?: 'Відхилено адміністратором.',
+        ]);
+
+        AuditLog::log($request->user()->id, 'email_change_rejected', "Відхилено запит на зміну емейлу для користувача {$emailRequest->user->name}. Причина: " . ($request->rejection_reason ?: 'Без вказання причини'));
+
+        return redirect()->back()->with('success', 'Запит на зміну електронної пошти відхилено.');
+    }
+
+    /**
+     * Оновлення профілю користувача адміном або комендантом
+     */
+    public function updateUser(Request $request, User $user)
+    {
+        $currentUser = $request->user();
+
+        if ($currentUser->role === 'commandant') {
+            if ($user->role !== 'user') {
+                abort(403, 'Комендант може редагувати лише акаунти студентів.');
+            }
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'telegram' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
+            'specialty' => ['nullable', 'string', 'max:50'],
+            'course' => ['nullable', 'integer', 'min:1', 'max:6'],
+            'group' => ['nullable', 'string', 'max:20'],
+            'password' => ['nullable', 'string', 'min:6'],
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            $validated['must_change_password'] = false;
+            $validated['password_changed'] = true;
+        } else {
+            unset($validated['password']);
+        }
+
+        // Роль і корпус може змінювати тільки Super Admin
+        if ($currentUser->role === 'admin' && $request->has('role')) {
+            $request->validate([
+                'role' => ['required', 'string', Rule::in(['admin', 'commandant', 'user'])],
+                'building_id' => ['nullable', 'exists:buildings,id'],
+            ]);
+            $validated['role'] = $request->role;
+            $validated['building_id'] = $request->building_id ?: null;
+        }
+
+        $user->update($validated);
+
+        AuditLog::log(
+            $currentUser->id,
+            'user_profile_updated_by_admin',
+            "Адміністратор {$currentUser->name} оновив дані користувача {$user->name} (#{$user->id})"
+        );
+
+        return redirect()->back()->with('success', "Дані користувача {$user->name} успішно оновлено!");
+    }
+
+    /**
+     * Швидкий вхід під акаунтом студента (Impersonate)
+     */
+    public function impersonate(Request $request, User $user)
+    {
+        $currentUser = $request->user();
+
+        if ($user->role === 'admin') {
+            return redirect()->back()->with('error', 'Неможливо увійти під акаунтом адміністратора.');
+        }
+
+        if ($currentUser->role === 'commandant' && $user->role !== 'user') {
+            return redirect()->back()->with('error', 'Комендант може входити лише під акаунтами студентів.');
+        }
+
+        AuditLog::log($currentUser->id, 'impersonated_user', "Адміністратор {$currentUser->name} увійшов під ім'ям {$user->name} (ID: {$user->id})");
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')->with('success', "Ви увійшли під ім'ям {$user->name}");
     }
 }

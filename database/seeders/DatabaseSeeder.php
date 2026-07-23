@@ -124,6 +124,29 @@ class DatabaseSeeder extends Seeder
         $buildingB = Building::create(['name' => 'Корпус Б (Інженерний)']);
         $buildingC = Building::create(['name' => 'Корпус В (Екологічний)']);
 
+        // 4.1 Создаем комендантов
+        User::create([
+            'name' => 'Комендант Корпусу А (Агрономічний)',
+            'email' => 'commandant_a@test.com',
+            'password' => Hash::make('password'),
+            'role' => 'commandant',
+            'building_id' => $buildingA->id,
+            'gender' => 'male',
+            'phone' => '+380501112233',
+            'password_changed' => true,
+        ]);
+
+        User::create([
+            'name' => 'Комендант Корпусу Б (Інженерний)',
+            'email' => 'commandant_b@test.com',
+            'password' => Hash::make('password'),
+            'role' => 'commandant',
+            'building_id' => $buildingB->id,
+            'gender' => 'female',
+            'phone' => '+380504445566',
+            'password_changed' => true,
+        ]);
+
         // 5. Генерируем комнаты для Корпуса А
         $roomsA = [];
         for ($floor = 1; $floor <= 3; $floor++) {

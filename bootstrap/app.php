@@ -29,8 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Куда отправлять уже залогиненных пользователей, если они пытаются зайти на /login или /register
                 $user = $request->user();
 
-                if ($user && $user->role === 'admin') {
-                    return '/admin/dashboard'; // Если админ — шлем в админку
+                if ($user && in_array($user->role, ['admin', 'commandant'])) {
+                    return '/admin/dashboard'; // Якщо адмін або комендант — в адмінку
                 }
 
                 return '/dashboard'; // Если обычный — на дашборд

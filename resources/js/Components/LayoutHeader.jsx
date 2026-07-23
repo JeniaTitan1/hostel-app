@@ -18,7 +18,7 @@ export default function LayoutHeader({
     return (
         <>
             <nav
-                className="bg-slate-50/50 border-b border-slate-100 dark:border-gray-700/80 !bg-none backdrop-blur-none sticky top-0 z-50 transition-colors duration-200"
+                className="bg-white/90 dark:bg-gray-800/95 border-b border-slate-100 dark:border-gray-700/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200"
                 style={animating ? { border: "none" } : {}}
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -56,6 +56,8 @@ export default function LayoutHeader({
                                 >
                                     {user.role === "admin"
                                         ? "Адмін-панель"
+                                        : user.role === "commandant"
+                                        ? "Панель коменданта"
                                         : "Головна"}
                                 </Link>
                             </div>
@@ -207,7 +209,11 @@ export default function LayoutHeader({
                                     : "border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 hover:bg-gray-50/50"
                             }`}
                         >
-                            {user.role === "admin" ? "Адмін-панель" : "Головна"}
+                            {user.role === "admin"
+                                ? "Адмін-панель"
+                                : user.role === "commandant"
+                                ? "Панель коменданта"
+                                : "Головна"}
                         </Link>
                     </div>
 
@@ -250,7 +256,7 @@ export default function LayoutHeader({
             {/* Page Header (Subheader) */}
             {header && (
                 <header
-                    className="bg-slate-50/50 border-b border-slate-100 dark:border-gray-700/60 relative z-10"
+                    className="bg-slate-50/70 dark:bg-gray-800/80 border-b border-slate-100 dark:border-gray-700/60 relative z-10"
                     style={animating ? { border: "none" } : {}}
                 >
                     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">

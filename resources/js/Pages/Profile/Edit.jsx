@@ -32,14 +32,14 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <span className="font-bold text-amber-800 dark:text-amber-200 text-sm">Обов'язкова первинна реєстрація</span>
                             </div>
                             <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                                Ваш акаунт було створено тимчасово. Будь ласка, змініть ваше ім'я, email, заповніть стать, напрям, курс, групу та телефон, а також оновіть пароль у блоках нижче. Після виконання цих кроків ви зможете користуватися іншими сторінками сайту.
+                                Ваш акаунт було створено тимчасово. Будь ласка, змініть ваше ім'я, заповніть стать, напрям, курс, групу та телефон, а також оновіть пароль у блоках нижче (Email можна оновити за бажанням). Після виконання цих кроків ви зможете користуватися іншими сторінками сайту.
                             </p>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[11px] font-bold">
                                 <span className={auth?.user?.name && !auth?.user?.name.startsWith('Тимчасовий') && !auth?.user?.name.startsWith('Temporary') ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
                                     {auth?.user?.name && !auth?.user?.name.startsWith('Тимчасовий') && !auth?.user?.name.startsWith('Temporary') ? '✓' : '✗'} Тимчасове Ім'я (потрібно змінити)
                                 </span>
-                                <span className={auth?.user?.email && !(auth?.user?.email.startsWith('student') && auth?.user?.email.endsWith('@mnau.edu.ua')) ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
-                                    {auth?.user?.email && !(auth?.user?.email.startsWith('student') && auth?.user?.email.endsWith('@mnau.edu.ua')) ? '✓' : '✗'} Тимчасовий Email (потрібно змінити)
+                                <span className="text-gray-500 flex items-center gap-1 font-normal">
+                                    ○ Email (необов'язково)
                                 </span>
                                 <span className={auth?.user?.telegram ? 'text-emerald-700 dark:text-emerald-300 flex items-center gap-1' : 'text-gray-500 flex items-center gap-1 font-normal'}>
                                     {auth?.user?.telegram ? '✓' : '○'} Telegram (необов'язково)
@@ -96,7 +96,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 {auth?.user?.name}
                             </h1>
                             <p className="text-emerald-100 text-xs max-w-xl">
-                                Роль у системі: <span className="font-bold uppercase tracking-wider text-[10px] bg-emerald-700/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">{auth?.user?.role === 'admin' ? 'Адміністратор' : 'Студент'}</span>
+                                Роль у системі: <span className="font-bold uppercase tracking-wider text-[10px] bg-emerald-700/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">{auth?.user?.role === 'admin' ? 'Головний Адміністратор' : auth?.user?.role === 'commandant' ? `Комендант ${auth?.user?.building?.name ? '(' + auth.user.building.name + ')' : ''}` : 'Студент'}</span>
                             </p>
                         </div>
                     </div>

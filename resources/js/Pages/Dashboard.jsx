@@ -1,6 +1,8 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
+import { generateOrderPdf } from "@/Utils/OrderPdfGenerator";
+import VerifyOrderModal from "@/Components/VerifyOrderModal";
 
 const BedIcon = ({ gender, isOccupied, name }) => {
     if (!isOccupied) {
@@ -117,55 +119,12 @@ export default function Dashboard({
         );
     };
 
-    // Генерація TXT-ордера на заселення
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
+
+    // Генерація PDF-ордера на заселення
     const handleDownloadSlip = () => {
         if (!userBooking) return;
-
-        const content = [
-            "======================================================",
-            "         МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ",
-            "   МИКОЛАЇВСЬКИЙ НАЦІОНАЛЬНИЙ АГРАРНИЙ УНІВЕРСИТЕТ",
-            "======================================================",
-            "",
-            "                  ОРДЕР НА ЗАСЕЛЕННЯ",
-            "                (Електронний документ)",
-            "",
-            `Дата формування: ${new Date().toLocaleDateString("uk-UA")} р.`,
-            `Студент/ка: ${auth?.user?.name}`,
-            `Контактний Email: ${auth?.user?.email}`,
-            auth?.user?.phone ? `Телефон: ${auth?.user?.phone}` : "",
-            "",
-            "ДЕТАЛІ ПРОЖИВАННЯ:",
-            "------------------------------------------------------",
-            `Гуртожиток: ${userBooking.room?.building?.name || "Не визначено"}`,
-            `Поверх: ${userBooking.room?.floor || "-"}`,
-            `Кімната №: ${userBooking.room?.room_number || "-"}`,
-            `Статус: ЗАТВЕРДЖЕНО`,
-            "------------------------------------------------------",
-            "",
-            "ПРАВИЛА ПРОЖИВАННЯ:",
-            "1. Дотримуватися правил внутрішнього розпорядку гуртожитку.",
-            "2. Своєчасно вносити оплату за проживання.",
-            "3. Дбайливо ставитись до майна університету.",
-            "4. Дотримуватись правил пожежної безпеки та санітарних норм.",
-            "",
-            "Цей ордер є підставою для поселення та отримання ключів у коменданта.",
-            "Збережіть цей файл або роздрукуйте його для пред'явлення.",
-            "",
-            "======================================================",
-            "   Згенеровано автоматично системою поселення МНАУ",
-            "======================================================",
-        ]
-            .filter(Boolean)
-            .join("\n");
-
-        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `order-zaselennya-${auth?.user?.name?.replace(/\s+/g, "-")}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
+        generateOrderPdf({ user: auth?.user, booking: userBooking });
     };
 
     // Визначення кольору кімнати залежно від її заповненості

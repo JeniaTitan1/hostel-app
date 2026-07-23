@@ -16,4 +16,12 @@ class Building extends Model
     {
         return $this->hasMany(Room::class);
     }
+
+    /**
+     * Связь с комендантами корпуса
+     */
+    public function commandants(): HasMany
+    {
+        return $this->hasMany(User::class)->where('role', 'commandant');
+    }
 }

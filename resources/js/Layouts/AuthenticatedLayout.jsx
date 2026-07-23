@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePage, router } from "@inertiajs/react";
 import IntroWaveAnimation from "@/Components/IntroWaveAnimation";
 import ToastContainer from "@/Components/ToastContainer";
 import LayoutHeader from "@/Components/LayoutHeader";
 import LayoutFooter from "@/Components/LayoutFooter";
+
+// Внутрішній прапорець сесії модуля: ресетиться при перезавантаженні сторінки (F5),
+// але зберігається при навігації в межах Inertia (SPA)
+let hasSeenIntroInAppSession = false;
 
 export default function AuthenticatedLayout({
     header,
@@ -11,8 +15,7 @@ export default function AuthenticatedLayout({
     user: passedUser,
 }) {
     const { props } = usePage();
-    const user =
-        passedUser ||
+    const user = passedUser ||
         props?.auth?.user || { name: "Гість", email: "guest@example.com" };
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -34,9 +37,40 @@ export default function AuthenticatedLayout({
         localStorage.setItem("darkMode", darkMode);
     }, [darkMode]);
 
+    const flash = props?.flash || {};
+    const errors = props?.errors || {};
+
     const [toasts, setToasts] = useState([]);
-    const [animating, setAnimating] = useState(true);
+    
+    // Анімація запускається при первинному вході та ручному перезавантаженні (F5),
+    // але не повторюється при переході по внутрішніх посиланнях Inertia
+    const [animating, setAnimating] = useState(() => {
+        if (!hasSeenIntroInAppSession) {
+            hasSeenIntroInAppSession = true;
+            return true;
+        }
+        return false;
+    });
     const notifications = props.auth?.notifications || [];
+
+    const handleCloseIntroAnimation = () => {
+        setAnimating(false);
+    };
+
+    // Захист від дублювання тостів
+    const lastShownToastRef = useRef({ message: "", time: 0 });
+    const showToastOnce = (msg) => {
+        if (!msg) return;
+        const now = Date.now();
+        if (
+            lastShownToastRef.current.message === msg &&
+            now - lastShownToastRef.current.time < 1500
+        ) {
+            return;
+        }
+        lastShownToastRef.current = { message: msg, time: now };
+        window.alert(msg);
+    };
 
     // Global Toast listener & window.alert override
     useEffect(() => {
@@ -53,7 +87,7 @@ export default function AuthenticatedLayout({
 
         window.alert = (message) => {
             window.dispatchEvent(
-                new CustomEvent("show-toast", { detail: { message } })
+                new CustomEvent("show-toast", { detail: { message } }),
             );
         };
 
@@ -62,20 +96,17 @@ export default function AuthenticatedLayout({
         };
     }, []);
 
-    const flash = props?.flash || {};
-    const errors = props?.errors || {};
-
     // Initial mount flash check
     useEffect(() => {
         if (flash.success) {
-            window.alert(flash.success);
+            showToastOnce(flash.success);
         }
         if (flash.error) {
-            window.alert(flash.error);
+            showToastOnce(flash.error);
         }
         const errorKeys = Object.keys(errors);
         if (errorKeys.length > 0) {
-            window.alert(errors[errorKeys[0]]);
+            showToastOnce(errors[errorKeys[0]]);
         }
     }, []);
 
@@ -84,15 +115,15 @@ export default function AuthenticatedLayout({
         const removeEventListener = router.on("success", (event) => {
             const pageFlash = event.detail.page.props.flash || {};
             if (pageFlash.success) {
-                window.alert(pageFlash.success);
+                showToastOnce(pageFlash.success);
             }
             if (pageFlash.error) {
-                window.alert(pageFlash.error);
+                showToastOnce(pageFlash.error);
             }
             const pageErrors = event.detail.page.props.errors || {};
             const errorKeys = Object.keys(pageErrors);
             if (errorKeys.length > 0) {
-                window.alert(pageErrors[errorKeys[0]]);
+                showToastOnce(pageErrors[errorKeys[0]]);
             }
         });
 
@@ -108,7 +139,7 @@ export default function AuthenticatedLayout({
 
             {/* Intro Canvas Wave Animation */}
             {animating && (
-                <IntroWaveAnimation onClose={() => setAnimating(false)} />
+                <IntroWaveAnimation onClose={handleCloseIntroAnimation} />
             )}
 
             {/* Header & Subheader */}
