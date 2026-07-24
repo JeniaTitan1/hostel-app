@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    html {
+        background-color: #f8fafc;
+    }
+    html.dark {
+        background-color: #111827;
+        color-scheme: dark;
+    }
+    body {
+        background-color: transparent;
+    }
+}
+
 @keyframes wiggle {
     0%, 100% { transform: rotate(0deg); }
     15% { transform: rotate(12deg); }

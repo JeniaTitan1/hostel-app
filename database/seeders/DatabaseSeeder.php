@@ -5,6 +5,12 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Building;
 use App\Models\Room;
+use App\Models\Booking;
+use App\Models\Ticket;
+use App\Models\Specialty;
+use App\Models\AcademicCourse;
+use App\Models\AcademicGroup;
+use App\Models\AuditLog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,17 +21,17 @@ class DatabaseSeeder extends Seeder
         // 0. Створюємо академічні опції
         $specs = ['КН', 'ГРС', 'МЕН', 'ПВ', 'ФІН'];
         foreach ($specs as $s) {
-            \App\Models\Specialty::create(['name' => $s]);
+            Specialty::create(['name' => $s]);
         }
 
         $courses = [1, 2, 3, 4, 5, 6];
         foreach ($courses as $c) {
-            \App\Models\AcademicCourse::create(['number' => $c]);
+            AcademicCourse::create(['number' => $c]);
         }
 
         $groups = ['1', '2', '3', '4', '5'];
         foreach ($groups as $g) {
-            \App\Models\AcademicGroup::create(['name' => $g]);
+            AcademicGroup::create(['name' => $g]);
         }
 
         // 1. Создаем админа
@@ -39,7 +45,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Создаем тестовых пользователей (постоянных)
         $user1 = User::create([
-            'name' => 'user1',
+            'name' => 'Іван Петренко',
             'email' => 'user@test.com',
             'password' => Hash::make('password'),
             'role' => 'user',
@@ -53,7 +59,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user2 = User::create([
-            'name' => 'user2',
+            'name' => 'Олексій Сидоренко',
             'email' => 'user2@test.com',
             'password' => Hash::make('password'),
             'role' => 'user',
@@ -110,7 +116,7 @@ class DatabaseSeeder extends Seeder
 
         // 3. Создаем временного пользователя (must_change_password = true)
         User::create([
-            'name' => 'Temporary Active Student #1111',
+            'name' => 'Студент-Новачок #1111',
             'email' => 'student1111@mnau.edu.ua',
             'password' => Hash::make('password'),
             'role' => 'user',
@@ -151,7 +157,7 @@ class DatabaseSeeder extends Seeder
         $roomsA = [];
         for ($floor = 1; $floor <= 3; $floor++) {
             for ($r = 1; $r <= 4; $r++) {
-                $roomsA[] = \App\Models\Room::create([
+                $roomsA[] = Room::create([
                     'building_id' => $buildingA->id,
                     'floor' => $floor,
                     'room_number' => $floor . '0' . $r,
@@ -164,7 +170,7 @@ class DatabaseSeeder extends Seeder
         $roomsB = [];
         for ($floor = 1; $floor <= 2; $floor++) {
             for ($r = 1; $r <= 3; $r++) {
-                $roomsB[] = \App\Models\Room::create([
+                $roomsB[] = Room::create([
                     'building_id' => $buildingB->id,
                     'floor' => $floor,
                     'room_number' => $floor . '0' . $r,
@@ -173,52 +179,68 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        // Встановлюємо спеціальні стани кімнат для тестування (Ремонт, Закритий набір, Прихована)
+        if (isset($roomsA[2])) {
+            $roomsA[2]->update([
+                'status' => 'closed',
+                'closure_reason' => 'Капітальний ремонт сантехніки',
+                'closure_duration' => 'до 1 вересня',
+            ]);
+        }
+
+        if (isset($roomsA[3])) {
+            $roomsA[3]->update([
+                'intake_closed' => true,
+            ]);
+        }
+
+        if (isset($roomsA[4])) {
+            $roomsA[4]->update([
+                'hide_from_frontend' => true,
+            ]);
+        }
+
         // 6. Заселения (Bookings)
-        // Иван и Лёха живут в одной комнате (101 в Корпусе А) - Roommates!
         $room101A = $roomsA[0];
-        \App\Models\Booking::create([
+        Booking::create([
             'user_id' => $user1->id,
             'room_id' => $room101A->id,
             'status' => 'approved',
         ]);
-        \App\Models\Booking::create([
+        Booking::create([
             'user_id' => $user2->id,
             'room_id' => $room101A->id,
             'status' => 'approved',
         ]);
 
-        // Олена и Сергій живут в комнате 102 в Корпусе А
         $room102A = $roomsA[1];
-        \App\Models\Booking::create([
+        Booking::create([
             'user_id' => $user4->id,
             'room_id' => $room102A->id,
             'status' => 'approved',
         ]);
-        \App\Models\Booking::create([
+        Booking::create([
             'user_id' => $user5->id,
             'room_id' => $room102A->id,
             'status' => 'approved',
         ]);
 
-        // Петро отправил заявку на заселение в Корпус Б комната 101, ожидает одобрения
         $room101B = $roomsB[0];
-        \App\Models\Booking::create([
+        Booking::create([
             'user_id' => $user3->id,
             'room_id' => $room101B->id,
             'status' => 'pending',
         ]);
 
         // 7. Технические заявки (Tickets)
-        // Олена жалуется на протечку крана (Активная)
-        \App\Models\Ticket::create([
+        Ticket::create([
             'user_id' => $user4->id,
             'room_id' => $room102A->id,
             'description' => 'Протікає змішувач у душовій кімнаті, вода капає на підлогу.',
             'status' => 'pending',
         ]);
 
-        // Сергій жаловался на розетку (Решена)
-        \App\Models\Ticket::create([
+        Ticket::create([
             'user_id' => $user5->id,
             'room_id' => $room102A->id,
             'description' => 'Зламалась електрична розетка біля ліжка.',
@@ -226,17 +248,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 8. Логи действий (Audit Logs)
-        \App\Models\AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingA->name}");
-        \App\Models\AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingB->name}");
-        \App\Models\AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingC->name}");
-        \App\Models\AuditLog::log($user1->id, 'booking_requested', "Користувач {$user1->name} надіслав запит на заселення в кімнату №{$room101A->room_number}");
-        \App\Models\AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення користувача {$user1->name} в кімнату №{$room101A->room_number}");
-        \App\Models\AuditLog::log($user2->id, 'booking_requested', "Користувач {$user2->name} надіслав запит на заселення в кімнату №{$room101A->room_number}");
-        \App\Models\AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення користувача {$user2->name} в кімнату №{$room101A->room_number}");
-        \App\Models\AuditLog::log($user4->id, 'booking_requested', "Користувач {$user4->name} надіслав запит на заселення в кімнату №{$room102A->room_number}");
-        \App\Models\AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення користувача {$user4->name} в кімнату №{$room102A->room_number}");
-        \App\Models\AuditLog::log($user5->id, 'booking_requested', "Користувач {$user5->name} надіслав запит на заселення в кімнату №{$room102A->room_number}");
-        \App\Models\AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення користувача {$user5->name} в кімнату №{$room102A->room_number}");
-        \App\Models\AuditLog::log($user3->id, 'booking_requested', "Користувач {$user3->name} надіслав запит на заселення в кімнату №{$room101B->room_number}");
+        AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingA->name}");
+        AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingB->name}");
+        AuditLog::log($admin->id, 'building_created', "Адміністратор створив корпус {$buildingC->name}");
+        AuditLog::log($user1->id, 'booking_requested', "Користувач {$user1->name} надіслав запит на заселення в кімнату №{$room101A->room_number}");
+        AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення користувача {$user1->name} в кімнату №{$room101A->room_number}");
     }
 }

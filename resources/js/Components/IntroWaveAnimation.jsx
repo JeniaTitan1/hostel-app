@@ -9,7 +9,6 @@ export default function IntroWaveAnimation({ onClose }) {
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) return;
 
-        // Cap DPR to 1.25 to prevent performance bottlenecks on 2K/4K high-DPI monitors
         const resizeCanvas = () => {
             const dpr = Math.min(1.25, window.devicePixelRatio || 1);
             canvas.width = window.innerWidth * dpr;
@@ -57,11 +56,10 @@ export default function IntroWaveAnimation({ onClose }) {
             const w = Math.ceil(textWidth + paddingX);
             const h = Math.ceil(fontSize * 2.0);
 
-            off.width = w * 2; // High-res offscreen rendering
+            off.width = w * 2;
             off.height = h * 2;
             octx.scale(2, 2);
 
-            // Glassmorphic pill badge background
             octx.fillStyle = "rgba(2, 6, 23, 0.78)";
             octx.strokeStyle = "rgba(167, 243, 208, 0.45)";
             octx.lineWidth = 1.2;
@@ -69,13 +67,11 @@ export default function IntroWaveAnimation({ onClose }) {
             octx.fill();
             octx.stroke();
 
-            // Accent glow dot
             octx.beginPath();
             octx.arc(10, 5, 2, 0, Math.PI * 2);
             octx.fillStyle = "rgba(255, 255, 255, 0.5)";
             octx.fill();
 
-            // Text
             octx.font = `700 ${fontSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
             octx.fillStyle = "#ecfdf5";
             octx.textAlign = "center";
@@ -85,7 +81,7 @@ export default function IntroWaveAnimation({ onClose }) {
             return { canvas: off, width: w, height: h };
         });
 
-        // --- PRE-RENDER BUBBLE SPRITES TO OFFSCREEN CANVASES ---
+        // --- PRE-RENDER BUBBLE SPRITES ---
         const bubbleTypes = [
             { hue: 145, size: 6, hasRing: true },
             { hue: 160, size: 10, hasRing: true },
@@ -182,50 +178,45 @@ export default function IntroWaveAnimation({ onClose }) {
             ctx.clearRect(0, 0, w, h);
             phase += dt * 2.2;
 
-            // Easing
             const introT = Math.min(1, elapsed / 1100);
-            const introEase = 1 - Math.pow(1 - introT, 3); // cubic ease out
+            const introEase = 1 - Math.pow(1 - introT, 3);
 
             const isExiting = elapsed >= fadeOutStart;
             const exitT = isExiting ? Math.min(1, (elapsed - fadeOutStart) / (duration - fadeOutStart)) : 0;
-            const exitEase = Math.pow(exitT, 2.5); // accelerating sweep
-
-            // Exit fade multiplier for elements inside wave: smoothly dissolves text & badges with exit wave
+            const exitEase = Math.pow(exitT, 2.5);
             const exitFade = isExiting ? Math.max(0, 1 - Math.pow(exitT, 1.2)) : 1.0;
 
-            // Wave Positions
             const waveTopY = h * (1 - introEase) - 140 - exitEase * (h * 0.6);
-            const waveBottomY = isExiting ? (h + 150) - exitEase * (h + 350) : h + 150;
+            const waveBottomY = isExiting ? (h + 200) - exitEase * (h + 400) : h + 200;
 
-            // Canvas global alpha fade at very end
             if (exitT > 0.8) {
                 ctx.globalAlpha = Math.max(0, 1 - (exitT - 0.8) / 0.2);
             } else {
                 ctx.globalAlpha = 1.0;
             }
 
-            // --- DRAW FULL SCREEN WAVE LIQUID ---
-            if (waveBottomY > waveTopY) {
+            // --- DRAW FULL SCREEN WAVE LIQUID (OVERFLOW BOUNDS TO PREVENT ANY EDGE GAPS) ---
+            if (waveBottomY > waveTopY - 100) {
                 ctx.beginPath();
-                ctx.moveTo(0, waveBottomY);
+                ctx.moveTo(-50, waveBottomY);
                 const startY = waveTopY + Math.sin(phase) * 16;
-                ctx.lineTo(0, startY);
+                ctx.lineTo(-50, startY);
 
-                const stepX = Math.max(20, Math.floor(w / 45));
-                for (let x = 0; x <= w; x += stepX) {
+                const stepX = Math.max(20, Math.floor(w / 40));
+                for (let x = -50; x <= w + stepX + 50; x += stepX) {
                     const wave1 = Math.sin(x * 0.003 + phase) * 22;
                     const wave2 = Math.cos(x * 0.0065 - phase * 0.6) * 12;
                     const y = waveTopY + wave1 + wave2;
                     ctx.lineTo(x, y);
                 }
 
-                ctx.lineTo(w, waveBottomY);
+                ctx.lineTo(w + 100, waveBottomY);
                 ctx.closePath();
 
-                const waveGrad = ctx.createLinearGradient(0, Math.max(0, waveTopY), 0, Math.min(h, waveBottomY));
-                waveGrad.addColorStop(0, "#34d399"); // emerald-400
-                waveGrad.addColorStop(0.5, "#10b981"); // emerald-500
-                waveGrad.addColorStop(1, "#059669"); // emerald-600
+                const waveGrad = ctx.createLinearGradient(0, Math.max(-50, waveTopY), 0, Math.min(h + 100, waveBottomY));
+                waveGrad.addColorStop(0, "#34d399");
+                waveGrad.addColorStop(0.5, "#10b981");
+                waveGrad.addColorStop(1, "#059669");
 
                 ctx.fillStyle = waveGrad;
                 ctx.fill();
@@ -234,14 +225,13 @@ export default function IntroWaveAnimation({ onClose }) {
                 ctx.stroke();
             }
 
-            // --- DRAW BUBBLE SPRITES WITH SYNCHRONIZED EXIT FADE ---
+            // --- DRAW BUBBLES ---
             for (let i = 0; i < bubbles.length; i++) {
                 const p = bubbles[i];
                 p.y -= p.vy * dt * 60;
                 if (isExiting) p.y -= exitEase * 400 * dt;
                 p.x += (p.vx + Math.sin(phase * p.wobbleFreq + p.drift) * 0.35) * dt * 60;
 
-                // Screen bounds wrapping
                 if (p.y < -60) p.y = h + 40;
                 if (p.y > h + 60) p.y = -40;
                 if (p.x < -40) p.x = w + 30;
@@ -252,7 +242,7 @@ export default function IntroWaveAnimation({ onClose }) {
                 ctx.drawImage(p.sprite, p.x - halfDim, p.y - halfDim, p.dim, p.dim);
             }
 
-            // --- DRAW EMOJI & MNAU BADGES WITH SYNCHRONIZED EXIT FADE ---
+            // --- DRAW LABELS ---
             for (let i = 0; i < floatingLabels.length; i++) {
                 const label = floatingLabels[i];
                 label.y -= label.vy * dt * 60;
@@ -274,7 +264,7 @@ export default function IntroWaveAnimation({ onClose }) {
                 ctx.restore();
             }
 
-            // --- DRAW HERO CENTER "MNAU" TITLE WITH SYNCHRONIZED EXIT FADE ---
+            // --- DRAW HERO CENTER "MNAU" TITLE ---
             const centerX = w * 0.5;
             const centerY = h * 0.38;
             const pop = Math.min(1, elapsed / 800);
@@ -327,7 +317,7 @@ export default function IntroWaveAnimation({ onClose }) {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 z-[99999] pointer-events-none"
-            style={{ width: "100vw", height: "100vh" }}
+            style={{ width: "100vw", height: "100vh", top: 0, left: 0 }}
         />
     );
 }

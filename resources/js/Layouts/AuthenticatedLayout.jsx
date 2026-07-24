@@ -133,7 +133,7 @@ export default function AuthenticatedLayout({
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col antialiased text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
+        <div className="min-h-screen flex flex-col antialiased bg-slate-50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
             {/* Flash Message Toasts */}
             <ToastContainer toasts={toasts} setToasts={setToasts} />
 

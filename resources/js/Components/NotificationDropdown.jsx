@@ -171,7 +171,7 @@ export default function NotificationDropdown({ notifications = [], user }) {
                             return (
                                 <div
                                     key={n.id}
-                                    className="p-3.5 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-gray-750/30 transition-all duration-200 relative group border-l-2 border-transparent hover:border-emerald-500/50 dark:hover:border-emerald-500/30"
+                                    className="p-3.5 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-gray-700/40 transition-all duration-200 relative group border-l-2 border-transparent hover:border-emerald-500/50 dark:hover:border-emerald-500/30"
                                 >
                                     <div
                                         className={`flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg border ${style.bg} transition-all group-hover:scale-105 duration-200 shadow-sm`}

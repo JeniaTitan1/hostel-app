@@ -126,6 +126,15 @@ class AdminController extends Controller
             })->values(),
         ];
 
+        $specialties = \App\Models\Specialty::orderBy('name')->get();
+        $courses = \App\Models\AcademicCourse::orderBy('number')->get();
+        $groups = \App\Models\AcademicGroup::orderBy('name')->get();
+        $systemSettings = [
+            'min_beds_per_room' => \App\Models\Setting::get('min_beds_per_room', 1),
+            'max_beds_per_room' => \App\Models\Setting::get('max_beds_per_room', 6),
+            'global_intake_closed' => (bool) \App\Models\Setting::get('global_intake_closed', false),
+        ];
+
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings'     => $pendingBookings,
             'buildings'           => $buildings,
@@ -139,6 +148,10 @@ class AdminController extends Controller
             'generatedUsers'      => session('generated_users'),
             'generatedCommandant' => session('generated_commandant'),
             'stats'               => $stats,
+            'specialties'         => $specialties,
+            'courses'             => $courses,
+            'groups'              => $groups,
+            'systemSettings'      => $systemSettings,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -352,15 +365,15 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'closure_reason' => 'required|string|max:255',
-                'closure_duration' => 'required|string|max:255',
+                'closure_reason' => 'nullable|string|max:255',
+                'closure_duration' => 'nullable|string|max:255',
                 'hide_from_frontend' => 'nullable|boolean',
             ]);
 
             $room->update([
                 'status' => 'closed',
-                'closure_reason' => $request->closure_reason,
-                'closure_duration' => $request->closure_duration,
+                'closure_reason' => $request->closure_reason ?: 'Капітальний ремонт',
+                'closure_duration' => $request->closure_duration ?: 'До подальших вказівок',
                 'hide_from_frontend' => $request->boolean('hide_from_frontend'),
             ]);
         } else {

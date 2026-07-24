@@ -28,10 +28,10 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'telegram' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'gender' => ['required', 'string', Rule::in(['male', 'female'])],
-            'specialty' => ['required', 'string', 'max:10'],
-            'course' => ['required', 'integer', 'min:1', 'max:6'],
-            'group' => ['required', 'string', 'max:15'],
+            'gender' => ['sometimes', 'nullable', 'string', Rule::in(['male', 'female'])],
+            'specialty' => ['sometimes', 'nullable', 'string', 'max:10'],
+            'course' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:6'],
+            'group' => ['sometimes', 'nullable', 'string', 'max:15'],
         ];
     }
 }

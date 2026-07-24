@@ -776,41 +776,43 @@ export default function Dashboard({
                                                             </span>
                                                         )}
 
-                                                        <div className="w-full flex justify-between items-center">
-                                                            <div className="flex items-center gap-2">
-                                                                <span
-                                                                    className={`w-2 h-2 rounded-full ${styles.indicator}`}
-                                                                />
-                                                                <span className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-1.5">
-                                                                    <span>Кімната №{room.room_number}</span>
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1">
-                                                                {isClosed && (
-                                                                    <svg
-                                                                        className="w-4 h-4 text-gray-400"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                        stroke="currentColor"
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth={
-                                                                                2
-                                                                            }
-                                                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                                                        />
-                                                                    </svg>
-                                                                )}
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <span
-                                                                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}
-                                                                    >
-                                                                        {isClosed
-                                                                            ? "Зачинено"
-                                                                            : `${room.max_capacity} місна`}
+                                                        <div className="w-full flex justify-between items-start">
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`w-2 h-2 rounded-full ${styles.indicator}`} />
+                                                                    <span className="font-bold text-lg text-gray-900 dark:text-white">
+                                                                        Кімната №{room.room_number}
                                                                     </span>
+                                                                </div>
+                                                                {isClosed && (
+                                                                    <div className="mt-1 text-xs">
+                                                                        <p className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
+                                                                            <span>🛠️ {room.closure_reason || "Технічне обслуговування"}</span>
+                                                                        </p>
+                                                                        {room.closure_duration && (
+                                                                            <p className="text-[10px] text-gray-400 font-mono">
+                                                                                Термін: {room.closure_duration}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                <div className="flex items-center gap-1 flex-wrap justify-end">
+                                                                    {isClosed ? (
+                                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-200">
+                                                                            🔧 На ремонті
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}>
+                                                                            {`${room.max_capacity} місна`}
+                                                                        </span>
+                                                                    )}
+                                                                    {Boolean(room.intake_closed) && !isClosed && (
+                                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200">
+                                                                            🔒 Закрита
+                                                                        </span>
+                                                                    )}
                                                                     {!isClosed && (
                                                                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider ${getRoomGender(room).badgeBg}`}>
                                                                             {getRoomGender(room).label}
