@@ -78,7 +78,9 @@ export default function Dashboard({
         if (generatedUsers && generatedUsers.length > 0) {
             setAccumulatedUsers((prev) => {
                 const existingEmails = new Set(prev.map((u) => u.email));
-                const newItems = generatedUsers.filter((u) => !existingEmails.has(u.email));
+                const newItems = generatedUsers.filter(
+                    (u) => !existingEmails.has(u.email),
+                );
                 return [...prev, ...newItems];
             });
         }
@@ -89,7 +91,7 @@ export default function Dashboard({
             `Ви дійсно бажаєте увійти на сайт під ім'ям "${userName}"?`,
             () => {
                 router.post(route("admin.users.impersonate", userId));
-            }
+            },
         );
     };
 
@@ -475,18 +477,25 @@ export default function Dashboard({
 
         const headers = ["Ім'я", "Стать", "Email", "Пароль"];
         const rows = accumulatedUsers.map((u) => [
-            `"${(u.name || '').replace(/"/g, '""')}"`,
-            `"${u.gender === 'male' ? 'Чоловіча' : u.gender === 'female' ? 'Жіноча' : ''}"`,
-            `"${(u.email || '').replace(/"/g, '""')}"`,
-            `"${(u.password || '').replace(/"/g, '""')}"`,
+            `"${(u.name || "").replace(/"/g, '""')}"`,
+            `"${u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : ""}"`,
+            `"${(u.email || "").replace(/"/g, '""')}"`,
+            `"${(u.password || "").replace(/"/g, '""')}"`,
         ]);
 
-        const csvContent = "\uFEFF" + [headers.join(";"), ...rows.map((r) => r.join(";"))].join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const csvContent =
+            "\uFEFF" +
+            [headers.join(";"), ...rows.map((r) => r.join(";"))].join("\n");
+        const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;",
+        });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `mnau_students_credentials_${new Date().toISOString().slice(0,10)}.csv`);
+        link.setAttribute(
+            "download",
+            `mnau_students_credentials_${new Date().toISOString().slice(0, 10)}.csv`,
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1669,6 +1678,7 @@ export default function Dashboard({
                                                                                         .room
                                                                                         ?.floor
                                                                                 }
+
                                                                                 ,
                                                                                 Кімната
                                                                                 №
@@ -2161,6 +2171,7 @@ export default function Dashboard({
                                                                                                         {
                                                                                                             approvedBookings.length
                                                                                                         }
+
                                                                                                         /
                                                                                                         {
                                                                                                             room.max_capacity
@@ -3231,7 +3242,11 @@ export default function Dashboard({
                                             accumulatedUsers.length > 0 && (
                                                 <div className="flex gap-2 flex-wrap">
                                                     <button
-                                                        onClick={() => setAccumulatedUsers([])}
+                                                        onClick={() =>
+                                                            setAccumulatedUsers(
+                                                                [],
+                                                            )
+                                                        }
                                                         className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-red-200 dark:border-red-800 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                                                         title="Очистити накопичений список"
                                                     >
@@ -3243,7 +3258,11 @@ export default function Dashboard({
                                                         }
                                                         className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-100 dark:border-gray-700 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-slate-50/50 dark:hover:bg-gray-600 transition-colors"
                                                     >
-                                                        Скопіювати всі ({accumulatedUsers.length})
+                                                        Скопіювати всі (
+                                                        {
+                                                            accumulatedUsers.length
+                                                        }
+                                                        )
                                                     </button>
                                                     <button
                                                         onClick={
@@ -3331,22 +3350,82 @@ export default function Dashboard({
                             </div>
 
                             {/* Список всіх студентів */}
-                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
-                                <div className="border-b border-slate-100/80 pb-3 flex flex-wrap items-center justify-between gap-4">
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-6 space-y-5">
+                                {/* Card Header & Search */}
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-gray-700">
                                     <div>
-                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">
-                                            Список всіх студентів
-                                        </h3>
-                                        <p className="text-xs text-gray-400">
-                                            Управління та фільтрація
-                                            студентського складу
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">
+                                                Список всіх студентів
+                                            </h3>
+                                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                                                {filteredAllUsers.length} з{" "}
+                                                {allUsers.length}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-0.5">
+                                            Пошук, фільтрація за параметрами та
+                                            сортування студентського складу
                                         </p>
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-4">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                                Спеціальність:
-                                            </span>
+
+                                    {/* Пошук */}
+                                    <div className="relative min-w-[240px] sm:min-w-[280px]">
+                                        <input
+                                            type="text"
+                                            value={userSearch}
+                                            onChange={(e) =>
+                                                setUserSearch(e.target.value)
+                                            }
+                                            placeholder="🔍 Пошук за ім'ям або email..."
+                                            className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-700 p-2.5 pl-3 bg-slate-50/80 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-400"
+                                        />
+                                        {userSearch && (
+                                            <button
+                                                onClick={() =>
+                                                    setUserSearch("")
+                                                }
+                                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Панель Фільтрації (Фільтри за характеристиками) */}
+                                <div className="bg-slate-50/70 dark:bg-gray-900/50 border border-slate-200/70 dark:border-gray-700/70 rounded-xl p-3.5 space-y-3">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span>🎛️</span> Фільтрація списку:
+                                        </span>
+                                        {(userSpecialtyFilter ||
+                                            userCourseFilter ||
+                                            userGroupFilter ||
+                                            userGenderFilter ||
+                                            userSearch) && (
+                                            <button
+                                                onClick={() => {
+                                                    setUserSearch("");
+                                                    setUserSpecialtyFilter("");
+                                                    setUserCourseFilter("");
+                                                    setUserGroupFilter("");
+                                                    setUserGenderFilter("");
+                                                }}
+                                                className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline flex items-center gap-1 transition-colors"
+                                            >
+                                                <span>🗑️</span> Скинути всі
+                                                фільтри
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                        {/* Фільтр: Спеціальність */}
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                🎓 Спеціальність:
+                                            </label>
                                             <select
                                                 value={userSpecialtyFilter}
                                                 onChange={(e) =>
@@ -3354,9 +3433,11 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                className="w-full text-xs rounded-lg border border-slate-200 dark:border-gray-700 p-2 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
                                             >
-                                                <option value="">Всі</option>
+                                                <option value="">
+                                                    Всі спеціальності
+                                                </option>
                                                 {uniqueSpecialties.map(
                                                     (spec) => (
                                                         <option
@@ -3370,10 +3451,11 @@ export default function Dashboard({
                                             </select>
                                         </div>
 
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                                Курс:
-                                            </span>
+                                        {/* Фільтр: Курс */}
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                📚 Курс:
+                                            </label>
                                             <select
                                                 value={userCourseFilter}
                                                 onChange={(e) =>
@@ -3381,9 +3463,11 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                className="w-full text-xs rounded-lg border border-slate-200 dark:border-gray-700 p-2 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
                                             >
-                                                <option value="">Всі</option>
+                                                <option value="">
+                                                    Всі курси
+                                                </option>
                                                 {uniqueCourses.map((c) => (
                                                     <option key={c} value={c}>
                                                         {c} курс
@@ -3392,10 +3476,11 @@ export default function Dashboard({
                                             </select>
                                         </div>
 
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                                Група:
-                                            </span>
+                                        {/* Фільтр: Група */}
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                👥 Група:
+                                            </label>
                                             <select
                                                 value={userGroupFilter}
                                                 onChange={(e) =>
@@ -3403,7 +3488,7 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                className="w-full text-xs rounded-lg border border-slate-200 dark:border-gray-700 p-2 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
                                             >
                                                 <option value="">
                                                     Всі групи
@@ -3419,10 +3504,11 @@ export default function Dashboard({
                                             </select>
                                         </div>
 
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                                Стать:
-                                            </span>
+                                        {/* Фільтр: Стать */}
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                ⚧ Стать:
+                                            </label>
                                             <select
                                                 value={userGenderFilter}
                                                 onChange={(e) =>
@@ -3430,7 +3516,7 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="text-[11px] rounded-lg border border-slate-100 dark:border-gray-600 p-1.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                className="w-full text-xs rounded-lg border border-slate-200 dark:border-gray-700 p-2 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
                                             >
                                                 <option value="">
                                                     Всі статі
@@ -3443,37 +3529,27 @@ export default function Dashboard({
                                                 </option>
                                             </select>
                                         </div>
-
-                                        {(userSpecialtyFilter ||
-                                            userCourseFilter ||
-                                            userGroupFilter ||
-                                            userGenderFilter) && (
-                                            <button
-                                                onClick={() => {
-                                                    setUserSpecialtyFilter("");
-                                                    setUserCourseFilter("");
-                                                    setUserGroupFilter("");
-                                                    setUserGenderFilter("");
-                                                }}
-                                                className="text-[10px] font-bold text-red-500 dark:text-red-400 hover:underline uppercase tracking-wider"
-                                            >
-                                                Скинути фільтри
-                                            </button>
-                                        )}
                                     </div>
                                 </div>
 
+                                {/* Таблиця студентів зі зручним сортуванням у шапці */}
                                 {filteredAllUsers.length === 0 ? (
-                                    <div className="p-8 text-center text-sm text-gray-500">
-                                        Студентів не знайдено.
+                                    <div className="p-8 text-center text-sm text-gray-500 border border-dashed border-slate-200 dark:border-gray-700 rounded-xl">
+                                        Студентів за вказаними критеріями не
+                                        знайдено.
                                     </div>
                                 ) : (
-                                    <div className="overflow-x-auto">
+                                    <div className="overflow-x-auto border border-slate-100 dark:border-gray-700 rounded-xl">
                                         <table className="w-full text-left border-collapse text-xs">
                                             <thead>
-                                                <tr className="border-b border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/50 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                                <tr className="border-b border-slate-200 dark:border-gray-700 bg-slate-100/70 dark:bg-gray-700/50 text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "name"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort("name")
                                                         }
@@ -3484,7 +3560,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "gender"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort("gender")
                                                         }
@@ -3495,7 +3576,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "email"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort("email")
                                                         }
@@ -3506,7 +3592,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "telegram"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort(
                                                                 "telegram",
@@ -3519,7 +3610,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "phone"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort("phone")
                                                         }
@@ -3530,7 +3626,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "must_change_password"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort(
                                                                 "must_change_password",
@@ -3543,7 +3644,12 @@ export default function Dashboard({
                                                         )}
                                                     </th>
                                                     <th
-                                                        className="p-3 cursor-pointer select-none hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                                        className={`p-3 cursor-pointer select-none hover:bg-slate-200/60 dark:hover:bg-gray-600/50 transition-colors ${
+                                                            userSortField ===
+                                                            "created_at"
+                                                                ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30"
+                                                                : ""
+                                                        }`}
                                                         onClick={() =>
                                                             handleSort(
                                                                 "created_at",
@@ -3557,11 +3663,11 @@ export default function Dashboard({
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-[13px] text-gray-700">
+                                            <tbody className="divide-y divide-slate-100 dark:divide-gray-700 text-[13px] text-gray-700">
                                                 {sortedAllUsers.map((u) => (
                                                     <tr
                                                         key={u.id}
-                                                        className="hover:bg-slate-50/50/30 dark:hover:bg-gray-700/20 transition-colors"
+                                                        className="hover:bg-emerald-50/30 dark:hover:bg-gray-700/30 transition-colors"
                                                     >
                                                         <td className="p-3 font-semibold text-gray-900 dark:text-white">
                                                             <button
@@ -3572,7 +3678,7 @@ export default function Dashboard({
                                                                     )
                                                                 }
                                                                 className="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-colors cursor-pointer text-left flex items-center gap-1.5"
-                                                                title="Клацніть, щоб переглянути та відредагувати акаунт"
+                                                                title="Клацніть, щоб переглянути акаунт"
                                                             >
                                                                 <span>
                                                                     {u.name}
@@ -3617,8 +3723,8 @@ export default function Dashboard({
                                                             <span
                                                                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
                                                                     u.must_change_password
-                                                                        ? "bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/40"
-                                                                        : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/40"
+                                                                        ? "bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border-amber-200/50 dark:border-amber-800/40"
+                                                                        : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 border-emerald-200/50 dark:border-emerald-800/40"
                                                                 }`}
                                                             >
                                                                 {u.must_change_password
@@ -3626,7 +3732,7 @@ export default function Dashboard({
                                                                     : "Готово"}
                                                             </span>
                                                         </td>
-                                                        <td className="p-3 text-gray-400">
+                                                        <td className="p-3 text-gray-400 font-mono">
                                                             {new Date(
                                                                 u.created_at,
                                                             ).toLocaleDateString()}
@@ -4929,78 +5035,6 @@ export default function Dashboard({
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Секція 3: Права та Корпус (показується ТІЛЬКИ при редагуванні персоналу/адмінів, але НЕ студентів) */}
-                            {auth.user.role === "admin" && editingUser.role !== "user" && (
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-gray-700 pb-1">
-                                        ⚙️ Адміністративні налаштування
-                                    </h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                                Системна роль
-                                            </label>
-                                            <select
-                                                value={userEditForm.data.role}
-                                                onChange={(e) =>
-                                                    userEditForm.setData(
-                                                        "role",
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-slate-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
-                                            >
-                                                <option value="user">
-                                                    Студент
-                                                </option>
-                                                <option value="commandant">
-                                                    Комендант
-                                                </option>
-                                                <option value="admin">
-                                                    Головний Адміністратор
-                                                </option>
-                                            </select>
-                                        </div>
-                                        {userEditForm.data.role ===
-                                            "commandant" && (
-                                            <div>
-                                                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                                    Закріплений корпус
-                                                </label>
-                                                <select
-                                                    value={
-                                                        userEditForm.data
-                                                            .building_id
-                                                    }
-                                                    onChange={(e) =>
-                                                        userEditForm.setData(
-                                                            "building_id",
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-slate-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
-                                                >
-                                                    <option value="">
-                                                        Не закріплено
-                                                    </option>
-                                                    {(allBuildings.length > 0
-                                                        ? allBuildings
-                                                        : buildings
-                                                    ).map((b) => (
-                                                        <option
-                                                            key={b.id}
-                                                            value={b.id}
-                                                        >
-                                                            {b.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Footer Actions */}
                             <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-gray-700">
