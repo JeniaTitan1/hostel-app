@@ -83,6 +83,13 @@ class CommandantRoleTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_commandant_is_redirected_to_admin_dashboard_from_root_dashboard()
+    {
+        $response = $this->actingAs($this->commandantA)->get('/dashboard');
+
+        $response->assertRedirect('/admin/dashboard');
+    }
+
     public function test_commandant_sees_only_their_building_in_dashboard()
     {
         $response = $this->actingAs($this->commandantA)->get('/admin/dashboard');

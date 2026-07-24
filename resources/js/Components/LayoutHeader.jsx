@@ -13,7 +13,9 @@ export default function LayoutHeader({
     animating,
     header,
 }) {
-    const isDashboardActive = route().current("dashboard");
+    const isAdminOrCommandant = user?.role === "admin" || user?.role === "commandant";
+    const homeRoute = isAdminOrCommandant ? route("admin.dashboard") : route("dashboard");
+    const isDashboardActive = route().current("dashboard") || route().current("admin.dashboard");
 
     return (
         <>
@@ -27,7 +29,7 @@ export default function LayoutHeader({
                             {/* Logo */}
                             <div className="flex shrink-0 items-center">
                                 <Link
-                                    href={route("dashboard")}
+                                    href={homeRoute}
                                     className="flex items-center gap-2 focus:outline-none rounded-lg p-1"
                                 >
                                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-sm shadow-xs border border-emerald-500/30">
@@ -47,7 +49,7 @@ export default function LayoutHeader({
                             {/* Desktop Menu */}
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <Link
-                                    href={route("dashboard")}
+                                    href={homeRoute}
                                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition-colors duration-150 ease-in-out focus:outline-none ${
                                         isDashboardActive
                                             ? "border-gray-900 dark:border-emerald-400 text-gray-900 dark:text-white font-semibold"
@@ -202,7 +204,7 @@ export default function LayoutHeader({
                 >
                     <div className="space-y-1 pb-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                         <Link
-                            href={route("dashboard")}
+                            href={homeRoute}
                             className={`block w-full ps-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-150 ease-in-out focus:outline-none ${
                                 isDashboardActive
                                     ? "border-gray-900 text-gray-900 bg-gray-50 font-semibold"

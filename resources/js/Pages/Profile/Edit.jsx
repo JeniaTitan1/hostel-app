@@ -78,7 +78,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 </div>
                             </div>
                             <Link
-                                href={route('dashboard')}
+                                href={auth?.user?.role === 'admin' || auth?.user?.role === 'commandant' ? route('admin.dashboard') : route('dashboard')}
                                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all text-center whitespace-nowrap"
                             >
                                 Перейти на головну

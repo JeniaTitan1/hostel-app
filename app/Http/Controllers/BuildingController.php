@@ -19,7 +19,7 @@ class BuildingController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user() && $request->user()->role === 'admin') {
+        if ($request->user() && in_array($request->user()->role, ['admin', 'commandant'])) {
             return redirect()->route('admin.dashboard');
         }
 
