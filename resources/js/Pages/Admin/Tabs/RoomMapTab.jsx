@@ -42,18 +42,9 @@ export default function RoomMapTab({
             {/* Пошук та фільтри для мапи */}
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
-                            <span>🏛️</span> Карта корпусів МНАУ
-                        </h3>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold shadow-3xs" title="Синхронізація карти в реальному часі через WebSockets">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            <span>Live WebSocket</span>
-                        </div>
-                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
+                        <span>🏛️</span> Карта корпусів МНАУ
+                    </h3>
                     <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                         Інтерактивна схема кімнат, поверхів та розселення
                     </p>
@@ -310,25 +301,25 @@ export default function RoomMapTab({
                                                                 "bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-emerald-500 transition-colors duration-200";
                                                             if (isRepair) {
                                                                 cardBgStyle =
-                                                                    "bg-[repeating-linear-gradient(45deg,rgba(239,68,68,0.06),rgba(239,68,68,0.06)_10px,transparent_10px,transparent_20px)] border-2 border-red-400 dark:border-red-800 opacity-90";
+                                                                    "bg-white dark:bg-gray-800 bg-[repeating-linear-gradient(45deg,rgba(239,68,68,0.06),rgba(239,68,68,0.06)_10px,transparent_10px,transparent_20px)] border-2 border-red-400 dark:border-red-800";
                                                             } else if (
                                                                 isBothClosedAndHidden
                                                             ) {
                                                                 cardBgStyle =
-                                                                    "border-2 border-purple-400 dark:border-purple-600 bg-gradient-to-br from-amber-50/30 via-purple-50/20 to-indigo-50/30 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-indigo-950/20 hover:border-purple-500 transition-colors duration-200";
+                                                                    "bg-white dark:bg-gray-800 border-2 border-purple-400 dark:border-purple-600 bg-gradient-to-br from-amber-50/30 via-purple-50/20 to-indigo-50/30 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-indigo-950/20 hover:border-purple-500 transition-colors duration-200";
                                                             } else if (
                                                                 isOnlyIntakeClosed
                                                             ) {
                                                                 cardBgStyle =
-                                                                    "border border-amber-300 dark:border-amber-700 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500 transition-colors duration-200";
+                                                                    "bg-white dark:bg-gray-800 border border-amber-300 dark:border-amber-700 bg-amber-50/20 dark:bg-amber-950/10 hover:border-amber-500 transition-colors duration-200";
                                                             } else if (
                                                                 isOnlyHidden
                                                             ) {
                                                                 cardBgStyle =
-                                                                    "border border-dashed border-purple-300 dark:border-purple-700 bg-purple-50/20 dark:bg-purple-950/10 hover:border-purple-500 transition-colors duration-200";
+                                                                    "bg-white dark:bg-gray-800 border border-dashed border-purple-300 dark:border-purple-700 bg-purple-50/20 dark:bg-purple-950/10 hover:border-purple-500 transition-colors duration-200";
                                                             } else if (isFull) {
                                                                 cardBgStyle =
-                                                                    "bg-red-50/20 dark:bg-red-950/10 border border-red-200 dark:border-red-800 hover:border-red-400 transition-colors duration-200";
+                                                                    "bg-white dark:bg-gray-800 bg-red-50/20 dark:bg-red-950/10 border border-red-200 dark:border-red-800 hover:border-red-400 transition-colors duration-200";
                                                             }
 
                                                             const isHighlighted = liveHighlightedRoomIds.includes(Number(room.id));
@@ -338,7 +329,11 @@ export default function RoomMapTab({
                                                                     key={
                                                                         room.id
                                                                     }
-                                                                    className={`p-4 rounded-2xl flex flex-col justify-between min-h-[190px] relative ${cardBgStyle} ${
+                                                                    className={`p-4 rounded-2xl flex flex-col justify-between min-h-[190px] relative bg-white dark:bg-gray-800 shadow-sm ${cardBgStyle} ${
+                                                                        isSettingsOpen
+                                                                            ? "z-30"
+                                                                            : "z-0"
+                                                                    } ${
                                                                         isHighlighted
                                                                             ? "ring-4 ring-emerald-400 dark:ring-emerald-500 scale-[1.02] shadow-lg shadow-emerald-500/25 transition-all duration-300 animate-pulse"
                                                                             : ""

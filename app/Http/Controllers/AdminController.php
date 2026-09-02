@@ -211,7 +211,7 @@ class AdminController extends Controller
 
         AuditLog::log($booking->user_id, 'relocation_requested', "Надіслано запит на переселення з кімнати №" . ($booking->room->room_number ?? '?') . " до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
-        event(new \App\Events\RoomOccupancyUpdated($targetRoom->id, 'relocation_requested', "Запит на переселення до кімнати №{$targetRoom->room_number}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($targetRoom->id, 'relocation_requested', "Запит на переселення до кімнати №{$targetRoom->room_number}");
 
         return redirect()->back()->with('success', 'Заявку на переселення успішно надіслано на розгляд адміну!');
     }
@@ -306,10 +306,10 @@ class AdminController extends Controller
             ]);
 
             if ($oldRoomId) {
-                event(new \App\Events\RoomOccupancyUpdated($oldRoomId, 'relocation_approved', "Звільнено місце в кімнаті №{$oldRoomNumber}"));
+                \App\Events\RoomOccupancyUpdated::dispatchSafe($oldRoomId, 'relocation_approved', "Звільнено місце в кімнаті №{$oldRoomNumber}");
             }
             if ($newRoom) {
-                event(new \App\Events\RoomOccupancyUpdated($newRoom->id, 'relocation_approved', "Заселено жильця в кімнату №{$newRoom->room_number}"));
+                \App\Events\RoomOccupancyUpdated::dispatchSafe($newRoom->id, 'relocation_approved', "Заселено жильця в кімнату №{$newRoom->room_number}");
             }
         } else {
             $booking->update($updateData);
@@ -321,7 +321,7 @@ class AdminController extends Controller
                 'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} схвалено.",
             ]);
 
-            event(new \App\Events\RoomOccupancyUpdated($booking->room_id, 'booking_approved', "Заселено жильця в кімнату №{$booking->room->room_number}"));
+            \App\Events\RoomOccupancyUpdated::dispatchSafe($booking->room_id, 'booking_approved', "Заселено жильця в кімнату №{$booking->room->room_number}");
         }
 
         return redirect()->back()->with('success', 'Заявку успішно оброблено!');
@@ -359,9 +359,9 @@ class AdminController extends Controller
             ]);
 
             if ($targetRoom) {
-                event(new \App\Events\RoomOccupancyUpdated($targetRoom->id, 'relocation_rejected', "Знято бронь переїзду в кімнату №{$targetRoom->room_number}"));
+                \App\Events\RoomOccupancyUpdated::dispatchSafe($targetRoom->id, 'relocation_rejected', "Знято бронь переїзду в кімнату №{$targetRoom->room_number}");
             }
-            event(new \App\Events\RoomOccupancyUpdated($booking->room_id, 'relocation_rejected'));
+            \App\Events\RoomOccupancyUpdated::dispatchSafe($booking->room_id, 'relocation_rejected');
 
             return redirect()->back()->with('success', 'Запит на переселення відхилено. Користувач залишається в поточній кімнаті.');
         }
@@ -380,7 +380,7 @@ class AdminController extends Controller
             'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} відхилено.{$reasonText}",
         ]);
 
-        event(new \App\Events\RoomOccupancyUpdated($booking->room_id, 'booking_rejected', "Звільнено бронь у кімнаті №{$booking->room->room_number}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($booking->room_id, 'booking_rejected', "Звільнено бронь у кімнаті №{$booking->room->room_number}");
 
         return redirect()->back()->with('success', 'Бронювання відхилено.');
     }
@@ -435,7 +435,7 @@ class AdminController extends Controller
         $label = $newStatus === 'closed' ? 'закрита на обслуговування' : 'відкрита';
         AuditLog::log($request->user()->id, 'room_status_toggled', "Кімната №{$room->room_number} {$label}");
 
-        event(new \App\Events\RoomOccupancyUpdated($room->id, 'status_changed', "Кімната №{$room->room_number} {$label}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'status_changed', "Кімната №{$room->room_number} {$label}");
 
         return redirect()->back()->with('success', "Статус кімнати №{$room->room_number} змінено на «{$label}».");
     }
@@ -451,7 +451,7 @@ class AdminController extends Controller
         $status = $room->intake_closed ? 'закритий' : 'відкритий';
         AuditLog::log($request->user()->id, 'room_intake_toggled', "Набір у кімнату №{$room->room_number} тепер {$status}");
 
-        event(new \App\Events\RoomOccupancyUpdated($room->id, 'intake_toggled', "Набір у кімнату №{$room->room_number} тепер {$status}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'intake_toggled', "Набір у кімнату №{$room->room_number} тепер {$status}");
 
         return redirect()->back()->with('success', "Набір у кімнату №{$room->room_number} тепер {$status}.");
     }
@@ -467,7 +467,7 @@ class AdminController extends Controller
         $status = $room->hide_from_frontend ? 'прихована' : 'відображається';
         AuditLog::log($request->user()->id, 'room_visibility_toggled', "Кімната №{$room->room_number} тепер {$status} на фронтенді");
 
-        event(new \App\Events\RoomOccupancyUpdated($room->id, 'visibility_toggled', "Кімната №{$room->room_number} тепер {$status} на фронтенді"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'visibility_toggled', "Кімната №{$room->room_number} тепер {$status} на фронтенді");
 
         return redirect()->back()->with('success', "Кімната №{$room->room_number} тепер {$status} на фронтенді.");
     }
@@ -507,7 +507,7 @@ class AdminController extends Controller
 
         AuditLog::log($request->user()->id, 'room_capacity_updated', "Місткість кімнати №{$room->room_number} змінено з {$oldCapacity} на {$newCapacity}");
 
-        event(new \App\Events\RoomOccupancyUpdated($room->id, 'capacity_updated', "Місткість кімнати №{$room->room_number} змінено на {$newCapacity}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'capacity_updated', "Місткість кімнати №{$room->room_number} змінено на {$newCapacity}");
 
         return redirect()->back()->with('success', "Місткість кімнати №{$room->room_number} змінено на {$newCapacity}.");
     }
@@ -620,9 +620,9 @@ class AdminController extends Controller
         AuditLog::log($booking->user_id, 'manual_relocation', "Адміністратор переселив користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
         if ($oldRoomId) {
-            event(new \App\Events\RoomOccupancyUpdated($oldRoomId, 'reallocated', "Звільнено місце в кімнаті №{$oldRoomNumber}"));
+            \App\Events\RoomOccupancyUpdated::dispatchSafe($oldRoomId, 'reallocated', "Звільнено місце в кімнаті №{$oldRoomNumber}");
         }
-        event(new \App\Events\RoomOccupancyUpdated($targetRoom->id, 'reallocated', "Переселено жильця в кімнату №{$targetRoom->room_number}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($targetRoom->id, 'reallocated', "Переселено жильця в кімнату №{$targetRoom->room_number}");
 
         return redirect()->back()->with('success', 'Користувача успішно переселено.');
     }
@@ -651,7 +651,7 @@ class AdminController extends Controller
         AuditLog::log($userId, 'evicted', "Виселено користувача {$userName} з кімнати №{$roomNumber}");
 
         if ($roomId) {
-            event(new \App\Events\RoomOccupancyUpdated($roomId, 'evicted', "Звільнено ліжко в кімнаті №{$roomNumber}"));
+            \App\Events\RoomOccupancyUpdated::dispatchSafe($roomId, 'evicted', "Звільнено ліжко в кімнаті №{$roomNumber}");
         }
 
         return redirect()->back()->with('success', 'Жильця успішно виселено!');
@@ -732,7 +732,7 @@ class AdminController extends Controller
         $mixedNote = $request->boolean('force_mixed') ? ' (змішана кімната)' : '';
         AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}{$mixedNote}");
 
-        event(new \App\Events\RoomOccupancyUpdated($room->id, 'manual_booking', "Заселено користувача {$user->name} до кімнати №{$room->room_number}"));
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'manual_booking', "Заселено користувача {$user->name} до кімнати №{$room->room_number}");
 
         return redirect()->back()->with('success', 'Користувача успішно заселено вручную!');
     }

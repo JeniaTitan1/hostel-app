@@ -323,15 +323,6 @@ export default function Dashboard({
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-center">
-                        {/* Live WebSockets статус індикатор */}
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold shadow-3xs" title="Синхронізація карти в реальному часі через WebSockets">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            <span>Live Map</span>
-                        </div>
-
                         {!hasApprovedBooking && !hasPendingBooking && (
                             <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
                                 <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />

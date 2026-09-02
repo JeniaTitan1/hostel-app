@@ -95,4 +95,13 @@ class RoomOccupancyUpdated implements ShouldBroadcastNow
             'timestamp' => now()->toISOString(),
         ];
     }
+
+    public static function dispatchSafe(int $roomId, string $action = 'updated', ?string $message = null): void
+    {
+        try {
+            event(new static($roomId, $action, $message));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("RoomOccupancyUpdated broadcast skipped: " . $e->getMessage());
+        }
+    }
 }
