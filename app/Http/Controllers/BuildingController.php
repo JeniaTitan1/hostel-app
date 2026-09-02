@@ -38,6 +38,11 @@ class BuildingController extends Controller
                 ->distinct()
                 ->orderBy('floor', 'asc')
                 ->pluck('floor');
+
+            // Якщо поверх не вказано або він відсутній у корпусі, за замовчуванням вибираємо 1-й поверх
+            if ($floors->isNotEmpty() && (!$selectedFloor || !$floors->contains((int)$selectedFloor))) {
+                $selectedFloor = $floors->contains(1) ? 1 : (int)$floors->first();
+            }
         }
 
         if ($selectedBuildingId && $selectedFloor) {

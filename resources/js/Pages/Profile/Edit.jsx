@@ -1,7 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
@@ -22,7 +21,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
             <Head title="Налаштування профілю" />
 
             <div className="py-8 bg-slate-50/50 dark:bg-gray-900 min-h-[calc(100vh-73px)]">
-                <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-4xl space-y-6 px-4 sm:px-6 lg:px-8">
                     {auth?.user?.must_change_password && (
                         <div className="bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 dark:border-amber-700 p-4 rounded-xl shadow-xs space-y-2">
                             <div className="flex items-center gap-2">
@@ -101,29 +100,20 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Редагування профілю */}
-                        <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
-                            <UpdateProfileInformationForm
-                                user={auth?.user}
-                                mustVerifyEmail={mustVerifyEmail}
-                                status={status}
-                            />
-                        </div>
-
-                        {/* Безпека та видалення */}
-                        <div className="space-y-6">
-                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
-                                <UpdatePasswordForm mustChangePassword={Boolean(auth?.user?.must_change_password)} />
-                            </div>
-
-                            {!auth?.user?.must_change_password && auth?.user?.role !== 'admin' && (
-                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
-                                    <DeleteUserForm />
-                                </div>
-                            )}
-                        </div>
+                    {/* Єдина форма редагування профілю та безпеки */}
+                    <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-2xl shadow-xs">
+                        <UpdateProfileInformationForm
+                            user={auth?.user}
+                            mustVerifyEmail={mustVerifyEmail}
+                            status={status}
+                        />
                     </div>
+
+                    {!auth?.user?.must_change_password && auth?.user?.role !== 'admin' && (
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-2xl shadow-xs">
+                            <DeleteUserForm />
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

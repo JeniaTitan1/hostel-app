@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,9 +39,17 @@ class ProfileController extends Controller
         $newEmail = $validated['email'] ?? null;
         $emailChanged = $newEmail && $user->email !== $newEmail;
 
-        // Заповнюємо всі дані профілю, окрім емейлу (емейл обробляється окремо)
+        // Заповнюємо всі дані профілю, окрім емейлу та пароля (вони обробляються окремо)
         unset($validated['email']);
+        unset($validated['password']);
+        unset($validated['password_confirmation']);
+        unset($validated['current_password']);
         $user->fill($validated);
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+            $user->password_changed = true;
+        }
 
         if ($emailChanged) {
             if ($user->role !== 'user' || $user->email_changes_count == 0) {

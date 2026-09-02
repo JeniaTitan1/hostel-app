@@ -189,7 +189,7 @@ export default function Dashboard({
     // Функція вибору корпусу
     const handleSelectBuilding = (buildingId) => {
         setSelectedRoom(null);
-        router.visit(route("dashboard", { building_id: buildingId }), {
+        router.visit(route("dashboard", { building_id: buildingId, floor: 1 }), {
             preserveState: true,
             replace: true,
         });

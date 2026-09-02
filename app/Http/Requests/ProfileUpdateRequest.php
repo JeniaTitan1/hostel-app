@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -16,7 +17,9 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $user = $this->user();
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -24,7 +27,7 @@ class ProfileUpdateRequest extends FormRequest
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
+                Rule::unique(User::class)->ignore($user->id),
             ],
             'telegram' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
@@ -33,5 +36,18 @@ class ProfileUpdateRequest extends FormRequest
             'course' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:6'],
             'group' => ['sometimes', 'nullable', 'string', 'max:15'],
         ];
+
+        if ($user->must_change_password) {
+            if (!$user->password_changed || $this->filled('password')) {
+                $rules['password'] = ['required', 'string', Password::defaults(), 'confirmed'];
+            }
+        } else {
+            if ($this->filled('password')) {
+                $rules['current_password'] = ['required', 'current_password'];
+                $rules['password'] = ['required', 'string', Password::defaults(), 'confirmed'];
+            }
+        }
+
+        return $rules;
     }
 }

@@ -23,30 +23,34 @@ export default function UpdateProfileInformation({
     const courses = academic_options?.courses || [];
     const groups = academic_options?.groups || [];
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, patch, errors, processing, recentlySuccessful, reset } =
         useForm({
-            name: user.name,
-            email: user.email,
+            name: user.name || "",
+            email: user.email || "",
             gender: user.gender || "",
             specialty: user.specialty || "",
             course: user.course || "",
             group: user.group || "",
             telegram: user.telegram || "",
             phone: user.phone || "",
+            current_password: "",
+            password: "",
+            password_confirmation: "",
         });
 
     // Синхронізуємо локальний стан форми з новими даними пропса користувача
     useEffect(() => {
-        setData({
-            name: user.name,
-            email: user.email,
+        setData((prev) => ({
+            ...prev,
+            name: user.name || "",
+            email: user.email || "",
             gender: user.gender || "",
             specialty: user.specialty || "",
             course: user.course || "",
             group: user.group || "",
             telegram: user.telegram || "",
             phone: user.phone || "",
-        });
+        }));
     }, [
         user.name,
         user.email,
@@ -61,7 +65,12 @@ export default function UpdateProfileInformation({
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route("profile.update"));
+        patch(route("profile.update"), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset("current_password", "password", "password_confirmation");
+            },
+        });
     };
 
     return (
@@ -249,37 +258,149 @@ export default function UpdateProfileInformation({
                     </div>
                 </div>
 
-                <div>
-                    <InputLabel
-                        htmlFor="telegram"
-                        value="Telegram (нік або посилання)"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <InputLabel
+                            htmlFor="telegram"
+                            value="Telegram (нік або посилання)"
+                        />
 
-                    <TextInput
-                        id="telegram"
-                        type="text"
-                        className="mt-1 block w-full text-sm"
-                        value={data.telegram}
-                        onChange={(e) => setData("telegram", e.target.value)}
-                        placeholder="@username"
-                    />
+                        <TextInput
+                            id="telegram"
+                            type="text"
+                            className="mt-1 block w-full text-sm"
+                            value={data.telegram}
+                            onChange={(e) => setData("telegram", e.target.value)}
+                            placeholder="@username"
+                        />
 
-                    <InputError className="mt-2" message={errors.telegram} />
+                        <InputError className="mt-2" message={errors.telegram} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="phone" value="Номер телефону *" />
+
+                        <TextInput
+                            id="phone"
+                            type="text"
+                            className="mt-1 block w-full text-sm"
+                            value={data.phone}
+                            onChange={(e) => setData("phone", e.target.value)}
+                            placeholder="+380..."
+                            required
+                        />
+
+                        <InputError className="mt-2" message={errors.phone} />
+                    </div>
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="phone" value="Номер телефону" />
+                {/* Блок встановлення / оновлення пароля */}
+                <div className="pt-6 border-t border-slate-200 dark:border-gray-700/80 space-y-4">
+                    <div>
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>🔐</span>
+                            <span>
+                                {user?.must_change_password
+                                    ? "Встановлення постійного пароля"
+                                    : "Зміна пароля"}
+                            </span>
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {user?.must_change_password
+                                ? "Введіть ваш особистий постійний пароль для захисту акаунта та активації доступу."
+                                : "Залиште поля пароля порожніми, якщо не бажаєте його змінювати."}
+                        </p>
+                    </div>
 
-                    <TextInput
-                        id="phone"
-                        type="text"
-                        className="mt-1 block w-full text-sm"
-                        value={data.phone}
-                        onChange={(e) => setData("phone", e.target.value)}
-                        placeholder="+380..."
-                    />
+                    {!user?.must_change_password && (
+                        <div>
+                            <InputLabel
+                                htmlFor="current_password"
+                                value="Поточний пароль"
+                            />
+                            <TextInput
+                                id="current_password"
+                                type="password"
+                                className="mt-1 block w-full text-sm"
+                                value={data.current_password}
+                                onChange={(e) =>
+                                    setData("current_password", e.target.value)
+                                }
+                                autoComplete="current-password"
+                                placeholder="Введіть ваш поточний пароль для перевірки"
+                            />
+                            <InputError
+                                className="mt-2"
+                                message={errors.current_password}
+                            />
+                        </div>
+                    )}
 
-                    <InputError className="mt-2" message={errors.phone} />
+                    {/* Поля Новий пароль та Підтвердження пароля в один рядок */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <InputLabel
+                                htmlFor="password"
+                                value={
+                                    user?.must_change_password
+                                        ? "Новий пароль *"
+                                        : "Новий пароль"
+                                }
+                            />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                className="mt-1 block w-full text-sm"
+                                value={data.password}
+                                onChange={(e) =>
+                                    setData("password", e.target.value)
+                                }
+                                autoComplete="new-password"
+                                placeholder="Мінімум 8 символів"
+                                required={Boolean(
+                                    user?.must_change_password &&
+                                        !user?.password_changed
+                                )}
+                            />
+                            <InputError
+                                className="mt-2"
+                                message={errors.password}
+                            />
+                        </div>
+
+                        <div>
+                            <InputLabel
+                                htmlFor="password_confirmation"
+                                value={
+                                    user?.must_change_password
+                                        ? "Підтвердження пароля *"
+                                        : "Підтвердження пароля"
+                                }
+                            />
+                            <TextInput
+                                id="password_confirmation"
+                                type="password"
+                                className="mt-1 block w-full text-sm"
+                                value={data.password_confirmation}
+                                onChange={(e) =>
+                                    setData(
+                                        "password_confirmation",
+                                        e.target.value
+                                    )
+                                }
+                                autoComplete="new-password"
+                                placeholder="Повторіть новий пароль"
+                                required={Boolean(
+                                    user?.must_change_password &&
+                                        !user?.password_changed
+                                )}
+                            />
+                            <InputError
+                                className="mt-2"
+                                message={errors.password_confirmation}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
@@ -306,20 +427,20 @@ export default function UpdateProfileInformation({
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>
-                        Зберегти
+                <div className="flex items-center gap-4 pt-2">
+                    <PrimaryButton disabled={processing} className="px-6 py-2.5">
+                        {processing ? "Збереження..." : "Зберегти"}
                     </PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}
-                        enter="transition ease-in-out"
+                        enter="transition ease-in-out duration-300"
                         enterFrom="opacity-0"
-                        leave="transition ease-in-out"
+                        leave="transition ease-in-out duration-300"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Збережено.
+                        <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                            <span>✓</span> Збережено успішно.
                         </p>
                     </Transition>
                 </div>
