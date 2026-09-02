@@ -45,9 +45,47 @@ export default function Dashboard({
 
     useEffect(() => {
         setLiveRooms(rooms);
+        if (selectedRoom) {
+            const updated = rooms.find((r) => Number(r.id) === Number(selectedRoom.id));
+            if (updated) {
+                setSelectedRoom(updated);
+            }
+        }
     }, [rooms]);
 
-    // Підписка на WebSockets канали для оновлення карти в реальному часі
+    // Фонова Real-time синхронізація (працює надійно на будь-яких пристроях та мережах)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (document.visibilityState === "visible") {
+                router.reload({
+                    only: ["rooms", "floors", "userBooking", "roommates"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }
+        }, 3000);
+
+        const handleVisibilityOrFocus = () => {
+            if (document.visibilityState === "visible") {
+                router.reload({
+                    only: ["rooms", "floors", "userBooking", "roommates"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }
+        };
+
+        window.addEventListener("focus", handleVisibilityOrFocus);
+        document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", handleVisibilityOrFocus);
+            document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+        };
+    }, [selectedBuildingId, selectedFloor]);
+
+    // Підписка на WebSockets канали для оновлення карти в реальному часі (якщо доступно)
     useEffect(() => {
         const echo = getEcho();
         if (!echo) return;

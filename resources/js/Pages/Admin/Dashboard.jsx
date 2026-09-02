@@ -51,7 +51,39 @@ export default function Dashboard({
     const [roomToCloseForRepair, setRoomToCloseForRepair] = useState(null);
     const [liveHighlightedRoomIds, setLiveHighlightedRoomIds] = useState([]);
 
-    // Слухаємо оновлення кімнат та заявок через WebSockets у реальному часі
+    // Фонова Real-time синхронізація для адмінки (надійно оновлює без F5)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (document.visibilityState === "visible") {
+                router.reload({
+                    only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }
+        }, 3500);
+
+        const handleVisibilityOrFocus = () => {
+            if (document.visibilityState === "visible") {
+                router.reload({
+                    only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }
+        };
+
+        window.addEventListener("focus", handleVisibilityOrFocus);
+        document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", handleVisibilityOrFocus);
+            document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+        };
+    }, []);
+
+    // Слухаємо оновлення кімнат та заявок через WebSockets у реальному часі (якщо доступно)
     useEffect(() => {
         const echo = getEcho();
         if (!echo) return;
