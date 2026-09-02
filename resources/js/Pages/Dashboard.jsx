@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { generateOrderPdf } from "@/Utils/OrderPdfGenerator";
 import VerifyOrderModal from "@/Components/VerifyOrderModal";
 import { getEcho } from "@/echo";
