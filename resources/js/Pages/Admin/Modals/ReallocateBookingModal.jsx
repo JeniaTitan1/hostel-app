@@ -81,7 +81,9 @@ export default function ReallocateBookingModal({
                     {/* Попередження про цільову кімнату */}
                     {targetRoom?.status === "closed" && (
                         <div className="flex items-start gap-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-3 text-xs text-red-800 dark:text-red-300">
-                            <span className="text-base leading-none">🔧</span>
+                            <svg className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                             <div>
                                 <span className="font-bold block">
                                     Попередження: Кімната закрита на ремонт!
@@ -97,9 +99,9 @@ export default function ReallocateBookingModal({
                     {Boolean(targetRoom?.intake_closed) &&
                         targetRoom?.status !== "closed" && (
                             <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-xs text-amber-800 dark:text-amber-300">
-                                <span className="text-base leading-none">
-                                    🔒
-                                </span>
+                                <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
                                 <div>
                                     <span className="font-bold block">
                                         Попередження: Прийом у цю кімнату
@@ -131,9 +133,9 @@ export default function ReallocateBookingModal({
                     {isGenderConflict && (
                         <div className="space-y-3 pt-1">
                             <div className="flex items-start gap-2.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/50 rounded-xl p-3.5 shadow-3xs">
-                                <span className="text-amber-500 text-base leading-none select-none">
-                                    ⚠️
-                                </span>
+                                <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
                                 <p className="text-xs text-amber-850 dark:text-amber-300 font-semibold leading-normal">
                                     Цільова кімната призначена для{" "}
                                     {targetRoomGender.type === "male"

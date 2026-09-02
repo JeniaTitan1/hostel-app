@@ -31,7 +31,9 @@ export default function BookingsTab({
                 <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
                     <div className="p-4 bg-amber-50/50 dark:bg-amber-950/20 border-b border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg">📧</span>
+                            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-white text-sm">
                                     Запити на зміну електронної пошти (
@@ -63,7 +65,9 @@ export default function BookingsTab({
                                         <span className="font-mono bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 px-2 py-0.5 rounded border border-red-200 dark:border-red-800">
                                             {req.old_email}
                                         </span>
-                                        <span>➔</span>
+                                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
                                         <span className="font-mono bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-bold">
                                             {req.new_email}
                                         </span>
@@ -174,14 +178,14 @@ export default function BookingsTab({
                                                 onClick={() => handleApprove(booking.id)}
                                                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95"
                                             >
-                                                {actionProcessingId === booking.id ? "..." : "✓ Схвалити"}
+                                                {actionProcessingId === booking.id ? "..." : "Схвалити"}
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => handleReject(booking.id)}
                                                 className="w-full py-2.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-bold transition-all border border-red-200 dark:border-red-800 active:scale-95"
                                             >
-                                                ✕ Відхилити
+                                                Відхилити
                                             </button>
                                         </div>
                                     </div>

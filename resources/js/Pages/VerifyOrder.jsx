@@ -24,8 +24,10 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                     {/* Page Card */}
                     <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                         <div className="text-center space-y-2">
-                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-2xl font-black shadow-xs mb-2">
-                                📜
+                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 font-black shadow-xs mb-2">
+                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
                             </div>
                             <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                                 Перевірка справжності ордера на заселення
@@ -58,9 +60,11 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                             <div className="p-6 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-5 animate-fade-in">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-emerald-200/60 dark:border-emerald-800/40">
                                     <div className="flex items-center gap-2">
-                                        <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
+                                        <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                        </svg>
                                         <span className="font-black text-sm text-emerald-900 dark:text-emerald-200 uppercase tracking-wide">
-                                            ✓ ОРДЕР ДІЙСНИЙ ТА СХВАЛЕНИЙ
+                                            ОРДЕР ДІЙСНИЙ ТА СХВАЛЕНИЙ
                                         </span>
                                     </div>
                                     <span className="font-mono font-bold text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-3 py-1 rounded-lg border border-emerald-300/40">
@@ -109,7 +113,11 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
 
                         {searched && !booking && (
                             <div className="p-6 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-center space-y-2 animate-fade-in">
-                                <div className="text-3xl">❌</div>
+                                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
                                 <h3 className="font-bold text-base text-red-900 dark:text-red-200">
                                     Ордер з кодом "{code}" не знайдено
                                 </h3>

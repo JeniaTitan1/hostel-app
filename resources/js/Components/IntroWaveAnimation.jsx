@@ -25,16 +25,16 @@ export default function IntroWaveAnimation({ onClose }) {
 
         // --- PRE-RENDER BADGE SPRITES TO OFFSCREEN CANVASES ---
         const labelVariants = [
-            "МНАУ 🌾",
+            "МНАУ",
             "MNAU",
-            "🌾 МНАУ",
-            "🎓 Hostel",
-            "🏠 МНАУ",
+            "МНАУ Кампус",
+            "Hostel MNAU",
+            "МНАУ Гуртожитки",
             "MNAU 2026",
-            "✨ Agro",
-            "🌾 Гуртожитки",
-            "🎓 МНАУ",
-            "🌊 Hostel App",
+            "Agro Campus",
+            "Студмістечко",
+            "МНАУ",
+            "Hostel App",
         ];
 
         const roundedRect = (c, x, y, w, h, radius) => {

@@ -45,7 +45,7 @@ export default function UsersTab({
             new CustomEvent("show-toast", {
                 detail: {
                     message:
-                        "📋 Список згенерованих студентів скопійовано в буфер обміну!",
+                        "Список згенерованих студентів скопійовано в буфер обміну!",
                 },
             }),
         );
@@ -55,7 +55,7 @@ export default function UsersTab({
         navigator.clipboard.writeText(text);
         window.dispatchEvent(
             new CustomEvent("show-toast", {
-                detail: { message: "📋 Скопійовано!" },
+                detail: { message: "Скопійовано в буфер!" },
             }),
         );
     };
@@ -70,7 +70,7 @@ export default function UsersTab({
                 (u, idx) => `
             <div style="border: 2px dashed #059669; border-radius: 8px; padding: 14px; margin-bottom: 12px; page-break-inside: avoid; background: #f0fdf4; font-family: sans-serif;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #a7f3d0; padding-bottom: 6px; margin-bottom: 8px;">
-                    <strong style="color: #065f46; font-size: 14px;">🌾 МНАУ • Талон доступу до системи гуртожитків</strong>
+                    <strong style="color: #065f46; font-size: 14px;">МНАУ • Талон доступу до системи гуртожитків</strong>
                     <span style="font-size: 11px; color: #047857; font-weight: bold;">Студент #${idx + 1}</span>
                 </div>
                 <div style="font-size: 12px; line-height: 1.6; color: #0f172a;">
@@ -80,7 +80,7 @@ export default function UsersTab({
                     <div><strong>Стать:</strong> ${u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "Не вказано"}</div>
                 </div>
                 <div style="margin-top: 8px; font-size: 10px; color: #64748b; font-style: italic;">
-                    ⚠️ Інструкція для студента: Перейдіть на сайт гуртожитку, увійдіть з цими даними. Система обов'язково попросить встановити свій постійний пароль та заповнити ПІБ, групу і телефон.
+                    Інструкція для студента: Перейдіть на сайт гуртожитку, увійдіть з цими даними. Система обов'язково попросить встановити свій постійний пароль та заповнити ПІБ, групу і телефон.
                 </div>
             </div>
         `,
@@ -155,7 +155,7 @@ export default function UsersTab({
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-gray-700 pb-4">
                     <div>
                         <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
-                            <span>⚡</span> Пакетна генерація студентів (Коди доступу)
+                            Пакетна генерація студентів (Коди доступу)
                         </h3>
                         <p className="text-xs text-gray-400">
                             Масове створення тимчасових акаунтів для нових поселенців. При першому вході студенти зобов'язані встановити новий пароль та заповнити свій профіль.
@@ -167,7 +167,7 @@ export default function UsersTab({
                         onClick={() => setShowGenerator(!showGenerator)}
                         className="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors flex items-center gap-1.5 shrink-0"
                     >
-                        <span>{showGenerator ? "▲ Згорнути форму" : "➕ Згенерувати акаунти"}</span>
+                        <span>{showGenerator ? "Згорнути форму" : "Згенерувати акаунти"}</span>
                     </button>
                 </div>
 
@@ -198,8 +198,8 @@ export default function UsersTab({
                                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             >
                                 <option value="">Будь-яка / Не вказано</option>
-                                <option value="male">👨 Чоловіча</option>
-                                <option value="female">👩 Жіноча</option>
+                                <option value="male">Чоловіча</option>
+                                <option value="female">Жіноча</option>
                             </select>
                         </div>
 
@@ -209,7 +209,7 @@ export default function UsersTab({
                                 disabled={userGenForm.processing}
                                 className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
                             >
-                                {userGenForm.processing ? "⏳ Створення..." : `⚡ Згенерувати ${userGenForm.data.count} студентів`}
+                                {userGenForm.processing ? "Створення..." : `Згенерувати ${userGenForm.data.count} студентів`}
                             </button>
                         </div>
                     </form>
@@ -221,7 +221,7 @@ export default function UsersTab({
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-200 dark:border-emerald-800/60 pb-3">
                             <div>
                                 <h4 className="font-extrabold text-emerald-900 dark:text-emerald-200 text-sm flex items-center gap-1.5">
-                                    <span>🎉</span> Успішно згенеровано {generatedUsers.length} облікових записів!
+                                    Успішно згенеровано {generatedUsers.length} облікових записів!
                                 </h4>
                                 <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
                                     Збережіть, скопіюйте або роздрукуйте талони доступу для передачі студентам.
@@ -234,14 +234,14 @@ export default function UsersTab({
                                     onClick={handleCopyAllText}
                                     className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 shadow-2xs"
                                 >
-                                    <span>📋</span> Скопіювати все (TXT)
+                                    Скопіювати все (TXT)
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handlePrintOrPdf}
                                     className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
                                 >
-                                    <span>🖨️</span> Друк / Талони (PDF)
+                                    Друк / Талони (PDF)
                                 </button>
                             </div>
                         </div>
@@ -265,7 +265,7 @@ export default function UsersTab({
                                             <td className="p-2.5 font-semibold text-gray-900 dark:text-white">{u.name}</td>
                                             <td className="p-2.5 font-mono text-emerald-700 dark:text-emerald-400 font-bold">{u.email}</td>
                                             <td className="p-2.5 font-mono text-amber-700 dark:text-amber-400 font-extrabold">{u.password}</td>
-                                            <td className="p-2.5">{u.gender === "male" ? "👨 Чоловіча" : u.gender === "female" ? "👩 Жіноча" : "—"}</td>
+                                            <td className="p-2.5">{u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "—"}</td>
                                             <td className="p-2.5 text-right">
                                                 <button
                                                     type="button"
@@ -345,8 +345,8 @@ export default function UsersTab({
                         className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                         <option value="">Усі статі</option>
-                        <option value="male">Чоловіки ♂</option>
-                        <option value="female">Жінки ♀</option>
+                        <option value="male">Чоловіча</option>
+                        <option value="female">Жіноча</option>
                     </select>
                 </div>
             </div>

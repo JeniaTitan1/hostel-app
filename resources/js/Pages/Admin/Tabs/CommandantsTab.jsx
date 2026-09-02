@@ -150,7 +150,7 @@ export default function CommandantsTab({
                             disabled={commandantGenForm.processing}
                             className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
                         >
-                            ⚡ Згенерувати акаунт
+                            Згенерувати акаунт
                         </button>
                     </form>
                 </div>
@@ -187,7 +187,7 @@ export default function CommandantsTab({
                                         <td className="p-4 font-mono">{c.email}</td>
                                         <td className="p-4">
                                             <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 font-semibold rounded-lg">
-                                                🏢 {c.building?.name || "Не призначено"}
+                                                {c.building?.name || "Не призначено"}
                                             </span>
                                         </td>
                                         <td className="p-4 text-right space-x-2">

@@ -24,9 +24,13 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                     </button>
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xl font-black shadow-inner shrink-0">
-                            {editingUser.name
-                                ? editingUser.name.charAt(0).toUpperCase()
-                                : "👤"}
+                            {editingUser.name ? (
+                                editingUser.name.charAt(0).toUpperCase()
+                            ) : (
+                                <svg className="w-7 h-7 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            )}
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -47,7 +51,7 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                             {(editingUser.buildingName || editingUser.roomNumber) && (
                                 <p className="text-[11px] text-emerald-200/90 font-medium flex items-center gap-1.5 pt-0.5">
                                     <span>
-                                        🏢 {editingUser.buildingName || "Корпус"}
+                                        {editingUser.buildingName || "Корпус"}
                                     </span>
                                     {editingUser.roomNumber && (
                                         <span>• №{editingUser.roomNumber}</span>
@@ -66,7 +70,7 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                     {/* Секція 1: Персональні та Контактні дані + Безпека */}
                     <div className="space-y-3">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-gray-700 pb-1">
-                            👤 Персональні дані та безпека
+                            Персональні дані та безпека
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
@@ -136,8 +140,8 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                                     }
                                     className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-slate-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
                                 >
-                                    <option value="male">Чоловіча ♂</option>
-                                    <option value="female">Жіноча ♀</option>
+                                    <option value="male">Чоловіча</option>
+                                    <option value="female">Жіноча</option>
                                 </select>
                             </div>
                             <div>
@@ -160,7 +164,7 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                     {/* Секція 2: Академічна інформація */}
                     <div className="space-y-3">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-gray-700 pb-1">
-                            🎓 Академічна інформація
+                            Академічна інформація
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>

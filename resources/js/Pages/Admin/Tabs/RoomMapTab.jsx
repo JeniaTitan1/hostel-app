@@ -43,7 +43,7 @@ export default function RoomMapTab({
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
-                        <span>🏛️</span> Карта корпусів МНАУ
+                        Карта корпусів МНАУ
                     </h3>
                     <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                         Інтерактивна схема кімнат, поверхів та розселення
@@ -82,8 +82,8 @@ export default function RoomMapTab({
                         className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-36 transition-all"
                     >
                         <option value="">Всі статі</option>
-                        <option value="male">Чоловічі ♂</option>
-                        <option value="female">Жіночі ♀</option>
+                        <option value="male">Чоловічі</option>
+                        <option value="female">Жіночі</option>
                         <option value="empty">Вільні кімнати</option>
                     </select>
 
@@ -341,8 +341,9 @@ export default function RoomMapTab({
                                                                 >
                                                                     {/* Бейджик оновлення в реальному часі */}
                                                                     {isHighlighted && (
-                                                                        <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce">
-                                                                            ⚡ Оновлено live
+                                                                        <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce flex items-center gap-1">
+                                                                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                                                                            Оновлено live
                                                                         </span>
                                                                     )}
                                                                     <div>
@@ -366,9 +367,9 @@ export default function RoomMapTab({
                                                                                 {isRepair &&
                                                                                     room.closure_reason && (
                                                                                         <p className="text-[11px] text-red-600 dark:text-red-400 font-semibold flex items-center gap-1 mt-1">
-                                                                                            <span>
-                                                                                                💬
-                                                                                            </span>
+                                                                                            <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                                                                            </svg>
                                                                                             <span className="truncate max-w-[150px]">
                                                                                                 {
                                                                                                     room.closure_reason
@@ -384,32 +385,24 @@ export default function RoomMapTab({
                                                                                     <div className="flex items-center gap-1 flex-wrap mt-1">
                                                                                         {isRepair && (
                                                                                             <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-red-600 text-white">
-                                                                                                🔧
-                                                                                                На
-                                                                                                ремонті
+                                                                                                На ремонті
                                                                                             </span>
                                                                                         )}
                                                                                         {!isRepair &&
                                                                                             isBothClosedAndHidden && (
                                                                                                 <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 text-white">
-                                                                                                    🔒🙈
-                                                                                                    Прихована
-                                                                                                    та
-                                                                                                    закрита
+                                                                                                    Прихована та закрита
                                                                                                 </span>
                                                                                             )}
                                                                                         {!isRepair &&
                                                                                             isOnlyIntakeClosed && (
                                                                                                 <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200">
-                                                                                                    🔒
-                                                                                                    Набір
-                                                                                                    закритий
+                                                                                                    Набір закритий
                                                                                                 </span>
                                                                                             )}
                                                                                         {!isRepair &&
                                                                                             isOnlyHidden && (
                                                                                                 <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200">
-                                                                                                    🙈
                                                                                                     Прихована
                                                                                                 </span>
                                                                                             )}
@@ -434,7 +427,10 @@ export default function RoomMapTab({
                                                                                     className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-700 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-150"
                                                                                     title="Налаштування кімнати"
                                                                                 >
-                                                                                    ⚙️
+                                                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                    </svg>
                                                                                 </button>
 
                                                                                 {/* Попап Налаштувань кімнати */}
@@ -541,8 +537,8 @@ export default function RoomMapTab({
                                                                                                     {Boolean(
                                                                                                         room.intake_closed,
                                                                                                     )
-                                                                                                        ? "🔒 Прийом закритий"
-                                                                                                        : "🔓 Прийом відкритий"}
+                                                                                                        ? "Прийом закритий"
+                                                                                                        : "Прийом відкритий"}
                                                                                                 </span>
                                                                                                 <div
                                                                                                     className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-300 flex items-center ${Boolean(room.intake_closed) ? "bg-red-500" : "bg-emerald-500"}`}
@@ -566,8 +562,8 @@ export default function RoomMapTab({
                                                                                                     {Boolean(
                                                                                                         room.hide_from_frontend,
                                                                                                     )
-                                                                                                        ? "🙈 Прихована з сайту"
-                                                                                                        : "👁️ Видима на сайті"}
+                                                                                                        ? "Прихована з сайту"
+                                                                                                        : "Видима на сайті"}
                                                                                                 </span>
                                                                                                 <div
                                                                                                     className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-300 flex items-center ${Boolean(room.hide_from_frontend) ? "bg-amber-500" : "bg-emerald-500"}`}
@@ -606,9 +602,6 @@ export default function RoomMapTab({
                                                                                                 }}
                                                                                                 className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white transition-colors duration-150 border border-red-200 dark:border-red-800"
                                                                                             >
-                                                                                                <span>
-                                                                                                    🔧
-                                                                                                </span>
                                                                                                 <span>
                                                                                                     {room.status ===
                                                                                                     "closed"

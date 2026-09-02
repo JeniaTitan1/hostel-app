@@ -87,7 +87,9 @@ export default function UpdateProfileInformation({
 
                 {!user?.must_change_password && user?.role === "user" && (
                     <div className="mt-3 p-3.5 bg-blue-50/80 dark:bg-blue-950/20 border-l-4 border-blue-500 rounded-xl text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2.5 shadow-xs">
-                        <span className="text-base shrink-0">💡</span>
+                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <div className="space-y-0.5">
                             <span className="font-bold block">Правила оновлення даних:</span>
                             <p className="leading-relaxed">
@@ -141,7 +143,9 @@ export default function UpdateProfileInformation({
 
                     {pendingEmailRequest && (
                         <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
-                            <span>⏳</span>
+                            <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             <span>
                                 Запит на зміну пошти на{" "}
                                 <strong>{pendingEmailRequest.new_email}</strong>{" "}
@@ -298,7 +302,9 @@ export default function UpdateProfileInformation({
                 <div className="pt-6 border-t border-slate-200 dark:border-gray-700/80 space-y-4">
                     <div>
                         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <span>🔐</span>
+                            <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
                             <span>
                                 {user?.must_change_password
                                     ? "Встановлення постійного пароля"
@@ -440,7 +446,10 @@ export default function UpdateProfileInformation({
                         leaveTo="opacity-0"
                     >
                         <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                            <span>✓</span> Збережено успішно.
+                            <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Збережено успішно.
                         </p>
                     </Transition>
                 </div>

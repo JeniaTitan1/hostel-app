@@ -69,7 +69,9 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                         <div className="bg-emerald-50 dark:bg-emerald-950/20 border-l-4 border-emerald-500 dark:border-emerald-700 p-4 rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 font-bold shrink-0">
-                                    ✓
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                    </svg>
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-emerald-800 dark:text-emerald-200 text-sm">Реєстрація успішно завершена!</h4>

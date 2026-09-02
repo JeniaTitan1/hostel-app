@@ -66,7 +66,7 @@ export const generateOrderPdf = async ({ user, booking }) => {
             <!-- Блок студентської інформації -->
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 22px;">
                 <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #047857; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; letter-spacing: 0.5px;">
-                    👤 Відомості про студента / мешканця
+                    Відомості про студента / мешканця
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                     <tr>
@@ -95,7 +95,7 @@ export const generateOrderPdf = async ({ user, booking }) => {
             <!-- Блок місця проживання -->
             <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 18px 20px; margin-bottom: 22px;">
                 <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #15803d; margin-bottom: 10px; border-bottom: 1px solid #86efac; padding-bottom: 6px; letter-spacing: 0.5px;">
-                    🏠 Виділене місце проживання
+                    Виділене місце проживання
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                     <tr>
@@ -129,7 +129,7 @@ export const generateOrderPdf = async ({ user, booking }) => {
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px; padding-top: 18px; border-top: 1.5px dashed #cbd5e1;">
                 <div style="width: 58%; font-size: 11px; color: #64748b; line-height: 1.5;">
                     <div style="font-weight: 800; color: #0f172a; margin-bottom: 4px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">
-                        🔐 Перевірка автентичності документа:
+                        Перевірка автентичності документа:
                     </div>
                     Справжність цього ордера можна миттєво перевірити у коменданта або на веб-сайті університету за кодом:
                     <div style="margin-top: 6px;">

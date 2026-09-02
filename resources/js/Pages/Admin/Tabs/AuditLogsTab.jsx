@@ -52,7 +52,7 @@ export default function AuditLogsTab({ auditLogs = [], handleClearLogs, handleEx
                             onClick={handleExportPDF}
                             className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-200/50 dark:border-emerald-800/40 transition-colors"
                         >
-                            📄 PDF
+                            PDF
                         </button>
                     )}
                     {handleExportCSV && (
@@ -61,16 +61,19 @@ export default function AuditLogsTab({ auditLogs = [], handleClearLogs, handleEx
                             onClick={handleExportCSV}
                             className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-xl border border-indigo-200/50 dark:border-indigo-800/40 transition-colors"
                         >
-                            📊 CSV
+                            CSV
                         </button>
                     )}
                     {auditLogs.length > 0 && (
                         <button
                             type="button"
                             onClick={handleClearLogs}
-                            className="px-3 py-1.5 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl transition-colors border border-red-200/50 dark:border-red-800/40"
+                            className="px-3 py-1.5 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl transition-colors border border-red-200/50 dark:border-red-800/40 flex items-center gap-1.5"
                         >
-                            🗑️ Очистити
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Очистити</span>
                         </button>
                     )}
                 </div>

@@ -384,9 +384,9 @@ export default function Dashboard({
 
     const renderGenderBadge = (gender) => {
         if (gender === "female") {
-            return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-50 text-pink-700 border border-pink-200">♀ Жіноча</span>;
+            return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800">Жіноча</span>;
         }
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">♂ Чоловіча</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Чоловіча</span>;
     };
 
     const getRoomGender = (room) => {
@@ -441,7 +441,9 @@ export default function Dashboard({
                             onClick={() => setShowVerifyModal(true)}
                             className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                         >
-                            <span>🔍</span>
+                            <svg className="w-4 h-4 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             <span>Перевірити ордер</span>
                         </button>
                         <button

@@ -55,7 +55,9 @@ export default function VerifyOrderModal({ show, onClose }) {
                 <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-black shadow-xs">
-                            🔍
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                         </div>
                         <div>
                             <h3 className="font-bold text-lg leading-tight text-gray-900 dark:text-white">
@@ -106,7 +108,10 @@ export default function VerifyOrderModal({ show, onClose }) {
                                 className="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
                             >
                                 {loading ? (
-                                    <span className="inline-block animate-spin">⏳</span>
+                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
                                 ) : (
                                     <span>Перевірити</span>
                                 )}
@@ -120,7 +125,10 @@ export default function VerifyOrderModal({ show, onClose }) {
                     <div className="mt-5 p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-4 animate-fade-in">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-xs w-fit">
-                                ✓ ОРДЕР ДІЙСНИЙ
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                </svg>
+                                ОРДЕР ДІЙСНИЙ
                             </span>
                             <span className="text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300">
                                 {result.order_number}
@@ -167,7 +175,11 @@ export default function VerifyOrderModal({ show, onClose }) {
 
                 {error && (
                     <div className="mt-5 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-800 dark:text-red-300 text-xs font-semibold animate-fade-in">
-                        <span className="text-lg">❌</span>
+                        <div className="w-5 h-5 rounded-full bg-red-200 dark:bg-red-900/60 text-red-700 dark:text-red-300 flex items-center justify-center shrink-0">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
                         <span>{error}</span>
                     </div>
                 )}

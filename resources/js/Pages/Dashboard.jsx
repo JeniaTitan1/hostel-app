@@ -143,7 +143,7 @@ export default function Dashboard({
                 window.dispatchEvent(
                     new CustomEvent("show-toast", {
                         detail: {
-                            message: `🔔 ${n.title}: ${n.message}`,
+                            message: `${n.title}: ${n.message}`,
                             duration: 7000,
                         },
                     })
@@ -1044,8 +1044,9 @@ export default function Dashboard({
                                                     >
                                                         {/* --- БЕЙДЖИК "Оновлено live" --- */}
                                                         {isHighlighted && (
-                                                            <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce">
-                                                                ⚡ Оновлено live
+                                                            <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce flex items-center gap-1">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                                                                Оновлено live
                                                             </span>
                                                         )}
 
@@ -1065,23 +1066,28 @@ export default function Dashboard({
                                                                     </span>
                                                                 </div>
                                                                 {isClosed && (
-                                                                    <div className="mt-1 text-xs">
-                                                                        <p className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
-                                                                            <span>🛠️ {room.closure_reason || "Технічне обслуговування"}</span>
-                                                                        </p>
-                                                                        {room.closure_duration && (
-                                                                            <p className="text-[10px] text-gray-400 font-mono">
-                                                                                Термін: {room.closure_duration}
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
-                                                                )}
+                                                                     <div className="mt-1 text-xs">
+                                                                         <p className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
+                                                                             <span className="flex items-center gap-1.5">
+                                                                                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                                 </svg>
+                                                                                 {room.closure_reason || "Технічне обслуговування"}
+                                                                             </span>
+                                                                         </p>
+                                                                         {room.closure_duration && (
+                                                                             <p className="text-[10px] text-gray-400 font-mono">
+                                                                                 Термін: {room.closure_duration}
+                                                                             </p>
+                                                                         )}
+                                                                     </div>
+                                                                 )}
                                                             </div>
                                                             <div className="flex flex-col items-end gap-1">
                                                                 <div className="flex items-center gap-1 flex-wrap justify-end">
                                                                     {isClosed ? (
                                                                         <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-200">
-                                                                            🔧 На ремонті
+                                                                            На ремонті
                                                                         </span>
                                                                     ) : (
                                                                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${styles.badge}`}>
@@ -1090,7 +1096,7 @@ export default function Dashboard({
                                                                     )}
                                                                     {Boolean(room.intake_closed) && !isClosed && (
                                                                         <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200">
-                                                                            🔒 Закрита
+                                                                            Закрита
                                                                         </span>
                                                                     )}
                                                                     {!isClosed && (
@@ -1281,7 +1287,9 @@ export default function Dashboard({
                                                          <div className="space-y-2">
                                                              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
                                                                  <div className="flex items-start gap-2">
-                                                                     <span className="text-amber-600 text-base leading-none mt-0.5">⚠️</span>
+                                                                      <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                      </svg>
                                                                      <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
                                                                          Кімната призначена для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}. Подання заявки створить запит на змішану кімнату.
                                                                      </p>

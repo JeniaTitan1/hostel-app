@@ -38,7 +38,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                 : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300"
                                         }`}
                                     >
-                                        {t.status === "resolved" ? "✓ Вирішено" : "⏳ В роботі"}
+                                        {t.status === "resolved" ? "Вирішено" : "В роботі"}
                                     </span>
                                 </div>
 
@@ -62,7 +62,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                         disabled={ticketProcessingId === t.id}
                                         className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95"
                                     >
-                                        {ticketProcessingId === t.id ? "Оновлюється..." : "✓ Позначити як виконано"}
+                                        {ticketProcessingId === t.id ? "Оновлюється..." : "Позначити як виконано"}
                                     </button>
                                 )}
                             </div>
