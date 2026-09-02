@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: blob: data:; style-src 'self' 'unsafe-inline' https: http:; font-src 'self' https: http: data:; img-src 'self' data: https: http: blob:; connect-src 'self' https: http: ws: wss:;">
 
         <title inertia>{{ config('app.name', 'МНАУ Гуртожитки') }}</title>
         <meta name="description" content="Система онлайн-розселення та бронювання гуртожитків Миколаївського національного аграрного університету (МНАУ).">
