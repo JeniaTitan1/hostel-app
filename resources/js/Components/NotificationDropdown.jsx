@@ -160,7 +160,7 @@ export default function NotificationDropdown({ notifications = [], user }) {
                         </button>
                     )}
                 </div>
-                <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50 w-72">
+                <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50 w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
                     {notifications.length === 0 ? (
                         <div className="p-6 text-center text-xs text-gray-400 dark:text-gray-500">
                             Немає нових сповіщень

@@ -862,7 +862,8 @@ export default function Dashboard({
                                             })}
                                         </div>
 
-                                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
+                                        {/* Десктопний сайдбар обраної кімнати */}
+                                        <div className="hidden md:block bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 rounded-xl shadow-sm sticky top-24 space-y-6">
                                             {selectedRoom ? (
                                                 <>
                                                     <div className="border-b border-slate-100/80 dark:border-gray-700 pb-4 space-y-1.5">
@@ -895,7 +896,7 @@ export default function Dashboard({
                                                                 Загальна
                                                                 місткість:
                                                             </span>
-                                                            <span className="font-bold text-gray-900">
+                                                            <span className="font-bold text-gray-900 dark:text-white">
                                                                 {
                                                                     selectedRoom.max_capacity
                                                                 }{" "}
@@ -906,7 +907,7 @@ export default function Dashboard({
                                                             <span className="text-gray-500">
                                                                 Вже заселено:
                                                             </span>
-                                                            <span className="font-bold text-gray-900">
+                                                            <span className="font-bold text-gray-900 dark:text-white">
                                                                 {selectedRoom.approved_bookings_count ||
                                                                     0}
                                                             </span>
@@ -915,7 +916,7 @@ export default function Dashboard({
                                                             <span className="text-gray-500">
                                                                 Вільних місць:
                                                             </span>
-                                                            <span className="font-bold text-emerald-600">
+                                                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
                                                                 {selectedRoom.max_capacity -
                                                                     (selectedRoom.approved_bookings_count ||
                                                                         0)}
@@ -942,7 +943,7 @@ export default function Dashboard({
                                                                 className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:bg-slate-50/50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-2.5 px-4 rounded-xl text-sm transition-all duration-150"
                                                             >
                                                                 Завантажити
-                                                                ордер (TXT)
+                                                                ордер (PDF)
                                                             </button>
                                                         </div>
                                                     ) : isTargetReallocationRoom ? (
@@ -998,7 +999,6 @@ export default function Dashboard({
                                                         </div>
                                                     ) : isGenderMismatch ? (
                                                          <div className="space-y-2">
-                                                             {/* Попередження про змішану кімнату */}
                                                              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
                                                                  <div className="flex items-start gap-2">
                                                                      <span className="text-amber-600 text-base leading-none mt-0.5">⚠️</span>
@@ -1069,6 +1069,109 @@ export default function Dashboard({
                                                 </div>
                                             )}
                                         </div>
+
+                                        {/* Мобільний Bottom Sheet Обраної Кімнати */}
+                                        {selectedRoom && (
+                                            <div className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-gray-700 shadow-[0_-10px_30px_rgba(0,0,0,0.15)] rounded-t-3xl p-5 space-y-3 animate-fade-in max-h-[85vh] overflow-y-auto">
+                                                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-1" />
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                                            №
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-extrabold text-base text-gray-950 dark:text-white">
+                                                                Кімната №{selectedRoom.room_number}
+                                                            </h3>
+                                                            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                                                                Пв. {selectedRoom.floor} • {currentBuilding?.name}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getRoomGender(selectedRoom).badgeBg}`}>
+                                                            {getRoomGender(selectedRoom).label}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => setSelectedRoom(null)}
+                                                            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+                                                            aria-label="Закрити"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-gray-750 p-2.5 rounded-2xl border border-slate-100 dark:border-gray-700 text-center">
+                                                    <div>
+                                                        <span className="text-[9px] text-gray-400 uppercase font-bold block">Місць</span>
+                                                        <span className="text-xs font-bold text-gray-800 dark:text-white">{selectedRoom.max_capacity}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[9px] text-gray-400 uppercase font-bold block">Заселено</span>
+                                                        <span className="text-xs font-bold text-gray-800 dark:text-white">{selectedRoom.approved_bookings_count || 0}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[9px] text-gray-400 uppercase font-bold block">Вільно</span>
+                                                        <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                                                            {selectedRoom.max_capacity - (selectedRoom.approved_bookings_count || 0)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {isCurrentUsersRoom ? (
+                                                    <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-emerald-800 dark:text-emerald-200 font-medium">
+                                                            Ви вже проживаєте в цій кімнаті.
+                                                        </p>
+                                                    </div>
+                                                ) : isTargetReallocationRoom ? (
+                                                    <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-indigo-800 dark:text-indigo-200 font-medium">
+                                                            Запит на переселення сюди очікує розгляду.
+                                                        </p>
+                                                    </div>
+                                                ) : hasPendingReallocation ? (
+                                                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">
+                                                            Ваш попередній запит на переселення ще розглядається.
+                                                        </p>
+                                                    </div>
+                                                ) : hasPendingBooking ? (
+                                                    <div className="bg-slate-50 dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                            Ваша перша заявка знаходиться на розгляді.
+                                                        </p>
+                                                    </div>
+                                                ) : selectedRoom.intake_closed ? (
+                                                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-amber-600 dark:text-amber-300 font-medium">
+                                                            Прийом нових мешканців у цю кімнату призупинено.
+                                                        </p>
+                                                    </div>
+                                                ) : selectedRoom.max_capacity - (selectedRoom.approved_bookings_count || 0) === 0 ? (
+                                                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl p-3 text-center">
+                                                        <p className="text-xs text-red-600 dark:text-red-300 font-medium">
+                                                            У кімнаті немає вільних місць.
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleRequestRoom(selectedRoom.id)}
+                                                        disabled={processing}
+                                                        className="w-full text-center bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-all shadow-md active:scale-95"
+                                                    >
+                                                        {processing
+                                                            ? "Надсилання..."
+                                                            : hasApprovedBooking
+                                                              ? "Подати заявку на переселення"
+                                                              : "Подати заявку на проживання"}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                         </div>

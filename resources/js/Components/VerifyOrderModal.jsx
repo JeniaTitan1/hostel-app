@@ -80,7 +80,7 @@ export default function VerifyOrderModal({ show, onClose }) {
                         <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                             Унікальний код ордера (наприклад, ORD-2026-A1B2C3):
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <div className="relative flex-1">
                                 <input
                                     type="text"
@@ -103,7 +103,7 @@ export default function VerifyOrderModal({ show, onClose }) {
                             <button
                                 type="submit"
                                 disabled={loading || !code.trim()}
-                                className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2 shrink-0"
+                                className="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
                             >
                                 {loading ? (
                                     <span className="inline-block animate-spin">⏳</span>
@@ -118,8 +118,8 @@ export default function VerifyOrderModal({ show, onClose }) {
                 {/* Results Section */}
                 {result && (
                     <div className="mt-5 p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-4 animate-fade-in">
-                        <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-xs">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-xs w-fit">
                                 ✓ ОРДЕР ДІЙСНИЙ
                             </span>
                             <span className="text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300">
@@ -127,7 +127,7 @@ export default function VerifyOrderModal({ show, onClose }) {
                             </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 text-xs bg-white dark:bg-gray-900 p-3.5 rounded-lg border border-emerald-100 dark:border-emerald-900">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-white dark:bg-gray-900 p-3.5 rounded-lg border border-emerald-100 dark:border-emerald-900">
                             <div>
                                 <span className="text-gray-400 block text-[10px] uppercase tracking-wider font-semibold">Студент:</span>
                                 <span className="font-bold text-gray-900 dark:text-white">{result.user.name}</span>

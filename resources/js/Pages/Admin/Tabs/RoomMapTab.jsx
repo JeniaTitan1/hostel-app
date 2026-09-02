@@ -39,16 +39,16 @@ export default function RoomMapTab({
     return (
         <div className="space-y-6">
             {/* Пошук та фільтри для мапи */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg tracking-tight flex items-center gap-2">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
                         <span>🏛️</span> Карта корпусів МНАУ
                     </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                         Інтерактивна схема кімнат, поверхів та розселення
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
                     {/* Фільтр корпусів */}
                     <select
                         value={selectedBuildingFilter}
@@ -78,7 +78,7 @@ export default function RoomMapTab({
                     <select
                         value={genderFilter}
                         onChange={(e) => setGenderFilter(e.target.value)}
-                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-40 transition-all"
+                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-36 transition-all"
                     >
                         <option value="">Всі статі</option>
                         <option value="male">Чоловічі ♂</option>
@@ -87,11 +87,11 @@ export default function RoomMapTab({
                     </select>
 
                     {/* Швидкий вибір поверху */}
-                    <div className="flex flex-wrap items-center bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl gap-1">
+                    <div className="flex items-center bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
                         <button
                             type="button"
                             onClick={() => setSelectedFloor("all")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 shrink-0 ${
                                 selectedFloor === "all"
                                     ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
                                     : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
@@ -104,7 +104,7 @@ export default function RoomMapTab({
                                 key={fl}
                                 type="button"
                                 onClick={() => setSelectedFloor(String(fl))}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 shrink-0 ${
                                     selectedFloor === String(fl)
                                         ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
                                         : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
