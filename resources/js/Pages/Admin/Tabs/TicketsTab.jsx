@@ -42,7 +42,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                     </span>
                                 </div>
 
-                                <div className="p-3 bg-slate-50 dark:bg-gray-750 rounded-xl border border-slate-100 dark:border-gray-700 text-xs space-y-2">
+                                <div className="p-3 bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 text-xs space-y-2">
                                     <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
                                         <span className="text-gray-400">Кімната:</span>
                                         <span className="font-bold text-emerald-600 dark:text-emerald-400">

@@ -154,7 +154,7 @@ export default function BookingsTab({
                                             </span>
                                         </div>
 
-                                        <div className="p-3 bg-slate-50 dark:bg-gray-750 rounded-xl border border-slate-100 dark:border-gray-700 text-xs space-y-1">
+                                        <div className="p-3 bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 text-xs space-y-1">
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Корпус:</span>
                                                 <span className="font-semibold text-gray-800 dark:text-gray-200">{targetRoom?.building?.name}</span>

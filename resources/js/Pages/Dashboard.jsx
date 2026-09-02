@@ -661,10 +661,14 @@ export default function Dashboard({
                     {/* ================= ДОШКА ОГОЛОШЕНЬ ГУРТОЖИТКУ (HOSTEL FEED / NEWS BOARD) ================= */}
                     {!selectedBuildingId && announcements && announcements.length > 0 && (
                         <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 sm:p-6 space-y-5">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-gray-700 pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-gray-700/80 pb-4">
                                 <div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl">📢</span>
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/60">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                                            </svg>
+                                        </div>
                                         <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
                                             Дошка оголошень гуртожитку
                                         </h3>
@@ -678,14 +682,14 @@ export default function Dashboard({
                                 </div>
 
                                 {/* Quick Filter Pills */}
-                                <div className="flex items-center bg-slate-100 dark:bg-gray-750 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
+                                <div className="flex items-center bg-slate-100 dark:bg-gray-900 p-1 rounded-xl gap-1 border border-slate-200/60 dark:border-gray-700/80 overflow-x-auto no-scrollbar">
                                     <button
                                         type="button"
                                         onClick={() => setAnnouncementFilter("all")}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                                             announcementFilter === "all"
-                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs border border-transparent dark:border-gray-700"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                                         }`}
                                     >
                                         Всі
@@ -693,35 +697,38 @@ export default function Dashboard({
                                     <button
                                         type="button"
                                         onClick={() => setAnnouncementFilter("important")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
                                             announcementFilter === "important"
-                                                ? "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 shadow-xs"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                                ? "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 shadow-xs border border-transparent dark:border-gray-700"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                                         }`}
                                     >
-                                        🔴 Важливо
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                        <span>Важливо</span>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setAnnouncementFilter("info")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
                                             announcementFilter === "info"
-                                                ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                                ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs border border-transparent dark:border-gray-700"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                                         }`}
                                     >
-                                        🔵 Інформація
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                        <span>Інформація</span>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setAnnouncementFilter("event")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
                                             announcementFilter === "event"
-                                                ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-xs"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                                ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-xs border border-transparent dark:border-gray-700"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                                         }`}
                                     >
-                                        🎉 Заходи
+                                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                                        <span>Заходи</span>
                                     </button>
                                 </div>
                             </div>
@@ -743,39 +750,42 @@ export default function Dashboard({
                                                 key={a.id}
                                                 className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
                                                     isImportant
-                                                        ? "bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 shadow-xs border-l-4 border-l-red-500"
+                                                        ? "bg-red-50/40 dark:bg-gray-800/90 border-red-200 dark:border-red-900/60 shadow-xs border-l-4 border-l-red-500"
                                                         : isEvent
-                                                        ? "bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50 border-l-4 border-l-purple-500"
-                                                        : "bg-slate-50/60 dark:bg-gray-750/50 border-slate-200/80 dark:border-gray-700 border-l-4 border-l-blue-500"
+                                                        ? "bg-purple-50/40 dark:bg-gray-800/90 border-purple-200 dark:border-purple-900/60 shadow-xs border-l-4 border-l-purple-500"
+                                                        : "bg-slate-50/60 dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/90 shadow-xs border-l-4 border-l-blue-500"
                                                 }`}
                                             >
                                                 <div className="space-y-2">
                                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex items-center gap-1.5 flex-wrap">
                                                             {a.is_pinned && (
-                                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                                                                    📌 ЗАКРІПЛЕНО
+                                                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
+                                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                                                    </svg>
+                                                                    <span>Закріплено</span>
                                                                 </span>
                                                             )}
                                                             <span
-                                                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                                                                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                                                                     isImportant
-                                                                        ? "bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300"
+                                                                        ? "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200/80 dark:border-red-800/60"
                                                                         : isEvent
-                                                                        ? "bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300"
-                                                                        : "bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300"
+                                                                        ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/60"
+                                                                        : "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/60"
                                                                 }`}
                                                             >
-                                                                {isImportant
-                                                                    ? "🔴 Важливо"
-                                                                    : isEvent
-                                                                    ? "🎉 Захід"
-                                                                    : "🔵 Інформація"}
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${isImportant ? "bg-red-500 animate-pulse" : isEvent ? "bg-purple-500" : "bg-blue-500"}`} />
+                                                                <span>{isImportant ? "Важливо" : isEvent ? "Захід" : "Інформація"}</span>
                                                             </span>
                                                         </div>
 
-                                                        <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-800 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-gray-700">
-                                                            🏛️ {a.building_name}
+                                                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-500 dark:text-gray-300 bg-white/80 dark:bg-gray-900/80 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-gray-700">
+                                                            <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                            </svg>
+                                                            <span>{a.building_name}</span>
                                                         </span>
                                                     </div>
 
@@ -788,12 +798,12 @@ export default function Dashboard({
                                                     </p>
                                                 </div>
 
-                                                <div className="pt-2 border-t border-slate-200/60 dark:border-gray-700/60 flex items-center justify-between text-[11px] text-gray-400">
-                                                    <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                                                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 text-[9px] font-bold inline-flex items-center justify-center">
+                                                <div className="pt-2.5 border-t border-slate-200/60 dark:border-gray-700/80 flex items-center justify-between text-[11px] text-gray-400">
+                                                    <span className="font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                                                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold inline-flex items-center justify-center">
                                                             {a.author_name?.charAt(0) || "М"}
                                                         </span>
-                                                        {a.author_role}: {a.author_name}
+                                                        <span>{a.author_role}: {a.author_name}</span>
                                                     </span>
                                                     <span>{a.created_at}</span>
                                                 </div>
@@ -1252,7 +1262,7 @@ export default function Dashboard({
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-gray-750 p-2.5 rounded-2xl border border-slate-100 dark:border-gray-700 text-center">
+                                                <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-gray-800 p-2.5 rounded-2xl border border-slate-100 dark:border-gray-700 text-center">
                                                     <div>
                                                         <span className="text-[9px] text-gray-400 uppercase font-bold block">Місць</span>
                                                         <span className="text-xs font-bold text-gray-800 dark:text-white">{selectedRoom.max_capacity}</span>

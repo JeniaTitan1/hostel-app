@@ -21,7 +21,7 @@ export default function LayoutHeader({
     return (
         <>
             <nav
-                className="bg-white/95 dark:bg-gray-800/95 border-b border-slate-100 dark:border-gray-700/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200"
+                className="bg-white/95 dark:bg-gray-900/95 border-b border-slate-100 dark:border-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200"
                 style={animating ? { border: "none" } : {}}
             >
                 <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
@@ -46,31 +46,31 @@ export default function LayoutHeader({
                             </Link>
 
                             {/* Desktop Menu */}
-                            <div className="hidden sm:flex sm:items-center sm:space-x-4">
+                            <div className="hidden sm:flex sm:items-center sm:space-x-2">
                                 <Link
                                     href={homeRoute}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                                         isDashboardActive
                                             ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 shadow-2xs"
-                                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                                     }`}
                                 >
                                     {user.role === "admin"
-                                        ? "🏛️ Адмін-панель"
+                                        ? "Панель керування"
                                         : user.role === "commandant"
-                                        ? "🏢 Панель коменданта"
-                                        : "🏠 Головна"}
+                                        ? "Панель коменданта"
+                                        : "Головна"}
                                 </Link>
                             </div>
                         </div>
 
                         {/* Right Section: Mobile & Desktop Controls */}
                         <div className="flex items-center gap-1.5 sm:gap-2">
-                            {/* Dark mode toggle (Visible on both Mobile & Desktop) */}
+                            {/* Dark mode toggle */}
                             <button
                                 onClick={() => setDarkMode(!darkMode)}
                                 type="button"
-                                className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-750 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
+                                className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
                                 title={darkMode ? "Світла тема" : "Темна тема"}
                                 aria-label="Toggle dark mode"
                             >
@@ -85,7 +85,7 @@ export default function LayoutHeader({
                                 )}
                             </button>
 
-                            {/* Notifications Dropdown (Visible on Mobile & Desktop) */}
+                            {/* Notifications Dropdown */}
                             <div className="relative">
                                 <NotificationDropdown
                                     notifications={notifications}
@@ -99,7 +99,7 @@ export default function LayoutHeader({
                                     <Dropdown.Trigger>
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-750 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs focus:outline-none"
+                                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs focus:outline-none"
                                         >
                                             <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-black flex items-center justify-center">
                                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
@@ -111,16 +111,16 @@ export default function LayoutHeader({
                                         </button>
                                     </Dropdown.Trigger>
 
-                                    <Dropdown.Content>
+                                    <Dropdown.Content contentClasses="py-1 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-xl rounded-xl">
                                         <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
                                             <div className="text-xs font-bold text-gray-900 dark:text-white truncate">{user.name}</div>
                                             <div className="text-[10px] text-gray-400 truncate">{user.email}</div>
                                         </div>
                                         <Dropdown.Link href={route("profile.edit")}>
-                                            ⚙️ Налаштування профілю
+                                            Налаштування профілю
                                         </Dropdown.Link>
                                         <Dropdown.Link href={route("logout")} method="post" as="button">
-                                            🚪 Вийти з системи
+                                            Вийти з системи
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -131,7 +131,7 @@ export default function LayoutHeader({
                                 <button
                                     onClick={() => setShowingNavigationDropdown((prev) => !prev)}
                                     type="button"
-                                    className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-750 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
+                                    className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
                                     aria-label="Головне меню"
                                 >
                                     <svg className="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -158,9 +158,9 @@ export default function LayoutHeader({
 
                 {/* Mobile Navigation Dropdown Menu */}
                 {showingNavigationDropdown && (
-                    <div className="sm:hidden border-t border-gray-100 dark:border-gray-700/80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-xl">
+                    <div className="sm:hidden border-t border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-xl">
                         {/* User info card on mobile */}
-                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600/60">
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
                             <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
                             </div>
@@ -178,51 +178,55 @@ export default function LayoutHeader({
                         </div>
 
                         {/* Navigation Links */}
-                        <div className="space-y-1 pt-1">
+                        <div className="space-y-1">
                             <Link
                                 href={homeRoute}
-                                onClick={() => setShowingNavigationDropdown(false)}
-                                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                                className={`flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
                                     isDashboardActive
-                                        ? "bg-emerald-600 text-white shadow-xs"
-                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                                 }`}
                             >
-                                <span>{user.role === "admin" ? "🏛️ Адмін-панель" : user.role === "commandant" ? "🏢 Панель коменданта" : "🏠 Головна сторінка"}</span>
+                                <span>
+                                    {user.role === "admin"
+                                        ? "Панель керування"
+                                        : user.role === "commandant"
+                                        ? "Панель коменданта"
+                                        : "Головна"}
+                                </span>
+                                <span className="text-gray-400">→</span>
                             </Link>
 
                             <Link
                                 href={route("profile.edit")}
-                                onClick={() => setShowingNavigationDropdown(false)}
-                                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                                className={`flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
                                     isProfileActive
-                                        ? "bg-emerald-600 text-white shadow-xs"
-                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
                                 }`}
                             >
-                                <span>⚙️ Налаштування профілю</span>
+                                <span>Налаштування профілю</span>
+                                <span className="text-gray-400">→</span>
                             </Link>
+                        </div>
 
+                        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                             <Link
-                                method="post"
                                 href={route("logout")}
+                                method="post"
                                 as="button"
-                                className="w-full text-left flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                                className="w-full flex items-center justify-center gap-2 p-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all"
                             >
-                                <span>🚪 Вийти з акаунта</span>
+                                <span>Вийти з системи</span>
                             </Link>
                         </div>
                     </div>
                 )}
             </nav>
 
-            {/* Page Header (Subheader) */}
             {header && (
-                <header
-                    className="bg-slate-50/80 dark:bg-gray-800/80 border-b border-slate-100 dark:border-gray-700/60 relative z-10"
-                    style={animating ? { border: "none" } : {}}
-                >
-                    <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-5">
+                <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700/80 transition-colors duration-200">
+                    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
                         {header}
                     </div>
                 </header>

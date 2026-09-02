@@ -25,7 +25,7 @@ export default function GuestLayout({ children }) {
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     type="button"
-                    className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-150 shadow-xs"
+                    className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 shadow-xs"
                     title={darkMode ? 'Світла тема' : 'Темна тема'}
                     aria-label="Toggle dark mode"
                 >
