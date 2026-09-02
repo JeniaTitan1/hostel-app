@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function UsersTab({
     allUsers = [],
@@ -19,6 +19,9 @@ export default function UsersTab({
     handleImpersonate,
     isSuperAdmin,
 }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(15);
+
     const filteredUsers = allUsers.filter((u) => {
         const matchesSearch =
             !userSearch ||
@@ -42,6 +45,16 @@ export default function UsersTab({
             matchesGender
         );
     });
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [userSearch, userSpecialtyFilter, userCourseFilter, userGroupFilter, userGenderFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / perPage));
+    const paginatedUsers = filteredUsers.slice(
+        (currentPage - 1) * perPage,
+        currentPage * perPage
+    );
 
     return (
         <div className="space-y-6">
@@ -128,14 +141,14 @@ export default function UsersTab({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-gray-700 text-gray-700 dark:text-gray-200">
-                            {filteredUsers.length === 0 ? (
+                            {paginatedUsers.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="p-8 text-center text-gray-400">
                                         Користувачів за обраними фільтрами не знайдено.
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsers.map((u) => (
+                                paginatedUsers.map((u) => (
                                     <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-gray-700/30 transition-colors">
                                         <td className="p-3.5 font-medium">
                                             <div className="font-bold text-gray-900 dark:text-white">{u.name}</div>
@@ -176,6 +189,68 @@ export default function UsersTab({
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Toolbar */}
+                {filteredUsers.length > 0 && (
+                    <div className="p-4 border-t border-slate-100 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                            <span>Показано {Math.min((currentPage - 1) * perPage + 1, filteredUsers.length)} - {Math.min(currentPage * perPage, filteredUsers.length)} із {filteredUsers.length}</span>
+                            <span className="text-gray-300 dark:text-gray-600">|</span>
+                            <select
+                                value={perPage}
+                                onChange={(e) => {
+                                    setPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="text-xs rounded-lg border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 py-1 px-2 text-gray-700 dark:text-gray-200"
+                            >
+                                <option value={10}>10 на сторінці</option>
+                                <option value={15}>15 на сторінці</option>
+                                <option value={25}>25 на сторінці</option>
+                                <option value={50}>50 на сторінці</option>
+                            </select>
+                        </div>
+
+                        {totalPages > 1 && (
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-gray-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 font-medium transition-colors"
+                                >
+                                    &larr;
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                                    .map((p, idx, arr) => (
+                                        <React.Fragment key={p}>
+                                            {idx > 0 && p - arr[idx - 1] > 1 && <span className="px-1 text-gray-400">...</span>}
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrentPage(p)}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                                                    currentPage === p
+                                                        ? "bg-emerald-600 text-white"
+                                                        : "border border-slate-200 dark:border-gray-600 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                                }`}
+                                            >
+                                                {p}
+                                            </button>
+                                        </React.Fragment>
+                                    ))}
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-gray-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 font-medium transition-colors"
+                                >
+                                    &rarr;
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

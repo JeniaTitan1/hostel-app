@@ -75,6 +75,7 @@ export default function Register() {
                                 onChange={(e) => setData('gender', e.target.value)}
                                 className="text-emerald-600 focus:ring-emerald-500 focus:ring-offset-gray-900 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                             />
+                            <span>Жіноча</span>
                         </label>
                     </div>
                     <InputError message={errors.gender} className="mt-2" />
@@ -154,7 +155,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Пароль" />
 
                     <TextInput
                         id="password"
@@ -173,7 +174,7 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value="Підтвердження пароля"
                     />
 
                     <TextInput
@@ -198,13 +199,13 @@ export default function Register() {
                 <div className="mt-4 flex items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-md text-sm text-gray-600 dark:text-gray-400 underline hover:text-gray-900 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                     >
-                        Already registered?
+                        Вже зареєстровані?
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                        Зареєструватися
                     </PrimaryButton>
                 </div>
             </form>

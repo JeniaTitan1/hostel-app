@@ -4,7 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'МНАУ Гуртожитки') }}</title>
+        <meta name="description" content="Система онлайн-розселення та бронювання гуртожитків Миколаївського національного аграрного університету (МНАУ).">
 
         <script>
             if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

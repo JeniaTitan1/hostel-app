@@ -1,0 +1,18 @@
+{
+    "The email field is required.": "Поле електронної пошти є обов'язковим.",
+    "The password field is required.": "Поле пароля є обов'язковим.",
+    "The name field is required.": "Поле імені є обов'язковим.",
+    "These credentials do not match our records.": "Вказані облікові дані не відповідають нашим записам.",
+    "The provided password does not match your current password.": "Вказаний пароль не збігається з вашим поточним паролем.",
+    "The provided password was incorrect.": "Вказаний пароль невірний.",
+    "Already registered?": "Вже зареєстровані?",
+    "Register": "Зареєструватися",
+    "Log in": "Увійти",
+    "Remember me": "Запам'ятати мене",
+    "Forgot your password?": "Забули пароль?",
+    "Confirm": "Підтвердити",
+    "Reset Password": "Скинути пароль",
+    "Email Password Reset Link": "Надіслати посилання для скидання",
+    "Save": "Зберегти",
+    "Saved.": "Збережено."
+}
