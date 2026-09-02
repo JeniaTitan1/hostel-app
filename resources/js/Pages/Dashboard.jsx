@@ -34,9 +34,11 @@ export default function Dashboard({
     userBooking,
     tickets = [],
     roommates = [],
+    announcements = [],
 }) {
     // Використовуємо локальний стан для керування завантаженням (processing)
     const [processing, setProcessing] = useState(false);
+    const [announcementFilter, setAnnouncementFilter] = useState("all");
 
     useEffect(() => {
         if (auth.user?.reallocated_notification) {
@@ -655,6 +657,152 @@ export default function Dashboard({
                                 ))}
                             </div>
                         ))}
+
+                    {/* ================= ДОШКА ОГОЛОШЕНЬ ГУРТОЖИТКУ (HOSTEL FEED / NEWS BOARD) ================= */}
+                    {!selectedBuildingId && announcements && announcements.length > 0 && (
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 sm:p-6 space-y-5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-gray-700 pb-4">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">📢</span>
+                                        <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
+                                            Дошка оголошень гуртожитку
+                                        </h3>
+                                        <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                                            {announcements.length}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Важливі новини, розклад санітарних днів та студентські події МНАУ
+                                    </p>
+                                </div>
+
+                                {/* Quick Filter Pills */}
+                                <div className="flex items-center bg-slate-100 dark:bg-gray-750 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
+                                    <button
+                                        type="button"
+                                        onClick={() => setAnnouncementFilter("all")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                            announcementFilter === "all"
+                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                        }`}
+                                    >
+                                        Всі
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAnnouncementFilter("important")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                            announcementFilter === "important"
+                                                ? "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 shadow-xs"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                        }`}
+                                    >
+                                        🔴 Важливо
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAnnouncementFilter("info")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                            announcementFilter === "info"
+                                                ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                        }`}
+                                    >
+                                        🔵 Інформація
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAnnouncementFilter("event")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                            announcementFilter === "event"
+                                                ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-xs"
+                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900"
+                                        }`}
+                                    >
+                                        🎉 Заходи
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Grid of Announcements */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {announcements
+                                    .filter(
+                                        (a) =>
+                                            announcementFilter === "all" ||
+                                            a.priority === announcementFilter
+                                    )
+                                    .map((a) => {
+                                        const isImportant = a.priority === "important";
+                                        const isEvent = a.priority === "event";
+
+                                        return (
+                                            <div
+                                                key={a.id}
+                                                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
+                                                    isImportant
+                                                        ? "bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 shadow-xs border-l-4 border-l-red-500"
+                                                        : isEvent
+                                                        ? "bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50 border-l-4 border-l-purple-500"
+                                                        : "bg-slate-50/60 dark:bg-gray-750/50 border-slate-200/80 dark:border-gray-700 border-l-4 border-l-blue-500"
+                                                }`}
+                                            >
+                                                <div className="space-y-2">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {a.is_pinned && (
+                                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                                                    📌 ЗАКРІПЛЕНО
+                                                                </span>
+                                                            )}
+                                                            <span
+                                                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                                                                    isImportant
+                                                                        ? "bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300"
+                                                                        : isEvent
+                                                                        ? "bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300"
+                                                                        : "bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300"
+                                                                }`}
+                                                            >
+                                                                {isImportant
+                                                                    ? "🔴 Важливо"
+                                                                    : isEvent
+                                                                    ? "🎉 Захід"
+                                                                    : "🔵 Інформація"}
+                                                            </span>
+                                                        </div>
+
+                                                        <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-800 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-gray-700">
+                                                            🏛️ {a.building_name}
+                                                        </span>
+                                                    </div>
+
+                                                    <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
+                                                        {a.title}
+                                                    </h4>
+
+                                                    <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                                                        {a.content}
+                                                    </p>
+                                                </div>
+
+                                                <div className="pt-2 border-t border-slate-200/60 dark:border-gray-700/60 flex items-center justify-between text-[11px] text-gray-400">
+                                                    <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 text-[9px] font-bold inline-flex items-center justify-center">
+                                                            {a.author_name?.charAt(0) || "М"}
+                                                        </span>
+                                                        {a.author_role}: {a.author_name}
+                                                    </span>
+                                                    <span>{a.created_at}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        </div>
+                    )}
 
                     {selectedBuildingId && (
                         <div className="space-y-6">

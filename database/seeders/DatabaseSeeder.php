@@ -14,6 +14,7 @@ use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Models\Notification;
 use App\Models\EmailChangeRequest;
+use App\Models\Announcement;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -695,5 +696,46 @@ class DatabaseSeeder extends Seeder
         AuditLog::log($user1->id, 'ticket_created', "Студент {$user1->name} створив заявку на ремонт для кімнати №101: {$ticket2->description}");
         AuditLog::log($userVlad->id, 'ticket_created', "Студент {$userVlad->name} створив заявку на ремонт для кімнати №202: {$ticket3->description}");
         AuditLog::log($admin->id, 'ticket_resolved', "Адміністратор позначив заявку №{$ticket3->id} як виконану");
+
+        // -------------------------------------------------------------
+        // 7. СТВОРЕННЯ ОГОЛОШЕНЬ ГУРТОЖИТКУ (ANNOUNCEMENTS)
+        // -------------------------------------------------------------
+        Announcement::create([
+            'building_id' => $buildings['A']['building']->id,
+            'user_id' => $commandantA->id,
+            'title' => 'Планова дезінсекція та санітарний день у Гуртожитку №1',
+            'content' => 'У п\'ятницю з 10:00 до 16:00 буде проводитися планова санітарна обробка та дезінсекція приміщень загального користування та кухонь. Просимо мешканців забезпечити доступ до кімнат та дотримуватись правил безпеки.',
+            'priority' => 'important',
+            'is_pinned' => true,
+        ]);
+
+        Announcement::create([
+            'building_id' => null, // Загальноуніверситетське для всіх
+            'user_id' => $admin->id,
+            'title' => 'Графік видачі та планової заміни комплектів постільної білизни',
+            'content' => 'Заміна комплектів постільної білизни проводиться щовівторка та щочетверга з 14:00 до 18:00 у кімнаті кастелянші (цокольний поверх кожного корпусу). При собі обов\'язково мати студентський квиток або ордер на поселення.',
+            'priority' => 'info',
+            'is_pinned' => true,
+        ]);
+
+        Announcement::create([
+            'building_id' => null, // Загальноуніверситетське
+            'user_id' => $admin->id,
+            'title' => 'Весняний кубок МНАУ з настільного тенісу та шахів',
+            'content' => 'Студентська рада запрошує всіх охочих мешканців взяти участь у щорічному турнірі серед гуртожитків МНАУ! Реєстрація команд проводиться у холі Гуртожитку №2 або через офіційний Telegram-чат студентської ради до середи включно.',
+            'priority' => 'event',
+            'is_pinned' => false,
+        ]);
+
+        Announcement::create([
+            'building_id' => $buildings['B']['building']->id,
+            'user_id' => $commandantB->id,
+            'title' => 'Оновлення режиму роботи пральних кімнат у Гуртожитку №2',
+            'content' => 'Пральні автомати у Гуртожитку №2 переведені на розширений графік роботи з 07:00 до 23:00 з попереднім записом на вахті. Просимо дбайливо ставитися до техніки та прибирати за собою.',
+            'priority' => 'info',
+            'is_pinned' => false,
+        ]);
+
+        AuditLog::log($admin->id, 'create_announcement', 'Головний адміністратор опублікував оголошення: "Графік видачі та планової заміни комплектів постільної білизни"');
     }
 }

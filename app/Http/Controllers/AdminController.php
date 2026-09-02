@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Building;
 use App\Models\Booking;
 use App\Models\Room;
@@ -135,6 +136,32 @@ class AdminController extends Controller
             'global_intake_closed' => (bool) \App\Models\Setting::get('global_intake_closed', false),
         ];
 
+        $announcements = Announcement::with(['author', 'building'])
+            ->when($isCommandant, function ($q) use ($commandantBuildingId) {
+                $q->where(function ($sq) use ($commandantBuildingId) {
+                    $sq->whereNull('building_id')
+                      ->orWhere('building_id', $commandantBuildingId);
+                });
+            })
+            ->orderBy('is_pinned', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'title' => $a->title,
+                    'content' => $a->content,
+                    'priority' => $a->priority,
+                    'is_pinned' => (bool)$a->is_pinned,
+                    'building_id' => $a->building_id,
+                    'building_name' => $a->building ? $a->building->name : 'Усі гуртожитки',
+                    'author_id' => $a->user_id,
+                    'author_name' => $a->author ? $a->author->name : 'Адміністрація',
+                    'author_role' => $a->author ? ($a->author->role === 'admin' ? 'Головний Адміністратор' : 'Комендант') : 'Адміністрація',
+                    'created_at' => $a->created_at ? $a->created_at->format('d.m.Y H:i') : null,
+                ];
+            });
+
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings'     => $pendingBookings,
             'buildings'           => $buildings,
@@ -152,6 +179,7 @@ class AdminController extends Controller
             'courses'             => $courses,
             'groups'              => $groups,
             'systemSettings'      => $systemSettings,
+            'announcements'       => $announcements,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)

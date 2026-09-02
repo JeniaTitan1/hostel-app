@@ -13,6 +13,7 @@ import AuditLogsTab from "@/Pages/Admin/Tabs/AuditLogsTab";
 import TicketsTab from "@/Pages/Admin/Tabs/TicketsTab";
 import AcademicSettingsTab from "@/Pages/Admin/Tabs/AcademicSettingsTab";
 import SystemSettingsTab from "@/Pages/Admin/Tabs/SystemSettingsTab";
+import AnnouncementsTab from "@/Pages/Admin/Tabs/AnnouncementsTab";
 
 import EditUserModal from "@/Pages/Admin/Modals/EditUserModal";
 import ReallocateBookingModal from "@/Pages/Admin/Modals/ReallocateBookingModal";
@@ -39,6 +40,7 @@ export default function Dashboard({
     courses = [],
     groups = [],
     systemSettings = {},
+    announcements = [],
 }) {
     const isSuperAdmin = auth?.user?.role === "admin";
 
@@ -449,6 +451,21 @@ export default function Dashboard({
 
                     <button
                         type="button"
+                        onClick={() => setActiveTab("announcements")}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 snap-start whitespace-nowrap ${
+                            activeTab === "announcements"
+                                ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                                : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50"
+                        }`}
+                    >
+                        <span>📢 Оголошення</span>
+                        {announcements.length > 0 && (
+                            <span className="text-[10px] text-slate-400">({announcements.length})</span>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
                         onClick={() => setActiveTab("logs")}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 snap-start whitespace-nowrap ${
                             activeTab === "logs"
@@ -568,6 +585,15 @@ export default function Dashboard({
                         tickets={tickets}
                         handleResolveTicket={handleResolveTicket}
                         ticketProcessingId={ticketProcessingId}
+                    />
+                )}
+
+                {activeTab === "announcements" && (
+                    <AnnouncementsTab
+                        announcements={announcements}
+                        buildings={buildings}
+                        isSuperAdmin={isSuperAdmin}
+                        currentUser={auth.user}
                     />
                 )}
 

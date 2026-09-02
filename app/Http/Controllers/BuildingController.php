@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Building;
 use App\Models\Room;
 use App\Models\Booking;
@@ -88,6 +89,33 @@ class BuildingController extends Controller
                 });
         }
 
+        $userBuildingId = ($userBooking && $userBooking->room) ? $userBooking->room->building_id : null;
+
+        $announcements = Announcement::with(['author', 'building'])
+            ->when($userBuildingId, function ($query, $bId) {
+                $query->where(function ($q) use ($bId) {
+                    $q->whereNull('building_id')
+                      ->orWhere('building_id', $bId);
+                });
+            })
+            ->orderBy('is_pinned', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'title' => $a->title,
+                    'content' => $a->content,
+                    'priority' => $a->priority,
+                    'is_pinned' => (bool)$a->is_pinned,
+                    'building_id' => $a->building_id,
+                    'building_name' => $a->building ? $a->building->name : 'Усі гуртожитки',
+                    'author_name' => $a->author ? $a->author->name : 'Адміністрація',
+                    'author_role' => $a->author ? ($a->author->role === 'admin' ? 'Головна адміністрація' : 'Комендант') : 'Адміністрація',
+                    'created_at' => $a->created_at ? $a->created_at->format('d.m.Y H:i') : null,
+                ];
+            });
+
         return Inertia::render('Dashboard', [
             'buildings' => Building::all(),
             'floors' => $floors,
@@ -97,6 +125,7 @@ class BuildingController extends Controller
             'userBooking' => $userBooking,
             'tickets' => $tickets,
             'roommates' => $roommates,
+            'announcements' => $announcements,
         ]);
     }
 
