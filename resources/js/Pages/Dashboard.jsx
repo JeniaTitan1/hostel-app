@@ -63,7 +63,7 @@ export default function Dashboard({
                     preserveState: true,
                 });
             }
-        }, 3000);
+        }, 4000);
 
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === "visible") {
@@ -119,14 +119,6 @@ export default function Dashboard({
                 }
                 return current;
             });
-
-            if (e.message) {
-                window.dispatchEvent(
-                    new CustomEvent("show-toast", {
-                        detail: { message: `⚡ [Realtime] ${e.message}`, duration: 4500 },
-                    })
-                );
-            }
 
             // Фонова синхронізація через Inertia partial reload
             router.reload({

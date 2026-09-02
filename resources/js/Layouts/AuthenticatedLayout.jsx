@@ -58,18 +58,17 @@ export default function AuthenticatedLayout({
     };
 
     // Захист від дублювання тостів
-    const lastShownToastRef = useRef({ message: "", time: 0 });
+    const seenFlashMessagesRef = useRef(new Set());
     const showToastOnce = (msg) => {
-        if (!msg) return;
-        const now = Date.now();
-        if (
-            lastShownToastRef.current.message === msg &&
-            now - lastShownToastRef.current.time < 1500
-        ) {
+        if (!msg || typeof msg !== "string") return;
+        if (seenFlashMessagesRef.current.has(msg)) {
             return;
         }
-        lastShownToastRef.current = { message: msg, time: now };
-        window.alert(msg);
+        seenFlashMessagesRef.current.add(msg);
+        
+        window.dispatchEvent(
+            new CustomEvent("show-toast", { detail: { message: msg, duration: 3500 } }),
+        );
     };
 
     // Global Toast listener & window.alert override
@@ -110,9 +109,21 @@ export default function AuthenticatedLayout({
         }
     }, []);
 
-    // Subsequent Inertia page flash check
+    // Subsequent Inertia page flash check (ігнорує фонові GET reload запити)
     useEffect(() => {
-        const removeEventListener = router.on("success", (event) => {
+        const removeBeforeListener = router.on("before", (event) => {
+            // При новому POST/PATCH/DELETE запиті очищаємо історію показаних повідомлень
+            if (event.detail.visit.method !== "get") {
+                seenFlashMessagesRef.current.clear();
+            }
+        });
+
+        const removeSuccessListener = router.on("success", (event) => {
+            // Якщо це фоновий GET-запит (background reload), не показуємо застарілі флеш-повідомлення
+            if (event.detail.visit?.method === "get" && event.detail.visit?.only && event.detail.visit?.only.length > 0) {
+                return;
+            }
+
             const pageFlash = event.detail.page.props.flash || {};
             if (pageFlash.success) {
                 showToastOnce(pageFlash.success);
@@ -128,7 +139,8 @@ export default function AuthenticatedLayout({
         });
 
         return () => {
-            removeEventListener();
+            removeBeforeListener();
+            removeSuccessListener();
         };
     }, []);
 

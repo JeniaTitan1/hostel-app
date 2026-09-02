@@ -61,7 +61,7 @@ export default function Dashboard({
                     preserveState: true,
                 });
             }
-        }, 3500);
+        }, 4000);
 
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === "visible") {
@@ -95,14 +95,6 @@ export default function Dashboard({
                 setTimeout(() => {
                     setLiveHighlightedRoomIds((prev) => prev.filter((id) => id !== Number(e.roomId)));
                 }, 4000);
-            }
-
-            if (e.message) {
-                window.dispatchEvent(
-                    new CustomEvent("show-toast", {
-                        detail: { message: `⚡ [Realtime] ${e.message}`, duration: 4500 },
-                    })
-                );
             }
 
             // Фонова синхронізація адмінських даних без F5
