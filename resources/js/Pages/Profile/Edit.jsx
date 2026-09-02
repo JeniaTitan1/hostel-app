@@ -114,10 +114,10 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                         {/* Безпека та видалення */}
                         <div className="space-y-6">
                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
-                                <UpdatePasswordForm />
+                                <UpdatePasswordForm mustChangePassword={Boolean(auth?.user?.must_change_password)} />
                             </div>
 
-                            {auth?.user?.role !== 'admin' && (
+                            {!auth?.user?.must_change_password && auth?.user?.role !== 'admin' && (
                                 <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 p-6 sm:p-8 rounded-xl shadow-xs">
                                     <DeleteUserForm />
                                 </div>
