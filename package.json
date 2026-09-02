@@ -23,6 +23,8 @@
     },
     "dependencies": {
         "html2canvas": "^1.4.1",
-        "jspdf": "^4.2.1"
+        "jspdf": "^4.2.1",
+        "laravel-echo": "^2.4.0",
+        "pusher-js": "^8.6.0"
     }
 }

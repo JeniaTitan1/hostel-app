@@ -3,6 +3,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import { generateOrderPdf } from "@/Utils/OrderPdfGenerator";
 import VerifyOrderModal from "@/Components/VerifyOrderModal";
+import { getEcho } from "@/echo";
 
 const BedIcon = ({ gender, isOccupied, name }) => {
     if (!isOccupied) {
@@ -39,6 +40,68 @@ export default function Dashboard({
     // Використовуємо локальний стан для керування завантаженням (processing)
     const [processing, setProcessing] = useState(false);
     const [announcementFilter, setAnnouncementFilter] = useState("all");
+    const [liveRooms, setLiveRooms] = useState(rooms);
+    const [highlightedRoomIds, setHighlightedRoomIds] = useState([]);
+
+    useEffect(() => {
+        setLiveRooms(rooms);
+    }, [rooms]);
+
+    // Підписка на WebSockets канали для оновлення карти в реальному часі
+    useEffect(() => {
+        const echo = getEcho();
+        if (!echo) return;
+
+        const channel = echo.channel("rooms");
+        channel.listen(".RoomOccupancyUpdated", (e) => {
+            if (e.roomId) {
+                setHighlightedRoomIds((prev) => [...prev, Number(e.roomId)]);
+                setTimeout(() => {
+                    setHighlightedRoomIds((prev) => prev.filter((id) => id !== Number(e.roomId)));
+                }, 4000);
+            }
+
+            // Оптимістично оновлюємо кімнату в списку, якщо вона належить поточному поверху
+            if (e.room && Number(e.room.building_id) === Number(selectedBuildingId) && Number(e.room.floor) === Number(selectedFloor)) {
+                setLiveRooms((prev) => {
+                    const idx = prev.findIndex((r) => Number(r.id) === Number(e.roomId));
+                    if (idx >= 0) {
+                        const copy = [...prev];
+                        copy[idx] = { ...copy[idx], ...e.room };
+                        return copy;
+                    }
+                    return prev;
+                });
+            }
+
+            // Оновлюємо вибрану кімнату, якщо вона зараз відкрита
+            setSelectedRoom((current) => {
+                if (current && Number(current.id) === Number(e.roomId) && e.room) {
+                    return { ...current, ...e.room };
+                }
+                return current;
+            });
+
+            if (e.message) {
+                window.dispatchEvent(
+                    new CustomEvent("show-toast", {
+                        detail: { message: `⚡ [Realtime] ${e.message}`, duration: 4500 },
+                    })
+                );
+            }
+
+            // Фонова синхронізація через Inertia partial reload
+            router.reload({
+                only: ["rooms", "floors", "userBooking", "roommates"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
+        return () => {
+            echo.leaveChannel("rooms");
+        };
+    }, [selectedBuildingId, selectedFloor]);
 
     useEffect(() => {
         if (auth.user?.reallocated_notification) {
@@ -260,6 +323,15 @@ export default function Dashboard({
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-center">
+                        {/* Live WebSockets статус індикатор */}
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold shadow-3xs" title="Синхронізація карти в реальному часі через WebSockets">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span>Live Map</span>
+                        </div>
+
                         {!hasApprovedBooking && !hasPendingBooking && (
                             <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
                                 <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
@@ -872,7 +944,7 @@ export default function Dashboard({
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                                         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {rooms
+                                            {liveRooms
                                                 .filter((room) => {
                                                     if (genderFilter) {
                                                         const rg = getRoomGender(room);
@@ -888,6 +960,7 @@ export default function Dashboard({
                                                 .map((room) => {
                                                 const isClosed =
                                                     room.status === "closed";
+                                                const isHighlighted = highlightedRoomIds.includes(Number(room.id));
                                                 const styles = isClosed
                                                     ? {
                                                           bg: "bg-gray-100/80 border-slate-100 cursor-not-allowed opacity-60",
@@ -925,8 +998,17 @@ export default function Dashboard({
                                                             !isClosed
                                                                 ? "ring-2 ring-gray-900 ring-offset-2"
                                                                 : ""
-                                                        } ${isMyRoom ? "ring-2 ring-indigo-500 ring-offset-2 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30" : ""}`}
+                                                        } ${isMyRoom ? "ring-2 ring-indigo-500 ring-offset-2 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30" : ""} ${
+                                                            isHighlighted ? "ring-4 ring-emerald-400 dark:ring-emerald-500 scale-[1.02] shadow-lg shadow-emerald-500/25 transition-all duration-300 animate-pulse" : ""
+                                                        }`}
                                                     >
+                                                        {/* --- БЕЙДЖИК "Оновлено live" --- */}
+                                                        {isHighlighted && (
+                                                            <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce">
+                                                                ⚡ Оновлено live
+                                                            </span>
+                                                        )}
+
                                                         {/* --- БЕЙДЖИК "Моя кімната" --- */}
                                                         {isMyRoom && (
                                                             <span className="absolute -top-2.5 -right-2.5 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm border-2 border-white z-10">

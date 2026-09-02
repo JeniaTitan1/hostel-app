@@ -21,6 +21,7 @@ import RejectBookingModal from "@/Pages/Admin/Modals/RejectBookingModal";
 import ManualBookingModal from "@/Pages/Admin/Modals/ManualBookingModal";
 import CloseRoomModal from "@/Pages/Admin/Modals/CloseRoomModal";
 import VerifyOrderModal from "@/Components/VerifyOrderModal";
+import { getEcho } from "@/echo";
 
 export default function Dashboard({
     auth,
@@ -48,6 +49,42 @@ export default function Dashboard({
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [manualBookingRoom, setManualBookingRoom] = useState(null);
     const [roomToCloseForRepair, setRoomToCloseForRepair] = useState(null);
+    const [liveHighlightedRoomIds, setLiveHighlightedRoomIds] = useState([]);
+
+    // Слухаємо оновлення кімнат та заявок через WebSockets у реальному часі
+    useEffect(() => {
+        const echo = getEcho();
+        if (!echo) return;
+
+        const channel = echo.channel("rooms");
+        channel.listen(".RoomOccupancyUpdated", (e) => {
+            if (e.roomId) {
+                setLiveHighlightedRoomIds((prev) => [...prev, Number(e.roomId)]);
+                setTimeout(() => {
+                    setLiveHighlightedRoomIds((prev) => prev.filter((id) => id !== Number(e.roomId)));
+                }, 4000);
+            }
+
+            if (e.message) {
+                window.dispatchEvent(
+                    new CustomEvent("show-toast", {
+                        detail: { message: `⚡ [Realtime] ${e.message}`, duration: 4500 },
+                    })
+                );
+            }
+
+            // Фонова синхронізація адмінських даних без F5
+            router.reload({
+                only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
+        return () => {
+            echo.leaveChannel("rooms");
+        };
+    }, []);
 
     const handleOpenManualBooking = (room) => {
         setManualBookingRoom(room);
@@ -583,6 +620,7 @@ export default function Dashboard({
                         handleRequestReallocate={handleRequestReallocate}
                         BedIcon={BedIcon}
                         isSuperAdmin={isSuperAdmin}
+                        liveHighlightedRoomIds={liveHighlightedRoomIds}
                     />
                 )}
 

@@ -219,6 +219,8 @@ class BuildingController extends Controller
 
         AuditLog::log($userId, 'booking_requested', "Надіслано запит на заселення в кімнату №{$room->room_number} ({$room->building->name})");
 
-        return redirect()->back()->with('success', 'Заявку на заселення відправлено!');
+        event(new \App\Events\RoomOccupancyUpdated($room->id, 'booking_requested', "Нова заявка на заселення в кімнату №{$room->room_number}"));
+
+        return redirect()->back()->with('success', 'Заявку на заселення відправлено! Очікуйте підтвердження адміністратора.');
     }
 }

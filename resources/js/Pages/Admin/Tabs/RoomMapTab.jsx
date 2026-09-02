@@ -20,6 +20,7 @@ export default function RoomMapTab({
     handleRequestReallocate,
     BedIcon,
     isSuperAdmin,
+    liveHighlightedRoomIds = [],
 }) {
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
@@ -41,9 +42,18 @@ export default function RoomMapTab({
             {/* Пошук та фільтри для мапи */}
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
-                        <span>🏛️</span> Карта корпусів МНАУ
-                    </h3>
+                    <div className="flex items-center gap-3">
+                        <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
+                            <span>🏛️</span> Карта корпусів МНАУ
+                        </h3>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold shadow-3xs" title="Синхронізація карти в реальному часі через WebSockets">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span>Live WebSocket</span>
+                        </div>
+                    </div>
                     <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                         Інтерактивна схема кімнат, поверхів та розселення
                     </p>
@@ -321,13 +331,25 @@ export default function RoomMapTab({
                                                                     "bg-red-50/20 dark:bg-red-950/10 border border-red-200 dark:border-red-800 hover:border-red-400 transition-colors duration-200";
                                                             }
 
+                                                            const isHighlighted = liveHighlightedRoomIds.includes(Number(room.id));
+
                                                             return (
                                                                 <div
                                                                     key={
                                                                         room.id
                                                                     }
-                                                                    className={`p-4 rounded-2xl flex flex-col justify-between min-h-[190px] relative ${cardBgStyle}`}
+                                                                    className={`p-4 rounded-2xl flex flex-col justify-between min-h-[190px] relative ${cardBgStyle} ${
+                                                                        isHighlighted
+                                                                            ? "ring-4 ring-emerald-400 dark:ring-emerald-500 scale-[1.02] shadow-lg shadow-emerald-500/25 transition-all duration-300 animate-pulse"
+                                                                            : ""
+                                                                    }`}
                                                                 >
+                                                                    {/* Бейджик оновлення в реальному часі */}
+                                                                    {isHighlighted && (
+                                                                        <span className="absolute -top-2.5 -left-2 bg-emerald-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-white z-20 animate-bounce">
+                                                                            ⚡ Оновлено live
+                                                                        </span>
+                                                                    )}
                                                                     <div>
                                                                         <div className="flex justify-between items-start mb-2">
                                                                             <div>
