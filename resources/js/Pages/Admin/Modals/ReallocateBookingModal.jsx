@@ -68,13 +68,30 @@ export default function ReallocateBookingModal({
                             <option value="" disabled>
                                 -- Оберіть кімнату --
                             </option>
-                            {availableRooms.map((r) => (
-                                <option key={r.id} value={r.id}>
-                                    Кімн. №{r.room_number} ({r.building_name},
-                                    Пов. {r.floor}, Вільно {r.free_spots}/
-                                    {r.max_capacity})
-                                </option>
-                            ))}
+                            {availableRooms.map((r) => {
+                                const isMixedWithUser =
+                                    reallocateBookingData?.user?.gender &&
+                                    r.genderType &&
+                                    r.genderType !== "empty" &&
+                                    r.genderType !== reallocateBookingData.user.gender;
+                                const genderNote =
+                                    r.genderType === "female"
+                                        ? "• Жіноча"
+                                        : r.genderType === "male"
+                                          ? "• Чоловіча"
+                                          : r.genderType === "mixed"
+                                            ? "• Змішана"
+                                            : "• Вільна";
+
+                                return (
+                                    <option key={r.id} value={r.id}>
+                                        Кімн. №{r.room_number} ({r.building_name},
+                                        Пов. {r.floor}, Вільно {r.free_spots}/
+                                        {r.max_capacity}) {genderNote}
+                                        {isMixedWithUser ? " — ЗМІШАНА КІМНАТА" : ""}
+                                    </option>
+                                );
+                            })}
                         </select>
                     </div>
 
@@ -132,19 +149,20 @@ export default function ReallocateBookingModal({
 
                     {isGenderConflict && (
                         <div className="space-y-3 pt-1">
-                            <div className="flex items-start gap-2.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/50 rounded-xl p-3.5 shadow-3xs">
-                                <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700/80 rounded-xl p-3.5 shadow-3xs">
+                                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
-                                <p className="text-xs text-amber-850 dark:text-amber-300 font-semibold leading-normal">
-                                    Цільова кімната призначена для{" "}
-                                    {targetRoomGender.type === "male"
-                                        ? "чоловіків"
-                                        : "жінок"}
-                                    . Переселення створить змішану кімнату.
-                                </p>
+                                <div className="space-y-1">
+                                    <span className="font-extrabold text-xs text-amber-950 dark:text-amber-200 block uppercase tracking-wide">
+                                        Увага: створення змішаної кімнати!
+                                    </span>
+                                    <p className="text-xs text-amber-850 dark:text-amber-300 font-medium leading-relaxed">
+                                        {reallocateBookingData.user?.name} ({reallocateBookingData.user?.gender === "male" ? "чоловіча стать" : "жіноча стать"}) буде переселено до кімнати №{targetRoom.room_number}, де вже проживають {targetRoomGender.type === "male" ? "чоловіки" : "жінки"}.
+                                    </p>
+                                </div>
                             </div>
-                            <label className="flex items-center gap-2 cursor-pointer group">
+                            <label className="flex items-center gap-2 cursor-pointer group p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50">
                                 <input
                                     type="checkbox"
                                     checked={allowMixedReallocate}
@@ -153,10 +171,10 @@ export default function ReallocateBookingModal({
                                             e.target.checked,
                                         )
                                     }
-                                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
+                                    className="w-4 h-4 rounded border-amber-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700"
                                 />
-                                <span className="text-xs text-gray-650 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                                    Підтверджую створення змішаної кімнати
+                                <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 group-hover:underline">
+                                    Я підтверджую створення змішаної кімнати
                                 </span>
                             </label>
                         </div>

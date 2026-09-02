@@ -761,14 +761,19 @@ export default function Dashboard({
                     setReallocateReason={setReallocateReason}
                     allowMixedReallocate={allowMixedReallocate}
                     setAllowMixedReallocate={setAllowMixedReallocate}
-                    availableRooms={buildings.flatMap((b) => b.rooms || []).map((r) => ({
-                        id: r.id,
-                        room_number: r.room_number,
-                        floor: r.floor,
-                        building_name: buildings.find((b) => b.rooms?.some((rm) => rm.id === r.id))?.name || "Корпус",
-                        free_spots: r.max_capacity - (r.bookings?.filter((bk) => bk.status === "approved").length || 0),
-                        max_capacity: r.max_capacity,
-                    }))}
+                    availableRooms={buildings.flatMap((b) => b.rooms || []).map((r) => {
+                        const genderObj = getRoomGender(r);
+                        return {
+                            id: r.id,
+                            room_number: r.room_number,
+                            floor: r.floor,
+                            building_name: buildings.find((b) => b.rooms?.some((rm) => rm.id === r.id))?.name || "Корпус",
+                            free_spots: r.max_capacity - (r.bookings?.filter((bk) => bk.status === "approved").length || 0),
+                            max_capacity: r.max_capacity,
+                            genderType: genderObj.type,
+                            status: r.status,
+                        };
+                    })}
                     getRoomGender={getRoomGender}
                     buildings={buildings}
                 />
