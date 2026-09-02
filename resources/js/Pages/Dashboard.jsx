@@ -58,7 +58,7 @@ export default function Dashboard({
         const interval = setInterval(() => {
             if (document.visibilityState === "visible") {
                 router.reload({
-                    only: ["rooms", "floors", "userBooking", "roommates"],
+                    only: ["rooms", "floors", "userBooking", "roommates", "auth"],
                     preserveScroll: true,
                     preserveState: true,
                 });
@@ -68,7 +68,7 @@ export default function Dashboard({
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === "visible") {
                 router.reload({
-                    only: ["rooms", "floors", "userBooking", "roommates"],
+                    only: ["rooms", "floors", "userBooking", "roommates", "auth"],
                     preserveScroll: true,
                     preserveState: true,
                 });
@@ -122,7 +122,7 @@ export default function Dashboard({
 
             // Фонова синхронізація через Inertia partial reload
             router.reload({
-                only: ["rooms", "floors", "userBooking", "roommates"],
+                only: ["rooms", "floors", "userBooking", "roommates", "auth"],
                 preserveScroll: true,
                 preserveState: true,
             });
@@ -132,6 +132,25 @@ export default function Dashboard({
             echo.leaveChannel("rooms");
         };
     }, [selectedBuildingId, selectedFloor]);
+
+    // Сповіщення про нові події (відхилення, схвалення, переселення тощо)
+    const seenNotificationIdsRef = useRef(new Set((auth.notifications || []).map((n) => n.id)));
+    useEffect(() => {
+        const currentNotifications = auth.notifications || [];
+        for (const n of currentNotifications) {
+            if (!seenNotificationIdsRef.current.has(n.id)) {
+                seenNotificationIdsRef.current.add(n.id);
+                window.dispatchEvent(
+                    new CustomEvent("show-toast", {
+                        detail: {
+                            message: `🔔 ${n.title}: ${n.message}`,
+                            duration: 7000,
+                        },
+                    })
+                );
+            }
+        }
+    }, [auth.notifications]);
 
     useEffect(() => {
         if (auth.user?.reallocated_notification) {

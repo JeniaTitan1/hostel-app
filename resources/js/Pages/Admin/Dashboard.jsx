@@ -336,6 +336,19 @@ export default function Dashboard({
         commandantGenForm.post(route("admin.commandants.generate"), { preserveScroll: true });
     };
 
+    // Форма пакетної генерації студентів
+    const userGenForm = useForm({
+        count: 5,
+        gender: "",
+    });
+
+    const handleGenerateUsers = (e) => {
+        e.preventDefault();
+        userGenForm.post(route("admin.users.generate"), {
+            preserveScroll: true,
+        });
+    };
+
     const handleDeleteCommandant = (id) => {
         if (confirm("Ви дійсно бажаєте видалити цього коменданта?")) {
             router.post(route("admin.commandants.delete", id), {}, { preserveScroll: true });
@@ -667,6 +680,9 @@ export default function Dashboard({
                         handleOpenEditUserModal={handleOpenEditUserModal}
                         handleImpersonate={handleImpersonate}
                         isSuperAdmin={isSuperAdmin}
+                        generatedUsers={generatedUsers}
+                        userGenForm={userGenForm}
+                        handleGenerateUsers={handleGenerateUsers}
                     />
                 )}
 

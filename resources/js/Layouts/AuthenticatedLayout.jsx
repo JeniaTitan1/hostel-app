@@ -42,20 +42,23 @@ export default function AuthenticatedLayout({
 
     const [toasts, setToasts] = useState([]);
     
-    // Анімація запускається при первинному вході та ручному перезавантаженні (F5),
-    // але не повторюється при переході по внутрішніх посиланнях Inertia
+    // Анімація запускається лише 1 раз за сесію сторінки
     const [animating, setAnimating] = useState(() => {
-        if (!hasSeenIntroInAppSession) {
-            hasSeenIntroInAppSession = true;
-            return true;
+        if (typeof window !== "undefined") {
+            const alreadySeen = sessionStorage.getItem("hasSeenIntroApp");
+            if (!alreadySeen) {
+                sessionStorage.setItem("hasSeenIntroApp", "true");
+                return true;
+            }
+            return false;
         }
         return false;
     });
     const notifications = props.auth?.notifications || [];
 
-    const handleCloseIntroAnimation = () => {
+    const handleCloseIntroAnimation = React.useCallback(() => {
         setAnimating(false);
-    };
+    }, []);
 
     // Захист від дублювання тостів
     const seenFlashMessagesRef = useRef(new Set());

@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 
 export default function IntroWaveAnimation({ onClose }) {
     const canvasRef = useRef(null);
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -169,7 +171,7 @@ export default function IntroWaveAnimation({ onClose }) {
             const elapsed = currentTime - startTime;
             if (elapsed >= duration) {
                 cancelAnimationFrame(animationFrameId);
-                if (onClose) onClose();
+                if (onCloseRef.current) onCloseRef.current();
                 return;
             }
 
@@ -311,7 +313,7 @@ export default function IntroWaveAnimation({ onClose }) {
             window.removeEventListener("resize", resizeCanvas);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [onClose]);
+    }, []);
 
     return (
         <canvas

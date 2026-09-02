@@ -18,9 +18,101 @@ export default function UsersTab({
     handleOpenEditUserModal,
     handleImpersonate,
     isSuperAdmin,
+    generatedUsers = null,
+    userGenForm,
+    handleGenerateUsers,
 }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(15);
+    const [showGenerator, setShowGenerator] = useState(false);
+
+    const handleCopyAllText = () => {
+        if (!generatedUsers || generatedUsers.length === 0) return;
+        const text = generatedUsers
+            .map(
+                (u, i) =>
+                    `${i + 1}. ${u.name}\n   Логін: ${u.email}\n   Тимчасовий пароль: ${u.password}\n   Стать: ${
+                        u.gender === "male"
+                            ? "Чоловіча"
+                            : u.gender === "female"
+                            ? "Жіноча"
+                            : "Не вказано"
+                    }`,
+            )
+            .join("\n\n");
+        navigator.clipboard.writeText(text);
+        window.dispatchEvent(
+            new CustomEvent("show-toast", {
+                detail: {
+                    message:
+                        "📋 Список згенерованих студентів скопійовано в буфер обміну!",
+                },
+            }),
+        );
+    };
+
+    const handleCopySingle = (text) => {
+        navigator.clipboard.writeText(text);
+        window.dispatchEvent(
+            new CustomEvent("show-toast", {
+                detail: { message: "📋 Скопійовано!" },
+            }),
+        );
+    };
+
+    const handlePrintOrPdf = () => {
+        if (!generatedUsers || generatedUsers.length === 0) return;
+        const printWindow = window.open("", "_blank");
+        if (!printWindow) return;
+
+        const cardsHtml = generatedUsers
+            .map(
+                (u, idx) => `
+            <div style="border: 2px dashed #059669; border-radius: 8px; padding: 14px; margin-bottom: 12px; page-break-inside: avoid; background: #f0fdf4; font-family: sans-serif;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #a7f3d0; padding-bottom: 6px; margin-bottom: 8px;">
+                    <strong style="color: #065f46; font-size: 14px;">🌾 МНАУ • Талон доступу до системи гуртожитків</strong>
+                    <span style="font-size: 11px; color: #047857; font-weight: bold;">Студент #${idx + 1}</span>
+                </div>
+                <div style="font-size: 12px; line-height: 1.6; color: #0f172a;">
+                    <div><strong>Тимчасове ім'я:</strong> ${u.name}</div>
+                    <div><strong>Логін / Email:</strong> <span style="font-family: monospace; font-size: 13px; font-weight: bold; color: #047857;">${u.email}</span></div>
+                    <div><strong>Тимчасовий пароль:</strong> <span style="font-family: monospace; font-size: 13px; font-weight: bold; color: #b45309;">${u.password}</span></div>
+                    <div><strong>Стать:</strong> ${u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "Не вказано"}</div>
+                </div>
+                <div style="margin-top: 8px; font-size: 10px; color: #64748b; font-style: italic;">
+                    ⚠️ Інструкція для студента: Перейдіть на сайт гуртожитку, увійдіть з цими даними. Система обов'язково попросить встановити свій постійний пароль та заповнити ПІБ, групу і телефон.
+                </div>
+            </div>
+        `,
+            )
+            .join("");
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Талони доступу студентів - МНАУ</title>
+                    <style>
+                        @media print {
+                            body { margin: 10mm; }
+                        }
+                    </style>
+                </head>
+                <body style="padding: 20px; font-family: sans-serif;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #065f46; margin: 0;">Миколаївський Національний Аграрний Університет</h2>
+                        <p style="color: #475569; font-size: 13px; margin: 4px 0 0 0;">Реєстр згенерованих талонів доступу для нових студентів (${generatedUsers.length} шт.)</p>
+                    </div>
+                    ${cardsHtml}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+        }, 300);
+    };
 
     const filteredUsers = allUsers.filter((u) => {
         const matchesSearch =
@@ -58,6 +150,140 @@ export default function UsersTab({
 
     return (
         <div className="space-y-6">
+            {/* Блок пакетної генерації студентів */}
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-gray-700 pb-4">
+                    <div>
+                        <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
+                            <span>⚡</span> Пакетна генерація студентів (Коди доступу)
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                            Масове створення тимчасових акаунтів для нових поселенців. При першому вході студенти зобов'язані встановити новий пароль та заповнити свій профіль.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setShowGenerator(!showGenerator)}
+                        className="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors flex items-center gap-1.5 shrink-0"
+                    >
+                        <span>{showGenerator ? "▲ Згорнути форму" : "➕ Згенерувати акаунти"}</span>
+                    </button>
+                </div>
+
+                {showGenerator && userGenForm && (
+                    <form onSubmit={handleGenerateUsers} className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                Кількість акаунтів (1 – 50)
+                            </label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="50"
+                                value={userGenForm.data.count}
+                                onChange={(e) => userGenForm.setData("count", e.target.value)}
+                                className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                                required
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                Стать (для розселення)
+                            </label>
+                            <select
+                                value={userGenForm.data.gender}
+                                onChange={(e) => userGenForm.setData("gender", e.target.value)}
+                                className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            >
+                                <option value="">Будь-яка / Не вказано</option>
+                                <option value="male">👨 Чоловіча</option>
+                                <option value="female">👩 Жіноча</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={userGenForm.processing}
+                                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+                            >
+                                {userGenForm.processing ? "⏳ Створення..." : `⚡ Згенерувати ${userGenForm.data.count} студентів`}
+                            </button>
+                        </div>
+                    </form>
+                )}
+
+                {/* Результати щойно згенерованих користувачів */}
+                {generatedUsers && generatedUsers.length > 0 && (
+                    <div className="mt-4 p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-400 dark:border-emerald-700 space-y-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-200 dark:border-emerald-800/60 pb-3">
+                            <div>
+                                <h4 className="font-extrabold text-emerald-900 dark:text-emerald-200 text-sm flex items-center gap-1.5">
+                                    <span>🎉</span> Успішно згенеровано {generatedUsers.length} облікових записів!
+                                </h4>
+                                <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                                    Збережіть, скопіюйте або роздрукуйте талони доступу для передачі студентам.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleCopyAllText}
+                                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1.5 shadow-2xs"
+                                >
+                                    <span>📋</span> Скопіювати все (TXT)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handlePrintOrPdf}
+                                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
+                                >
+                                    <span>🖨️</span> Друк / Талони (PDF)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto max-h-72 overflow-y-auto rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-white dark:bg-gray-800">
+                            <table className="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr className="border-b border-emerald-100 dark:border-gray-700 bg-emerald-100/50 dark:bg-gray-700/50 text-[10px] font-extrabold uppercase text-emerald-900 dark:text-emerald-200">
+                                        <th className="p-2.5">#</th>
+                                        <th className="p-2.5">Тимчасове ім'я</th>
+                                        <th className="p-2.5">Email / Логін</th>
+                                        <th className="p-2.5">Пароль</th>
+                                        <th className="p-2.5">Стать</th>
+                                        <th className="p-2.5 text-right">Дія</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-emerald-50 dark:divide-gray-700 text-[11px] text-gray-700 dark:text-gray-200">
+                                    {generatedUsers.map((u, idx) => (
+                                        <tr key={u.id || idx} className="hover:bg-emerald-50/40 dark:hover:bg-gray-700/30">
+                                            <td className="p-2.5 font-bold text-gray-400">{idx + 1}</td>
+                                            <td className="p-2.5 font-semibold text-gray-900 dark:text-white">{u.name}</td>
+                                            <td className="p-2.5 font-mono text-emerald-700 dark:text-emerald-400 font-bold">{u.email}</td>
+                                            <td className="p-2.5 font-mono text-amber-700 dark:text-amber-400 font-extrabold">{u.password}</td>
+                                            <td className="p-2.5">{u.gender === "male" ? "👨 Чоловіча" : u.gender === "female" ? "👩 Жіноча" : "—"}</td>
+                                            <td className="p-2.5 text-right">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopySingle(`Логін: ${u.email} | Пароль: ${u.password}`)}
+                                                    className="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] hover:bg-emerald-100 transition-colors"
+                                                >
+                                                    Скопіювати
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Header & Filter Bar */}
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-gray-700 pb-4">
