@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->seedSystemSettings();
         $buildings = $this->seedBuildingsAndRooms();
         $staff = $this->seedAdministratorsAndCommandants($buildings);
-        $this->seedStudentsAndScenarios($buildings, $staff['admin']);
+        $this->seedStudentsAndScenarios($buildings, $staff);
     }
 
     /**
@@ -242,8 +242,13 @@ class DatabaseSeeder extends Seeder
     /**
      * 5. Створення студентів та тестових сценаріїв
      */
-    protected function seedStudentsAndScenarios(array $buildings, User $admin): void
+    protected function seedStudentsAndScenarios(array $buildings, array $staff): void
     {
+        $admin = $staff['admin'];
+        $commandantA = $staff['commandantA'];
+        $commandantB = $staff['commandantB'];
+        $commandantC = $staff['commandantC'];
+
         $roomsA = $buildings['A']['rooms'];
         $roomsB = $buildings['B']['rooms'];
         $roomsC = $buildings['C']['rooms'];
