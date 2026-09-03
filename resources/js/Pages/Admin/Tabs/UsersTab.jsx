@@ -393,36 +393,38 @@ export default function UsersTab({
                                                 {u.course ? `${u.course} курс` : ""} {u.group ? `• Група ${u.group}` : ""}
                                             </div>
                                         </td>
-                                        <td className="p-3.5 text-right space-x-2">
-                                            {u.role !== "admin" && (
+                                        <td className="p-3.5 text-right whitespace-nowrap">
+                                            <div className="inline-flex items-center justify-end gap-2">
+                                                {u.role !== "admin" && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setContactingUser(u)}
+                                                        className="px-2.5 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-semibold rounded-lg hover:bg-sky-100 transition-all text-[11px] inline-flex items-center gap-1.5 cursor-pointer leading-none"
+                                                        title="Зв'язатися зі студентом (Telegram, телефон або email)"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                        </svg>
+                                                        <span>Зв'язатися</span>
+                                                    </button>
+                                                )}
                                                 <button
                                                     type="button"
-                                                    onClick={() => setContactingUser(u)}
-                                                    className="px-2.5 py-1.5 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-semibold rounded-lg hover:bg-sky-100 transition-all text-[11px] inline-flex items-center gap-1.5 cursor-pointer"
-                                                    title="Зв'язатися зі студентом (Telegram, телефон або email)"
+                                                    onClick={() => handleOpenEditUserModal(u)}
+                                                    className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold rounded-lg hover:bg-emerald-100 transition-all text-[11px] inline-flex items-center justify-center leading-none"
                                                 >
-                                                    <svg className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                    </svg>
-                                                    <span>Зв'язатися</span>
+                                                    Редагувати
                                                 </button>
-                                            )}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenEditUserModal(u)}
-                                                className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold rounded-lg hover:bg-emerald-100 transition-all text-[11px]"
-                                            >
-                                                Редагувати
-                                            </button>
-                                            {u.role !== "admin" && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleImpersonate && handleImpersonate(u.id, u.name, "user")}
-                                                    className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold rounded-lg hover:bg-indigo-100 transition-all text-[11px]"
-                                                >
-                                                    Увійти як
-                                                </button>
-                                            )}
+                                                {u.role !== "admin" && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleImpersonate && handleImpersonate(u.id, u.name, "user")}
+                                                        className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold rounded-lg hover:bg-indigo-100 transition-all text-[11px] inline-flex items-center justify-center leading-none"
+                                                    >
+                                                        Увійти як
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

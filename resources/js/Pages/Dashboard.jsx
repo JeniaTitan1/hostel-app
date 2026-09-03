@@ -841,13 +841,7 @@ export default function Dashboard({
 
                     {selectedBuildingId ? (
                         /* У режимі вибору кімнати / переселення показуємо ТІЛЬКИ кнопку повернення до кабінету */
-                        <div className="flex items-center gap-3 self-start md:self-center shrink-0">
-                            {hasApprovedBooking && (
-                                <span className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 items-center gap-1.5 shrink-0">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                    <span>Режим переселення</span>
-                                </span>
-                            )}
+                        <div className="flex items-center self-start md:self-center shrink-0">
                             <button
                                 type="button"
                                 onClick={() => router.visit(route("dashboard"))}
