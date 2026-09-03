@@ -507,12 +507,12 @@ export default function Dashboard({
             <Head title="Панель керування" />
 
             <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-                {/* Компактні Адаптивні Вкладки Навігації з мобільним свайпом */}
-                <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/90 dark:bg-gray-800/90 rounded-2xl border border-slate-200/70 dark:border-gray-700 shadow-2xs overflow-x-auto scrollbar-none no-scrollbar flex-nowrap snap-x">
+                {/* Компактні Адаптивні Вкладки Навігації з автоматичним розміщенням */}
+                <div className="flex items-center flex-wrap lg:flex-nowrap gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-slate-100/90 dark:bg-gray-800/90 rounded-2xl border border-slate-200/70 dark:border-gray-700 shadow-2xs overflow-x-auto scrollbar-none no-scrollbar">
                     <button
                         type="button"
                         onClick={() => setActiveTab("bookings")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "bookings"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -532,7 +532,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("map")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "map"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -547,7 +547,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("users_gen")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "users_gen"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -563,7 +563,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("tickets")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "tickets"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -581,7 +581,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("announcements")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "announcements"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -599,7 +599,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("access_logs")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "access_logs"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -608,7 +608,7 @@ export default function Dashboard({
                         <svg className="w-4 h-4 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
-                        <span>КПП / Відвідування</span>
+                        <span>КПП</span>
                         {accessStats.total_scans_today > 0 && (
                             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-600 text-white font-extrabold">
                                 {accessStats.total_scans_today}
@@ -619,7 +619,7 @@ export default function Dashboard({
                     <button
                         type="button"
                         onClick={() => setActiveTab("logs")}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                        className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                             activeTab === "logs"
                                 ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                 : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -636,7 +636,7 @@ export default function Dashboard({
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("commandants")}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                                className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                                     activeTab === "commandants"
                                         ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                         : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -651,7 +651,7 @@ export default function Dashboard({
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("academic_settings")}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                                className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                                     activeTab === "academic_settings"
                                         ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                         : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -666,7 +666,7 @@ export default function Dashboard({
                             <button
                                 type="button"
                                 onClick={() => setActiveTab("settings")}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                                className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
                                     activeTab === "settings"
                                         ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
                                         : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
