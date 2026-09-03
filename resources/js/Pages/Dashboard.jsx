@@ -853,54 +853,68 @@ export default function Dashboard({
                             <button
                                 type="button"
                                 onClick={() => router.visit(route("dashboard"))}
-                                className="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+                                className="group inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-gray-800/90 border border-slate-200/80 dark:border-gray-700/80 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs font-bold rounded-full shadow-xs transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shrink-0"
                             >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
-                                <span>{hasApprovedBooking ? "Назад до мого кабінету" : "Назад до вибору корпусу"}</span>
+                                <span>{hasApprovedBooking ? "Назад до кабінету" : "Назад до вибору корпусу"}</span>
                             </button>
                         </div>
                     ) : (
-                        /* У звичайному кабінеті студента показуємо перепустку, ордер та статус */
-                        <div className="flex flex-wrap items-center gap-3 self-start md:self-center">
+                        /* У звичайному кабінеті студента: витончені мінімалістичні кнопки-пігулки та компактний статус */
+                        <div className="flex flex-wrap items-center gap-2 self-start md:self-center">
                             {!hasApprovedBooking && !hasPendingBooking && (
-                                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                                    <span className="text-xs font-bold text-amber-800 leading-tight">
-                                        На даний момент ви ніде не проживаєте. Будь ласка, оберіть кімнату та подайте заявку.
-                                    </span>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 text-amber-700 dark:text-amber-300 text-xs font-bold shadow-xs">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                    <span>Очікує вибору кімнати</span>
                                 </div>
                             )}
 
                             {hasRejectedBooking && (
-                                <div className="flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/40">
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                                        <span className="text-xs font-bold text-red-800">
-                                            Заявку відхилено
-                                        </span>
-                                    </div>
-                                    {userBooking.rejection_reason && (
-                                        <p className="text-[11px] text-red-700 leading-tight max-w-xs">
-                                            Причина: {userBooking.rejection_reason}
-                                        </p>
-                                    )}
-                                    <p className="text-[10px] text-red-600 font-medium">
-                                        Оберіть іншу кімнату та подайте нову заявку.
-                                    </p>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40 text-rose-700 dark:text-rose-300 text-xs font-bold shadow-xs">
+                                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                    <span>Заявку відхилено</span>
                                 </div>
                             )}
 
+                            {/* Компактний статус поселення з дихаючим світлодіодом */}
+                            {userBooking && (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-800/90 border border-slate-200/70 dark:border-gray-700/70 text-xs font-bold shadow-xs">
+                                    <span
+                                        className={`w-2 h-2 rounded-full animate-pulse ${
+                                            hasPendingReallocation
+                                                ? "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                                                : userBooking.status === "approved"
+                                                  ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                                                  : userBooking.status === "pending"
+                                                    ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"
+                                                    : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+                                        }`}
+                                    />
+                                    <span className="text-gray-800 dark:text-gray-200">
+                                        {hasPendingReallocation
+                                            ? "Очікується переїзд"
+                                            : userBooking.status === "approved"
+                                              ? "Затверджено"
+                                              : userBooking.status === "pending"
+                                                ? "На розгляді"
+                                                : "Відхилено"}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Швидкі дії: елегантні пігулки */}
                             {hasApprovedBooking && (
-                                <div className="flex items-center gap-2 shrink-0">
+                                <>
                                     <button
+                                        type="button"
                                         onClick={() => setShowDigitalPass(true)}
-                                        className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
+                                        className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-full shadow-xs hover:shadow-md hover:shadow-emerald-600/20 transition-all hover:scale-[1.03] active:scale-95 cursor-pointer shrink-0"
                                         title="Відкрити цифрову перепустку"
                                     >
                                         <svg
-                                            className="w-4 h-4"
+                                            className="w-3.5 h-3.5 transition-transform group-hover:rotate-12"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -912,16 +926,17 @@ export default function Dashboard({
                                                 d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                                             />
                                         </svg>
-                                        <span>Цифрова перепустка (QR)</span>
+                                        <span>Перепустка (QR)</span>
                                     </button>
 
                                     <button
+                                        type="button"
                                         onClick={handleDownloadSlip}
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+                                        className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700/80 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-full shadow-xs hover:shadow-sm transition-all hover:scale-[1.03] active:scale-95 cursor-pointer shrink-0"
                                         title="Завантажити ордер у форматі PDF"
                                     >
                                         <svg
-                                            className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400"
+                                            className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-500 transition-colors"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -935,48 +950,7 @@ export default function Dashboard({
                                         </svg>
                                         <span>Ордер (PDF)</span>
                                     </button>
-                                </div>
-                            )}
-
-                            {userBooking && (
-                                <div className="flex flex-col gap-0.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-xs shrink-0">
-                                    <div className="flex items-center gap-1.5">
-                                        <span
-                                            className={`w-2 h-2 rounded-full animate-pulse ${
-                                                hasPendingReallocation
-                                                    ? "bg-indigo-500"
-                                                    : userBooking.status ===
-                                                        "approved"
-                                                      ? "bg-emerald-500"
-                                                      : userBooking.status ===
-                                                          "pending"
-                                                        ? "bg-amber-500"
-                                                        : "bg-red-500"
-                                            }`}
-                                        />
-                                        <span className="text-xs font-bold text-gray-900 dark:text-white">
-                                            {hasPendingReallocation
-                                                ? "Очікується переселення"
-                                                : userBooking.status === "approved"
-                                                  ? "Затверджено"
-                                                  : userBooking.status === "pending"
-                                                    ? "Заявка на розгляді"
-                                                    : "Відхилено"}
-                                        </span>
-                                    </div>
-                                    <span className="text-[10px] text-gray-500 font-medium">
-                                        {userBooking.room?.building?.name} • Пв.{" "}
-                                        {userBooking.room?.floor} • Км. №
-                                        {userBooking.room?.room_number}
-                                        {hasPendingReallocation && (
-                                            <span className="text-indigo-600 font-semibold block mt-0.5">
-                                                → Очікує переїзду в кімн. №
-                                                {userBooking.new_room
-                                                    ?.room_number || "?"}
-                                            </span>
-                                        )}
-                                    </span>
-                                </div>
+                                </>
                             )}
                         </div>
                     )}
