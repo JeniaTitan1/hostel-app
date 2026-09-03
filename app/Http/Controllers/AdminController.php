@@ -746,7 +746,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Создание корпуса
+     * Создание корпуса (тільки SuperAdmin)
      */
     public function storeBuilding(Request $request)
     {
@@ -754,15 +754,268 @@ class AdminController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255|unique:buildings,name',
+            'floors_count' => 'nullable|integer|min:1|max:20',
+            'rooms_per_floor' => 'nullable|integer|min:1|max:50',
+            'max_capacity' => 'nullable|integer|min:1|max:20',
         ]);
 
         $building = Building::create([
             'name' => $request->name,
         ]);
 
-        AuditLog::log(null, 'building_created', "Створено новий корпус \"{$building->name}\"");
+        $floorsCount = (int)$request->input('floors_count', 0);
+        $roomsPerFloor = (int)$request->input('rooms_per_floor', 0);
+        $maxCapacity = (int)$request->input('max_capacity', 4);
 
-        return redirect()->back()->with('success', 'Корпус успішно створено!');
+        if ($floorsCount > 0 && $roomsPerFloor > 0) {
+            for ($fl = 1; $fl <= $floorsCount; $fl++) {
+                $startNum = $fl * 100 + 1;
+                for ($r = 0; $r < $roomsPerFloor; $r++) {
+                    Room::create([
+                        'building_id' => $building->id,
+                        'floor' => $fl,
+                        'room_number' => (string)($startNum + $r),
+                        'max_capacity' => $maxCapacity,
+                    ]);
+                }
+            }
+        }
+
+        AuditLog::log($request->user()->id, 'building_created', "Створено новий корпус \"{$building->name}\"");
+
+        return redirect()->back()->with('success', "Корпус \"{$building->name}\" успішно створено!");
+    }
+
+    /**
+     * Видалення корпусу (тільки SuperAdmin)
+     */
+    public function destroyBuilding(Request $request, Building $building)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        // Перевіряємо, чи є активні мешканці або заявки
+        $hasActiveBookings = Booking::whereHas('room', function($q) use ($building) {
+            $q->where('building_id', $building->id);
+        })->whereIn('status', ['approved', 'pending'])->exists();
+
+        if ($hasActiveBookings) {
+            return redirect()->back()->withErrors([
+                'error' => "Неможливо видалити корпус \"{$building->name}\": у ньому проживають студенти або є активні заявки. Спочатку виселіть або розселіть їх.",
+            ]);
+        }
+
+        $buildingName = $building->name;
+
+        // Звільняємо комендантів від прив'язки до цього корпусу
+        User::where('building_id', $building->id)->update(['building_id' => null]);
+        Announcement::where('building_id', $building->id)->delete();
+
+        $roomIds = $building->rooms()->pluck('id');
+        Ticket::whereIn('room_id', $roomIds)->delete();
+        Booking::whereIn('room_id', $roomIds)->delete();
+        Room::whereIn('id', $roomIds)->delete();
+        $building->delete();
+
+        AuditLog::log($request->user()->id, 'building_deleted', "Видалено корпус \"{$buildingName}\"");
+
+        return redirect()->back()->with('success', "Корпус \"{$buildingName}\" успішно видалено!");
+    }
+
+    /**
+     * Створення нового поверху в корпусі
+     */
+    public function storeFloor(Request $request)
+    {
+        $request->validate([
+            'building_id' => 'required|exists:buildings,id',
+            'floor' => 'required|integer|min:1|max:50',
+            'rooms_count' => 'nullable|integer|min:1|max:50',
+            'max_capacity' => 'nullable|integer|min:1|max:20',
+        ]);
+
+        $this->checkBuildingAccess($request->user(), $request->building_id);
+
+        $buildingId = (int)$request->building_id;
+        $floor = (int)$request->floor;
+        $roomsCount = (int)$request->input('rooms_count', 1);
+        $maxCapacity = (int)$request->input('max_capacity', 4);
+
+        // Перевірка, чи не існує вже кімнат на цьому поверсі
+        $existing = Room::where('building_id', $buildingId)->where('floor', $floor)->exists();
+        if ($existing) {
+            return redirect()->back()->withErrors([
+                'error' => "Поверх {$floor} вже існує у цьому корпусі. Ви можете додати окремі кімнати до нього.",
+            ]);
+        }
+
+        $startNumber = $floor * 100 + 1;
+        for ($i = 0; $i < $roomsCount; $i++) {
+            Room::create([
+                'building_id' => $buildingId,
+                'floor' => $floor,
+                'room_number' => (string)($startNumber + $i),
+                'max_capacity' => $maxCapacity,
+            ]);
+        }
+
+        $building = Building::find($buildingId);
+        AuditLog::log($request->user()->id, 'floor_created', "Створено поверх {$floor} ({$roomsCount} кімн.) у корпусі \"{$building->name}\"");
+
+        return redirect()->back()->with('success', "Поверх {$floor} успішно створено з {$roomsCount} кімн.!");
+    }
+
+    /**
+     * Видалення поверху з усіма його кімнатами
+     */
+    public function destroyFloor(Request $request)
+    {
+        $request->validate([
+            'building_id' => 'required|exists:buildings,id',
+            'floor' => 'required|integer|min:1|max:50',
+        ]);
+
+        $this->checkBuildingAccess($request->user(), $request->building_id);
+
+        $buildingId = (int)$request->building_id;
+        $floor = (int)$request->floor;
+
+        // Перевірка наявності активних мешканців на цьому поверсі
+        $hasActiveBookings = Booking::whereHas('room', function($q) use ($buildingId, $floor) {
+            $q->where('building_id', $buildingId)
+              ->where('floor', $floor);
+        })->whereIn('status', ['approved', 'pending'])->exists();
+
+        if ($hasActiveBookings) {
+            return redirect()->back()->withErrors([
+                'error' => "Неможливо видалити поверх {$floor}: у його кімнатах проживають студенти або є очікувані заявки на поселення.",
+            ]);
+        }
+
+        $rooms = Room::where('building_id', $buildingId)->where('floor', $floor)->get();
+        $roomIds = $rooms->pluck('id');
+
+        Ticket::whereIn('room_id', $roomIds)->delete();
+        Booking::whereIn('room_id', $roomIds)->delete();
+        Room::whereIn('id', $roomIds)->delete();
+
+        $building = Building::find($buildingId);
+        AuditLog::log($request->user()->id, 'floor_deleted', "Видалено поверх {$floor} у корпусі \"{$building->name}\"");
+
+        return redirect()->back()->with('success', "Поверх {$floor} успішно видалено!");
+    }
+
+    /**
+     * Створення окремої кімнати (або кількох кімнат) на поверсі
+     */
+    public function storeRoom(Request $request)
+    {
+        $request->validate([
+            'building_id' => 'required|exists:buildings,id',
+            'floor' => 'required|integer|min:1|max:50',
+            'room_number' => 'nullable|string|max:50',
+            'max_capacity' => 'required|integer|min:1|max:20',
+            'count' => 'nullable|integer|min:1|max:50',
+        ]);
+
+        $this->checkBuildingAccess($request->user(), $request->building_id);
+
+        $buildingId = (int)$request->building_id;
+        $floor = (int)$request->floor;
+        $maxCapacity = (int)$request->max_capacity;
+        $count = (int)$request->input('count', 1);
+
+        if ($count <= 1) {
+            $roomNumber = trim($request->input('room_number', ''));
+            if (empty($roomNumber)) {
+                $lastRoom = Room::where('building_id', $buildingId)
+                    ->where('floor', $floor)
+                    ->orderByRaw('CAST(room_number AS UNSIGNED) DESC')
+                    ->first();
+                $roomNumber = $lastRoom ? (string)(((int)$lastRoom->room_number) + 1) : (string)($floor * 100 + 1);
+            }
+
+            // Перевіряємо, чи немає вже такої кімнати в цьому корпусі
+            $exists = Room::where('building_id', $buildingId)->where('room_number', $roomNumber)->exists();
+            if ($exists) {
+                return redirect()->back()->withErrors([
+                    'room_number' => "Кімната №{$roomNumber} вже існує в цьому корпусі.",
+                ]);
+            }
+
+            $newRoom = Room::create([
+                'building_id' => $buildingId,
+                'floor' => $floor,
+                'room_number' => $roomNumber,
+                'max_capacity' => $maxCapacity,
+            ]);
+
+            \App\Events\RoomOccupancyUpdated::dispatchSafe($newRoom->id, 'room_created', "Створено кімнату №{$roomNumber}");
+            $building = Building::find($buildingId);
+            AuditLog::log($request->user()->id, 'room_created', "Створено кімнату №{$roomNumber} на {$floor} поверсі корпусу \"{$building->name}\"");
+
+            return redirect()->back()->with('success', "Кімнату №{$roomNumber} успішно створено (місткість: {$maxCapacity} місць)!");
+        } else {
+            // Створення декількох кімнат поспіль
+            $startNum = $request->input('room_number') ? (int)$request->input('room_number') : null;
+            if (!$startNum) {
+                $lastRoom = Room::where('building_id', $buildingId)
+                    ->where('floor', $floor)
+                    ->orderByRaw('CAST(room_number AS UNSIGNED) DESC')
+                    ->first();
+                $startNum = $lastRoom ? (((int)$lastRoom->room_number) + 1) : ($floor * 100 + 1);
+            }
+
+            $createdCount = 0;
+            for ($i = 0; $i < $count; $i++) {
+                $num = (string)($startNum + $i);
+                if (!Room::where('building_id', $buildingId)->where('room_number', $num)->exists()) {
+                    Room::create([
+                        'building_id' => $buildingId,
+                        'floor' => $floor,
+                        'room_number' => $num,
+                        'max_capacity' => $maxCapacity,
+                    ]);
+                    $createdCount++;
+                }
+            }
+
+            $building = Building::find($buildingId);
+            AuditLog::log($request->user()->id, 'rooms_bulk_created', "Створено {$createdCount} кімнат на {$floor} поверсі корпусу \"{$building->name}\"");
+
+            return redirect()->back()->with('success', "Успішно створено {$createdCount} кімнат (місткість: {$maxCapacity} місць)!");
+        }
+    }
+
+    /**
+     * Видалення окремої кімнати
+     */
+    public function destroyRoom(Request $request, Room $room)
+    {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
+        $hasActiveBookings = Booking::where('room_id', $room->id)
+            ->whereIn('status', ['approved', 'pending'])
+            ->exists();
+
+        if ($hasActiveBookings) {
+            return redirect()->back()->withErrors([
+                'error' => "Неможливо видалити кімнату №{$room->room_number}: у ній є активні мешканці або очікувані заявки на заселення.",
+            ]);
+        }
+
+        $roomNumber = $room->room_number;
+        $roomId = $room->id;
+        $buildingId = $room->building_id;
+        $buildingName = $room->building ? $room->building->name : '';
+
+        Ticket::where('room_id', $roomId)->delete();
+        Booking::where('room_id', $roomId)->delete();
+        $room->delete();
+
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($roomId, 'room_deleted', "Видалено кімнату №{$roomNumber}");
+        AuditLog::log($request->user()->id, 'room_deleted', "Видалено кімнату №{$roomNumber} у корпусі \"{$buildingName}\"");
+
+        return redirect()->back()->with('success', "Кімнату №{$roomNumber} успішно видалено!");
     }
 
     /**

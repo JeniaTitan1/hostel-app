@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { router } from "@inertiajs/react";
+import AddRoomModal from "@/Pages/Admin/Modals/AddRoomModal";
+import AddFloorModal from "@/Pages/Admin/Modals/AddFloorModal";
+import AddBuildingModal from "@/Pages/Admin/Modals/AddBuildingModal";
 
 export default function RoomMapTab({
     buildings = [],
@@ -24,6 +28,84 @@ export default function RoomMapTab({
 }) {
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
+
+    const [addRoomModalOpen, setAddRoomModalOpen] = useState(false);
+    const [roomModalData, setRoomModalData] = useState({ buildingId: null, buildingName: "", floor: 1, suggestedRoomNumber: "" });
+    const [addFloorModalOpen, setAddFloorModalOpen] = useState(false);
+    const [floorModalData, setFloorModalData] = useState({ buildingId: null, buildingName: "", suggestedFloor: 1 });
+    const [addBuildingModalOpen, setAddBuildingModalOpen] = useState(false);
+
+    const handleOpenAddRoom = (buildingId, floor, buildingName) => {
+        const b = buildings.find((x) => Number(x.id) === Number(buildingId));
+        const floorRooms = (b?.rooms || []).filter((r) => Number(r.floor) === Number(floor));
+        let nextNum = Number(floor) * 100 + 1;
+        if (floorRooms.length > 0) {
+            const nums = floorRooms.map((r) => parseInt(r.room_number, 10)).filter((n) => !isNaN(n));
+            if (nums.length > 0) {
+                nextNum = Math.max(...nums) + 1;
+            }
+        }
+        setRoomModalData({
+            buildingId,
+            buildingName: buildingName || b?.name || "",
+            floor,
+            suggestedRoomNumber: String(nextNum),
+        });
+        setAddRoomModalOpen(true);
+    };
+
+    const handleOpenAddFloor = (buildingId, buildingName) => {
+        const b = buildings.find((x) => Number(x.id) === Number(buildingId));
+        const floors = (b?.rooms || []).map((r) => Number(r.floor));
+        const maxFloor = floors.length > 0 ? Math.max(...floors) : 0;
+        setFloorModalData({
+            buildingId,
+            buildingName: buildingName || b?.name || "",
+            suggestedFloor: maxFloor + 1,
+        });
+        setAddFloorModalOpen(true);
+    };
+
+    const handleDeleteRoom = (room) => {
+        const hasApproved = (room.bookings || []).some(
+            (b) => b.status === "approved" || (b.status === "pending" && b.new_room_id !== null)
+        );
+        if (hasApproved) {
+            alert(`Неможливо видалити кімнату №${room.room_number}: у ній є активні мешканці або очікувані заявки на заселення.`);
+            return;
+        }
+        if (confirm(`Ви дійсно бажаєте видалити кімнату №${room.room_number}? Дія незворотна.`)) {
+            router.post(route("admin.rooms.destroy", room.id), {}, { preserveScroll: true });
+        }
+    };
+
+    const handleDeleteFloor = (buildingId, floor, buildingName) => {
+        const b = buildings.find((x) => Number(x.id) === Number(buildingId));
+        const floorRooms = (b?.rooms || []).filter((r) => Number(r.floor) === Number(floor));
+        const hasOccupants = floorRooms.some((r) =>
+            (r.bookings || []).some((bk) => bk.status === "approved" || (bk.status === "pending" && bk.new_room_id !== null))
+        );
+        if (hasOccupants) {
+            alert(`Неможливо видалити поверх ${floor}: у його кімнатах проживають студенти або є очікувані заявки.`);
+            return;
+        }
+        if (confirm(`Ви дійсно бажаєте видалити поверх ${floor} та всі його кімнати (${floorRooms.length} кімн.) у корпусі "${buildingName}"? Дія незворотна.`)) {
+            router.post(route("admin.floors.destroy"), { building_id: buildingId, floor: Number(floor) }, { preserveScroll: true });
+        }
+    };
+
+    const handleDeleteBuilding = (building) => {
+        const hasOccupants = (building.rooms || []).some((r) =>
+            (r.bookings || []).some((bk) => bk.status === "approved" || (bk.status === "pending" && bk.new_room_id !== null))
+        );
+        if (hasOccupants) {
+            alert(`Неможливо видалити корпус "${building.name}": у ньому проживають студенти або є очікувані заявки. Спочатку виселіть або розселіть їх.`);
+            return;
+        }
+        if (confirm(`Ви дійсно бажаєте видалити корпус "${building.name}" та всі його кімнати? Дія незворотна!`)) {
+            router.post(route("admin.buildings.destroy", building.id), {}, { preserveScroll: true });
+        }
+    };
 
     // Зведена статистика зайнятості для обраного корпусу або всіх корпусів
     const overviewStats = useMemo(() => {
@@ -109,7 +191,7 @@ export default function RoomMapTab({
                             <span className="text-xs text-gray-400">
                                 {selectedBuildingFilter
                                     ? buildings.find((b) => Number(b.id) === Number(selectedBuildingFilter))?.name || "Обраний корпус"
-                                    : "Усі корпуси"}
+                                    : (isSuperAdmin && buildings.length > 1 ? "Усі корпуси" : (buildings[0]?.name || "Корпус"))}
                             </span>
                         </div>
                     </div>
@@ -194,21 +276,43 @@ export default function RoomMapTab({
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
-                    {/* Фільтр корпусів */}
-                    <select
-                        value={selectedBuildingFilter}
-                        onChange={(e) =>
-                            setSelectedBuildingFilter(e.target.value)
-                        }
-                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-44 transition-all"
-                    >
-                        <option value="">Усі корпуси</option>
-                        {buildings.map((b) => (
-                            <option key={b.id} value={b.id}>
-                                {b.name}
-                            </option>
-                        ))}
-                    </select>
+                    {/* Фільтр корпусів / Фіксований корпус для коменданта */}
+                    {isSuperAdmin && buildings.length > 1 ? (
+                        <select
+                            value={selectedBuildingFilter}
+                            onChange={(e) =>
+                                setSelectedBuildingFilter(e.target.value)
+                            }
+                            className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-44 transition-all font-medium"
+                        >
+                            <option value="">Усі корпуси</option>
+                            {buildings.map((b) => (
+                                <option key={b.id} value={b.id}>
+                                    {b.name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <div className="text-xs font-bold text-gray-700 dark:text-gray-200 px-3.5 py-2 bg-slate-100 dark:bg-gray-700/80 rounded-xl border border-slate-200 dark:border-gray-600 flex items-center gap-2 shrink-0">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>{buildings[0]?.name || "Мій корпус"}</span>
+                        </div>
+                    )}
+
+                    {/* Кнопка створення корпусу (тільки SuperAdmin) */}
+                    {isSuperAdmin && (
+                        <button
+                            type="button"
+                            onClick={() => setAddBuildingModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xs shrink-0"
+                            title="Додати новий корпус"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span>Додати корпус</span>
+                        </button>
+                    )}
 
                     {/* Пошук */}
                     <input
@@ -299,18 +403,45 @@ export default function RoomMapTab({
                             key={building.id}
                             className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-6 space-y-6"
                         >
-                            <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3 flex justify-between items-center">
-                                <div>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                                        Корпус
-                                    </span>
-                                    <h4 className="font-bold text-gray-900 dark:text-white text-md">
-                                        {building.name}
-                                    </h4>
+                            <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-2.5">
+                                    <div>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                            Корпус
+                                        </span>
+                                        <h4 className="font-bold text-gray-900 dark:text-white text-md">
+                                            {building.name}
+                                        </h4>
+                                    </div>
+                                    {isSuperAdmin && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteBuilding(building)}
+                                            className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors ml-1"
+                                            title="Видалити цей корпус"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </div>
-                                <span className="text-xs text-gray-400 bg-slate-100 dark:bg-gray-700 px-3 py-1 rounded-full font-medium shadow-3xs">
-                                    Всього кімнат: {building.rooms?.length || 0}
-                                </span>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs text-gray-400 bg-slate-100 dark:bg-gray-700 px-3 py-1 rounded-full font-medium shadow-3xs">
+                                        Всього кімнат: {building.rooms?.length || 0}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenAddFloor(building.id, building.name)}
+                                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 transition-colors shadow-xs"
+                                        title="Додати поверх у цей корпус"
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span>Додати поверх</span>
+                                    </button>
+                                </div>
                             </div>
 
                             {building.rooms?.length === 0 ? (
@@ -364,10 +495,38 @@ export default function RoomMapTab({
                                                 key={floor}
                                                 className="space-y-3"
                                             >
-                                                <h5 className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs"></span>
-                                                    Поверх {floor}
-                                                </h5>
+                                                <div className="flex items-center justify-between pb-1">
+                                                    <h5 className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs"></span>
+                                                        Поверх {floor}
+                                                        <span className="text-[11px] font-medium text-gray-400">
+                                                            ({floorRooms.length} кімн.)
+                                                        </span>
+                                                    </h5>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenAddRoom(building.id, floor, building.name)}
+                                                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 transition-colors shadow-xs"
+                                                            title="Додати кімнату на цей поверх"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            <span>Додати кімнату</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteFloor(building.id, floor, building.name)}
+                                                            className="p-1 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                                            title="Видалити поверх"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                                     {floorRooms
                                                         .filter((room) => {
@@ -661,6 +820,21 @@ export default function RoomMapTab({
                                                                                                 >
                                                                                                     +
                                                                                                 </button>
+
+                                                                                                {/* Кнопка Видалення кімнати */}
+                                                                                                <button
+                                                                                                    type="button"
+                                                                                                    onClick={() => {
+                                                                                                        setSettingsRoomId(null);
+                                                                                                        handleDeleteRoom(room);
+                                                                                                    }}
+                                                                                                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold bg-slate-50 dark:bg-gray-700/60 text-slate-600 dark:text-gray-300 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-600 transition-colors duration-150 border border-slate-200 dark:border-gray-600 hover:border-transparent text-xs"
+                                                                                                >
+                                                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                    </svg>
+                                                                                                    <span>Видалити кімнату</span>
+                                                                                                </button>
                                                                                             </div>
                                                                                         </div>
 
@@ -933,6 +1107,29 @@ export default function RoomMapTab({
                         </div>
                     );
                 })}
+
+            {/* Модальні вікна для створення кімнати, поверху та корпусу */}
+            <AddRoomModal
+                isOpen={addRoomModalOpen}
+                onClose={() => setAddRoomModalOpen(false)}
+                buildingId={roomModalData.buildingId}
+                buildingName={roomModalData.buildingName}
+                floor={roomModalData.floor}
+                suggestedRoomNumber={roomModalData.suggestedRoomNumber}
+            />
+
+            <AddFloorModal
+                isOpen={addFloorModalOpen}
+                onClose={() => setAddFloorModalOpen(false)}
+                buildingId={floorModalData.buildingId}
+                buildingName={floorModalData.buildingName}
+                suggestedFloor={floorModalData.suggestedFloor}
+            />
+
+            <AddBuildingModal
+                isOpen={addBuildingModalOpen}
+                onClose={() => setAddBuildingModalOpen(false)}
+            />
         </div>
     );
 }

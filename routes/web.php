@@ -60,8 +60,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Меняем Route::delete на Route::post
     Route::post('/bookings/{id}/delete', [AdminController::class, 'deleteBooking'])->name('bookings.delete');
     
-    // Создание корпуса
+    // Керування корпусами, поверхами та кімнатами
     Route::post('/buildings', [AdminController::class, 'storeBuilding'])->name('buildings.store');
+    Route::post('/buildings/{building}/delete', [AdminController::class, 'destroyBuilding'])->name('buildings.destroy');
+    Route::post('/floors', [AdminController::class, 'storeFloor'])->name('floors.store');
+    Route::post('/floors/delete', [AdminController::class, 'destroyFloor'])->name('floors.destroy');
+    Route::post('/rooms', [AdminController::class, 'storeRoom'])->name('rooms.store');
+    Route::post('/rooms/{room}/delete', [AdminController::class, 'destroyRoom'])->name('rooms.destroy');
 
     // Резолв заявки на ремонт
     Route::post('/tickets/{ticket}/resolve', [TicketController::class, 'resolve'])->name('tickets.resolve');
