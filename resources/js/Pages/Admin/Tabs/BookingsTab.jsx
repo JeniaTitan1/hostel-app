@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import ContactStudentModal from "../Modals/ContactStudentModal";
 
 export default function BookingsTab({
     pendingBookings = [],
@@ -15,6 +16,7 @@ export default function BookingsTab({
     setEmailRejectionReason,
     isSuperAdmin,
 }) {
+    const [contactingUser, setContactingUser] = useState(null);
     const filteredPendingBookings = pendingBookings.filter((b) => {
         if (!inboxSearch) return true;
         const q = inboxSearch.toLowerCase();
@@ -229,8 +231,23 @@ export default function BookingsTab({
                                                         {booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}
                                                     </span>
                                                 </div>
-                                                <div className="text-xs text-gray-400 font-mono mt-0.5">
-                                                    {booking.user?.email}
+                                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                    <span className="text-xs text-gray-400 font-mono">
+                                                        {booking.user?.email}
+                                                    </span>
+                                                    {booking.user && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setContactingUser(booking.user)}
+                                                            className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 font-bold text-[10px] hover:bg-sky-100 dark:hover:bg-sky-900/50 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                                            title="Зв'язатися зі студентом"
+                                                        >
+                                                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                            </svg>
+                                                            <span>Зв'язатися</span>
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide shrink-0 ${
@@ -324,8 +341,23 @@ export default function BookingsTab({
                                                             {booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}
                                                         </span>
                                                     </div>
-                                                    <div className="text-[11px] text-gray-400 font-mono mt-0.5">
-                                                        {booking.user?.email}
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[11px] text-gray-400 font-mono truncate">
+                                                            {booking.user?.email}
+                                                        </span>
+                                                        {booking.user && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setContactingUser(booking.user)}
+                                                                className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 font-bold text-[10px] hover:bg-sky-100 dark:hover:bg-sky-900/50 inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                                                                title="Зв'язатися зі студентом"
+                                                            >
+                                                                <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                                </svg>
+                                                                <span>Зв'язатися</span>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="p-4 align-middle whitespace-nowrap">
@@ -380,6 +412,14 @@ export default function BookingsTab({
                     </>
                 )}
             </div>
+
+            {/* Модальне вікно швидкого зв'язку зі студентом */}
+            {contactingUser && (
+                <ContactStudentModal
+                    student={contactingUser}
+                    onClose={() => setContactingUser(null)}
+                />
+            )}
         </div>
     );
 }

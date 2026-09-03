@@ -662,9 +662,8 @@ export default function RoomMapTab({
                                                                                             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80"
                                                                                             title="Кімната для осіб з інвалідністю / обмеженими можливостями (інклюзивна)"
                                                                                         >
-                                                                                            <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
-                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                                                                                            <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                                                                                <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
                                                                                             </svg>
                                                                                             <span>Інклюзивна</span>
                                                                                         </span>

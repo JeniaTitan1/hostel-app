@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderVerificationController;
+use App\Http\Controllers\StudentContactController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -105,6 +106,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Редагування та імперсонація користувача (студента/коменданта)
     Route::post('/users/{user}/update', [AdminController::class, 'updateUser'])->name('users.update');
     Route::post('/users/{user}/impersonate', [AdminController::class, 'impersonate'])->name('users.impersonate');
+
+    // Прямий зв'язок зі студентом (відправка email)
+    Route::post('/students/{user}/contact-email', [StudentContactController::class, 'sendEmail'])->name('admin.students.contact-email');
 
     // Оголошення гуртожитку
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');

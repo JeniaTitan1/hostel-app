@@ -26,6 +26,7 @@ class AnnouncementController extends Controller
             'priority' => 'required|in:important,info,event',
             'building_id' => 'nullable|exists:buildings,id',
             'is_pinned' => 'boolean',
+            'send_email' => 'nullable|boolean',
         ]);
 
         // Якщо комендант, він може публікувати або для свого корпусу, або загальне
@@ -44,16 +45,52 @@ class AnnouncementController extends Controller
             'is_pinned' => $validated['is_pinned'] ?? false,
         ]);
 
+        // Email-розсилка для студентів, якщо позначено чекбокс
+        $emailsSent = 0;
+        if ($request->boolean('send_email')) {
+            $studentsQuery = \App\Models\User::where('role', 'student')
+                ->whereNotNull('email')
+                ->where('email', '!=', '');
+
+            if (!empty($announcement->building_id)) {
+                $bId = $announcement->building_id;
+                $studentsQuery->where(function ($q) use ($bId) {
+                    $q->where('building_id', $bId)
+                      ->orWhereHas('approvedBooking.room', function ($rq) use ($bId) {
+                          $rq->where('building_id', $bId);
+                      });
+                });
+            }
+
+            $targetStudents = $studentsQuery->get();
+            foreach ($targetStudents as $student) {
+                if (filter_var($student->email, FILTER_VALIDATE_EMAIL)) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($student->email)->send(new \App\Mail\AnnouncementMail($announcement, $student));
+                        $emailsSent++;
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning("Не вдалося надіслати оголошення на {$student->email}: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+
         $targetBuildingName = $announcement->building ? $announcement->building->name : 'Усі гуртожитки';
+        $emailNotice = $emailsSent > 0 ? " та розіслано на {$emailsSent} email студентів" : "";
+
         AuditLog::create([
             'user_id' => $user->id,
             'action' => 'create_announcement',
-            'details' => "Опубліковано нове оголошення: \"{$announcement->title}\" (Ціль: {$targetBuildingName}, Пріоритет: {$announcement->priority})",
+            'details' => "Опубліковано нове оголошення: \"{$announcement->title}\" (Ціль: {$targetBuildingName}, Пріоритет: {$announcement->priority}){$emailNotice}",
         ]);
 
         \App\Events\AnnouncementUpdated::dispatchSafe('created', "Опубліковано нове оголошення: {$announcement->title}", $announcement->building_id);
 
-        return redirect()->back()->with('success', 'Оголошення успішно опубліковано!');
+        $successMsg = $emailsSent > 0
+            ? "Оголошення успішно опубліковано та розіслано на пошти {$emailsSent} студентів!"
+            : "Оголошення успішно опубліковано!";
+
+        return redirect()->back()->with('success', $successMsg);
     }
 
     /**

@@ -1150,7 +1150,10 @@ export default function Dashboard({
                                                             </h3>
                                                             {Boolean(userBooking.room?.is_accessible) && (
                                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                                    Інклюзивна
+                                                                    <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                                                        <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
+                                                                    </svg>
+                                                                    <span>Інклюзивна</span>
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1526,7 +1529,7 @@ export default function Dashboard({
                                                             }
                                                         }}
                                                         disabled={isClosed}
-                                                        className={`group relative p-5 text-left border rounded-xl shadow-sm flex flex-col justify-between h-36 transition-all duration-200 ${styles.bg} ${
+                                                        className={`group relative p-4 sm:p-5 text-left border rounded-2xl shadow-2xs hover:shadow-md flex flex-col justify-between min-h-[156px] h-auto transition-all duration-200 ${styles.bg} ${
                                                             isSelected &&
                                                             !isClosed
                                                                 ? "ring-2 ring-gray-900 ring-offset-2"
@@ -1550,7 +1553,7 @@ export default function Dashboard({
                                                             </span>
                                                         )}
 
-                                                        <div className="w-full flex justify-between items-start">
+                                                        <div className="w-full flex justify-between items-start gap-2">
                                                             <div className="flex flex-col">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className={`w-2 h-2 rounded-full ${styles.indicator}`} />
@@ -1594,12 +1597,11 @@ export default function Dashboard({
                                                                     )}
                                                                     {Boolean(room.is_accessible) && (
                                                                         <span
-                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1"
-                                                                            title="Кімната обладнана для осіб з інвалідністю / обмеженими фізичними можливостями"
+                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1 shrink-0"
+                                                                            title="Кімната обладнана для осіб з інвалідністю / обмеженими фізичними можливостями (інклюзивна)"
                                                                         >
-                                                                            <svg className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
-                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                                                                            <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                                                                <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
                                                                             </svg>
                                                                             <span>Інклюзивна</span>
                                                                         </span>
@@ -1632,19 +1634,19 @@ export default function Dashboard({
                                                             </div>
                                                         )}
 
-                                                        <div className="w-full flex justify-between items-end mt-2">
+                                                        <div className="w-full flex justify-between items-end mt-3 pt-2.5 border-t border-slate-100/80 dark:border-gray-700/60">
                                                             <div className="flex flex-col gap-0.5">
                                                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                                                     Статус
                                                                     заповненості
                                                                 </span>
-                                                                <span className="text-xs font-semibold text-gray-600">
+                                                                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                                                                     {
                                                                         styles.text
                                                                     }
                                                                 </span>
                                                             </div>
-                                                            <span className="text-xs font-bold text-gray-400 group-hover:text-gray-900 transition-colors">
+                                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-0.5 transition-all">
                                                                 Переглянути →
                                                             </span>
                                                         </div>
@@ -1676,10 +1678,9 @@ export default function Dashboard({
                                                         </p>
 
                                                         {Boolean(selectedRoom.is_accessible) && (
-                                                            <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 mt-2">
-                                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                                                            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 mt-2">
+                                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                                                    <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
                                                                 </svg>
                                                                 <div className="text-xs leading-tight">
                                                                     <span className="font-bold block">Інклюзивна кімната</span>
