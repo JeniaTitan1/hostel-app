@@ -6,7 +6,6 @@ import { generateOrderPdf } from '@/Utils/OrderPdfGenerator';
 export default function DigitalPassModal({ show, onClose, booking, user }) {
     const [qrUrl, setQrUrl] = useState('');
     const [copied, setCopied] = useState(false);
-    const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50, opacity: 0 });
     const cardRef = useRef(null);
 
     const orderNumber = booking?.order_number || `ORD-${new Date().getFullYear()}-PENDING`;
@@ -31,58 +30,6 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                 .catch((err) => console.error('QR generation error:', err));
         }
     }, [show, booking, orderNumber]);
-
-    // Інтерактивний 3D-нахил при русі мишки на ПК
-    const handleMouseMove = (e) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        const rotX = -((mouseY - centerY) / centerY) * 10;
-        const rotY = ((mouseX - centerX) / centerX) * 10;
-
-        const glareX = (mouseX / rect.width) * 100;
-        const glareY = (mouseY / rect.height) * 100;
-
-        setTilt({ x: rotX, y: rotY, glareX, glareY, opacity: 0.35 });
-    };
-
-    const handleMouseLeave = () => {
-        setTilt({ x: 0, y: 0, glareX: 50, glareY: 50, opacity: 0 });
-    };
-
-    // Реагування на легкий нахил смартфона (гіроскоп)
-    useEffect(() => {
-        if (!show) return;
-
-        const handleOrientation = (e) => {
-            if (e.gamma === null || e.beta === null) return;
-            const gamma = Math.min(Math.max(e.gamma, -25), 25);
-            const beta = Math.min(Math.max(e.beta - 45, -25), 25);
-
-            const rotY = (gamma / 25) * 10;
-            const rotX = -(beta / 25) * 10;
-
-            const glareX = 50 + (gamma / 25) * 35;
-            const glareY = 50 + (beta / 25) * 35;
-
-            setTilt({ x: rotX, y: rotY, glareX, glareY, opacity: 0.3 });
-        };
-
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation, true);
-        }
-
-        return () => {
-            if (window.DeviceOrientationEvent) {
-                window.removeEventListener('deviceorientation', handleOrientation, true);
-            }
-        };
-    }, [show]);
 
     const handleCopyCode = () => {
         navigator.clipboard.writeText(orderNumber);
@@ -127,24 +74,8 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                     >
                         <DialogPanel
                             ref={cardRef}
-                            onMouseMove={handleMouseMove}
-                            onMouseLeave={handleMouseLeave}
-                            style={{
-                                transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                                transition: tilt.opacity === 0 ? 'transform 0.5s ease-out' : 'transform 0.08s ease-out',
-                            }}
                             className="w-full max-w-[360px] bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-950 text-white rounded-3xl border border-emerald-400/40 shadow-2xl p-5 relative overflow-hidden select-none"
                         >
-                            {/* Голографічний світловий відблиск */}
-                            <div
-                                style={{
-                                    background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(52, 211, 153, 0.4) 0%, transparent 65%)`,
-                                    opacity: tilt.opacity,
-                                    transition: 'opacity 0.25s ease',
-                                }}
-                                className="absolute inset-0 pointer-events-none rounded-3xl z-20"
-                            />
-
                             {/* Фоновий м'який ембіент */}
                             <div className="absolute -top-16 -left-16 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
                             <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
