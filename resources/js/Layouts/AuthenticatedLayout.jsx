@@ -41,7 +41,33 @@ export default function AuthenticatedLayout({
             document.documentElement.classList.remove("dark");
         }
         localStorage.setItem("darkMode", darkMode);
+        if (typeof window !== "undefined") {
+            window.dispatchEvent(
+                new CustomEvent("app-theme-change", { detail: { darkMode } })
+            );
+        }
     }, [darkMode]);
+
+    // Синхронізація зміни теми з модальними вікнами (КПП-сканер тощо)
+    useEffect(() => {
+        const handleThemeChange = (e) => {
+            if (typeof e?.detail?.darkMode === "boolean") {
+                setDarkMode(e.detail.darkMode);
+            } else if (typeof window !== "undefined") {
+                setDarkMode(
+                    document.documentElement.classList.contains("dark") ||
+                    localStorage.getItem("darkMode") === "true"
+                );
+            }
+        };
+
+        window.addEventListener("app-theme-change", handleThemeChange);
+        window.addEventListener("storage", handleThemeChange);
+        return () => {
+            window.removeEventListener("app-theme-change", handleThemeChange);
+            window.removeEventListener("storage", handleThemeChange);
+        };
+    }, []);
 
     const flash = props?.flash || {};
     const errors = props?.errors || {};
