@@ -1,325 +1,103 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
+/**
+ * Преміальна плавна стартова заставка (Splash Screen) для МНАУ Кампус:
+ * - Миттєво перекриває екран з 0-го кадру (усуває мерехтіння/показ сайту на телефонах).
+ * - Фірмовий логотип МНАУ з м'яким неоновим сяйвом та плавною появою.
+ * - Елегантна хвиля, яка плавно піднімається вгору (Curtain Wave Wipe), відкриваючи сайт.
+ * - Апаратне 60fps GPU-прискорення без лагів.
+ */
 export default function IntroWaveAnimation({ onClose }) {
-    const canvasRef = useRef(null);
-    const onCloseRef = useRef(onClose);
-    onCloseRef.current = onClose;
+    const [phase, setPhase] = useState("entering"); // 'entering' | 'revealing' | 'done'
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d", { alpha: true });
-        if (!ctx) return;
+        // 1. Фаза появи та тримання заставки (1.1 сек)
+        const revealTimer = setTimeout(() => {
+            setPhase("revealing");
+        }, 1100);
 
-        const resizeCanvas = () => {
-            const dpr = Math.min(1.25, window.devicePixelRatio || 1);
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        };
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        // --- PRE-RENDER BADGE SPRITES TO OFFSCREEN CANVASES ---
-        const labelVariants = [
-            "МНАУ",
-            "MNAU",
-            "МНАУ Кампус",
-            "Hostel MNAU",
-            "МНАУ Гуртожитки",
-            "MNAU 2026",
-            "Agro Campus",
-            "Студмістечко",
-            "МНАУ",
-            "Hostel App",
-        ];
-
-        const roundedRect = (c, x, y, w, h, radius) => {
-            const r = Math.min(radius, w / 2, h / 2);
-            c.beginPath();
-            c.moveTo(x + r, y);
-            c.arcTo(x + w, y, x + w, y + h, r);
-            c.arcTo(x + w, y + h, x, y + h, r);
-            c.arcTo(x, y + h, x, y, r);
-            c.arcTo(x, y, x + w, y, r);
-            c.closePath();
-        };
-
-        const badgeSprites = labelVariants.map((text) => {
-            const off = document.createElement("canvas");
-            const octx = off.getContext("2d");
-            const fontSize = 14;
-            octx.font = `700 ${fontSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-            const textWidth = octx.measureText(text).width;
-            const paddingX = 24;
-            const w = Math.ceil(textWidth + paddingX);
-            const h = Math.ceil(fontSize * 2.0);
-
-            off.width = w * 2;
-            off.height = h * 2;
-            octx.scale(2, 2);
-
-            octx.fillStyle = "rgba(2, 6, 23, 0.78)";
-            octx.strokeStyle = "rgba(167, 243, 208, 0.45)";
-            octx.lineWidth = 1.2;
-            roundedRect(octx, 1, 1, w - 2, h - 2, (h - 2) / 2);
-            octx.fill();
-            octx.stroke();
-
-            octx.beginPath();
-            octx.arc(10, 5, 2, 0, Math.PI * 2);
-            octx.fillStyle = "rgba(255, 255, 255, 0.5)";
-            octx.fill();
-
-            octx.font = `700 ${fontSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-            octx.fillStyle = "#ecfdf5";
-            octx.textAlign = "center";
-            octx.textBaseline = "middle";
-            octx.fillText(text, w / 2, h / 2 + 0.5);
-
-            return { canvas: off, width: w, height: h };
-        });
-
-        // --- PRE-RENDER BUBBLE SPRITES ---
-        const bubbleTypes = [
-            { hue: 145, size: 6, hasRing: true },
-            { hue: 160, size: 10, hasRing: true },
-            { hue: 175, size: 14, hasRing: true },
-            { hue: 150, size: 4, hasRing: false },
-            { hue: 165, size: 8, hasRing: false },
-        ].map((spec) => {
-            const off = document.createElement("canvas");
-            const octx = off.getContext("2d");
-            const dim = Math.ceil(spec.size * 2 + 6);
-            off.width = dim * 2;
-            off.height = dim * 2;
-            octx.scale(2, 2);
-
-            const cx = dim / 2;
-            const cy = dim / 2;
-
-            octx.beginPath();
-            octx.arc(cx, cy, spec.size, 0, Math.PI * 2);
-            octx.fillStyle = `hsla(${spec.hue}, 90%, 75%, 0.45)`;
-            octx.fill();
-
-            if (spec.hasRing) {
-                octx.lineWidth = 1;
-                octx.strokeStyle = "rgba(255, 255, 255, 0.6)";
-                octx.stroke();
-
-                octx.beginPath();
-                octx.arc(cx - spec.size * 0.3, cy - spec.size * 0.3, spec.size * 0.35, 0, Math.PI * 1.5);
-                octx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-                octx.stroke();
-            }
-
-            return { canvas: off, dim };
-        });
-
-        // 1. Initial Bubbles Array
-        const bubbles = Array.from({ length: 90 }, () => {
-            const spriteObj = bubbleTypes[Math.floor(Math.random() * bubbleTypes.length)];
-            const scale = 0.6 + Math.random() * 0.8;
-            return {
-                sprite: spriteObj.canvas,
-                dim: spriteObj.dim * scale,
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vy: 0.7 + Math.random() * 1.4,
-                vx: (Math.random() - 0.5) * 0.35,
-                alpha: 0.3 + Math.random() * 0.5,
-                drift: Math.random() * Math.PI * 2,
-                wobbleFreq: 0.8 + Math.random() * 1.4,
-            };
-        });
-
-        // 2. Initial Floating Labels Array
-        const floatingLabels = Array.from({ length: 22 }, (_, index) => {
-            const badgeObj = badgeSprites[index % badgeSprites.length];
-            const scale = 0.7 + Math.random() * 0.4;
-            return {
-                sprite: badgeObj.canvas,
-                w: badgeObj.width * scale,
-                h: badgeObj.height * scale,
-                x: Math.random() * (width - 120) + 60,
-                y: Math.random() * (height - 80) + 40,
-                vy: 0.6 + Math.random() * 1.1,
-                vx: (Math.random() - 0.5) * 0.25,
-                alpha: 0.3 + Math.random() * 0.5,
-                drift: Math.random() * Math.PI * 2,
-                rotate: (Math.random() - 0.5) * 0.18,
-                pulseOffset: Math.random() * Math.PI * 2,
-            };
-        });
-
-        // Animation Loop Variables
-        let animationFrameId;
-        const startTime = performance.now();
-        let lastFrameTime = startTime;
-        const duration = 3200;
-        const fadeOutStart = 2100;
-        let phase = 0;
-
-        const animate = (currentTime) => {
-            const dt = Math.min(0.04, (currentTime - lastFrameTime) / 1000);
-            lastFrameTime = currentTime;
-
-            const elapsed = currentTime - startTime;
-            if (elapsed >= duration) {
-                cancelAnimationFrame(animationFrameId);
-                if (onCloseRef.current) onCloseRef.current();
-                return;
-            }
-
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            ctx.clearRect(0, 0, w, h);
-            phase += dt * 2.2;
-
-            const introT = Math.min(1, elapsed / 1100);
-            const introEase = 1 - Math.pow(1 - introT, 3);
-
-            const isExiting = elapsed >= fadeOutStart;
-            const exitT = isExiting ? Math.min(1, (elapsed - fadeOutStart) / (duration - fadeOutStart)) : 0;
-            const exitEase = Math.pow(exitT, 2.5);
-            const exitFade = isExiting ? Math.max(0, 1 - Math.pow(exitT, 1.2)) : 1.0;
-
-            const waveTopY = h * (1 - introEase) - 140 - exitEase * (h * 0.6);
-            const waveBottomY = isExiting ? (h + 200) - exitEase * (h + 400) : h + 200;
-
-            if (exitT > 0.8) {
-                ctx.globalAlpha = Math.max(0, 1 - (exitT - 0.8) / 0.2);
-            } else {
-                ctx.globalAlpha = 1.0;
-            }
-
-            // --- DRAW FULL SCREEN WAVE LIQUID (OVERFLOW BOUNDS TO PREVENT ANY EDGE GAPS) ---
-            if (waveBottomY > waveTopY - 100) {
-                ctx.beginPath();
-                ctx.moveTo(-50, waveBottomY);
-                const startY = waveTopY + Math.sin(phase) * 16;
-                ctx.lineTo(-50, startY);
-
-                const stepX = Math.max(20, Math.floor(w / 40));
-                for (let x = -50; x <= w + stepX + 50; x += stepX) {
-                    const wave1 = Math.sin(x * 0.003 + phase) * 22;
-                    const wave2 = Math.cos(x * 0.0065 - phase * 0.6) * 12;
-                    const y = waveTopY + wave1 + wave2;
-                    ctx.lineTo(x, y);
-                }
-
-                ctx.lineTo(w + 100, waveBottomY);
-                ctx.closePath();
-
-                const waveGrad = ctx.createLinearGradient(0, Math.max(-50, waveTopY), 0, Math.min(h + 100, waveBottomY));
-                waveGrad.addColorStop(0, "#34d399");
-                waveGrad.addColorStop(0.5, "#10b981");
-                waveGrad.addColorStop(1, "#059669");
-
-                ctx.fillStyle = waveGrad;
-                ctx.fill();
-                ctx.lineWidth = 2.5;
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.38)";
-                ctx.stroke();
-            }
-
-            // --- DRAW BUBBLES ---
-            for (let i = 0; i < bubbles.length; i++) {
-                const p = bubbles[i];
-                p.y -= p.vy * dt * 60;
-                if (isExiting) p.y -= exitEase * 400 * dt;
-                p.x += (p.vx + Math.sin(phase * p.wobbleFreq + p.drift) * 0.35) * dt * 60;
-
-                if (p.y < -60) p.y = h + 40;
-                if (p.y > h + 60) p.y = -40;
-                if (p.x < -40) p.x = w + 30;
-                if (p.x > w + 40) p.x = -30;
-
-                const halfDim = p.dim / 2;
-                ctx.globalAlpha = p.alpha * exitFade;
-                ctx.drawImage(p.sprite, p.x - halfDim, p.y - halfDim, p.dim, p.dim);
-            }
-
-            // --- DRAW LABELS ---
-            for (let i = 0; i < floatingLabels.length; i++) {
-                const label = floatingLabels[i];
-                label.y -= label.vy * dt * 60;
-                if (isExiting) label.y -= exitEase * 500 * dt;
-                label.x += (label.vx + Math.sin(phase * 0.7 + label.drift) * 0.3) * dt * 60;
-
-                if (label.y < -70) label.y = h + 50;
-                if (label.y > h + 70) label.y = -50;
-                if (label.x < -100) label.x = w + 80;
-                if (label.x > w + 100) label.x = -80;
-
-                const rot = label.rotate + Math.sin(phase * 0.8 + label.drift) * 0.05;
-
-                ctx.save();
-                ctx.translate(label.x, label.y);
-                ctx.rotate(rot);
-                ctx.globalAlpha = label.alpha * exitFade;
-                ctx.drawImage(label.sprite, -label.w / 2, -label.h / 2, label.w, label.h);
-                ctx.restore();
-            }
-
-            // --- DRAW HERO CENTER "MNAU" TITLE ---
-            const centerX = w * 0.5;
-            const centerY = h * 0.38;
-            const pop = Math.min(1, elapsed / 800);
-            const popEase = 1 - Math.pow(1 - pop, 3);
-
-            const titleOffset = (1 - popEase) * 50;
-            const exitTitleShift = exitEase * 140;
-            const currentTitleY = centerY - titleOffset - exitTitleShift;
-            const heroTitleAlpha = exitFade;
-
-            if (heroTitleAlpha > 0.01) {
-                ctx.save();
-                ctx.globalAlpha = heroTitleAlpha;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-
-                const mainFontSize = Math.min(w * 0.12, 74);
-                ctx.font = `900 ${mainFontSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-
-                ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
-                ctx.lineWidth = 10;
-                ctx.strokeText("MNAU", centerX, currentTitleY);
-
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-                ctx.lineWidth = 3;
-                ctx.strokeText("MNAU", centerX, currentTitleY);
-
-                ctx.fillStyle = "#ffffff";
-                ctx.fillText("MNAU", centerX, currentTitleY);
-
-                ctx.font = `600 ${Math.min(w * 0.035, 16)}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-                ctx.fillStyle = "rgba(236, 253, 245, 0.92)";
-                ctx.fillText("Миколаївський Національний Аграрний Університет", centerX, currentTitleY + mainFontSize * 0.65);
-
-                ctx.restore();
-            }
-
-            animationFrameId = requestAnimationFrame(animate);
-        };
-
-        animationFrameId = requestAnimationFrame(animate);
+        // 2. Фаза завершення підйому завіси та закриття (1.85 сек)
+        const closeTimer = setTimeout(() => {
+            setPhase("done");
+            if (onClose) onClose();
+        }, 1850);
 
         return () => {
-            window.removeEventListener("resize", resizeCanvas);
-            cancelAnimationFrame(animationFrameId);
+            clearTimeout(revealTimer);
+            clearTimeout(closeTimer);
         };
-    }, []);
+    }, [onClose]);
+
+    if (phase === "done") return null;
+
+    const isRevealing = phase === "revealing";
 
     return (
-        <canvas
-            ref={canvasRef}
-            className="fixed inset-0 z-[99999] pointer-events-none"
-            style={{ width: "100vw", height: "100vh", top: 0, left: 0 }}
-        />
+        <div
+            className={`fixed inset-0 z-[99999] pointer-events-none select-none flex flex-col items-center justify-center overflow-hidden transition-transform duration-700 ease-[cubic-bezier(0.77,0,0.175,1)] transform-gpu ${
+                isRevealing ? "-translate-y-full" : "translate-y-0"
+            }`}
+            style={{
+                background: "linear-gradient(145deg, #064e3b 0%, #047857 45%, #022c22 100%)",
+            }}
+        >
+            {/* Фонове м'яке неонове сяйво */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[500px] h-[340px] sm:h-[500px] bg-emerald-400/20 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-teal-400/15 rounded-full blur-[80px]" />
+            </div>
+
+            {/* Центральний брендовий блок */}
+            <div
+                className={`relative z-10 flex flex-col items-center text-center px-4 transition-all duration-500 ease-out transform-gpu ${
+                    isRevealing ? "opacity-0 -translate-y-12 scale-95" : "opacity-100 translate-y-0 scale-100"
+                }`}
+            >
+                {/* Емблема / Логотип МНАУ */}
+                <div className="relative mb-5">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 p-[2px] shadow-[0_10px_35px_rgba(16,185,129,0.35)] animate-bounce-short">
+                        <div className="w-full h-full bg-slate-950/90 rounded-[22px] flex items-center justify-center backdrop-blur-md">
+                            <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-emerald-100 to-emerald-400 tracking-tight">
+                                М
+                            </span>
+                        </div>
+                    </div>
+                    {/* Пульсуючий індикатор */}
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 shadow-xs flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    </div>
+                </div>
+
+                {/* Заголовок МНАУ */}
+                <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight uppercase">
+                    МНАУ <span className="text-emerald-400">КАМПУС</span>
+                </h1>
+
+                {/* Підзаголовок */}
+                <p className="mt-1.5 text-xs sm:text-sm font-medium text-emerald-100/80 tracking-wide max-w-xs sm:max-w-sm">
+                    Єдина система розселення та цифрових перепусток
+                </p>
+
+                {/* Акуратний індикатор завантаження */}
+                <div className="mt-6 flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.3s]" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.15s]" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" />
+                </div>
+            </div>
+
+            {/* Нижня хвиляста лінія шторки для м'якого відкриття */}
+            <div className="absolute bottom-0 left-0 right-0 translate-y-[98%] pointer-events-none">
+                <svg
+                    viewBox="0 0 1440 120"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full h-12 sm:h-20 text-[#022c22] fill-current preserve-3d"
+                    preserveAspectRatio="none"
+                >
+                    <path d="M0,0 C320,90 420,120 720,120 C1020,120 1120,90 1440,0 L1440,0 L0,0 Z" />
+                </svg>
+            </div>
+        </div>
     );
 }
