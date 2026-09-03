@@ -48,11 +48,27 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     const [lastResult, setLastResult] = useState(null);
     const [activeTab, setActiveTab] = useState("camera"); // 'camera' | 'manual'
     const [notes, setNotes] = useState("");
-    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const html5QrCodeRef = useRef(null);
     const lastScannedCodeRef = useRef(null);
     const lastScanTimeRef = useRef(0);
+    const backdropMouseDownRef = useRef(false);
+
+    // Інтуїтивна навігація на мобільних: закриття по кнопці «Назад» на телефоні
+    useEffect(() => {
+        if (!isOpen || typeof window === "undefined") return;
+
+        try {
+            window.history.pushState({ qrScannerOpen: true }, "");
+        } catch (e) {}
+
+        const handlePopState = () => {
+            onClose();
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [isOpen]);
 
     // Ініціалізація та зупинка камери при відкритті/закритті
     useEffect(() => {
@@ -268,60 +284,69 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
         }
     };
 
+    const handleBackdropMouseDown = (e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+    };
+
+    const handleBackdropClick = (e) => {
+        if (backdropMouseDownRef.current && e.target === e.currentTarget) {
+            onClose();
+        }
+        backdropMouseDownRef.current = false;
+    };
+
     if (!isOpen) return null;
 
-    const modalSizeClasses = isFullscreen
-        ? "fixed inset-0 w-full h-full rounded-none max-w-none max-h-none"
-        : "w-full h-full sm:h-auto sm:max-w-2xl sm:max-h-[92vh] sm:rounded-3xl rounded-none";
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+        <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+            onMouseDown={handleBackdropMouseDown}
+            onClick={handleBackdropClick}
+        >
             <div
-                className={`bg-white dark:bg-gray-900 border-0 sm:border border-slate-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col ${modalSizeClasses}`}
+                className="w-full h-full sm:h-auto sm:max-w-xl md:max-w-2xl sm:max-h-[92vh] bg-slate-900 border-0 sm:border border-slate-700/70 shadow-2xl rounded-none sm:rounded-3xl overflow-hidden flex flex-col my-auto"
+                onClick={(e) => e.stopPropagation()}
             >
-                {/* Шапка сканера */}
-                <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between bg-slate-50/80 dark:bg-gray-800/60">
+                {/* Шапка сканера (Адаптивна: для мобільних як нативний екран, для ПК як преміум модалка) */}
+                <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60 shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-xs">
+                        {/* Кнопка «Назад» на мобільному */}
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex sm:hidden w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 items-center justify-center transition-all active:scale-95 cursor-pointer"
+                            title="Назад"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-xs shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <h3 className="text-base font-black text-white flex items-center gap-2">
                                 Сканер пропускного пункту (КПП)
                             </h3>
-                            <p className="text-xs text-slate-500 dark:text-gray-400">
-                                Повноекранний швидкий режим фіксації перепусток
+                            <p className="text-xs text-slate-400">
+                                Швидкий режим фіксації цифрових перепусток
                             </p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* Кнопка перемикання повного екрану на ПК */}
-                        <button
-                            type="button"
-                            onClick={() => setIsFullscreen(!isFullscreen)}
-                            className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-200/80 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 items-center justify-center font-bold text-xs transition-colors cursor-pointer"
-                            title={isFullscreen ? "Згорнути у вікно" : "На весь екран"}
-                        >
-                            {isFullscreen ? (
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0l5 0m-5 0l0 5M15 9l5-5m0 0l-5 0m5 0l0 5M9 15l-5 5m0 0l5 0m-5 0l0-5M15 15l5 5m0 0l-5 0m5 0l0-5" />
-                                </svg>
-                            ) : (
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                                </svg>
-                            )}
-                        </button>
-
                         <button
                             type="button"
                             onClick={onClose}
-                            className="w-9 h-9 rounded-xl bg-slate-200/80 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+                            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                            title="Закрити"
                         >
-                            ✕
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
                 </div>
