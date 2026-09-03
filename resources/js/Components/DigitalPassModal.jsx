@@ -6,16 +6,45 @@ import { generateOrderPdf } from '@/Utils/OrderPdfGenerator';
 export default function DigitalPassModal({ show, onClose, booking, user }) {
     const [qrUrl, setQrUrl] = useState('');
     const [copied, setCopied] = useState(false);
-    const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50, opacity: 0 });
-    const [qrRotation, setQrRotation] = useState(0);
-    const cardRef = useRef(null);
+    const [gyroAngle, setGyroAngle] = useState(0);
+    const prevAngleRef = useRef(0);
 
     const orderNumber = booking?.order_number || `ORD-${new Date().getFullYear()}-PENDING`;
     const roomNumber = booking?.room?.room_number || '-';
     const floorNumber = booking?.room?.floor || '-';
     const buildingName = booking?.room?.building?.name || 'Гуртожиток МНАУ';
 
-    // Генерація QR-коду
+    // 1. Блокування повороту екрана на мобільних при відкритті
+    useEffect(() => {
+        if (show) {
+            // Блокуємо поворот екрана у портретний режим
+            if (window.screen?.orientation?.lock) {
+                window.screen.orientation.lock('portrait-primary').catch(() => {
+                    window.screen.orientation.lock('portrait').catch(() => {});
+                });
+            }
+            // Блокуємо скрол сторінки позаду модалки
+            document.body.style.overflow = 'hidden';
+        } else {
+            if (window.screen?.orientation?.unlock) {
+                try {
+                    window.screen.orientation.unlock();
+                } catch (e) {}
+            }
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            if (window.screen?.orientation?.unlock) {
+                try {
+                    window.screen.orientation.unlock();
+                } catch (e) {}
+            }
+            document.body.style.overflow = '';
+        };
+    }, [show]);
+
+    // 2. Генерація QR-коду
     useEffect(() => {
         if (show && booking) {
             const verifyUrl = `${window.location.origin}/verify-order/${encodeURIComponent(orderNumber)}`;
@@ -33,90 +62,77 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
         }
     }, [show, booking, orderNumber]);
 
-    // Відстеження повороту екрана телефону (Orientation change)
+    // 3. Відстеження гіроскопа з високою точністю для плавного руху QR-коду
     useEffect(() => {
         if (!show) return;
 
-        const handleOrientationChange = () => {
+        const handleDeviceOrientation = (e) => {
+            const { gamma, beta, alpha } = e;
+            if (gamma === null || beta === null) return;
+
             let angle = 0;
-            if (window.screen?.orientation?.angle !== undefined) {
-                angle = window.screen.orientation.angle;
-            } else if (typeof window.orientation === 'number') {
-                angle = window.orientation;
+
+            // Якщо телефон лежить майже горизонтально плазом (beta < 20), використовуємо compass alpha
+            if (Math.abs(beta) < 20 && alpha !== null) {
+                angle = -alpha;
+            } else {
+                // Точний кут нахилу телефону в площині екрана (як кермо в руках)
+                const rad = Math.atan2(gamma, beta);
+                angle = -(rad * (180 / Math.PI));
             }
-            // Автоматично повертаємо QR-код відповідно до орієнтації пристрою
-            setQrRotation(angle);
+
+            // Плавне згладжування переходу через 180/-180
+            let diff = angle - prevAngleRef.current;
+            while (diff < -180) diff += 360;
+            while (diff > 180) diff -= 360;
+
+            const smoothed = prevAngleRef.current + diff;
+            prevAngleRef.current = smoothed;
+
+            setGyroAngle(smoothed);
         };
 
-        handleOrientationChange();
-
-        if (window.screen?.orientation) {
-            window.screen.orientation.addEventListener('change', handleOrientationChange);
-        }
-        window.addEventListener('orientationchange', handleOrientationChange);
-
-        return () => {
-            if (window.screen?.orientation) {
-                window.screen.orientation.removeEventListener('change', handleOrientationChange);
-            }
-            window.removeEventListener('orientationchange', handleOrientationChange);
-        };
-    }, [show]);
-
-    // Інтерактивний 3D-нахил при русі мишки на ПК
-    const handleMouseMove = (e) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        const rotX = -((mouseY - centerY) / centerY) * 10;
-        const rotY = ((mouseX - centerX) / centerX) * 10;
-
-        const glareX = (mouseX / rect.width) * 100;
-        const glareY = (mouseY / rect.height) * 100;
-
-        setTilt({ x: rotX, y: rotY, glareX, glareY, opacity: 0.3 });
-    };
-
-    const handleMouseLeave = () => {
-        setTilt({ x: 0, y: 0, glareX: 50, glareY: 50, opacity: 0 });
-    };
-
-    // Реагування на гіроскоп смартфона (DeviceOrientation)
-    useEffect(() => {
-        if (!show) return;
-
-        const handleDeviceTilt = (e) => {
-            if (e.gamma === null || e.beta === null) return;
-            const gamma = Math.min(Math.max(e.gamma, -25), 25);
-            const beta = Math.min(Math.max(e.beta - 45, -25), 25);
-
-            const rotY = (gamma / 25) * 12;
-            const rotX = -(beta / 25) * 12;
-
-            const glareX = 50 + (gamma / 25) * 35;
-            const glareY = 50 + (beta / 25) * 35;
-
-            setTilt({ x: rotX, y: rotY, glareX, glareY, opacity: 0.35 });
-        };
-
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleDeviceTilt, true);
+        // Запит дозволу для iOS 13+ при наявності API
+        if (
+            typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function'
+        ) {
+            // iOS вимагає жест користувача, підключаємо слухач після дозволу
+            const requestAndListen = () => {
+                DeviceOrientationEvent.requestPermission()
+                    .then((perm) => {
+                        if (perm === 'granted') {
+                            window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+                        }
+                    })
+                    .catch(() => {});
+                window.removeEventListener('touchstart', requestAndListen);
+            };
+            window.addEventListener('touchstart', requestAndListen, { once: true });
+        } else if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleDeviceOrientation, true);
         }
 
         return () => {
             if (window.DeviceOrientationEvent) {
-                window.removeEventListener('deviceorientation', handleDeviceTilt, true);
+                window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
             }
         };
     }, [show]);
 
-    const handleRotateManual = () => {
-        setQrRotation((prev) => (prev + 90) % 360);
+    // На ПК: рух мишки злегка відхиляє QR-код для інтерактивного ефекту
+    const handleMouseMove = (e) => {
+        if (window.DeviceOrientationEvent && 'ontouchstart' in window) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left - rect.width / 2;
+        const mouseY = e.clientY - rect.top - rect.height / 2;
+        const angle = (mouseX / (rect.width / 2)) * 14;
+        setGyroAngle(angle);
+    };
+
+    const handleMouseLeave = () => {
+        if (window.DeviceOrientationEvent && 'ontouchstart' in window) return;
+        setGyroAngle(0);
     };
 
     const handleCopyCode = () => {
@@ -146,11 +162,11 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl transition-all" />
+                    <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xl transition-all" />
                 </TransitionChild>
 
-                {/* 2. Контейнер: на мобільних на весь екран, на десктопі по центру */}
-                <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden sm:p-4">
+                {/* 2. Контейнер: на мобільних телефонах на повний екран (full screen), на ПК по центру */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-0 sm:p-4">
                     <TransitionChild
                         as={React.Fragment}
                         enter="ease-out duration-300"
@@ -161,27 +177,20 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                         leaveTo="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
                     >
                         <DialogPanel
-                            ref={cardRef}
                             onMouseMove={handleMouseMove}
                             onMouseLeave={handleMouseLeave}
+                            className="w-full h-full sm:h-auto sm:max-w-[400px] bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-950 text-white rounded-none sm:rounded-3xl border-0 sm:border sm:border-emerald-500/30 shadow-2xl relative overflow-hidden flex flex-col justify-between p-4 sm:p-5 select-none"
                             style={{
-                                transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                                transition: tilt.opacity === 0 ? 'transform 0.5s ease-out' : 'transform 0.08s ease-out',
+                                maxHeight: '100dvh',
+                                transform: 'none', // Текст і картка 100% статичні
                             }}
-                            className="w-full h-full sm:h-auto sm:max-w-[390px] bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-950 text-white rounded-none sm:rounded-3xl border-0 sm:border sm:border-emerald-400/30 shadow-2xl relative overflow-y-auto scrollbar-none flex flex-col justify-between p-5 select-none"
                         >
-                            {/* Голографічний світловий відблиск */}
-                            <div
-                                style={{
-                                    background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(52, 211, 153, 0.45) 0%, transparent 65%)`,
-                                    opacity: tilt.opacity,
-                                    transition: 'opacity 0.2s ease',
-                                }}
-                                className="absolute inset-0 pointer-events-none rounded-none sm:rounded-3xl z-20"
-                            />
+                            {/* Фонова ембіент-ілюмінація */}
+                            <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
-                            {/* Верхня панель: Заголовок та кнопка закриття */}
-                            <div className="flex items-center justify-between pb-3 border-b border-white/10 relative z-30">
+                            {/* Верхня панель (повністю статична) */}
+                            <div className="flex items-center justify-between pb-3 border-b border-white/10 relative z-10 shrink-0">
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-black">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,11 +198,11 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                         </svg>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] uppercase font-black tracking-widest text-emerald-400/90">
-                                            МНАУ • ЕЛЕКТРОННИЙ ПРОПУСК
+                                        <div className="text-[10px] uppercase font-black tracking-widest text-emerald-400/90 leading-tight">
+                                            МНАУ • ЕЛЕКТРОННА ПЕРЕПУСТКА
                                         </div>
                                         <div className="text-xs font-bold text-gray-200">
-                                            Цифровий ордер студента
+                                            Цифровий ордер на заселення
                                         </div>
                                     </div>
                                 </div>
@@ -206,50 +215,48 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </button>
                             </div>
 
-                            {/* Тіло картки */}
-                            <div className="my-auto py-3 text-center relative z-30">
-                                {/* Статус та кнопка швидкого повороту QR */}
-                                <div className="flex items-center justify-between mb-3 px-1">
+                            {/* Центральна зона: Тільки QR-код реагує на гіроскоп, решта тексту статична */}
+                            <div className="my-auto py-2 flex flex-col items-center justify-center text-center relative z-10">
+                                {/* Статус поселення */}
+                                <div className="mb-3">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-sm uppercase tracking-wider">
                                         <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
                                         ДІЙСНИЙ ДО ЗАСЕЛЕННЯ
                                     </span>
-                                    <button
-                                        type="button"
-                                        onClick={handleRotateManual}
-                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-emerald-300 text-[11px] font-semibold transition-all active:scale-95"
-                                        title="Повернути QR-код на 90°"
-                                    >
-                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                        <span>Повернути QR</span>
-                                    </button>
                                 </div>
 
-                                {/* Великий білий контейнер для QR-коду */}
-                                <div className="bg-white p-3 rounded-2xl shadow-2xl mx-auto w-fit border-2 border-emerald-300/80">
-                                    {qrUrl ? (
-                                        <img
-                                            src={qrUrl}
-                                            alt="QR-код ордера"
-                                            style={{
-                                                transform: `rotate(${qrRotation}deg)`,
-                                                transition: 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                            }}
-                                            className="w-48 h-48 sm:w-52 sm:h-52 block object-contain mx-auto select-none pointer-events-none"
-                                        />
-                                    ) : (
-                                        <div className="w-48 h-48 flex items-center justify-center text-slate-400 text-xs">
-                                            Генерація QR...
-                                        </div>
-                                    )}
+                                {/* Контейнер QR-коду з гіроскопічною анімацією */}
+                                <div className="relative p-1.5 rounded-3xl bg-gradient-to-tr from-emerald-500/30 via-teal-400/20 to-emerald-500/30 border border-emerald-400/50 shadow-2xl">
+                                    <div className="bg-white p-3 sm:p-3.5 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                                        {qrUrl ? (
+                                            <img
+                                                src={qrUrl}
+                                                alt="QR-код ордера"
+                                                style={{
+                                                    transform: `rotate(${gyroAngle}deg)`,
+                                                    transition: 'transform 0.08s cubic-bezier(0.1, 0.9, 0.2, 1)',
+                                                    willChange: 'transform',
+                                                }}
+                                                className="w-48 h-48 sm:w-52 sm:h-52 block object-contain select-none pointer-events-none"
+                                            />
+                                        ) : (
+                                            <div className="w-48 h-48 flex items-center justify-center text-slate-400 text-xs">
+                                                Генерація QR...
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Міні-індикатор живого гіроскопа */}
+                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-slate-900/90 border border-emerald-400/40 rounded-full text-[9px] font-extrabold text-emerald-400 tracking-wider flex items-center gap-1 shadow-xs">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                        GYRO LIVE
+                                    </div>
                                 </div>
 
-                                {/* Унікальний номер коду */}
-                                <div className="mt-3">
+                                {/* Унікальний номер коду (статичний) */}
+                                <div className="mt-4">
                                     <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
-                                        Унікальний код ордера:
+                                        Унікальний номер ордера:
                                     </div>
                                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl transition-all">
                                         <span className="font-mono font-black text-sm sm:text-base text-emerald-300 tracking-widest">
@@ -267,9 +274,9 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </div>
                             </div>
 
-                            {/* Нижня частина: Дані студента та кімнати */}
-                            <div className="relative z-30 pt-3 border-t border-white/10 space-y-3">
-                                <div className="grid grid-cols-2 gap-2 text-left">
+                            {/* Нижня панель: Інформація про студента та кімнату (повністю статична) */}
+                            <div className="relative z-10 pt-3 border-t border-white/10 space-y-2.5 shrink-0">
+                                <div className="grid grid-cols-2 gap-2 text-left bg-white/5 p-3 rounded-2xl border border-white/10">
                                     <div>
                                         <div className="text-[9px] uppercase font-bold text-gray-400">Студент</div>
                                         <div className="text-xs font-bold text-white truncate">{user?.name || '-'}</div>
@@ -280,7 +287,7 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                             Поверх {floorNumber} • №{roomNumber}
                                         </div>
                                     </div>
-                                    <div className="col-span-2 text-center text-[10px] font-medium text-gray-400 truncate">
+                                    <div className="col-span-2 text-center text-[10px] font-semibold text-gray-300 truncate pt-0.5 border-t border-white/5">
                                         {buildingName}
                                     </div>
                                 </div>
@@ -290,11 +297,11 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </p>
 
                                 {/* Кнопки дій */}
-                                <div className="flex items-center gap-2 pt-1">
+                                <div className="flex items-center gap-2 pt-0.5">
                                     <button
                                         type="button"
                                         onClick={handleDownloadPdf}
-                                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white text-xs font-bold transition-all"
+                                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white text-xs font-bold transition-all"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -304,7 +311,7 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all shadow-md active:scale-95"
+                                        className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all shadow-md active:scale-95"
                                     >
                                         Готово
                                     </button>
