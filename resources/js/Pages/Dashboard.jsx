@@ -340,34 +340,119 @@ export default function Dashboard({
         return `${greetingWord}, ${name}!`;
     };
 
-    // Живий годинник та погода в Миколаєві
-    const [mykolaivInfo, setMykolaivInfo] = useState(() => {
+    // Живий годинник у Миколаєві
+    const [mykolaivClock, setMykolaivClock] = useState(() => {
         const now = new Date();
-        const hour = now.getHours();
         return {
             time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
             date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
-            isDay: hour >= 6 && hour < 20,
-            temp: hour >= 6 && hour < 20 ? "+22°C" : "+15°C",
-            condition: hour >= 6 && hour < 20 ? "Ясно, сонячно" : "Ясна ніч, зоряно",
-            hour,
+            hour: now.getHours(),
+        };
+    });
+
+    // Реальна жива погода в Миколаєві (Open-Meteo API з кешуванням)
+    const [realWeather, setRealWeather] = useState(() => {
+        if (typeof window !== "undefined") {
+            const cached = sessionStorage.getItem("mykolaiv_real_weather");
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.timestamp < 15 * 60 * 1000) {
+                        return parsed.data;
+                    }
+                } catch (e) {}
+            }
+        }
+        const hour = new Date().getHours();
+        const isDay = hour >= 6 && hour < 20;
+        return {
+            temp: isDay ? "+23°C" : "+15°C",
+            condition: isDay ? "Ясно, сонячно" : "Ясна ніч, зоряно",
+            isDay,
+            iconType: isDay ? "sun" : "moon",
+            isLive: false,
         };
     });
 
     useEffect(() => {
-        const timer = setInterval(() => {
+        const clockTimer = setInterval(() => {
             const now = new Date();
-            const hour = now.getHours();
-            setMykolaivInfo({
+            setMykolaivClock({
                 time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
                 date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
-                isDay: hour >= 6 && hour < 20,
-                temp: hour >= 6 && hour < 20 ? "+22°C" : "+15°C",
-                condition: hour >= 6 && hour < 20 ? "Ясно, сонячно" : "Ясна ніч, зоряно",
-                hour,
+                hour: now.getHours(),
             });
         }, 1000);
-        return () => clearInterval(timer);
+
+        // Отримання справжніх метеоданих Миколаєва
+        let isMounted = true;
+        const fetchRealWeather = async () => {
+            try {
+                const res = await fetch(
+                    "https://api.open-meteo.com/v1/forecast?latitude=46.975&longitude=31.9946&current=temperature_2m,relative_humidity_2m,weather_code,is_day&timezone=Europe%2FKyiv"
+                );
+                if (!res.ok) return;
+                const json = await res.json();
+                if (json?.current && isMounted) {
+                    const tempNum = Math.round(json.current.temperature_2m);
+                    const formattedTemp = (tempNum > 0 ? `+${tempNum}` : `${tempNum}`) + "°C";
+                    const isDay = Boolean(json.current.is_day);
+                    const code = Number(json.current.weather_code);
+
+                    let condition = isDay ? "Ясно" : "Ясна ніч";
+                    let iconType = isDay ? "sun" : "moon";
+
+                    if (code === 0) {
+                        condition = isDay ? "Ясно, безхмарно" : "Ясна ніч";
+                        iconType = isDay ? "sun" : "moon";
+                    } else if (code === 1 || code === 2) {
+                        condition = "Малохмарно";
+                        iconType = isDay ? "sun" : "moon";
+                    } else if (code === 3) {
+                        condition = "Хмарно";
+                        iconType = "cloud";
+                    } else if (code === 45 || code === 48) {
+                        condition = "Туман";
+                        iconType = "fog";
+                    } else if (code >= 51 && code <= 67) {
+                        condition = code >= 65 ? "Сильний дощ" : "Дощ";
+                        iconType = "rain";
+                    } else if (code >= 71 && code <= 77) {
+                        condition = "Снігопад";
+                        iconType = "snow";
+                    } else if (code >= 80 && code <= 82) {
+                        condition = "Злива";
+                        iconType = "rain";
+                    } else if (code >= 95) {
+                        condition = "Гроза";
+                        iconType = "thunder";
+                    }
+
+                    const weatherData = {
+                        temp: formattedTemp,
+                        condition,
+                        isDay,
+                        iconType,
+                        isLive: true,
+                    };
+
+                    setRealWeather(weatherData);
+                    sessionStorage.setItem(
+                        "mykolaiv_real_weather",
+                        JSON.stringify({ timestamp: Date.now(), data: weatherData })
+                    );
+                }
+            } catch (e) {
+                // тихо ігноруємо помилки
+            }
+        };
+
+        fetchRealWeather();
+
+        return () => {
+            clearInterval(clockTimer);
+            isMounted = false;
+        };
     }, []);
 
     const getCurfewStatus = (hour) => {
@@ -664,31 +749,60 @@ export default function Dashboard({
 
                                     {/* Преміальний скляний віджет: погода + час у Миколаєві */}
                                     <div className="inline-flex items-center gap-3 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/15 rounded-2xl px-3.5 py-2 shadow-lg shadow-black/10">
-                                        {/* Погода */}
+                                        {/* Справжня погода */}
                                         <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center shrink-0">
-                                                {mykolaivInfo.isDay ? (
+                                            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                                                {realWeather.iconType === "sun" && (
                                                     <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
                                                     </svg>
-                                                ) : (
+                                                )}
+                                                {realWeather.iconType === "moon" && (
                                                     <svg className="w-4 h-4 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                                                    </svg>
+                                                )}
+                                                {realWeather.iconType === "cloud" && (
+                                                    <svg className="w-4 h-4 text-sky-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                                                    </svg>
+                                                )}
+                                                {realWeather.iconType === "rain" && (
+                                                    <svg className="w-4 h-4 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15zM8 21l2-4m4 4l2-4" />
+                                                    </svg>
+                                                )}
+                                                {realWeather.iconType === "thunder" && (
+                                                    <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                )}
+                                                {realWeather.iconType === "snow" && (
+                                                    <svg className="w-4 h-4 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v18m9-9H3m15.364-6.364l-12.728 12.728m0-12.728l12.728 12.728" />
+                                                    </svg>
+                                                )}
+                                                {realWeather.iconType === "fog" && (
+                                                    <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                                                     </svg>
                                                 )}
                                             </div>
                                             <div className="leading-tight">
                                                 <div className="flex items-baseline gap-1">
                                                     <span className="text-base font-black text-white tracking-tight">
-                                                        {mykolaivInfo.temp}
+                                                        {realWeather.temp}
                                                     </span>
-                                                    <span className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider">
+                                                    <span className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider flex items-center gap-1">
                                                         Миколаїв
+                                                        {realWeather.isLive && (
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Прямі дані метеостанції" />
+                                                        )}
                                                     </span>
                                                 </div>
                                                 <span className="text-[10px] text-emerald-100/80 font-medium block">
-                                                    {mykolaivInfo.condition}
+                                                    {realWeather.condition}
                                                 </span>
                                             </div>
                                         </div>
@@ -700,14 +814,14 @@ export default function Dashboard({
                                         <div className="leading-tight">
                                             <div className="flex items-center gap-1.5">
                                                 <span className="text-base font-mono font-black text-white tracking-tight">
-                                                    {mykolaivInfo.time}
+                                                    {mykolaivClock.time}
                                                 </span>
                                                 <span className="text-[10px] text-emerald-200/90 font-medium capitalize">
-                                                    • {mykolaivInfo.date}
+                                                    • {mykolaivClock.date}
                                                 </span>
                                             </div>
                                             {(() => {
-                                                const curfew = getCurfewStatus(mykolaivInfo.hour);
+                                                const curfew = getCurfewStatus(mykolaivClock.hour);
                                                 return (
                                                     <div className="flex items-center gap-1.5 mt-0.5">
                                                         <span className={`w-1.5 h-1.5 rounded-full ${curfew.dotColor}`} />
