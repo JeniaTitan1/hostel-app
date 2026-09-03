@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
 
     // Вихід з режиму перегляду іншого акаунту
     Route::post('/impersonate/leave', [AdminController::class, 'leaveImpersonate'])->name('impersonate.leave');
+
+    // Отримання останнього статусу проходу через КПП
+    Route::get('/my-latest-access-log', [AccessLogController::class, 'latestStudentLog'])->name('my-latest-access-log');
 });
 
 // Публічна перевірка справжності ордерів (за кодом або QR)

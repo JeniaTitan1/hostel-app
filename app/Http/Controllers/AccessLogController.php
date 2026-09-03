@@ -214,6 +214,9 @@ class AccessLogController extends Controller
 
         $directionName = $direction === 'entry' ? 'ВХІД' : 'ВИХІД';
 
+        // Відправляємо миттєвий WebSocket сигнал на екран смартфона студента для анімації галочки
+        \App\Events\AccessPassScanned::dispatchSafe($studentUser->id, $logStatus, $direction, $booking?->id);
+
         return response()->json([
             'valid' => $isValid,
             'status' => $logStatus,
@@ -264,6 +267,9 @@ class AccessLogController extends Controller
             'type' => $request->input('type'),
         ]);
 
+        // Повідомляємо студента про коригування напрямку
+        \App\Events\AccessPassScanned::dispatchSafe($accessLog->user_id, $accessLog->status, $accessLog->type, $accessLog->booking_id);
+
         return response()->json([
             'success' => true,
             'log' => [
@@ -273,6 +279,31 @@ class AccessLogController extends Controller
                 'created_at' => $accessLog->created_at->format('H:i:s d.m.Y'),
             ],
             'message' => 'Напрямок проходу успішно змінено на ' . ($accessLog->type === 'entry' ? 'ВХІД' : 'ВИХІД'),
+        ]);
+    }
+
+    /**
+     * Останній статус проходу для авторизованого студента (фоновий fallback)
+     */
+    public function latestStudentLog(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['log' => null]);
+        }
+
+        $log = AccessLog::where('user_id', $user->id)
+            ->latest()
+            ->first();
+
+        return response()->json([
+            'log' => $log ? [
+                'id' => $log->id,
+                'status' => $log->status,
+                'type' => $log->type,
+                'created_at' => $log->created_at->toISOString(),
+                'timestamp' => $log->created_at->timestamp,
+            ] : null,
         ]);
     }
 }

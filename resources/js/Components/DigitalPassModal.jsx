@@ -1,11 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import QRCode from 'qrcode';
 import { generateOrderPdf } from '@/Utils/OrderPdfGenerator';
+import { getEcho } from '@/echo';
+
+/**
+ * Приємний звуковий сигнал підтвердження проходу
+ */
+function playApprovalChime() {
+    if (typeof window === 'undefined') return;
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'sine';
+        // Мелодійний двотональний акорд схвалення (E5 -> B5)
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(987.77, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {
+        console.warn('Approval chime error:', e);
+    }
+}
 
 export default function DigitalPassModal({ show, onClose, booking, user }) {
     const [qrUrl, setQrUrl] = useState('');
     const [copied, setCopied] = useState(false);
+    const [scanApproved, setScanApproved] = useState(null); // { status: 'granted', type: 'entry' | 'exit' } | null
+
+    const initialTimestampRef = useRef(Date.now());
+    const processedLogIdRef = useRef(null);
 
     const orderNumber = booking?.order_number || `ORD-${new Date().getFullYear()}-PENDING`;
     const roomNumber = booking?.room?.room_number || '-';
@@ -16,8 +50,11 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
     useEffect(() => {
         if (show) {
             document.body.style.overflow = 'hidden';
+            initialTimestampRef.current = Date.now();
+            setScanApproved(null);
         } else {
             document.body.style.overflow = '';
+            setScanApproved(null);
         }
         return () => {
             document.body.style.overflow = '';
@@ -41,6 +78,66 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                 .catch((err) => console.error('QR generation error:', err));
         }
     }, [show, booking, orderNumber]);
+
+    // Обробка успішного схвалення проходу
+    const triggerApprovalSuccess = (data) => {
+        playApprovalChime();
+
+        // Вібрація на смартфонах
+        if (typeof window !== 'undefined' && window.navigator?.vibrate) {
+            window.navigator.vibrate([50, 70, 100]);
+        }
+
+        setScanApproved({
+            status: data?.status || 'granted',
+            type: data?.type || 'entry',
+        });
+    };
+
+    // ⚡ Real-time WebSocket прослуховування через Laravel Echo
+    useEffect(() => {
+        if (!show || !user?.id) return;
+
+        const echo = getEcho();
+        let userChannel = null;
+
+        if (echo) {
+            userChannel = echo.channel(`user.${user.id}`);
+            userChannel.listen('.AccessPassScanned', (e) => {
+                if (e.status === 'granted') {
+                    triggerApprovalSuccess(e);
+                }
+            });
+        }
+
+        // Фоновий опитування-fallback для 100% надійності при повільному інтернеті
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(route('my-latest-access-log'));
+                const data = await res.json();
+                if (data.log && data.log.status === 'granted') {
+                    const logTime = new Date(data.log.created_at).getTime();
+                    // Якщо лог свіжіший, ніж час відкриття перепустки
+                    if (
+                        logTime >= initialTimestampRef.current - 5000 &&
+                        processedLogIdRef.current !== data.log.id
+                    ) {
+                        processedLogIdRef.current = data.log.id;
+                        triggerApprovalSuccess(data.log);
+                    }
+                }
+            } catch (e) {
+                // Ігноруємо проміжні мережеві помилки опитування
+            }
+        }, 2000);
+
+        return () => {
+            clearInterval(pollInterval);
+            if (echo && user?.id) {
+                echo.leaveChannel(`user.${user.id}`);
+            }
+        };
+    }, [show, user?.id]);
 
     const handleCopyCode = () => {
         navigator.clipboard.writeText(orderNumber);
@@ -122,18 +219,64 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </div>
                             </div>
 
-                            {/* 📱 Великий повноекранний QR-код для миттєвого зчитування турнікетом */}
+                            {/* 📱 Великий повноекранний блок із QR-кодом або АНІМАЦІЄЮ ГАЛОЧКИ */}
                             <div className="my-auto py-2 flex flex-col items-center">
-                                <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-2xl border-4 border-emerald-400/80 max-w-[280px] sm:max-w-[260px] w-full aspect-square flex items-center justify-center">
+                                <div className="relative bg-white p-4 sm:p-5 rounded-3xl shadow-2xl border-4 border-emerald-400/80 max-w-[280px] sm:max-w-[260px] w-full aspect-square flex items-center justify-center overflow-hidden">
+                                    {/* Звичайний QR-код */}
                                     {qrUrl ? (
                                         <img
                                             src={qrUrl}
                                             alt="QR-код ордера"
-                                            className="w-full h-full block object-contain select-none pointer-events-none"
+                                            className={`w-full h-full block object-contain select-none pointer-events-none transition-all duration-300 ${
+                                                scanApproved ? 'opacity-10 scale-95 blur-xs' : 'opacity-100 scale-100'
+                                            }`}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
                                             Генерація QR...
+                                        </div>
+                                    )}
+
+                                    {/* ✨ КРАСИВА ЖИВА АНІМАЦІЯ ГАЛОЧКИ ПРИ СКАНУВАННІ НА ВХОДІ/ВИХОДІ */}
+                                    {scanApproved && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-500/95 backdrop-blur-xs animate-checkmark-pop">
+                                            {/* Розширювальне сяйво */}
+                                            <div className="absolute w-32 h-32 rounded-full bg-white/25 animate-ping" />
+
+                                            {/* Анімована кругла галочка SVG */}
+                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                                                <svg
+                                                    className="w-full h-full"
+                                                    viewBox="0 0 100 100"
+                                                    fill="none"
+                                                >
+                                                    {/* Круг */}
+                                                    <circle
+                                                        cx="50"
+                                                        cy="50"
+                                                        r="44"
+                                                        stroke="white"
+                                                        strokeWidth="7"
+                                                        strokeLinecap="round"
+                                                        className="animate-check-circle"
+                                                    />
+                                                    {/* Пташка (галочка) */}
+                                                    <path
+                                                        d="M28 52 L43 67 L73 35"
+                                                        stroke="white"
+                                                        strokeWidth="8"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="animate-check-tick"
+                                                    />
+                                                </svg>
+                                            </div>
+
+                                            {/* М'який індикатор напрямку знизу */}
+                                            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md">
+                                                <span className="w-2 h-2 rounded-full bg-white" />
+                                                <span>{scanApproved.type === 'entry' ? 'ВХІД' : 'ВИХІД'}</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -175,7 +318,7 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </div>
 
                                 <p className="text-center text-[11px] text-emerald-200/90 mb-3 font-medium">
-                                    Наведіть цей екран на камеру КПП або покажіть вахтеру
+                                    {scanApproved ? 'Прохід зафіксовано!' : 'Наведіть цей екран на камеру КПП або покажіть вахтеру'}
                                 </p>
 
                                 {/* Кнопки */}
@@ -195,7 +338,7 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                         onClick={onClose}
                                         className="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all shadow-lg shadow-emerald-600/30 active:scale-95 cursor-pointer"
                                     >
-                                        Готово
+                                        {scanApproved ? 'Закрити' : 'Готово'}
                                     </button>
                                 </div>
                             </div>
