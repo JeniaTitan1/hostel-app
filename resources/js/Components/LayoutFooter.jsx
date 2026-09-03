@@ -92,7 +92,7 @@ export default function LayoutFooter() {
                                     Реєстр суб'єктів освітньої діяльності
                                 </a>
                             </li>
-                            <li className="pt-1 hidden sm:block">
+                            <li className="pt-1">
                                 <button
                                     type="button"
                                     onClick={() => window.dispatchEvent(new CustomEvent("open-pwa-install"))}

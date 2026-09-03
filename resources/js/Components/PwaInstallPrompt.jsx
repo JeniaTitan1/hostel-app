@@ -5,11 +5,8 @@ const PWA_INSTALLED_KEY = "mnau_pwa_installed_v1";
 
 /**
  * Розумний помічник встановлення мобільного додатка:
- * - Автоматично детектує пристрій (Android, iOS iPhone/iPad, або Desktop комп'ютер)
- * - На комп'ютері генерує QR-код для швидкого сканування смартфоном
- * - На Android викликає 1-клік інсталяцію (WebAPK)
- * - На iPhone показує нативну 3-крокову інструкцію Safari
- * - Має постійні тригери у футері та меню профілю
+ * - Якщо сайт відкрито у встановленому додатку (PWA Standalone) -> повністю приховує всі банери та пропозиції
+ * - Якщо користувач зайшов через браузер (на телефоні чи ПК) -> показує плаваючий банер та помічник інсталяції
  */
 export default function PwaInstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -33,23 +30,20 @@ export default function PwaInstallPrompt() {
             setDeviceType("desktop");
         }
 
-        // 2. Перевірка чи додаток вже встановлено
+        // 2. Перевірка чи сайт запущено як окремий додаток (PWA Standalone)
         const isStandalone =
             window.matchMedia("(display-mode: standalone)").matches ||
             window.navigator.standalone === true ||
             document.referrer.includes("android-app://");
 
-        const wasInstalledLocally = localStorage.getItem(PWA_INSTALLED_KEY) === "true";
-
-        if (isStandalone || wasInstalledLocally || isIosDevice || isAndroidDevice) {
+        if (isStandalone) {
+            // Користувач ВЖЕ відкрив сайт через мобільний додаток -> не показуємо жодних пропозицій
             setIsAppInstalled(true);
             setShowFloatingBanner(false);
-            if (isStandalone || wasInstalledLocally) {
-                localStorage.setItem(PWA_INSTALLED_KEY, "true");
-            }
+            localStorage.setItem(PWA_INSTALLED_KEY, "true");
         } else {
+            // Користувач відкрив сайт у звичайному браузері -> показуємо банер
             setIsAppInstalled(false);
-            // Показуємо банер тільки на десктопі
             setShowFloatingBanner(true);
         }
 
@@ -67,7 +61,7 @@ export default function PwaInstallPrompt() {
             setDeferredPrompt(null);
         };
 
-        // 4. Глобальний слухач для відкриття модалки з будь-якого посилання на сайті
+        // 4. Глобальний слухач для відкриття модалки з будь-якої кнопки на сайті
         const handleOpenInstaller = () => {
             setShowModal(true);
         };
@@ -76,7 +70,7 @@ export default function PwaInstallPrompt() {
         window.addEventListener("appinstalled", handleAppInstalled);
         window.addEventListener("open-pwa-install", handleOpenInstaller);
 
-        // 5. Генерація QR-коду сайту для ПК-версії
+        // 5. Генерація QR-коду сайту для швидкого відкриття на смартфоні
         if (typeof window !== "undefined") {
             QRCode.toDataURL(window.location.origin, {
                 width: 220,
@@ -110,16 +104,16 @@ export default function PwaInstallPrompt() {
                 setDeferredPrompt(null);
             }
         } else {
-            // Відкриваємо детальне вікно з інструкціями відповідно до пристрою
+            // Відкриваємо детальне вікно з нативною інструкцією відповідно до пристрою
             setShowModal(true);
         }
     };
 
     return (
         <>
-            {/* 1. Плаваючий стартовий міні-банер (тільки для десктопу, якщо додаток ще не встановлено) */}
+            {/* 1. Плаваючий стартовий міні-банер (показується в браузері на телефоні та ПК, якщо ще не в PWA) */}
             {showFloatingBanner && !isAppInstalled && (
-                <div className="hidden sm:block fixed bottom-4 right-6 max-w-md z-40 bg-white/95 dark:bg-gray-800/95 text-slate-800 dark:text-gray-100 p-4 rounded-2xl border border-slate-200/90 dark:border-gray-700/80 shadow-xl shadow-slate-900/10 dark:shadow-2xl dark:shadow-black/50 backdrop-blur-md transition-all duration-300 animate-fade-in-up">
+                <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-white/95 dark:bg-gray-800/95 text-slate-800 dark:text-gray-100 p-4 rounded-2xl border border-slate-200/90 dark:border-gray-700/80 shadow-xl shadow-slate-900/10 dark:shadow-2xl dark:shadow-black/50 backdrop-blur-md transition-all duration-300 animate-fade-in-up">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-black text-sm text-white shrink-0 shadow-xs shadow-emerald-500/20">
@@ -186,7 +180,7 @@ export default function PwaInstallPrompt() {
                             <button
                                 type="button"
                                 onClick={() => setShowModal(false)}
-                                className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-600 dark:text-gray-300 text-xs font-bold transition-colors flex items-center justify-center"
+                                className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-600 dark:text-gray-300 text-xs font-bold transition-colors flex items-center justify-center cursor-pointer"
                             >
                                 ✕
                             </button>
@@ -207,7 +201,7 @@ export default function PwaInstallPrompt() {
                                         <button
                                             type="button"
                                             onClick={handleInstallClick}
-                                            className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"
+                                            className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -218,69 +212,68 @@ export default function PwaInstallPrompt() {
                                         <div className="space-y-2 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-gray-300">
                                             <p className="font-bold text-gray-900 dark:text-white">Інструкція для браузера:</p>
                                             <p>1. Натисніть меню браузера (<strong>три крапки ⋮</strong> у верхньому або нижньому кутку).</p>
-                                            <p>2. Виберіть <strong>«Встановити додаток»</strong> або <strong>«Додати на головний екран»</strong>.</p>
+                                            <p>2. Оберіть пункт <strong>«Встановити додаток»</strong> або <strong>«Додати на головний екран»</strong>.</p>
+                                            <p>3. Підтвердіть встановлення.</p>
                                         </div>
                                     )}
                                 </div>
                             )}
 
-                            {/* СЦЕНАРІЙ 2: iOS (IPHONE / IPAD) */}
+                            {/* СЦЕНАРІЙ 2: IPHONE / IPAD (SAFARI) */}
                             {deviceType === "ios" && (
-                                <div className="space-y-2.5 text-slate-700 dark:text-gray-200">
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
-                                        <span className="w-6 h-6 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-black flex items-center justify-center text-xs shrink-0">
-                                            1
-                                        </span>
-                                        <span>
-                                            Натисніть кнопку <strong>«Поділитися»</strong> (квадрат зі стрілкою <span className="inline-block px-1.5 py-0.5 bg-slate-200 dark:bg-white/20 rounded font-bold">⎋</span> внизу Safari).
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
-                                        <span className="w-6 h-6 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-black flex items-center justify-center text-xs shrink-0">
-                                            2
-                                        </span>
-                                        <span>
-                                            Прокрутіть меню та виберіть пункт <strong>«На екран "Додому"»</strong> (<span className="inline-block px-1.5 py-0.5 bg-slate-200 dark:bg-white/20 rounded font-bold">➕</span>).
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
-                                        <span className="w-6 h-6 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-black flex items-center justify-center text-xs shrink-0">
-                                            3
-                                        </span>
-                                        <span>
-                                            Натисніть <strong>«Додати»</strong> у правому верхньому кутку.
-                                        </span>
+                                <div className="space-y-3.5">
+                                    <div className="p-3 rounded-2xl bg-slate-100 dark:bg-gray-800/80 text-slate-800 dark:text-gray-200 border border-slate-200 dark:border-gray-700">
+                                        <div className="font-bold mb-1 flex items-center gap-1.5">
+                                            <span>Інструкція для Safari (iOS):</span>
+                                        </div>
+                                        <div className="space-y-2 text-[11px] text-slate-600 dark:text-gray-300">
+                                            <div className="flex items-start gap-2">
+                                                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                                                <span>У нижній панелі Safari натисніть кнопку <strong>«Поділитися»</strong> (квадрат зі стрілкою вгору).</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                                                <span>Прокрутіть меню вниз та оберіть <strong>«На початковий екран» (Add to Home Screen)</strong>.</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
+                                                <span>У верхньому правому кутку натисніть <strong>«Додати»</strong>.</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* СЦЕНАРІЙ 3: ДЕСКТОП (КОМП'ЮТЕР) */}
+                            {/* СЦЕНАРІЙ 3: ДЕСКТОП (ПК / НОУТБУК) */}
                             {deviceType === "desktop" && (
-                                <div className="text-center space-y-3">
-                                    <p className="text-xs text-slate-600 dark:text-gray-300">
-                                        Відскануйте цей QR-код камерою свого смартфона (Android або iPhone), щоб відкрити сайт на телефоні та додати додаток:
+                                <div className="space-y-4 text-center">
+                                    <p className="text-slate-600 dark:text-gray-300">
+                                        Відскануйте QR-код камерою вашого смартфона, щоб відкрити та встановити мобільну версію:
                                     </p>
 
-                                    {qrCodeDataUrl && (
-                                        <div className="p-3 bg-white rounded-2xl border-2 border-emerald-500/30 w-fit mx-auto shadow-md">
+                                    <div className="bg-white p-3 rounded-2xl shadow-inner inline-block border border-slate-200">
+                                        {qrCodeDataUrl ? (
                                             <img
                                                 src={qrCodeDataUrl}
-                                                alt="QR-код для встановлення на телефон"
-                                                className="w-40 h-40 object-contain block mx-auto"
+                                                alt="QR-код для встановлення додатка"
+                                                className="w-40 h-40 mx-auto block"
                                             />
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="w-40 h-40 flex items-center justify-center text-slate-400">
+                                                Генерація...
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {deferredPrompt && (
-                                        <div className="pt-2">
+                                        <div>
+                                            <div className="text-[11px] text-slate-400 my-2">— або —</div>
                                             <button
                                                 type="button"
                                                 onClick={handleInstallClick}
-                                                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-gray-200 font-bold text-xs transition-all"
+                                                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                                             >
-                                                💻 Встановити як додаток на комп'ютер (Chrome / Edge)
+                                                <span>Встановити додаток на цей комп'ютер</span>
                                             </button>
                                         </div>
                                     )}
@@ -288,18 +281,16 @@ export default function PwaInstallPrompt() {
                             )}
                         </div>
 
-                        {/* Нижня кнопка закриття */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setShowModal(false);
-                                setIsAppInstalled(true);
-                                localStorage.setItem(PWA_INSTALLED_KEY, "true");
-                            }}
-                            className="w-full mt-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-black text-xs transition-all shadow-md active:scale-95"
-                        >
-                            Зрозуміло
-                        </button>
+                        {/* Футер */}
+                        <div className="mt-5 pt-3 border-t border-slate-100 dark:border-gray-800 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowModal(false)}
+                                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-bold text-xs transition-colors cursor-pointer"
+                            >
+                                Зрозуміло
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
