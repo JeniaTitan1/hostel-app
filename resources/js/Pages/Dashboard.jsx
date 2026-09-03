@@ -822,14 +822,18 @@ export default function Dashboard({
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
                     <div className="flex flex-col gap-1">
                         <h2 className="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">
-                            {!selectedBuildingId
-                                ? "Вибір корпусу"
-                                : `${currentBuilding?.name}`}
+                            {selectedBuildingId
+                                ? currentBuilding?.name
+                                : hasApprovedBooking
+                                  ? "Особистий кабінет"
+                                  : "Вибір гуртожитку"}
                         </h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {!selectedBuildingId
-                                ? "Оберіть об'єкт для роботи з системою"
-                                : `Виберіть поверх та кімнату для проживання`}
+                            {selectedBuildingId
+                                ? "Виберіть поверх та кімнату для проживання"
+                                : hasApprovedBooking
+                                  ? `${userBooking.room?.building?.name || "Гуртожиток МНАУ"} • Поверх ${userBooking.room?.floor || 1} • Кімната №${userBooking.room?.room_number}`
+                                  : "Оберіть корпус для перегляду вільних кімнат та онлайн-поселення"}
                         </p>
                     </div>
 
@@ -864,26 +868,49 @@ export default function Dashboard({
                         )}
 
                         {hasApprovedBooking && (
-                            <button
-                                onClick={() => setShowDigitalPass(true)}
-                                className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black rounded-xl shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer"
-                                title="Відкрити електронну перепустку"
-                            >
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowDigitalPass(true)}
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer"
+                                    title="Відкрити цифрову перепустку"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                                    />
-                                </svg>
-                                <span>Електронна перепустка (QR)</span>
-                            </button>
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                                        />
+                                    </svg>
+                                    <span>Цифрова перепустка (QR)</span>
+                                </button>
+
+                                <button
+                                    onClick={handleDownloadSlip}
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
+                                    title="Завантажити ордер у форматі PDF"
+                                >
+                                    <svg
+                                        className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        />
+                                    </svg>
+                                    <span>Ордер (PDF)</span>
+                                </button>
+                            </div>
                         )}
 
                         {userBooking && (
@@ -1082,46 +1109,7 @@ export default function Dashboard({
                                         : "Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку."}
                                 </p>
 
-                                {hasApprovedBooking && (
-                                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowDigitalPass(true)}
-                                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-emerald-950 hover:bg-emerald-50 active:scale-95 transition-all shadow-sm flex items-center gap-2"
-                                        >
-                                            <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                            </svg>
-                                            <span>Цифрова перепустка (QR)</span>
-                                        </button>
 
-                                        <button
-                                            type="button"
-                                            onClick={handleDownloadSlip}
-                                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/15 hover:bg-white/25 active:scale-95 text-white backdrop-blur-md border border-white/20 transition-all shadow-xs flex items-center gap-2"
-                                        >
-                                            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            <span>Ордер (PDF)</span>
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setShowBuildingCatalog(true);
-                                                const el = document.getElementById("building-catalog-section");
-                                                if (el) el.scrollIntoView({ behavior: "smooth" });
-                                            }}
-                                            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-black/25 hover:bg-black/35 active:scale-95 text-emerald-200 border border-emerald-400/25 transition-all flex items-center gap-1.5"
-                                        >
-                                            <svg className="w-4 h-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                            </svg>
-                                            <span>Зміна кімнати / Переселення</span>
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                             <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-10">
                                 <svg
@@ -1175,16 +1163,12 @@ export default function Dashboard({
                                                         </span>
                                                         <button
                                                             type="button"
-                                                            onClick={() => {
-                                                                setShowBuildingCatalog(true);
-                                                                const el = document.getElementById("building-catalog-section");
-                                                                if (el) el.scrollIntoView({ behavior: "smooth" });
-                                                            }}
-                                                            className="px-3 py-1 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-gray-700/60 transition-colors flex items-center gap-1 border border-slate-200 dark:border-gray-700"
+                                                            onClick={() => setShowBuildingCatalog(!showBuildingCatalog)}
+                                                            className="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center gap-1.5 cursor-pointer"
                                                         >
-                                                            <span>Змінити кімнату</span>
-                                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                            <span>{showBuildingCatalog ? "Згорнути вибір кімнати" : "Змінити кімнату"}</span>
+                                                            <svg className={`w-3.5 h-3.5 transform transition-transform duration-200 ${showBuildingCatalog ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                             </svg>
                                                         </button>
                                                     </div>
@@ -1296,59 +1280,8 @@ export default function Dashboard({
                                             {renderAnnouncementsBoard()}
                                         </div>
 
-                                        {/* Права частина (1/3): Перепустка + Техпідтримка */}
+                                        {/* Права частина (1/3): Техпідтримка та пам'ятка студента */}
                                         <div className="space-y-6">
-                                            {/* Віджет цифрової перепустки */}
-                                            <div className="bg-gradient-to-br from-emerald-900 via-teal-950 to-slate-950 rounded-2xl p-5 text-white shadow-md border border-emerald-700/40 relative overflow-hidden space-y-4">
-                                                <div className="absolute inset-0 pointer-events-none bg-dot-pattern opacity-30" />
-                                                <div className="relative z-10 space-y-3">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                                                            Цифрова перепустка
-                                                        </span>
-                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-400/30">
-                                                            Дійсна
-                                                        </span>
-                                                    </div>
-
-                                                    <div>
-                                                        <h4 className="font-extrabold text-base tracking-tight">
-                                                            {userBooking.room?.building?.name}
-                                                        </h4>
-                                                        <p className="text-xs text-emerald-200/90 font-mono mt-0.5">
-                                                            Кімната №{userBooking.room?.room_number} • {userBooking.room?.floor} поверх
-                                                        </p>
-                                                        <p className="text-[10px] text-emerald-400/80 font-mono mt-0.5">
-                                                            Ордер: #{userBooking.order_number || userBooking.id}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="pt-1 flex flex-col gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowDigitalPass(true)}
-                                                            className="w-full py-2.5 rounded-xl text-xs font-bold bg-white text-emerald-950 hover:bg-emerald-50 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
-                                                        >
-                                                            <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                                            </svg>
-                                                            <span>Відкрити перепустку (QR)</span>
-                                                        </button>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={handleDownloadSlip}
-                                                            className="w-full py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/15 transition-all flex items-center justify-center gap-1.5"
-                                                        >
-                                                            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                            </svg>
-                                                            <span>Завантажити ордер (PDF)</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             {/* Технічна підтримка / Ремонт */}
                                             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 space-y-4">
                                                 <div className="border-b border-slate-100 dark:border-gray-700 pb-3">
@@ -1410,43 +1343,62 @@ export default function Dashboard({
                                                     )}
                                                 </div>
                                             </div>
+
+                                            {/* Пам'ятка мешканця гуртожитку */}
+                                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 space-y-3">
+                                                <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                                    Корисна інформація
+                                                </h4>
+                                                <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                                                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-gray-700/60">
+                                                        <span className="text-gray-500">Комендантська година:</span>
+                                                        <span className="font-semibold text-gray-900 dark:text-white font-mono">00:00 – 05:00</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-gray-700/60">
+                                                        <span className="text-gray-500">Адміністрація (комендант):</span>
+                                                        <span className="font-semibold text-gray-900 dark:text-white">08:30 – 17:00</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between py-1">
+                                                        <span className="text-gray-500">Черговий (вахта):</span>
+                                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">Цілодобово</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Розділ зміни кімнати / Каталог інших гуртожитків */}
-                                    <div id="building-catalog-section" className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-6 space-y-4">
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-gray-700 pb-4">
-                                            <div>
-                                                <h3 className="font-bold text-gray-900 dark:text-white text-base tracking-tight flex items-center gap-2">
-                                                    <span>Каталог гуртожитків та переселення</span>
-                                                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                                        {buildings.length} корпуси
-                                                    </span>
-                                                </h3>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    {showBuildingCatalog 
-                                                        ? "Оберіть корпус, щоб переглянути кімнати та подати заявку на переїзд."
-                                                        : "Бажаєте змінити кімнату чи корпус? Розгорніть каталог, щоб обрати іншу кімнату."}
-                                                </p>
+                                    {/* Розділ зміни кімнати / Каталог гуртожитків (з'являється лише якщо студент натиснув "Змінити кімнату") */}
+                                    {showBuildingCatalog && (
+                                        <div id="building-catalog-section" className="bg-white dark:bg-gray-800 border border-emerald-500/30 rounded-2xl shadow-sm p-6 space-y-4 animate-in fade-in duration-200">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-gray-700 pb-4">
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 dark:text-white text-base tracking-tight flex items-center gap-2">
+                                                        <span>Оберіть гуртожиток для переселення</span>
+                                                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                                            {buildings.length} корпуси
+                                                        </span>
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                        Оберіть корпус, щоб переглянути вільні поверхи, кімнати та подати заявку на переїзд.
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowBuildingCatalog(false)}
+                                                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-1.5 shrink-0 self-start sm:self-auto cursor-pointer"
+                                                >
+                                                    <span>Згорнути</span>
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowBuildingCatalog(!showBuildingCatalog)}
-                                                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
-                                            >
-                                                <span>{showBuildingCatalog ? "Згорнути корпуси" : "Переглянути корпуси"}</span>
-                                                <svg className={`w-3.5 h-3.5 transform transition-transform ${showBuildingCatalog ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-                                        </div>
 
-                                        {showBuildingCatalog && (
-                                            <div className="pt-2 animate-in fade-in duration-200">
+                                            <div className="pt-2">
                                                 {renderBuildingCards(null, null)}
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 /* Сценарій 2: Новий студент або ще не поселений */
