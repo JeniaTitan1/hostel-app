@@ -20,10 +20,7 @@ export default function LayoutHeader({
 
     return (
         <>
-            <nav
-                className="bg-white/95 dark:bg-gray-900/95 border-b border-slate-100 dark:border-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200"
-                style={animating ? { border: "none" } : {}}
-            >
+            <nav className="bg-white/95 dark:bg-gray-900/95 border-b border-slate-100 dark:border-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
                 <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Left: Logo & Desktop Links */}
