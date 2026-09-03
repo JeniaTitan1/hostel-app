@@ -342,15 +342,17 @@ export default function Dashboard({
         const now = new Date();
         return {
             time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
-            date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
+            fullTime: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+            date: now.toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" }),
+            shortDate: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
             hour: now.getHours(),
         };
     });
 
-    // Реальна жива погода в Миколаєві (Open-Meteo API з кешуванням)
+    // Реальна жива погода в Миколаєві (Open-Meteo API з розширеними даними та кешуванням)
     const [realWeather, setRealWeather] = useState(() => {
         if (typeof window !== "undefined") {
-            const cached = sessionStorage.getItem("mykolaiv_real_weather");
+            const cached = sessionStorage.getItem("mykolaiv_real_weather_v2");
             if (cached) {
                 try {
                     const parsed = JSON.parse(cached);
@@ -364,6 +366,9 @@ export default function Dashboard({
         const isDay = hour >= 6 && hour < 20;
         return {
             temp: isDay ? "+23°C" : "+15°C",
+            apparentTemp: isDay ? "+22°C" : "+14°C",
+            humidity: "58%",
+            windSpeed: "3.2 м/с",
             condition: isDay ? "Ясно, сонячно" : "Ясна ніч, зоряно",
             isDay,
             iconType: isDay ? "sun" : "moon",
@@ -376,23 +381,29 @@ export default function Dashboard({
             const now = new Date();
             setMykolaivClock({
                 time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
-                date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
+                fullTime: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                date: now.toLocaleDateString("uk-UA", { weekday: "long", day: "numeric", month: "long" }),
+                shortDate: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
                 hour: now.getHours(),
             });
         }, 1000);
 
-        // Отримання справжніх метеоданих Миколаєва
+        // Отримання справжніх розширених метеоданих Миколаєва
         let isMounted = true;
         const fetchRealWeather = async () => {
             try {
                 const res = await fetch(
-                    "https://api.open-meteo.com/v1/forecast?latitude=46.975&longitude=31.9946&current=temperature_2m,relative_humidity_2m,weather_code,is_day&timezone=Europe%2FKyiv"
+                    "https://api.open-meteo.com/v1/forecast?latitude=46.975&longitude=31.9946&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,is_day&timezone=Europe%2FKyiv"
                 );
                 if (!res.ok) return;
                 const json = await res.json();
                 if (json?.current && isMounted) {
                     const tempNum = Math.round(json.current.temperature_2m);
+                    const apparentNum = Math.round(json.current.apparent_temperature ?? json.current.temperature_2m);
                     const formattedTemp = (tempNum > 0 ? `+${tempNum}` : `${tempNum}`) + "°C";
+                    const formattedApparent = (apparentNum > 0 ? `+${apparentNum}` : `${apparentNum}`) + "°C";
+                    const humidity = Math.round(json.current.relative_humidity_2m ?? 60) + "%";
+                    const windSpeed = (Math.round((json.current.wind_speed_10m ?? 3.5) * 10) / 10) + " м/с";
                     const isDay = Boolean(json.current.is_day);
                     const code = Number(json.current.weather_code);
 
@@ -400,7 +411,7 @@ export default function Dashboard({
                     let iconType = isDay ? "sun" : "moon";
 
                     if (code === 0) {
-                        condition = isDay ? "Ясно, безхмарно" : "Ясна ніч";
+                        condition = isDay ? "Ясно, безхмарно" : "Ясна ніч, зоряно";
                         iconType = isDay ? "sun" : "moon";
                     } else if (code === 1 || code === 2) {
                         condition = "Малохмарно";
@@ -427,6 +438,9 @@ export default function Dashboard({
 
                     const weatherData = {
                         temp: formattedTemp,
+                        apparentTemp: formattedApparent,
+                        humidity,
+                        windSpeed,
                         condition,
                         isDay,
                         iconType,
@@ -435,7 +449,7 @@ export default function Dashboard({
 
                     setRealWeather(weatherData);
                     sessionStorage.setItem(
-                        "mykolaiv_real_weather",
+                        "mykolaiv_real_weather_v2",
                         JSON.stringify({ timestamp: Date.now(), data: weatherData })
                     );
                 }
@@ -977,143 +991,167 @@ export default function Dashboard({
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
                     {!selectedBuildingId && (
-                        <div className="bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-950 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-emerald-950/20 border border-emerald-500/40 relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-2xl shadow-emerald-950/30 border border-emerald-500/30 relative overflow-hidden">
                             {/* Глибокий живий фон «Aurora Gradient Mesh» */}
                             <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
                                 <div className="absolute inset-0 bg-dot-pattern opacity-45" />
-                                <div className="absolute -top-20 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-emerald-400/40 via-teal-400/30 to-transparent rounded-full blur-[80px] animate-aurora-1" />
-                                <div className="absolute -top-10 -right-20 w-[440px] h-[440px] bg-gradient-to-bl from-cyan-400/40 via-emerald-400/30 to-transparent rounded-full blur-[80px] animate-aurora-2" />
-                                <div className="absolute -bottom-24 left-1/4 w-[480px] h-[480px] bg-gradient-to-tr from-teal-400/35 via-emerald-500/25 to-transparent rounded-full blur-[90px] animate-aurora-1" />
+                                <div className="absolute -top-24 -left-20 w-[450px] h-[450px] bg-gradient-to-br from-emerald-400/35 via-teal-400/25 to-transparent rounded-full blur-[80px] animate-aurora-1" />
+                                <div className="absolute -top-10 -right-20 w-[460px] h-[460px] bg-gradient-to-bl from-cyan-400/35 via-emerald-400/25 to-transparent rounded-full blur-[80px] animate-aurora-2" />
+                                <div className="absolute -bottom-24 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-teal-400/30 via-emerald-500/20 to-transparent rounded-full blur-[90px] animate-aurora-1" />
                             </div>
 
-                            <div className="relative z-10 space-y-4">
-                                {/* Верхній рядок: Бейдж сервісу + Скляний віджет погоди та часу */}
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+                                {/* Ліва колонка: Привітання та інформація для студента */}
+                                <div className="lg:col-span-7 space-y-4">
                                     <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 border border-emerald-400/30 uppercase tracking-wider text-emerald-300 shadow-xs">
+                                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 border border-emerald-400/30 uppercase tracking-wider text-emerald-300 shadow-xs">
                                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                            Офіційний сервіс
+                                            Офіційний сервіс кампусу
                                         </span>
                                     </div>
 
-                                    {/* Преміальний скляний віджет: погода + час у Миколаєві */}
-                                    <div className="inline-flex items-center gap-3 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/15 rounded-2xl px-3.5 py-2 shadow-lg shadow-black/10">
-                                        {/* Справжня погода */}
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
-                                                {realWeather.iconType === "sun" && (
-                                                    <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "moon" && (
-                                                    <svg className="w-4 h-4 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "cloud" && (
-                                                    <svg className="w-4 h-4 text-sky-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "rain" && (
-                                                    <svg className="w-4 h-4 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15zM8 21l2-4m4 4l2-4" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "thunder" && (
-                                                    <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "snow" && (
-                                                    <svg className="w-4 h-4 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v18m9-9H3m15.364-6.364l-12.728 12.728m0-12.728l12.728 12.728" />
-                                                    </svg>
-                                                )}
-                                                {realWeather.iconType === "fog" && (
-                                                    <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                            <div className="leading-tight">
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className="text-base font-black text-white tracking-tight">
-                                                        {realWeather.temp}
-                                                    </span>
-                                                    <span className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider flex items-center gap-1">
-                                                        Миколаїв
-                                                        {realWeather.isLive && (
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Прямі дані метеостанції" />
-                                                        )}
-                                                    </span>
-                                                </div>
-                                                <span className="text-[10px] text-emerald-100/80 font-medium block">
-                                                    {realWeather.condition}
-                                                </span>
-                                            </div>
+                                    <div>
+                                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-100 to-teal-200">
+                                            {getGreeting(auth?.user?.name)}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm font-semibold text-emerald-300/90 uppercase tracking-wider mt-1.5">
+                                            Миколаївський національний аграрний університет
+                                        </p>
+                                    </div>
+
+                                    <p className="text-emerald-100/90 text-sm sm:text-base max-w-xl leading-relaxed">
+                                        {hasApprovedBooking
+                                            ? `Ваше активне поселення: ${userBooking.room?.building?.name}, поверх ${userBooking.room?.floor}, кімната №${userBooking.room?.room_number}.`
+                                            : "Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку."}
+                                    </p>
+
+                                    {/* Швидкі дії */}
+                                    {hasApprovedBooking && (
+                                        <div className="pt-2 flex flex-wrap items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDigitalPass(true)}
+                                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                </svg>
+                                                <span>Цифрова перепустка (QR)</span>
+                                            </button>
                                         </div>
+                                    )}
+                                </div>
 
-                                        {/* Розділювач */}
-                                        <div className="w-px h-7 bg-white/20" />
-
-                                        {/* Живий час + комендантська година */}
-                                        <div className="leading-tight">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-base font-mono font-black text-white tracking-tight">
-                                                    {mykolaivClock.time}
-                                                </span>
-                                                <span className="text-[10px] text-emerald-200/90 font-medium capitalize">
-                                                    • {mykolaivClock.date}
-                                                </span>
+                                {/* Права колонка: Просторий преміальний скляний інфоцентр кампусу (Погода + Годинник) */}
+                                <div className="lg:col-span-5 w-full">
+                                    <div className="bg-white/10 dark:bg-black/45 backdrop-blur-2xl border border-white/25 dark:border-white/20 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-black/20 hover:border-emerald-400/40 transition-all space-y-4">
+                                        {/* Верхній рядок: Локація + Комендантська година */}
+                                        <div className="flex items-center justify-between pb-3 border-b border-white/15">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-sm border border-emerald-400/30">
+                                                    📍
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs font-black text-white leading-tight flex items-center gap-1.5">
+                                                        <span>Миколаїв</span>
+                                                        <span className="text-[10px] text-emerald-300 font-semibold">• Кампус</span>
+                                                    </div>
+                                                    <div className="text-[10px] text-emerald-200/80 font-medium">
+                                                        {realWeather.isLive ? "Метеодані онлайн" : "Локальний прогноз"}
+                                                    </div>
+                                                </div>
                                             </div>
+
                                             {(() => {
                                                 const curfew = getCurfewStatus(mykolaivClock.hour);
                                                 return (
-                                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${curfew.dotColor}`} />
-                                                        <span className={`text-[10px] font-semibold ${curfew.color}`}>
+                                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/30 border border-white/10 text-[11px] font-bold">
+                                                        <span className={`w-2 h-2 rounded-full ${curfew.dotColor}`} />
+                                                        <span className={curfew.color}>
                                                             Коменд. {curfew.badge}
                                                         </span>
                                                     </div>
                                                 );
                                             })()}
                                         </div>
+
+                                        {/* Центральна секція: Велика температура та живі погодні метрики */}
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3.5">
+                                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 flex items-center justify-center shrink-0 shadow-inner">
+                                                    {realWeather.iconType === "sun" && (
+                                                        <svg className="w-8 h-8 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "moon" && (
+                                                        <svg className="w-7 h-7 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "cloud" && (
+                                                        <svg className="w-7 h-7 text-sky-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "rain" && (
+                                                        <svg className="w-7 h-7 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15zM8 21l2-4m4 4l2-4" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "thunder" && (
+                                                        <svg className="w-7 h-7 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "snow" && (
+                                                        <svg className="w-7 h-7 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v18m9-9H3m15.364-6.364l-12.728 12.728m0-12.728l12.728 12.728" />
+                                                        </svg>
+                                                    )}
+                                                    {realWeather.iconType === "fog" && (
+                                                        <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                                                        {realWeather.temp}
+                                                    </div>
+                                                    <div className="text-xs font-bold text-emerald-200 mt-1">
+                                                        {realWeather.condition}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Додаткові параметри атмосфери */}
+                                            <div className="text-right space-y-1 text-[11px] text-emerald-100/80 font-medium">
+                                                <div>💧 Вологість: <strong className="text-white font-bold">{realWeather.humidity}</strong></div>
+                                                <div>💨 Вітер: <strong className="text-white font-bold">{realWeather.windSpeed}</strong></div>
+                                                <div>🌡️ Відчувається: <strong className="text-white font-bold">{realWeather.apparentTemp}</strong></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Нижня секція: Великий цифровий годинник і дата */}
+                                        <div className="pt-3 border-t border-white/15 flex items-center justify-between">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tight">
+                                                    {mykolaivClock.fullTime || mykolaivClock.time}
+                                                </span>
+                                                <span className="text-xs text-emerald-300/90 font-bold capitalize">
+                                                    • {mykolaivClock.shortDate}
+                                                </span>
+                                            </div>
+
+                                            <div className="text-right text-[11px] font-medium text-emerald-200/90">
+                                                {realWeather.isDay ? "☀️ Світловий день" : "🌙 Нічний період"}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight max-w-2xl bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-100 to-teal-200">
-                                        {getGreeting(auth?.user?.name)}
-                                    </h1>
-                                    <p className="text-xs font-semibold text-emerald-300/90 uppercase tracking-wider mt-1">
-                                        Миколаївський національний аграрний університет
-                                    </p>
-                                </div>
-
-                                <p className="text-emerald-100/90 text-sm max-w-xl leading-relaxed">
-                                    {hasApprovedBooking
-                                        ? `Ваше активне поселення: ${userBooking.room?.building?.name}, поверх ${userBooking.room?.floor}, кімната №${userBooking.room?.room_number}.`
-                                        : "Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку."}
-                                </p>
-
-
-                            </div>
-                            <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-10">
-                                <svg
-                                    className="w-64 h-64"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-                                    <path
-                                        d="M22 9L12 3v12l10-5.45z"
-                                        opacity=".15"
-                                    />
-                                    <path d="M4.2 12.06L12 16.3l7.8-4.24V14.3l-7.8 4.25-7.8-4.25v-2.24z" />
-                                </svg>
                             </div>
                         </div>
                     )}
