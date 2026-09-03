@@ -61,11 +61,11 @@ class HandleInertiaRequests extends Middleware
                     ? \App\Models\User::find($request->session()->get('impersonator_id'), ['id', 'name', 'email', 'role'])
                     : null,
             ],
-            // Если у тебя используются флеш-уведомления (например, статус изменения профиля)
-            'status' => $request->session()->get('status'),
+            // Flash-повідомлення (використовуємо замикання, щоб вони не повторювалися при фоновому router.reload)
+            'status' => fn () => $request->session()->get('status'),
             'flash' => [
-                'success' => $request->session()->get('success'),
-                'error' => $request->session()->get('error'),
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
             'academic_options' => [
                 'specialties' => \App\Models\Specialty::all(),

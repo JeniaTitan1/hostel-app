@@ -136,12 +136,17 @@ export default function AuthenticatedLayout({
         return Math.min(16000, Math.max(6500, Math.round(duration)));
     };
 
+// Глобальний набір уже показаних флеш-повідомлень (запобігає повторному показу при фонових оновленнях)
+const consumedFlashSet = new Set();
+
     const showToastOnce = (msg, customDuration, type) => {
         if (!msg || typeof msg !== "string") return;
         const cleanMsg = msg.trim();
-        if (isDuplicateToast(cleanMsg)) {
+        if (consumedFlashSet.has(cleanMsg) || isDuplicateToast(cleanMsg)) {
             return;
         }
+
+        consumedFlashSet.add(cleanMsg);
 
         const duration =
             customDuration || calculateToastDuration(cleanMsg, type);
@@ -196,46 +201,47 @@ export default function AuthenticatedLayout({
 
     // Initial mount flash check
     useEffect(() => {
-        if (flash.success) {
+        if (flash.success && !consumedFlashSet.has(flash.success.trim())) {
             showToastOnce(flash.success, undefined, "success");
         }
-        if (flash.warning) {
+        if (flash.warning && !consumedFlashSet.has(flash.warning.trim())) {
             showToastOnce(flash.warning, undefined, "warning");
         }
-        if (flash.error) {
+        if (flash.error && !consumedFlashSet.has(flash.error.trim())) {
             showToastOnce(flash.error, undefined, "error");
         }
         const errorKeys = Object.keys(errors);
-        if (errorKeys.length > 0) {
+        if (errorKeys.length > 0 && errors[errorKeys[0]]) {
             showToastOnce(errors[errorKeys[0]], undefined, "error");
         }
     }, []);
 
-    // Subsequent Inertia page flash check (ігнорує фонові GET reload запити)
+    // Subsequent Inertia page flash check (повністю ігнорує фонові GET reload запити)
     useEffect(() => {
         const removeSuccessListener = router.on("success", (event) => {
-            // Якщо це фоновий GET-запит (background reload), не показуємо застарілі флеш-повідомлення
-            if (
-                event.detail.visit?.method === "get" &&
-                event.detail.visit?.only &&
-                event.detail.visit?.only.length > 0
-            ) {
+            const method = (event.detail.visit?.method || "").toLowerCase();
+            const isPartialReload = Boolean(
+                event.detail.visit?.only && event.detail.visit.only.length > 0
+            );
+
+            // Якщо це фоновий GET-запит або часткове оновлення (background polling), не повторюємо флеш-повідомлення
+            if (method === "get" || isPartialReload) {
                 return;
             }
 
-            const pageFlash = event.detail.page.props.flash || {};
-            if (pageFlash.success) {
+            const pageFlash = event.detail.page?.props?.flash || {};
+            if (pageFlash.success && !consumedFlashSet.has(pageFlash.success.trim())) {
                 showToastOnce(pageFlash.success, undefined, "success");
             }
-            if (pageFlash.warning) {
+            if (pageFlash.warning && !consumedFlashSet.has(pageFlash.warning.trim())) {
                 showToastOnce(pageFlash.warning, undefined, "warning");
             }
-            if (pageFlash.error) {
+            if (pageFlash.error && !consumedFlashSet.has(pageFlash.error.trim())) {
                 showToastOnce(pageFlash.error, undefined, "error");
             }
-            const pageErrors = event.detail.page.props.errors || {};
+            const pageErrors = event.detail.page?.props?.errors || {};
             const errorKeys = Object.keys(pageErrors);
-            if (errorKeys.length > 0) {
+            if (errorKeys.length > 0 && pageErrors[errorKeys[0]]) {
                 showToastOnce(pageErrors[errorKeys[0]], undefined, "error");
             }
         });
