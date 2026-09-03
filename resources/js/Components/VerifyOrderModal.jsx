@@ -1,22 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from '@/Components/Modal';
 
 export default function VerifyOrderModal({ show, onClose }) {
+    const currentYear = new Date().getFullYear();
+    const defaultPrefix = `ORD-${currentYear}-`;
+
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (show) {
+            // Вписуємо ORD-2026- (або поточний рік) автоматично як редагований текст
+            setCode((prev) => {
+                if (!prev || prev === defaultPrefix || prev.startsWith('ORD-')) {
+                    return defaultPrefix;
+                }
+                return prev;
+            });
+            setError(null);
+            setResult(null);
+
+            // Фокусуємо інпут та ставимо курсор у кінець, щоб можна було одразу вводити унікальний суфікс
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                    const length = inputRef.current.value.length;
+                    inputRef.current.setSelectionRange(length, length);
+                }
+            }, 60);
+        }
+    }, [show, defaultPrefix]);
 
     const handleVerify = async (e) => {
         e?.preventDefault();
-        if (!code.trim()) return;
+        const trimmed = code.trim();
+        if (!trimmed || trimmed === defaultPrefix) return;
 
         setLoading(true);
         setError(null);
         setResult(null);
 
         try {
-            const res = await fetch(`/verify-order?code=${encodeURIComponent(code.trim())}`, {
+            const res = await fetch(`/verify-order?code=${encodeURIComponent(trimmed)}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
@@ -41,6 +69,20 @@ export default function VerifyOrderModal({ show, onClose }) {
         setCode('');
         setResult(null);
         setError(null);
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
+    const handleInsertCurrentPrefix = () => {
+        setCode(defaultPrefix);
+        if (inputRef.current) {
+            inputRef.current.focus();
+            setTimeout(() => {
+                const length = defaultPrefix.length;
+                inputRef.current?.setSelectionRange(length, length);
+            }, 10);
+        }
     };
 
     const handleClose = () => {
@@ -64,7 +106,7 @@ export default function VerifyOrderModal({ show, onClose }) {
                                 Перевірка справжності ордера
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Введіть унікальний номер ордера на заселення МНАУ
+                                Введіть номер ордера або відскануйте QR-код з бланка
                             </p>
                         </div>
                     </div>
@@ -77,34 +119,47 @@ export default function VerifyOrderModal({ show, onClose }) {
                 </div>
 
                 {/* Search Form */}
-                <form onSubmit={handleVerify} className="mt-5 space-y-4">
+                <form onSubmit={handleVerify} className="mt-5 space-y-3">
                     <div>
-                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Унікальний код ордера (наприклад, ORD-2026-A1B2C3):
-                        </label>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                Унікальний код ордера:
+                            </label>
+                            {code !== defaultPrefix && (
+                                <button
+                                    type="button"
+                                    onClick={handleInsertCurrentPrefix}
+                                    className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
+                                >
+                                    Вставити ORD-{currentYear}-
+                                </button>
+                            )}
+                        </div>
                         <div className="flex flex-col sm:flex-row gap-2">
                             <div className="relative flex-1">
                                 <input
+                                    ref={inputRef}
                                     type="text"
                                     value={code}
                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                    placeholder="ORD-2026-XXXXXX"
-                                    className="w-full text-sm font-mono tracking-wider font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase"
+                                    placeholder={`ORD-${currentYear}-XXXXXX`}
+                                    className="w-full text-sm font-mono tracking-wider font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase pr-16"
                                     required
                                 />
                                 {code && (
                                     <button
                                         type="button"
                                         onClick={handleReset}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs font-bold px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-gray-700 hover:bg-slate-300 transition-colors"
+                                        title="Очистити поле"
                                     >
-                                        Очистити
+                                        Стерти
                                     </button>
                                 )}
                             </div>
                             <button
                                 type="submit"
-                                disabled={loading || !code.trim()}
+                                disabled={loading || !code.trim() || code.trim() === defaultPrefix}
                                 className="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
                             >
                                 {loading ? (
@@ -117,6 +172,9 @@ export default function VerifyOrderModal({ show, onClose }) {
                                 )}
                             </button>
                         </div>
+                        <p className="text-[11px] text-gray-400 mt-1.5">
+                            Префікс поточного року (ORD-{currentYear}-) підставляється автоматично. Ви можете стерти або відредагувати будь-яку цифру.
+                        </p>
                     </div>
                 </form>
 

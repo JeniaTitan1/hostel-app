@@ -4,12 +4,15 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, router } from '@inertiajs/react';
 
 export default function VerifyOrder({ auth, initialCode = '', searched = false, booking = null }) {
-    const [code, setCode] = useState(initialCode);
+    const currentYear = new Date().getFullYear();
+    const defaultPrefix = `ORD-${currentYear}-`;
+    const [code, setCode] = useState(initialCode || defaultPrefix);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (!code.trim()) return;
-        router.get(route('verify-order', { orderNumber: code.trim() }));
+        const trimmed = code.trim();
+        if (!trimmed || trimmed === defaultPrefix) return;
+        router.get(route('verify-order', { orderNumber: trimmed }));
     };
 
     const LayoutComponent = auth?.user ? AuthenticatedLayout : GuestLayout;
@@ -38,21 +41,38 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-                            <input
-                                type="text"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                placeholder="Введіть код ордера (ORD-2026-XXXXXX)"
-                                className="flex-1 font-mono text-sm tracking-wider font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3.5 focus:ring-2 focus:ring-emerald-500 uppercase"
-                                required
-                            />
-                            <button
-                                type="submit"
-                                className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0"
-                            >
-                                Перевірити
-                            </button>
+                        <form onSubmit={handleSearch} className="space-y-2">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                                        placeholder={`ORD-${currentYear}-XXXXXX`}
+                                        className="w-full font-mono text-sm tracking-wider font-bold rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3.5 focus:ring-2 focus:ring-emerald-500 uppercase pr-16"
+                                        required
+                                    />
+                                    {code && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setCode('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs font-bold px-2 py-1 rounded bg-slate-200/60 dark:bg-gray-700 hover:bg-slate-300 transition-colors"
+                                        >
+                                            Стерти
+                                        </button>
+                                    )}
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={!code.trim() || code.trim() === defaultPrefix}
+                                    className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0"
+                                >
+                                    Перевірити
+                                </button>
+                            </div>
+                            <p className="text-[11px] text-gray-400">
+                                Префікс ORD-{currentYear}- підставляється автоматично відповідно до поточного року. Ви можете редагувати або стерти будь-які символи.
+                            </p>
                         </form>
 
                         {/* Result display */}

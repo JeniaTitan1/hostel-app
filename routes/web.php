@@ -36,12 +36,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
-    // Перевірка справжності ордерів
-    Route::get('/verify-order/{orderNumber?}', [OrderVerificationController::class, 'verify'])->name('verify-order');
-
     // Вихід з режиму перегляду іншого акаунту
     Route::post('/impersonate/leave', [AdminController::class, 'leaveImpersonate'])->name('impersonate.leave');
 });
+
+// Публічна перевірка справжності ордерів (за кодом або QR)
+Route::get('/verify-order/{orderNumber?}', [OrderVerificationController::class, 'verify'])->name('verify-order');
 
 Route::post('/bookings/{booking}/request-reallocate', [AdminController::class, 'requestReallocate'])->name('bookings.request-reallocate');
 

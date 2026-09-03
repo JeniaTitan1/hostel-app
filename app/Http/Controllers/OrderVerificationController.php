@@ -13,19 +13,25 @@ class OrderVerificationController extends Controller
      */
     public function verify(Request $request, ?string $orderNumber = null)
     {
-        if ($request->user() && $request->user()->role === 'user') {
-            abort(403, 'Перевірка ордерів доступна лише адміністрації та комендантам.');
-        }
-
-        $code = trim($request->input('code', $orderNumber ?? ''));
+        $code = strtoupper(trim($request->input('code', $orderNumber ?? '')));
 
         $booking = null;
         $searched = false;
 
         if (!empty($code)) {
             $searched = true;
+            $currentYear = date('Y');
+
+            $candidates = [
+                $code,
+            ];
+            if (!str_starts_with($code, 'ORD-')) {
+                $candidates[] = "ORD-{$currentYear}-{$code}";
+                $candidates[] = "ORD-{$code}";
+            }
+
             $booking = Booking::with(['user', 'room.building'])
-                ->where('order_number', $code)
+                ->whereIn('order_number', $candidates)
                 ->where('status', 'approved')
                 ->first();
         }

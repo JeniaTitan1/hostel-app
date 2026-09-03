@@ -18,8 +18,9 @@ class Booking extends Model
 
     public static function generateUniqueOrderNumber(): string
     {
+        $year = date('Y');
         do {
-            $code = 'ORD-2026-' . strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 6));
+            $code = "ORD-{$year}-" . strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 6));
         } while (static::where('order_number', $code)->exists());
 
         return $code;
