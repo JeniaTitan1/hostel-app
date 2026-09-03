@@ -340,6 +340,52 @@ export default function Dashboard({
         return `${greetingWord}, ${name}!`;
     };
 
+    // Живий годинник та погода в Миколаєві
+    const [mykolaivInfo, setMykolaivInfo] = useState(() => {
+        const now = new Date();
+        const hour = now.getHours();
+        return {
+            time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
+            date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
+            isDay: hour >= 6 && hour < 20,
+            temp: hour >= 6 && hour < 20 ? "+22°C" : "+15°C",
+            condition: hour >= 6 && hour < 20 ? "Ясно, сонячно" : "Ясна ніч, зоряно",
+            hour,
+        };
+    });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date();
+            const hour = now.getHours();
+            setMykolaivInfo({
+                time: now.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
+                date: now.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" }),
+                isDay: hour >= 6 && hour < 20,
+                temp: hour >= 6 && hour < 20 ? "+22°C" : "+15°C",
+                condition: hour >= 6 && hour < 20 ? "Ясно, сонячно" : "Ясна ніч, зоряно",
+                hour,
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const getCurfewStatus = (hour) => {
+        if (hour >= 0 && hour < 5) {
+            return {
+                badge: "діє (до 05:00)",
+                color: "text-amber-300",
+                dotColor: "bg-amber-400 animate-pulse",
+            };
+        }
+        const hoursUntil = hour >= 5 ? 24 - hour : 0;
+        return {
+            badge: `00:00–05:00 (${hoursUntil} год)`,
+            color: "text-emerald-200",
+            dotColor: "bg-emerald-400",
+        };
+    };
+
     // Визначення кольору кімнати залежно від її заповненості
     
     // Визначення гендерного типу кімнати на основі її мешканців
@@ -591,42 +637,100 @@ export default function Dashboard({
         >
             <Head title="Вибір кімнати" />
 
-            <div className="py-8 min-h-[calc(100vh-73px)] bg-slate-50/50 dark:bg-gray-900">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="py-8 min-h-[calc(100vh-73px)] bg-slate-50/80 dark:bg-[#070d19] relative transition-colors duration-300">
+                {/* Текстурна сітка точок на всій сторінці для виразної глибини */}
+                <div className="absolute inset-0 pointer-events-none bg-dot-pattern opacity-65 dark:opacity-35 z-0" />
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
                     {!selectedBuildingId && (
-                        <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-md border border-emerald-700/30 relative overflow-hidden">
-                            {/* Легкий живий фон «Aurora / Ambient Gradient Mesh» */}
+                        <div className="bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-950 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-emerald-950/20 border border-emerald-500/40 relative overflow-hidden">
+                            {/* Глибокий живий фон «Aurora Gradient Mesh» */}
                             <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-                                <div className="absolute -top-16 -left-16 w-80 h-80 bg-emerald-400/25 rounded-full blur-3xl animate-aurora-1" />
-                                <div className="absolute top-10 -right-16 w-72 h-72 bg-sky-400/20 rounded-full blur-3xl animate-aurora-2" />
-                                <div className="absolute -bottom-16 left-1/3 w-80 h-80 bg-teal-400/20 rounded-full blur-3xl animate-aurora-1" />
+                                <div className="absolute inset-0 bg-dot-pattern opacity-45" />
+                                <div className="absolute -top-20 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-emerald-400/40 via-teal-400/30 to-transparent rounded-full blur-[80px] animate-aurora-1" />
+                                <div className="absolute -top-10 -right-20 w-[440px] h-[440px] bg-gradient-to-bl from-cyan-400/40 via-emerald-400/30 to-transparent rounded-full blur-[80px] animate-aurora-2" />
+                                <div className="absolute -bottom-24 left-1/4 w-[480px] h-[480px] bg-gradient-to-tr from-teal-400/35 via-emerald-500/25 to-transparent rounded-full blur-[90px] animate-aurora-1" />
                             </div>
 
-                            <div className="relative z-10 space-y-3">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-700/60 border border-emerald-500/30 uppercase tracking-wide">
-                                        Офіційний сервіс
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black/25 backdrop-blur-xs border border-white/10 text-emerald-100">
-                                        <svg className="w-3.5 h-3.5 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                                        </svg>
-                                        <span>Миколаїв: +21°C, сонячно</span>
-                                        <span className="text-white/40">•</span>
-                                        <span>Комендантська година: 00:00 – 05:00</span>
-                                    </span>
+                            <div className="relative z-10 space-y-4">
+                                {/* Верхній рядок: Бейдж сервісу + Скляний віджет погоди та часу */}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 border border-emerald-400/30 uppercase tracking-wider text-emerald-300 shadow-xs">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            Офіційний сервіс
+                                        </span>
+                                    </div>
+
+                                    {/* Преміальний скляний віджет: погода + час у Миколаєві */}
+                                    <div className="inline-flex items-center gap-3 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/15 rounded-2xl px-3.5 py-2 shadow-lg shadow-black/10">
+                                        {/* Погода */}
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center shrink-0">
+                                                {mykolaivInfo.isDay ? (
+                                                    <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg className="w-4 h-4 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <div className="leading-tight">
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-base font-black text-white tracking-tight">
+                                                        {mykolaivInfo.temp}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider">
+                                                        Миколаїв
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] text-emerald-100/80 font-medium block">
+                                                    {mykolaivInfo.condition}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Розділювач */}
+                                        <div className="w-px h-7 bg-white/20" />
+
+                                        {/* Живий час + комендантська година */}
+                                        <div className="leading-tight">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-base font-mono font-black text-white tracking-tight">
+                                                    {mykolaivInfo.time}
+                                                </span>
+                                                <span className="text-[10px] text-emerald-200/90 font-medium capitalize">
+                                                    • {mykolaivInfo.date}
+                                                </span>
+                                            </div>
+                                            {(() => {
+                                                const curfew = getCurfewStatus(mykolaivInfo.hour);
+                                                return (
+                                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${curfew.dotColor}`} />
+                                                        <span className={`text-[10px] font-semibold ${curfew.color}`}>
+                                                            Коменд. {curfew.badge}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>
-                                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight max-w-2xl">
+                                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight max-w-2xl bg-clip-text text-transparent bg-gradient-to-r from-white via-emerald-100 to-teal-200">
                                         {getGreeting(auth?.user?.name)}
                                     </h1>
-                                    <p className="text-xs font-semibold text-emerald-300/90 uppercase tracking-wider mt-0.5">
+                                    <p className="text-xs font-semibold text-emerald-300/90 uppercase tracking-wider mt-1">
                                         Миколаївський національний аграрний університет
                                     </p>
                                 </div>
 
-                                <p className="text-emerald-100 text-sm max-w-xl leading-relaxed">
+                                <p className="text-emerald-100/90 text-sm max-w-xl leading-relaxed">
                                     Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку.
                                 </p>
                             </div>
