@@ -17,6 +17,7 @@ export default function RoomMapTab({
     handleToggleStatus,
     handleToggleIntake,
     handleToggleVisibility,
+    handleToggleAccessibility,
     handleOpenManualBooking,
     handleOpenCloseRoomModal,
     handleEvictStudent,
@@ -652,18 +653,25 @@ export default function RoomMapTab({
                                                                     <div>
                                                                         <div className="flex justify-between items-start mb-2">
                                                                             <div>
-                                                                                <span className="font-bold text-gray-900 dark:text-white text-base tracking-tight">
-                                                                                    Кімната
-                                                                                    №
-                                                                                    {
-                                                                                        room.room_number
-                                                                                    }
-                                                                                </span>
+                                                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                                                    <span className="font-bold text-gray-900 dark:text-white text-base tracking-tight">
+                                                                                        Кімната №{room.room_number}
+                                                                                    </span>
+                                                                                    {Boolean(room.is_accessible) && (
+                                                                                        <span
+                                                                                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80"
+                                                                                            title="Кімната для осіб з інвалідністю / обмеженими можливостями (інклюзивна)"
+                                                                                        >
+                                                                                            <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
+                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                                                                                            </svg>
+                                                                                            <span>Інклюзивна</span>
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
                                                                                 <span className="text-[11px] text-gray-400 block font-medium">
-                                                                                    Поверх{" "}
-                                                                                    {
-                                                                                        room.floor
-                                                                                    }
+                                                                                    Поверх {room.floor}
                                                                                 </span>
 
                                                                                 {/* Причина ремонту */}
@@ -837,6 +845,30 @@ export default function RoomMapTab({
                                                                                                 >
                                                                                                     <span
                                                                                                         className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${Boolean(room.hide_from_frontend) ? "translate-x-0" : "translate-x-4"}`}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            {/* Toggle: Інклюзивна (для осіб з інвалідністю) */}
+                                                                                            <div
+                                                                                                onClick={() => handleToggleAccessibility && handleToggleAccessibility(room.id)}
+                                                                                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/50 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors duration-150 cursor-pointer select-none border border-slate-100 dark:border-gray-700/60"
+                                                                                                title="Кімната для осіб з обмеженими фізичними можливостями / інвалідністю"
+                                                                                            >
+                                                                                                <div className="flex items-center gap-1.5">
+                                                                                                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                        <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
+                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                                                                                                    </svg>
+                                                                                                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                                                                                                        {Boolean(room.is_accessible) ? "Інклюзивна кімната" : "Звичайна кімната"}
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                                <div
+                                                                                                    className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-300 flex items-center ${Boolean(room.is_accessible) ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"}`}
+                                                                                                >
+                                                                                                    <span
+                                                                                                        className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${Boolean(room.is_accessible) ? "translate-x-4" : "translate-x-0"}`}
                                                                                                     />
                                                                                                 </div>
                                                                                             </div>

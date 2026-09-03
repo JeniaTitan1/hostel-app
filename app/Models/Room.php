@@ -16,8 +16,15 @@ class Room extends Model
         'status',
         'intake_closed',
         'hide_from_frontend',
+        'is_accessible',
         'closure_reason',
         'closure_duration',
+    ];
+
+    protected $casts = [
+        'is_accessible' => 'boolean',
+        'intake_closed' => 'boolean',
+        'hide_from_frontend' => 'boolean',
     ];
 
     protected $attributes = [

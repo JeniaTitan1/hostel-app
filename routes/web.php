@@ -81,6 +81,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/rooms/{room}/toggle-status', [AdminController::class, 'toggleRoomStatus'])->name('rooms.toggle-status');
     Route::post('/rooms/{room}/toggle-intake', [AdminController::class, 'toggleIntake'])->name('rooms.toggle-intake');
     Route::post('/rooms/{room}/toggle-visibility', [AdminController::class, 'toggleVisibility'])->name('rooms.toggle-visibility');
+    Route::post('/rooms/{room}/toggle-accessibility', [AdminController::class, 'toggleAccessibility'])->name('rooms.toggle-accessibility');
     Route::post('/rooms/{room}/update-capacity', [AdminController::class, 'updateCapacity'])->name('rooms.update-capacity');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
 

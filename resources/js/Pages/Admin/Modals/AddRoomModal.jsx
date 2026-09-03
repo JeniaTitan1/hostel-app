@@ -14,6 +14,7 @@ export default function AddRoomModal({
     const [roomNumber, setRoomNumber] = useState("");
     const [count, setCount] = useState(3);
     const [maxCapacity, setMaxCapacity] = useState(4);
+    const [isAccessible, setIsAccessible] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState("");
 
@@ -22,6 +23,7 @@ export default function AddRoomModal({
             setRoomNumber(suggestedRoomNumber ? String(suggestedRoomNumber) : "");
             setCount(3);
             setMaxCapacity(4);
+            setIsAccessible(false);
             setMode("single");
             setError("");
         }
@@ -41,6 +43,7 @@ export default function AddRoomModal({
                 floor: Number(floor),
                 room_number: roomNumber.trim(),
                 max_capacity: Number(maxCapacity),
+                is_accessible: isAccessible,
                 count: mode === "multiple" ? Number(count) : 1,
             },
             {
@@ -202,6 +205,30 @@ export default function AddRoomModal({
                             </div>
                         </div>
                     )}
+
+                    {/* Опція: Інклюзивна кімната */}
+                    <label className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={isAccessible}
+                            onChange={(e) => setIsAccessible(e.target.checked)}
+                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                        />
+                        <div className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
+                            </svg>
+                            <div>
+                                <span className="text-xs font-bold text-gray-900 dark:text-white block">
+                                    Кімната для осіб з обмеженими можливостями (інклюзивна)
+                                </span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 block">
+                                    Спеціально адаптована кімната зі зручним доступом та інклюзивним обладнанням
+                                </span>
+                            </div>
+                        </div>
+                    </label>
 
                     {/* Кнопки дій */}
                     <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-gray-700">

@@ -19,7 +19,14 @@ export default function GuestLayout({ children }) {
         localStorage.setItem('darkMode', darkMode);
     }, [darkMode]);
     return (
-        <div className="flex min-h-screen flex-col items-center bg-gray-100 dark:bg-gray-900 pt-6 sm:justify-center sm:pt-0 text-gray-900 dark:text-gray-100 transition-colors duration-200 relative">
+        <div className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900 pt-6 sm:justify-center sm:pt-0 text-gray-900 dark:text-gray-100 transition-colors duration-200 relative overflow-hidden">
+            {/* Легкий живий фон «Aurora / Ambient Gradient Mesh» */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
+                <div className="absolute -top-[15%] -left-[10%] w-[500px] h-[500px] sm:w-[650px] sm:h-[650px] bg-gradient-to-br from-emerald-400/20 via-teal-300/15 to-transparent dark:from-emerald-600/15 dark:via-teal-500/10 rounded-full blur-3xl animate-aurora-1" />
+                <div className="absolute top-[25%] -right-[15%] w-[450px] h-[450px] sm:w-[600px] sm:h-[600px] bg-gradient-to-bl from-sky-400/20 via-emerald-300/15 to-transparent dark:from-sky-600/15 dark:via-emerald-500/10 rounded-full blur-3xl animate-aurora-2" />
+                <div className="absolute -bottom-[20%] left-[25%] w-[500px] h-[500px] bg-gradient-to-tr from-teal-400/15 via-sky-300/10 to-transparent dark:from-teal-600/10 dark:via-sky-500/10 rounded-full blur-3xl animate-aurora-1" />
+            </div>
+
             {/* Dark mode toggle */}
             <div className="absolute top-4 right-4 z-55">
                 <button

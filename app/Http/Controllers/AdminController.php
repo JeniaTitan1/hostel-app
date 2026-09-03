@@ -478,6 +478,22 @@ class AdminController extends Controller
     }
 
     /**
+     * Перемкнути статус кімнати для осіб з інвалідністю / інклюзивність
+     */
+    public function toggleAccessibility(Request $request, Room $room)
+    {
+        $this->checkBuildingAccess($request->user(), $room->building_id);
+
+        $room->update(['is_accessible' => !$room->is_accessible]);
+        $status = $room->is_accessible ? 'інклюзивна (для осіб з інвалідністю)' : 'звичайна';
+        AuditLog::log($request->user()->id, 'room_accessibility_toggled', "Кімната №{$room->room_number} тепер {$status}");
+
+        \App\Events\RoomOccupancyUpdated::dispatchSafe($room->id, 'accessibility_toggled', "Кімната №{$room->room_number} тепер {$status}");
+
+        return redirect()->back()->with('success', "Статус інклюзивності кімнати №{$room->room_number} змінено на «{$status}».");
+    }
+
+    /**
      * Оновити місткість кімнати (кількість ліжок)
      */
     public function updateCapacity(Request $request, Room $room)
@@ -942,11 +958,14 @@ class AdminController extends Controller
                 ]);
             }
 
+            $isAccessible = (bool)$request->input('is_accessible', false);
+
             $newRoom = Room::create([
                 'building_id' => $buildingId,
                 'floor' => $floor,
                 'room_number' => $roomNumber,
                 'max_capacity' => $maxCapacity,
+                'is_accessible' => $isAccessible,
             ]);
 
             \App\Events\RoomOccupancyUpdated::dispatchSafe($newRoom->id, 'room_created', "Створено кімнату №{$roomNumber}");
@@ -956,6 +975,7 @@ class AdminController extends Controller
             return redirect()->back()->with('success', "Кімнату №{$roomNumber} успішно створено (місткість: {$maxCapacity} місць)!");
         } else {
             // Створення декількох кімнат поспіль
+            $isAccessible = (bool)$request->input('is_accessible', false);
             $startNum = $request->input('room_number') ? (int)$request->input('room_number') : null;
             if (!$startNum) {
                 $lastRoom = Room::where('building_id', $buildingId)
@@ -974,6 +994,7 @@ class AdminController extends Controller
                         'floor' => $floor,
                         'room_number' => $num,
                         'max_capacity' => $maxCapacity,
+                        'is_accessible' => $isAccessible,
                     ]);
                     $createdCount++;
                 }

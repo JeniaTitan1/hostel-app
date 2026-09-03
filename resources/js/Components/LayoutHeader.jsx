@@ -225,8 +225,13 @@ export default function LayoutHeader({
             </nav>
 
             {header && (
-                <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700/80 transition-colors duration-200">
-                    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+                <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700/80 transition-colors duration-200 relative overflow-hidden">
+                    {/* Легкий живий фон «Aurora / Ambient Gradient Mesh» */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+                        <div className="absolute -top-12 -left-12 w-72 h-36 bg-emerald-400/15 dark:bg-emerald-600/10 rounded-full blur-2xl animate-aurora-1" />
+                        <div className="absolute -top-10 -right-12 w-72 h-36 bg-teal-400/15 dark:bg-teal-600/10 rounded-full blur-2xl animate-aurora-2" />
+                    </div>
+                    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
                         {header}
                     </div>
                 </header>

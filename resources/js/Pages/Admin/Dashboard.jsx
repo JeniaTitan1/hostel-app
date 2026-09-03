@@ -186,6 +186,14 @@ export default function Dashboard({
         );
     };
 
+    const handleToggleAccessibility = (roomId) => {
+        router.post(
+            route("admin.rooms.toggle-accessibility", roomId),
+            {},
+            { preserveScroll: true }
+        );
+    };
+
     const handleToggleStatus = (roomId) => {
         router.post(
             route("admin.rooms.toggle-status", roomId),
@@ -677,6 +685,7 @@ export default function Dashboard({
                         handleToggleStatus={handleToggleStatus}
                         handleToggleIntake={handleToggleIntake}
                         handleToggleVisibility={handleToggleVisibility}
+                        handleToggleAccessibility={handleToggleAccessibility}
                         handleOpenManualBooking={handleOpenManualBooking}
                         handleOpenCloseRoomModal={handleOpenCloseRoomModal}
                         handleEvictStudent={handleEvictStudent}
