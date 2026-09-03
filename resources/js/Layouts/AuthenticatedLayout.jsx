@@ -61,30 +61,55 @@ export default function AuthenticatedLayout({
         setAnimating(false);
     }, []);
 
-    // Захист від дублювання тостів
+    // Захист від дублювання тостів та комфортний час читання
     const seenFlashMessagesRef = useRef(new Set());
-    const showToastOnce = (msg) => {
+
+    const calculateToastDuration = (msg) => {
+        if (!msg || typeof msg !== "string") return 5000;
+        // 4500мс базова затримка + 75мс на символ, від 5000мс до 13000мс (13 секунд для довгих повідомлень)
+        return Math.min(13000, Math.max(5000, 4500 + msg.length * 75));
+    };
+
+    const showToastOnce = (msg, customDuration, type) => {
         if (!msg || typeof msg !== "string") return;
         if (seenFlashMessagesRef.current.has(msg)) {
             return;
         }
         seenFlashMessagesRef.current.add(msg);
-        
+
+        const duration = customDuration || calculateToastDuration(msg);
+
         window.dispatchEvent(
-            new CustomEvent("show-toast", { detail: { message: msg, duration: 3500 } }),
+            new CustomEvent("show-toast", {
+                detail: { message: msg, duration, type },
+            })
         );
     };
 
     // Global Toast listener & window.alert override
     useEffect(() => {
         const handleToast = (e) => {
-            const id = Date.now() + Math.random();
-            const newToast = {
-                id,
-                message: e.detail.message,
-                duration: e.detail.duration || 3000,
-            };
-            setToasts((prev) => [...prev, newToast]);
+            const message = e.detail?.message;
+            if (!message || typeof message !== "string") return;
+
+            // Динамічний час читання
+            const duration =
+                e.detail.duration || calculateToastDuration(message);
+            const type = e.detail.type;
+
+            setToasts((prev) => {
+                // Захист від дублювання: якщо тост з таким самим текстом вже висить на екрані — не додаємо другий
+                if (prev.some((t) => t.message === message)) {
+                    return prev;
+                }
+                const newToast = {
+                    id: Date.now() + Math.random(),
+                    message,
+                    duration,
+                    type,
+                };
+                return [...prev, newToast];
+            });
         };
         window.addEventListener("show-toast", handleToast);
 
@@ -102,14 +127,14 @@ export default function AuthenticatedLayout({
     // Initial mount flash check
     useEffect(() => {
         if (flash.success) {
-            showToastOnce(flash.success);
+            showToastOnce(flash.success, undefined, "success");
         }
         if (flash.error) {
-            showToastOnce(flash.error);
+            showToastOnce(flash.error, undefined, "error");
         }
         const errorKeys = Object.keys(errors);
         if (errorKeys.length > 0) {
-            showToastOnce(errors[errorKeys[0]]);
+            showToastOnce(errors[errorKeys[0]], undefined, "error");
         }
     }, []);
 
@@ -124,21 +149,25 @@ export default function AuthenticatedLayout({
 
         const removeSuccessListener = router.on("success", (event) => {
             // Якщо це фоновий GET-запит (background reload), не показуємо застарілі флеш-повідомлення
-            if (event.detail.visit?.method === "get" && event.detail.visit?.only && event.detail.visit?.only.length > 0) {
+            if (
+                event.detail.visit?.method === "get" &&
+                event.detail.visit?.only &&
+                event.detail.visit?.only.length > 0
+            ) {
                 return;
             }
 
             const pageFlash = event.detail.page.props.flash || {};
             if (pageFlash.success) {
-                showToastOnce(pageFlash.success);
+                showToastOnce(pageFlash.success, undefined, "success");
             }
             if (pageFlash.error) {
-                showToastOnce(pageFlash.error);
+                showToastOnce(pageFlash.error, undefined, "error");
             }
             const pageErrors = event.detail.page.props.errors || {};
             const errorKeys = Object.keys(pageErrors);
             if (errorKeys.length > 0) {
-                showToastOnce(pageErrors[errorKeys[0]]);
+                showToastOnce(pageErrors[errorKeys[0]], undefined, "error");
             }
         });
 

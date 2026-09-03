@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 
 export function Toast({ toast, onClose }) {
     const [progress, setProgress] = useState(100);
+    const [isPaused, setIsPaused] = useState(false);
 
     useEffect(() => {
-        const interval = 10;
-        const step = (interval / toast.duration) * 100;
+        if (isPaused) return;
+
+        const duration = toast.duration || 6000;
+        const interval = 15;
+        const step = (interval / duration) * 100;
+
         const timer = setInterval(() => {
             setProgress((prev) => {
-                if (prev <= 0) {
+                if (prev <= step) {
                     clearInterval(timer);
                     onClose();
                     return 0;
@@ -18,12 +23,26 @@ export function Toast({ toast, onClose }) {
         }, interval);
 
         return () => clearInterval(timer);
-    }, [toast.duration, onClose]);
+    }, [toast.duration, onClose, isPaused]);
 
-    const isError = /помилка|не вдалося|error|не визначити/i.test(
-        toast.message
-    );
-    const isWarning = /увага|попередження|warning|змішана/i.test(toast.message);
+    const isError =
+        toast.type === "error" ||
+        /помилка|не вдалося|error|не визначити|заборонено|немає прав/i.test(
+            toast.message
+        );
+    const isWarning =
+        toast.type === "warning" ||
+        (!isError &&
+            /увага|попередження|warning|змішана|не налаштовано|налаштуйте/i.test(
+                toast.message
+            ));
+    const isSuccess =
+        toast.type === "success" ||
+        (!isError &&
+            !isWarning &&
+            /успішно|створено|видалено|затверджено|виселено|заселено|доставлено|збережено|скопійовано/i.test(
+                toast.message
+            ));
 
     let icon = (
         <svg
@@ -40,7 +59,7 @@ export function Toast({ toast, onClose }) {
             />
         </svg>
     );
-    let progressBg = "bg-emerald-500";
+    let progressBg = "bg-blue-500";
 
     if (isError) {
         icon = (
@@ -76,11 +95,7 @@ export function Toast({ toast, onClose }) {
             </svg>
         );
         progressBg = "bg-amber-500";
-    } else if (
-        /успішно|створено|видалено|затверджено|виселено|заселено/i.test(
-            toast.message
-        )
-    ) {
+    } else if (isSuccess) {
         icon = (
             <svg
                 className="w-5 h-5 text-emerald-500 shrink-0"
@@ -100,7 +115,11 @@ export function Toast({ toast, onClose }) {
     }
 
     return (
-        <div className="pointer-events-auto flex flex-col min-w-[280px] max-w-sm rounded-xl border bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg overflow-hidden border-gray-150 dark:border-gray-700 transition-all duration-300 animate-slide-in-left">
+        <div
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            className="pointer-events-auto flex flex-col min-w-[280px] max-w-sm rounded-xl border bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg overflow-hidden border-gray-150 dark:border-gray-700 transition-all duration-300 animate-slide-in-left"
+        >
             <div className="flex items-start p-3.5 gap-3">
                 {icon}
                 <div className="flex-1 text-xs font-semibold text-gray-800 dark:text-gray-200 leading-normal">
@@ -109,6 +128,7 @@ export function Toast({ toast, onClose }) {
                 <button
                     onClick={onClose}
                     className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none"
+                    aria-label="Закрити сповіщення"
                 >
                     <svg
                         className="w-3.5 h-3.5"
@@ -127,7 +147,7 @@ export function Toast({ toast, onClose }) {
             </div>
             <div className="h-0.5 w-full bg-gray-100 dark:bg-gray-700/50">
                 <div
-                    className={`h-full ${progressBg} transition-all duration-[10ms] ease-linear`}
+                    className={`h-full ${progressBg} transition-all duration-[15ms] ease-linear`}
                     style={{ width: `${progress}%` }}
                 />
             </div>

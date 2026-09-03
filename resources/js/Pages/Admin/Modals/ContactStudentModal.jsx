@@ -38,45 +38,15 @@ export default function ContactStudentModal({ student, onClose }) {
 
         const sentSubject = subject.trim();
         const sentMessage = message.trim();
-        const targetStudentName = student.name;
-        const targetStudentEmail = student.email;
 
-        // Одразу закриваємо модальне вікно за запитом користувача
+        // Одразу закриваємо модальне вікно
         onClose();
-
-        window.dispatchEvent(
-            new CustomEvent("show-toast", {
-                detail: {
-                    message: `Надсилаємо звернення для ${targetStudentName}...`,
-                },
-            })
-        );
 
         router.post(
             route("admin.students.contact-email", student.id),
             { subject: sentSubject, message: sentMessage },
             {
                 preserveScroll: true,
-                onSuccess: (page) => {
-                    const serverMsg = page.props?.flash?.success || `Повідомлення для ${targetStudentName} успішно доставлено!`;
-                    window.dispatchEvent(
-                        new CustomEvent("show-toast", {
-                            detail: { message: serverMsg },
-                        })
-                    );
-                },
-                onError: (errors) => {
-                    const errorMsg =
-                        errors.email ||
-                        errors.subject ||
-                        errors.message ||
-                        "Не вдалося доставити лист.";
-                    window.dispatchEvent(
-                        new CustomEvent("show-toast", {
-                            detail: { message: errorMsg, type: "error" },
-                        })
-                    );
-                },
             }
         );
     };
