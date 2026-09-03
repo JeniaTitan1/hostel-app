@@ -41,12 +41,15 @@ export default function PwaInstallPrompt() {
 
         const wasInstalledLocally = localStorage.getItem(PWA_INSTALLED_KEY) === "true";
 
-        if (isStandalone || wasInstalledLocally) {
+        if (isStandalone || wasInstalledLocally || isIosDevice || isAndroidDevice) {
             setIsAppInstalled(true);
-            localStorage.setItem(PWA_INSTALLED_KEY, "true");
+            setShowFloatingBanner(false);
+            if (isStandalone || wasInstalledLocally) {
+                localStorage.setItem(PWA_INSTALLED_KEY, "true");
+            }
         } else {
             setIsAppInstalled(false);
-            // Показуємо банер при вході, якщо це мобільний або десктоп
+            // Показуємо банер тільки на десктопі
             setShowFloatingBanner(true);
         }
 
@@ -114,9 +117,9 @@ export default function PwaInstallPrompt() {
 
     return (
         <>
-            {/* 1. Плаваючий стартовий міні-банер (якщо додаток ще не встановлено) */}
+            {/* 1. Плаваючий стартовий міні-банер (тільки для десктопу, якщо додаток ще не встановлено) */}
             {showFloatingBanner && !isAppInstalled && (
-                <div className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-white/95 dark:bg-gray-800/95 text-slate-800 dark:text-gray-100 p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-gray-700/80 shadow-xl shadow-slate-900/10 dark:shadow-2xl dark:shadow-black/50 backdrop-blur-md transition-all duration-300 animate-fade-in-up">
+                <div className="hidden sm:block fixed bottom-4 right-6 max-w-md z-40 bg-white/95 dark:bg-gray-800/95 text-slate-800 dark:text-gray-100 p-4 rounded-2xl border border-slate-200/90 dark:border-gray-700/80 shadow-xl shadow-slate-900/10 dark:shadow-2xl dark:shadow-black/50 backdrop-blur-md transition-all duration-300 animate-fade-in-up">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-black text-sm text-white shrink-0 shadow-xs shadow-emerald-500/20">

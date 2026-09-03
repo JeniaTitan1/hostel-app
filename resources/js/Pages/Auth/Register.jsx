@@ -208,16 +208,6 @@ export default function Register() {
                         Зареєструватися
                     </PrimaryButton>
                 </div>
-
-                {/* М'яка підказка про мобільний додаток */}
-                <div className="mt-5 p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-200 flex items-start gap-2.5 text-xs">
-                    <div className="w-6 h-6 rounded-lg bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-2xs">
-                        📱
-                    </div>
-                    <div className="flex-1 min-w-0 leading-relaxed">
-                        <span className="font-bold text-gray-900 dark:text-white">Мобільний додаток:</span> Після реєстрації ви зможете встановити додаток в 1 клік прямо з сайту для миттєвого доступу до електронної QR-перепустки та кабінету.
-                    </div>
-                </div>
             </form>
         </GuestLayout>
     );
