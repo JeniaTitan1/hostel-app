@@ -148,42 +148,47 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                             </p>
                         </div>
 
-                        {/* Кнопка запуску сканера камери */}
+                        {/* Header action bar */}
                         <div className="flex justify-end">
                             <button
                                 type="button"
                                 onClick={isScanning ? stopScanning : startScanning}
-                                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border shadow-2xs ${
                                     isScanning
                                         ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/40 dark:border-rose-800'
-                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300'
+                                        : 'bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
                                 }`}
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                 </svg>
-                                <span>{isScanning ? 'Вимкнути сканер' : 'Сканувати QR через камеру'}</span>
+                                <span>{isScanning ? 'Вимкнути сканер' : 'Сканувати через камеру'}</span>
                             </button>
                         </div>
 
-                        {/* Сканер через камеру */}
+                        {/* Сканер через камеру (Світла тема) */}
                         {isScanning && (
-                            <div className="p-4 bg-slate-900 rounded-2xl border border-emerald-500/40 relative animate-in fade-in">
-                                <div className="flex justify-between items-center mb-2 px-1">
-                                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                        Сканування активне
+                            <div className="p-4 bg-emerald-50/50 dark:bg-gray-900/60 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 relative animate-in fade-in space-y-3">
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                                        <span className="relative flex h-2.5 w-2.5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                        </span>
+                                        Сканер камери активний
                                     </span>
                                     <button
                                         type="button"
                                         onClick={stopScanning}
-                                        className="text-xs text-gray-400 hover:text-white px-2 py-0.5 rounded bg-gray-800"
+                                        className="text-xs font-bold text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white px-3 py-1 rounded-xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-2xs hover:bg-slate-50 transition-colors"
                                     >
                                         Закрити
                                     </button>
                                 </div>
-                                <div id="qr-page-scanner" className="w-full max-w-[300px] mx-auto rounded-xl overflow-hidden bg-black"></div>
-                                <p className="text-center text-xs text-gray-300 mt-2">
+                                <div className="mx-auto w-full max-w-[280px] p-2 bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 shadow-sm">
+                                    <div id="qr-page-scanner" className="w-full rounded-xl overflow-hidden bg-slate-100 dark:bg-gray-900"></div>
+                                </div>
+                                <p className="text-center text-xs font-medium text-emerald-800 dark:text-emerald-300">
                                     Наведіть камеру на QR-код на ордері студента
                                 </p>
                             </div>
@@ -196,16 +201,16 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                         )}
 
                         {/* Форма введення з фіксованими рисочками */}
-                        <form onSubmit={handleSearch} className="space-y-2">
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <div className="flex-1 flex items-center gap-2 p-2 bg-slate-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 transition-all font-mono">
+                        <form onSubmit={handleSearch} className="space-y-3">
+                            <div className="flex flex-col sm:flex-row gap-2.5">
+                                <div className="flex-1 flex items-center bg-white dark:bg-gray-900 rounded-2xl border-2 border-slate-200 dark:border-gray-700 px-3 py-2 shadow-xs focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all font-mono">
                                     {/* Префікс ORD */}
-                                    <span className="px-2.5 py-1.5 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 rounded-lg text-xs font-black select-none tracking-wider">
+                                    <span className="px-2.5 py-1 bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 rounded-lg text-xs font-black select-none tracking-wider shadow-2xs">
                                         ORD
                                     </span>
 
                                     {/* Рисочка */}
-                                    <span className="text-gray-400 dark:text-gray-500 font-black select-none text-base">
+                                    <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5">
                                         −
                                     </span>
 
@@ -224,13 +229,13 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                                             }
                                         }}
                                         onPaste={handlePaste}
-                                        className="w-16 text-center bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg py-1.5 px-1 focus:ring-1 focus:ring-emerald-500 text-gray-900 dark:text-white font-mono font-bold text-sm"
+                                        className="w-14 text-center bg-transparent border-0 p-0 focus:outline-none focus:ring-0 text-slate-800 dark:text-white font-mono font-bold text-sm sm:text-base"
                                         placeholder={String(currentYear)}
                                         title="Рік ордера"
                                     />
 
                                     {/* Рисочка */}
-                                    <span className="text-gray-400 dark:text-gray-500 font-black select-none text-base">
+                                    <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5">
                                         −
                                     </span>
 
@@ -248,7 +253,7 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                                         }}
                                         onPaste={handlePaste}
                                         placeholder="XXXXXX"
-                                        className="flex-1 bg-transparent border-0 p-1.5 focus:ring-0 uppercase text-gray-900 dark:text-white font-mono font-bold tracking-widest text-sm sm:text-base placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                                        className="flex-1 min-w-[80px] bg-transparent border-0 p-0 focus:outline-none focus:ring-0 uppercase text-slate-900 dark:text-white font-mono font-black tracking-widest text-sm sm:text-base placeholder:text-slate-300 dark:placeholder:text-gray-600"
                                     />
 
                                     {suffix && (
@@ -258,7 +263,7 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                                                 setSuffix('');
                                                 suffixRef.current?.focus();
                                             }}
-                                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs px-2 py-1 rounded bg-slate-200/60 dark:bg-gray-700 hover:bg-slate-300 transition-colors shrink-0"
+                                            className="text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs font-semibold px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors shrink-0"
                                         >
                                             Стерти
                                         </button>
@@ -268,13 +273,13 @@ export default function VerifyOrder({ auth, initialCode = '', searched = false, 
                                 <button
                                     type="submit"
                                     disabled={!suffix.trim()}
-                                    className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0"
+                                    className="px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-2xl shadow-sm hover:shadow transition-all shrink-0"
                                 >
                                     Перевірити
                                 </button>
                             </div>
-                            <p className="text-[11px] text-gray-400">
-                                Рисочки зафіксовані. Введіть останні 6 символів коду або відскануйте QR-код з бланка.
+                            <p className="text-[11px] text-slate-400 dark:text-gray-400 font-medium">
+                                Рисочки зафіксовані. Просто введіть останні 6 символів коду або відскануйте QR-код з бланка.
                             </p>
                         </form>
 
