@@ -44,3 +44,21 @@
 .scrollbar-none::-webkit-scrollbar {
     display: none;
 }
+
+@keyframes ambientFloat {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(25px, -15px) scale(1.06);
+    }
+}
+
+.animate-ambient-slow {
+    animation: ambientFloat 16s ease-in-out infinite;
+}
+
+.animate-ambient-reverse {
+    animation: ambientFloat 22s ease-in-out infinite reverse;
+}
+

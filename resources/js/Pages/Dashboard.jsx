@@ -3,6 +3,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { useState, useEffect, useRef } from "react";
 import { generateOrderPdf } from "@/Utils/OrderPdfGenerator";
 import VerifyOrderModal from "@/Components/VerifyOrderModal";
+import DigitalPassModal from "@/Components/DigitalPassModal";
 import { getEcho } from "@/echo";
 
 const BedIcon = ({ gender, isOccupied, name }) => {
@@ -317,6 +318,7 @@ export default function Dashboard({
     };
 
     const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [showDigitalPass, setShowDigitalPass] = useState(false);
 
     // Генерація PDF-ордера на заселення
     const handleDownloadSlip = () => {
@@ -486,12 +488,12 @@ export default function Dashboard({
 
                         {hasApprovedBooking && (
                             <button
-                                onClick={handleDownloadSlip}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-lg transition-colors"
-                                title="Завантажити підтвердження заселення"
+                                onClick={() => setShowDigitalPass(true)}
+                                className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black rounded-xl shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer"
+                                title="Відкрити електронну перепустку"
                             >
                                 <svg
-                                    className="w-3.5 h-3.5"
+                                    className="w-4 h-4"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -500,10 +502,10 @@ export default function Dashboard({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                                     />
                                 </svg>
-                                Ордер на заселення
+                                <span>Електронна перепустка (QR)</span>
                             </button>
                         )}
 
@@ -1306,13 +1308,13 @@ export default function Dashboard({
                                                                 </p>
                                                             </div>
                                                             <button
-                                                                onClick={
-                                                                    handleDownloadSlip
-                                                                }
-                                                                className="w-full text-center bg-white dark:bg-gray-700 border border-slate-100 dark:border-gray-600 hover:bg-slate-50/50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-2.5 px-4 rounded-xl text-sm transition-all duration-150"
+                                                                onClick={() => setShowDigitalPass(true)}
+                                                                className="w-full flex items-center justify-center gap-2 text-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all shadow-sm active:scale-95"
                                                             >
-                                                                Завантажити
-                                                                ордер (PDF)
+                                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                                </svg>
+                                                                <span>Електронна перепустка (QR)</span>
                                                             </button>
                                                         </div>
                                                     ) : isTargetReallocationRoom ? (
@@ -1549,6 +1551,13 @@ export default function Dashboard({
                     )}
                 </div>
             </div>
+
+            <DigitalPassModal
+                show={showDigitalPass}
+                onClose={() => setShowDigitalPass(false)}
+                booking={userBooking}
+                user={auth?.user}
+            />
         </AuthenticatedLayout>
     );
 }
