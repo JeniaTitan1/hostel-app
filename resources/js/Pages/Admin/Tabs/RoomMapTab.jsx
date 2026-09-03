@@ -739,124 +739,81 @@ export default function RoomMapTab({
                                                                                 {/* Попап Налаштувань кімнати */}
                                                                                 {isSettingsOpen && (
                                                                                     <div
-                                                                                        onClick={(
-                                                                                            e,
-                                                                                        ) =>
-                                                                                            e.stopPropagation()
-                                                                                        }
-                                                                                        className="absolute right-0 top-10 z-50 w-72 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl shadow-xl p-4 space-y-3.5 origin-top-right border-emerald-500/20"
+                                                                                        onClick={(e) => e.stopPropagation()}
+                                                                                        className="absolute right-0 top-10 z-50 w-80 bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 rounded-2xl shadow-2xl p-4 space-y-3.5 origin-top-right border-emerald-500/20 backdrop-blur-sm"
                                                                                     >
                                                                                         {/* Popover Header */}
-                                                                                        <div className="flex justify-between items-center border-b border-slate-100 dark:border-gray-700 pb-2.5">
-                                                                                            <div className="flex items-center gap-1.5">
-                                                                                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                                                                                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white">
-                                                                                                    Налаштування
-                                                                                                    №
-                                                                                                    {
-                                                                                                        room.room_number
-                                                                                                    }
-                                                                                                </span>
+                                                                                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-2.5">
+                                                                                            <div className="flex items-center gap-2">
+                                                                                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isRepair ? "bg-red-500 animate-pulse" : isIntakeClosed ? "bg-amber-500" : "bg-emerald-500"}`} />
+                                                                                                <div>
+                                                                                                    <h6 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white">
+                                                                                                        Кімната №{room.room_number}
+                                                                                                    </h6>
+                                                                                                    <span className="text-[10px] text-gray-400 font-medium block">
+                                                                                                        Поверх {room.floor}
+                                                                                                    </span>
+                                                                                                </div>
                                                                                             </div>
                                                                                             <button
                                                                                                 type="button"
-                                                                                                onClick={() =>
-                                                                                                    setSettingsRoomId(
-                                                                                                        null,
-                                                                                                    )
-                                                                                                }
-                                                                                                className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 dark:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white text-xs font-bold transition-colors"
+                                                                                                onClick={() => setSettingsRoomId(null)}
+                                                                                                className="w-7 h-7 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-white text-xs font-bold transition-colors"
                                                                                             >
                                                                                                 ✕
                                                                                             </button>
                                                                                         </div>
 
-                                                                                        {/* Місткість (−/+) */}
+                                                                                        {/* Блок: Місткість (кількість ліжок) */}
                                                                                         <div className="space-y-1.5">
-                                                                                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">
-                                                                                                Місткість
-                                                                                                (кількість
-                                                                                                ліжок)
-                                                                                            </span>
-                                                                                            <div className="flex items-center justify-between bg-slate-50 dark:bg-gray-700/60 rounded-xl border border-slate-200 dark:border-gray-600 p-1">
+                                                                                            <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+                                                                                                <span>Місткість (кількість ліжок)</span>
+                                                                                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold normal-case">
+                                                                                                    {approvedBookings.length} / {room.max_capacity} зайнято
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <div className="flex items-center justify-between bg-slate-50 dark:bg-gray-900/60 rounded-xl border border-slate-200 dark:border-gray-700 p-1.5">
                                                                                                 <button
                                                                                                     type="button"
-                                                                                                    onClick={() =>
-                                                                                                        handleUpdateCapacity(
-                                                                                                            room.id,
-                                                                                                            room.max_capacity -
-                                                                                                                1,
-                                                                                                        )
-                                                                                                    }
-                                                                                                    disabled={
-                                                                                                        room.max_capacity <=
-                                                                                                            1 ||
-                                                                                                        room.max_capacity <=
-                                                                                                            approvedBookings.length
-                                                                                                    }
-                                                                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-extrabold hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-30"
+                                                                                                    onClick={() => handleUpdateCapacity(room.id, room.max_capacity - 1)}
+                                                                                                    disabled={room.max_capacity <= 1 || room.max_capacity <= approvedBookings.length}
+                                                                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-black hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 transition-colors disabled:opacity-30 disabled:pointer-events-none shadow-xs text-base"
+                                                                                                    title="Зменшити кількість ліжок"
                                                                                                 >
                                                                                                     −
                                                                                                 </button>
-                                                                                                <span className="text-base font-extrabold text-gray-900 dark:text-white tabular-nums">
-                                                                                                    {
-                                                                                                        room.max_capacity
-                                                                                                    }
-                                                                                                </span>
+                                                                                                <div className="flex items-baseline gap-1.5">
+                                                                                                    <span className="text-lg font-black text-gray-900 dark:text-white tabular-nums">
+                                                                                                        {room.max_capacity}
+                                                                                                    </span>
+                                                                                                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                                                                                        {room.max_capacity === 1 ? "ліжко" : room.max_capacity < 5 ? "ліжка" : "ліжок"}
+                                                                                                    </span>
+                                                                                                </div>
                                                                                                 <button
                                                                                                     type="button"
-                                                                                                    onClick={() =>
-                                                                                                        handleUpdateCapacity(
-                                                                                                            room.id,
-                                                                                                            room.max_capacity +
-                                                                                                                1,
-                                                                                                        )
-                                                                                                    }
-                                                                                                    disabled={
-                                                                                                        room.max_capacity >=
-                                                                                                        20
-                                                                                                    }
-                                                                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-extrabold hover:bg-emerald-50 hover:text-emerald-600 transition-colors disabled:opacity-30"
+                                                                                                    onClick={() => handleUpdateCapacity(room.id, room.max_capacity + 1)}
+                                                                                                    disabled={room.max_capacity >= 20}
+                                                                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-black hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-30 shadow-xs text-base"
+                                                                                                    title="Збільшити кількість ліжок"
                                                                                                 >
                                                                                                     +
-                                                                                                </button>
-
-                                                                                                {/* Кнопка Видалення кімнати */}
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    onClick={() => {
-                                                                                                        setSettingsRoomId(null);
-                                                                                                        handleDeleteRoom(room);
-                                                                                                    }}
-                                                                                                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold bg-slate-50 dark:bg-gray-700/60 text-slate-600 dark:text-gray-300 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-600 transition-colors duration-150 border border-slate-200 dark:border-gray-600 hover:border-transparent text-xs"
-                                                                                                >
-                                                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                    </svg>
-                                                                                                    <span>Видалити кімнату</span>
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
 
+                                                                                        {/* Розділювач */}
                                                                                         <div className="border-t border-slate-100 dark:border-gray-700" />
 
                                                                                         {/* Toggles */}
-                                                                                        <div className="space-y-2.5 text-xs">
+                                                                                        <div className="space-y-2 text-xs">
                                                                                             {/* Toggle: Прийом */}
                                                                                             <div
-                                                                                                onClick={() =>
-                                                                                                    handleToggleIntake(
-                                                                                                        room.id,
-                                                                                                    )
-                                                                                                }
-                                                                                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/50 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors duration-150 cursor-pointer select-none"
+                                                                                                onClick={() => handleToggleIntake(room.id)}
+                                                                                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/50 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors duration-150 cursor-pointer select-none border border-slate-100 dark:border-gray-700/60"
                                                                                             >
                                                                                                 <span className="font-semibold text-gray-700 dark:text-gray-200">
-                                                                                                    {Boolean(
-                                                                                                        room.intake_closed,
-                                                                                                    )
-                                                                                                        ? "Прийом закритий"
-                                                                                                        : "Прийом відкритий"}
+                                                                                                    {Boolean(room.intake_closed) ? "Прийом закритий" : "Прийом відкритий"}
                                                                                                 </span>
                                                                                                 <div
                                                                                                     className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-300 flex items-center ${Boolean(room.intake_closed) ? "bg-red-500" : "bg-emerald-500"}`}
@@ -869,19 +826,11 @@ export default function RoomMapTab({
 
                                                                                             {/* Toggle: Видимість */}
                                                                                             <div
-                                                                                                onClick={() =>
-                                                                                                    handleToggleVisibility(
-                                                                                                        room.id,
-                                                                                                    )
-                                                                                                }
-                                                                                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/50 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors duration-150 cursor-pointer select-none"
+                                                                                                onClick={() => handleToggleVisibility(room.id)}
+                                                                                                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/50 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors duration-150 cursor-pointer select-none border border-slate-100 dark:border-gray-700/60"
                                                                                             >
                                                                                                 <span className="font-semibold text-gray-700 dark:text-gray-200">
-                                                                                                    {Boolean(
-                                                                                                        room.hide_from_frontend,
-                                                                                                    )
-                                                                                                        ? "Прихована з сайту"
-                                                                                                        : "Видима на сайті"}
+                                                                                                    {Boolean(room.hide_from_frontend) ? "Прихована з сайту" : "Видима на сайті"}
                                                                                                 </span>
                                                                                                 <div
                                                                                                     className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-300 flex items-center ${Boolean(room.hide_from_frontend) ? "bg-amber-500" : "bg-emerald-500"}`}
@@ -891,41 +840,43 @@ export default function RoomMapTab({
                                                                                                     />
                                                                                                 </div>
                                                                                             </div>
+                                                                                        </div>
 
+                                                                                        {/* Дії: Ремонт та Видалення */}
+                                                                                        <div className="pt-2 border-t border-slate-100 dark:border-gray-700 space-y-2">
                                                                                             {/* Кнопка Ремонту */}
                                                                                             <button
                                                                                                 type="button"
                                                                                                 onClick={() => {
-                                                                                                    setSettingsRoomId(
-                                                                                                        null,
-                                                                                                    );
-                                                                                                    if (
-                                                                                                        room.status ===
-                                                                                                        "closed"
-                                                                                                    ) {
-                                                                                                        handleToggleStatus(
-                                                                                                            room.id,
-                                                                                                        );
-                                                                                                    } else if (
-                                                                                                        handleOpenCloseRoomModal
-                                                                                                    ) {
-                                                                                                        handleOpenCloseRoomModal(
-                                                                                                            room,
-                                                                                                        );
+                                                                                                    setSettingsRoomId(null);
+                                                                                                    if (room.status === "closed") {
+                                                                                                        handleToggleStatus(room.id);
+                                                                                                    } else if (handleOpenCloseRoomModal) {
+                                                                                                        handleOpenCloseRoomModal(room);
                                                                                                     } else {
-                                                                                                        handleToggleStatus(
-                                                                                                            room.id,
-                                                                                                        );
+                                                                                                        handleToggleStatus(room.id);
                                                                                                     }
                                                                                                 }}
-                                                                                                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white transition-colors duration-150 border border-red-200 dark:border-red-800"
+                                                                                                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800/60 transition-colors"
                                                                                             >
                                                                                                 <span>
-                                                                                                    {room.status ===
-                                                                                                    "closed"
-                                                                                                        ? "Відкрити з ремонту"
-                                                                                                        : "Закрити на ремонт"}
+                                                                                                    {room.status === "closed" ? "Відкрити з ремонту" : "Закрити на ремонт"}
                                                                                                 </span>
+                                                                                            </button>
+
+                                                                                            {/* Кнопка Видалення кімнати */}
+                                                                                            <button
+                                                                                                type="button"
+                                                                                                onClick={() => {
+                                                                                                    setSettingsRoomId(null);
+                                                                                                    handleDeleteRoom(room);
+                                                                                                }}
+                                                                                                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 dark:hover:text-white border border-rose-200 dark:border-rose-900/60 transition-colors shadow-2xs"
+                                                                                            >
+                                                                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                </svg>
+                                                                                                <span>Видалити кімнату</span>
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
