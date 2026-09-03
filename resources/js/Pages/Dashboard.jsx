@@ -1157,23 +1157,23 @@ export default function Dashboard({
 
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                                         {/* Картка користувача */}
-                                                        <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20 flex items-start gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                                                        <div className="p-3.5 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20 flex items-center gap-3 min-w-0">
+                                                            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white font-black text-base flex items-center justify-center shrink-0 shadow-xs select-none leading-none">
                                                                 {auth?.user?.name?.charAt(0)?.toUpperCase() || "Я"}
                                                             </div>
                                                             <div className="min-w-0 flex-1">
-                                                                <div className="flex items-center gap-1.5">
+                                                                <div className="flex items-center gap-1.5 flex-wrap">
                                                                     <span className="font-bold text-sm text-gray-900 dark:text-white truncate">
                                                                         {auth?.user?.name}
                                                                     </span>
-                                                                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded-md">
+                                                                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded-md shrink-0">
                                                                         Ви
                                                                     </span>
                                                                 </div>
                                                                 <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">
                                                                     {auth?.user?.email}
                                                                 </span>
-                                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block mt-1">
+                                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block mt-0.5 truncate">
                                                                     Ордер №{userBooking.order_number || userBooking.id}
                                                                 </span>
                                                             </div>
@@ -1183,19 +1183,19 @@ export default function Dashboard({
                                                         {roommates.map((r, index) => (
                                                             <div
                                                                 key={index}
-                                                                className="p-3.5 rounded-xl border border-slate-100 dark:border-gray-700 bg-slate-50/60 dark:bg-gray-800/50 flex items-start gap-3"
+                                                                className="p-3.5 rounded-2xl border border-slate-100 dark:border-gray-700 bg-slate-50/60 dark:bg-gray-800/50 flex items-center gap-3 min-w-0"
                                                             >
-                                                                <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-sm flex items-center justify-center shrink-0">
+                                                                <div className="w-11 h-11 rounded-xl bg-slate-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-base flex items-center justify-center shrink-0 select-none leading-none">
                                                                     {r.name?.charAt(0)?.toUpperCase() || "С"}
                                                                 </div>
-                                                                <div className="min-w-0 flex-1 space-y-1">
+                                                                <div className="min-w-0 flex-1">
                                                                     <h5 className="font-bold text-sm text-gray-900 dark:text-white truncate">
                                                                         {r.name}
                                                                     </h5>
                                                                     <p className="text-[11px] text-gray-400 truncate">
                                                                         {r.email}
                                                                     </p>
-                                                                    <div className="flex items-center gap-3 pt-1">
+                                                                    <div className="flex items-center gap-3 pt-0.5">
                                                                         {r.telegram && (
                                                                             <a
                                                                                 href={`https://t.me/${r.telegram.replace("@", "")}`}
@@ -1232,16 +1232,18 @@ export default function Dashboard({
                                                         {Array.from({ length: Math.max(0, (userBooking.room?.max_capacity || 4) - (roommates.length + 1)) }).map((_, idx) => (
                                                             <div
                                                                 key={`free-${idx}`}
-                                                                className="p-3.5 rounded-xl border border-dashed border-slate-200 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-800/20 flex items-center gap-3"
+                                                                className="p-3.5 rounded-2xl border border-dashed border-slate-200 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-800/20 flex items-center gap-3 min-w-0"
                                                             >
-                                                                <div className="w-10 h-10 rounded-xl border border-dashed border-slate-300 dark:border-gray-600 flex items-center justify-center text-gray-400 font-bold shrink-0">
-                                                                    +
+                                                                <div className="w-11 h-11 rounded-xl border-2 border-dashed border-slate-300 dark:border-gray-600 flex items-center justify-center text-slate-400 dark:text-gray-500 shrink-0 select-none">
+                                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                                                    </svg>
                                                                 </div>
-                                                                <div>
-                                                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300 block">
+                                                                <div className="min-w-0 flex-1">
+                                                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300 block truncate">
                                                                         Вільне ліжко-місце
                                                                     </span>
-                                                                    <span className="text-[10px] text-gray-400 block">
+                                                                    <span className="text-[10px] text-gray-400 block truncate mt-0.5">
                                                                         Очікує поселення студента
                                                                     </span>
                                                                 </div>
