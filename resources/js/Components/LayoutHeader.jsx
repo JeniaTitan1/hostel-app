@@ -29,7 +29,7 @@ export default function LayoutHeader({
                                 href={homeRoute}
                                 className="flex items-center gap-2.5 focus:outline-none rounded-xl p-1 group"
                             >
-                                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-black text-sm shadow-xs shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-black text-sm shadow-xs shadow-emerald-500/20 transition-all duration-300 ease-out group-hover:brightness-105 group-hover:shadow-md group-hover:shadow-emerald-500/25 active:scale-95">
                                     М
                                 </div>
                                 <div className="flex flex-col">
