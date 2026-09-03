@@ -18,6 +18,7 @@ export default function AccessLogsTab({
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [logsList, setLogsList] = useState(accessLogs);
     const [stats, setStats] = useState(accessStats);
+    const [togglingLogId, setTogglingLogId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(25);
 
@@ -102,7 +103,16 @@ export default function AccessLogsTab({
                 building: scanData.room?.building || null,
             };
 
-            setLogsList((prev) => [newLogEntry, ...prev]);
+            // Оновлюємо або додаємо новий запис
+            setLogsList((prev) => {
+                const exists = prev.some((l) => l.id === scanData.log.id);
+                if (exists) {
+                    return prev.map((l) =>
+                        l.id === scanData.log.id ? { ...l, type: scanData.type } : l
+                    );
+                }
+                return [newLogEntry, ...prev];
+            });
 
             // Оновлення лічильників
             setStats((prev) => {
@@ -118,6 +128,55 @@ export default function AccessLogsTab({
                 }
                 return next;
             });
+        }
+    };
+
+    // Швидке перемикання напрямку прямо з таблиці
+    const handleToggleLogRow = async (logId, currentType) => {
+        const nextType = currentType === "entry" ? "exit" : "entry";
+        setTogglingLogId(logId);
+
+        try {
+            const res = await fetch(
+                route("admin.access-logs.update-direction", logId),
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ type: nextType }),
+                }
+            );
+
+            const data = await res.json();
+            if (data.success) {
+                setLogsList((prev) =>
+                    prev.map((l) =>
+                        l.id === logId ? { ...l, type: nextType } : l
+                    )
+                );
+
+                setStats((prev) => ({
+                    ...prev,
+                    entries_today:
+                        nextType === "entry"
+                            ? prev.entries_today + 1
+                            : Math.max(0, prev.entries_today - 1),
+                    exits_today:
+                        nextType === "exit"
+                            ? prev.exits_today + 1
+                            : Math.max(0, prev.exits_today - 1),
+                }));
+            }
+        } catch (e) {
+            console.error("Toggle log direction error:", e);
+        } finally {
+            setTogglingLogId(null);
         }
     };
 
@@ -318,7 +377,7 @@ export default function AccessLogsTab({
                                         <th className="px-4 py-3.5">Час / Дата</th>
                                         <th className="px-4 py-3.5">Студент</th>
                                         <th className="px-4 py-3.5">Кімната / Корпус</th>
-                                        <th className="px-4 py-3.5">Напрямок</th>
+                                        <th className="px-4 py-3.5">Напрямок (Клік для зміни)</th>
                                         <th className="px-4 py-3.5">Статус</th>
                                         <th className="px-4 py-3.5">КПП / Перевірив</th>
                                         <th className="px-4 py-3.5">Примітки</th>
@@ -328,6 +387,7 @@ export default function AccessLogsTab({
                                     {paginatedLogs.map((log) => {
                                         const isEntry = log.type === "entry";
                                         const isGranted = log.status === "granted";
+                                        const isToggling = togglingLogId === log.id;
 
                                         return (
                                             <tr
@@ -375,13 +435,17 @@ export default function AccessLogsTab({
                                                     )}
                                                 </td>
 
-                                                {/* Напрямок */}
+                                                {/* Напрямок (Інтерактивна кнопка швидкої зміни) */}
                                                 <td className="px-4 py-3.5 whitespace-nowrap">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
+                                                    <button
+                                                        type="button"
+                                                        disabled={isToggling}
+                                                        onClick={() => handleToggleLogRow(log.id, log.type)}
+                                                        title="Натисніть для зміни: Вхід ⇄ Вихід"
+                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                                                             isEntry
-                                                                ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40"
-                                                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40"
+                                                                ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40 hover:bg-emerald-100"
+                                                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 hover:bg-amber-100"
                                                         }`}
                                                     >
                                                         <span
@@ -390,7 +454,10 @@ export default function AccessLogsTab({
                                                             }`}
                                                         />
                                                         <span>{isEntry ? "Вхід" : "Вихід"}</span>
-                                                    </span>
+                                                        <svg className="w-3 h-3 opacity-60 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                        </svg>
+                                                    </button>
                                                 </td>
 
                                                 {/* Статус */}
@@ -438,7 +505,7 @@ export default function AccessLogsTab({
                                         type="button"
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700"
+                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer"
                                     >
                                         ← Попередня
                                     </button>
@@ -446,7 +513,7 @@ export default function AccessLogsTab({
                                         type="button"
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700"
+                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer"
                                     >
                                         Наступна →
                                     </button>

@@ -250,4 +250,29 @@ class AccessLogController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Швидке ручне перемикання напрямку (Вхід <-> Вихід)
+     */
+    public function updateDirection(Request $request, AccessLog $accessLog)
+    {
+        $request->validate([
+            'type' => 'required|in:entry,exit',
+        ]);
+
+        $accessLog->update([
+            'type' => $request->input('type'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'log' => [
+                'id' => $accessLog->id,
+                'type' => $accessLog->type,
+                'status' => $accessLog->status,
+                'created_at' => $accessLog->created_at->format('H:i:s d.m.Y'),
+            ],
+            'message' => 'Напрямок проходу успішно змінено на ' . ($accessLog->type === 'entry' ? 'ВХІД' : 'ВИХІД'),
+        ]);
+    }
 }

@@ -118,6 +118,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Журнал пропускного пункту (КПП) та сканування перепусток
     Route::get('/access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
     Route::post('/access-logs/scan', [AccessLogController::class, 'scan'])->name('access-logs.scan');
+    Route::post('/access-logs/{accessLog}/update-direction', [AccessLogController::class, 'updateDirection'])->name('access-logs.update-direction');
 });
 
 // Окремий швидкий екран сканера для вахтера / коменданта

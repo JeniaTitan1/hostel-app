@@ -43,6 +43,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     const [manualCode, setManualCode] = useState("");
     const [isScanning, setIsScanning] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [updatingDirection, setUpdatingDirection] = useState(false);
     const [cameraError, setCameraError] = useState(null);
     const [lastResult, setLastResult] = useState(null);
     const [activeTab, setActiveTab] = useState("camera"); // 'camera' | 'manual'
@@ -201,6 +202,59 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
         handleSendCode(manualCode.trim());
     };
 
+    // Швидке ручне перемикання напрямку після сканування
+    const handleToggleDirection = async (newType) => {
+        if (!lastResult?.log?.id || updatingDirection) return;
+        setUpdatingDirection(true);
+
+        try {
+            const res = await fetch(
+                route("admin.access-logs.update-direction", lastResult.log.id),
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ type: newType }),
+                }
+            );
+
+            const data = await res.json();
+            if (data.success) {
+                setLastResult((prev) => ({
+                    ...prev,
+                    type: newType,
+                    direction_name: newType === "entry" ? "ВХІД" : "ВИХІД",
+                    message: `Успішно змінено! Зафіксовано ${
+                        newType === "entry" ? "ВХІД" : "ВИХІД"
+                    } студента.`,
+                    log: {
+                        ...prev.log,
+                        type: newType,
+                    },
+                }));
+
+                if (onScanSuccess) {
+                    onScanSuccess({
+                        ...lastResult,
+                        type: newType,
+                        direction_name: newType === "entry" ? "ВХІД" : "ВИХІД",
+                        log: { ...lastResult.log, type: newType },
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Toggle direction error:", e);
+        } finally {
+            setUpdatingDirection(false);
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -219,7 +273,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 Сканер пропускного пункту (КПП)
                             </h3>
                             <p className="text-xs text-slate-500 dark:text-gray-400">
-                                Автоматична фіксація входу та виходу студентів
+                                Автоматична або примусова фіксація входу/виходу
                             </p>
                         </div>
                     </div>
@@ -238,7 +292,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         <button
                             type="button"
                             onClick={() => setMode("auto")}
-                            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                                 mode === "auto"
                                     ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-xs"
                                     : "text-slate-600 dark:text-gray-400 hover:text-slate-900"
@@ -252,9 +306,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         <button
                             type="button"
                             onClick={() => setMode("entry")}
-                            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                                 mode === "entry"
-                                    ? "bg-emerald-600 text-white shadow-xs"
+                                    ? "bg-emerald-600 text-white shadow-xs font-black"
                                     : "text-slate-600 dark:text-gray-400 hover:text-emerald-600"
                             }`}
                         >
@@ -266,9 +320,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         <button
                             type="button"
                             onClick={() => setMode("exit")}
-                            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                                 mode === "exit"
-                                    ? "bg-amber-600 text-white shadow-xs"
+                                    ? "bg-amber-600 text-white shadow-xs font-black"
                                     : "text-slate-600 dark:text-gray-400 hover:text-amber-600"
                             }`}
                         >
@@ -284,7 +338,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         <button
                             type="button"
                             onClick={() => setActiveTab("camera")}
-                            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
                                 activeTab === "camera"
                                     ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black"
                                     : "text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
@@ -299,7 +353,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         <button
                             type="button"
                             onClick={() => setActiveTab("manual")}
-                            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
                                 activeTab === "manual"
                                     ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black"
                                     : "text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
@@ -335,7 +389,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                     <button
                                         type="button"
                                         onClick={startCamera}
-                                        className="mt-2 px-3 py-1 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-500 transition-colors"
+                                        className="mt-2 px-3 py-1 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-500 transition-colors cursor-pointer"
                                     >
                                         Спробувати знову
                                     </button>
@@ -484,6 +538,47 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                             Ордер: {lastResult.order_number}
                                         </div>
                                     )}
+                                </div>
+                            )}
+
+                            {/* ⚡ ШВИДКА КНОПКА РУЧНОГО ВИПРАВЛЕННЯ НАПРЯМКУ (якщо студент проскочив) */}
+                            {lastResult.valid && lastResult.log && (
+                                <div className="mt-3 pt-3 border-t border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/40 dark:bg-black/20 p-2.5 rounded-xl">
+                                    <span className="text-[11px] font-bold opacity-90">
+                                        Студент проскочив? Виправити напрямок:
+                                    </span>
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            type="button"
+                                            disabled={updatingDirection || lastResult.type === "entry"}
+                                            onClick={() => handleToggleDirection("entry")}
+                                            className={`px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1 ${
+                                                lastResult.type === "entry"
+                                                    ? "bg-emerald-600 text-white shadow-xs"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-950 border border-slate-200 dark:border-gray-700 cursor-pointer"
+                                            }`}
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span>ВХІД</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={updatingDirection || lastResult.type === "exit"}
+                                            onClick={() => handleToggleDirection("exit")}
+                                            className={`px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1 ${
+                                                lastResult.type === "exit"
+                                                    ? "bg-amber-600 text-white shadow-xs"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-950 border border-slate-200 dark:border-gray-700 cursor-pointer"
+                                            }`}
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span>ВИХІД</span>
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
