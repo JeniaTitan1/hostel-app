@@ -199,88 +199,90 @@ export default function AccessLogsTab({
     };
 
     return (
-        <div className="space-y-6 animate-fade-in">
-            {/* 1. ВЕРХНІ КАРТКИ СТАТИСТИКИ (KPI) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="space-y-4 sm:space-y-6 animate-fade-in">
+            {/* 1. ВЕРХНІ КАРТКИ СТАТИСТИКИ (KPI) - Адаптовані для будь-яких екранів */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
                 {/* Зайшло сьогодні */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/40">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/40">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                     </div>
-                    <div>
-                        <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white truncate">
                             {stats.entries_today}
                         </div>
-                        <div className="text-xs font-semibold text-slate-500 dark:text-gray-400">
+                        <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">
                             Входів сьогодні
                         </div>
                     </div>
                 </div>
 
                 {/* Вийшло сьогодні */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-800/40">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-800/40">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </div>
-                    <div>
-                        <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white truncate">
                             {stats.exits_today}
                         </div>
-                        <div className="text-xs font-semibold text-slate-500 dark:text-gray-400">
+                        <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">
                             Виходів сьогодні
                         </div>
                     </div>
                 </div>
 
                 {/* Відмовлено у вході */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-100 dark:border-rose-800/40">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-100 dark:border-rose-800/40">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                     </div>
-                    <div>
-                        <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white truncate">
                             {stats.denied_today}
                         </div>
-                        <div className="text-xs font-semibold text-slate-500 dark:text-gray-400">
-                            Відмовлено в доступі
+                        <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">
+                            Відмовлено
                         </div>
                     </div>
                 </div>
 
                 {/* Всього перевірок */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 border border-sky-100 dark:border-sky-800/40">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="p-3 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 border border-sky-100 dark:border-sky-800/40">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                     </div>
-                    <div>
-                        <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white truncate">
                             {stats.total_scans_today}
                         </div>
-                        <div className="text-xs font-semibold text-slate-500 dark:text-gray-400">
-                            Всього перевірок КПП
+                        <div className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">
+                            Всього КПП
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* 2. ПАНЕЛЬ ДІЙ ТА ФІЛЬТРІВ */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl shadow-sm p-5 space-y-4">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                    <div>
-                        <h3 className="font-black text-gray-900 dark:text-white text-lg tracking-tight flex items-center gap-2">
-                            <span>Журнал пропускного пункту (КПП)</span>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-                                {filteredLogs.length} записів
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl shadow-sm p-4 sm:p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-black text-gray-900 dark:text-white text-base sm:text-lg tracking-tight">
+                                Журнал КПП
+                            </h3>
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-black whitespace-nowrap">
+                                {filteredLogs.length} {filteredLogs.length === 1 ? "запис" : filteredLogs.length < 5 ? "записи" : "записів"}
                             </span>
-                        </h3>
+                        </div>
                         <p className="text-xs text-gray-400 mt-0.5">
                             Фіксація входу/виходу студентів та гостей через цифрові QR-перепустки
                         </p>
@@ -290,7 +292,7 @@ export default function AccessLogsTab({
                     <button
                         type="button"
                         onClick={() => setIsScannerOpen(true)}
-                        className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md shadow-emerald-600/25 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md shadow-emerald-600/25 active:scale-95 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -352,10 +354,10 @@ export default function AccessLogsTab({
                 </div>
             </div>
 
-            {/* 3. ТАБЛИЦЯ ТА СПИСОК ЖУРНАЛУ ВІДВІДУВАНЬ */}
+            {/* 3. СПИСОК ЖУРНАЛУ ВІДВІДУВАНЬ (Адаптивні картки на мобільних + повноцінна таблиця на ПК) */}
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl shadow-sm overflow-hidden">
                 {paginatedLogs.length === 0 ? (
-                    <div className="p-12 text-center text-slate-400 dark:text-gray-500">
+                    <div className="p-8 sm:p-12 text-center text-slate-400 dark:text-gray-500">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-gray-700/60 text-slate-400 dark:text-gray-500 flex items-center justify-center mx-auto mb-3">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -370,7 +372,90 @@ export default function AccessLogsTab({
                     </div>
                 ) : (
                     <>
-                        <div className="overflow-x-auto scrollbar-none">
+                        {/* А) МОБІЛЬНИЙ ВИГЛЯД (КАРТКИ ДЛЯ СМАРТФОНІВ) */}
+                        <div className="block md:hidden divide-y divide-slate-100 dark:divide-gray-700/60 p-2 sm:p-3">
+                            {paginatedLogs.map((log) => {
+                                const isEntry = log.type === "entry";
+                                const isGranted = log.status === "granted";
+                                const isToggling = togglingLogId === log.id;
+
+                                return (
+                                    <div
+                                        key={log.id}
+                                        className="p-3.5 bg-slate-50/70 dark:bg-gray-900/40 rounded-2xl border border-slate-100 dark:border-gray-700/80 space-y-2.5 my-2"
+                                    >
+                                        {/* Верхній рядок: Аватар + Ім'я + Дата */}
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black text-xs flex items-center justify-center shrink-0">
+                                                    {log.user?.name?.charAt(0)?.toUpperCase() || "S"}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="font-bold text-slate-900 dark:text-white text-xs truncate">
+                                                        {log.user?.name || "Невідомий"}
+                                                    </div>
+                                                    <div className="text-[10px] text-slate-400 truncate">
+                                                        {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
+                                                        {log.user?.group ? ` (${log.user.group})` : ""}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <div className="text-[11px] font-mono font-bold text-slate-600 dark:text-gray-300">
+                                                    {formatDate(log.created_at)}
+                                                </div>
+                                                <span
+                                                    className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                                        isGranted
+                                                            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
+                                                            : "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200"
+                                                    }`}
+                                                >
+                                                    {isGranted ? "Дозволено" : "Заборонено"}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Інфо про кімнату та корпус */}
+                                        <div className="text-xs text-slate-600 dark:text-gray-300 bg-white dark:bg-gray-800/80 p-2 rounded-xl border border-slate-100 dark:border-gray-700/60 flex items-center justify-between">
+                                            <span className="font-semibold text-emerald-700 dark:text-emerald-400 text-[11px] truncate">
+                                                {log.booking?.room
+                                                    ? `Кімната ${log.booking.room.room_number} (Поверх ${log.booking.room.floor})`
+                                                    : "Кімната не закріплена"}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 shrink-0 ml-2">
+                                                {log.booking?.room?.building?.name || log.building?.name || "Гуртожиток"}
+                                            </span>
+                                        </div>
+
+                                        {/* Нижній рядок: Перемикач напрямку + хто перевірив */}
+                                        <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-gray-700/40">
+                                            <button
+                                                type="button"
+                                                disabled={isToggling}
+                                                onClick={() => handleToggleLogRow(log.id, log.type)}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer ${
+                                                    isEntry
+                                                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40"
+                                                        : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40"
+                                                }`}
+                                            >
+                                                <span className={`w-2 h-2 rounded-full ${isEntry ? "bg-emerald-500" : "bg-amber-500"}`} />
+                                                <span>{isEntry ? "ВХІД" : "ВИХІД"}</span>
+                                                <span className="text-[10px] text-slate-400 font-normal lowercase">(змінити ⇄)</span>
+                                            </button>
+
+                                            <div className="text-[10px] text-slate-400">
+                                                Перевірив: <strong>{log.scanner?.name || "КПП"}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Б) ДЕСКТОПНИЙ ВИГЛЯД (ПОВНОЦІННА ТАБЛИЦЯ ДЛЯ ПК) */}
+                        <div className="hidden md:block overflow-x-auto scrollbar-none">
                             <table className="w-full text-left text-xs">
                                 <thead className="bg-slate-50/80 dark:bg-gray-900/50 text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100 dark:border-gray-700">
                                     <tr>
@@ -496,7 +581,7 @@ export default function AccessLogsTab({
 
                         {/* Пагінація */}
                         {totalPages > 1 && (
-                            <div className="p-4 border-t border-slate-100 dark:border-gray-700 flex items-center justify-between text-xs text-slate-500 dark:text-gray-400">
+                            <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-gray-400">
                                 <div>
                                     Сторінка <strong>{currentPage}</strong> з <strong>{totalPages}</strong>
                                 </div>
@@ -505,7 +590,7 @@ export default function AccessLogsTab({
                                         type="button"
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer"
+                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer text-xs"
                                     >
                                         ← Попередня
                                     </button>
@@ -513,7 +598,7 @@ export default function AccessLogsTab({
                                         type="button"
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer"
+                                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-gray-700 cursor-pointer text-xs"
                                     >
                                         Наступна →
                                     </button>
