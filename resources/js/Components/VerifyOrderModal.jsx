@@ -189,7 +189,7 @@ export default function VerifyOrderModal({ show, onClose }) {
     };
 
     return (
-        <Modal show={show} onClose={handleClose} maxWidth="lg">
+        <Modal show={show} onClose={handleClose} maxWidth="xl">
             <div className="p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-3xl relative overflow-hidden shadow-2xl border border-slate-100 dark:border-gray-700">
                 <style>{`
                     #qr-modal-scanner video {
@@ -264,20 +264,20 @@ export default function VerifyOrderModal({ show, onClose }) {
                 {/* Форма введення коду */}
                 <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                     <div>
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                             <label className="block text-xs font-bold text-slate-700 dark:text-gray-300">
                                 Унікальний код ордера:
                             </label>
                             <button
                                 type="button"
                                 onClick={isScanning ? stopScanning : startScanning}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-2xs ${
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-2xs whitespace-nowrap ${
                                     isScanning
                                         ? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/40 dark:border-rose-800'
                                         : 'bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
                                 }`}
                             >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                 </svg>
                                 <span>{isScanning ? 'Вимкнути сканер' : 'Сканувати через камеру'}</span>
@@ -285,15 +285,15 @@ export default function VerifyOrderModal({ show, onClose }) {
                         </div>
 
                         {/* Единий безшовний блок з нестираємими рисочками */}
-                        <div className="flex flex-col sm:flex-row gap-2.5">
-                            <div className="flex-1 flex items-center bg-white dark:bg-gray-900 rounded-2xl border-2 border-slate-200 dark:border-gray-700 px-3 py-2 shadow-xs focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all font-mono">
+                        <div className="flex flex-col sm:flex-row gap-2.5 items-stretch">
+                            <div className="flex-1 min-w-0 flex items-center bg-white dark:bg-gray-900 rounded-2xl border-2 border-slate-200 dark:border-gray-700 px-3 py-2 shadow-xs focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all font-mono">
                                 {/* Префікс ORD (акцентний бейдж) */}
-                                <span className="px-2.5 py-1 bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 rounded-lg text-xs font-black select-none tracking-wider shadow-2xs">
+                                <span className="px-2.5 py-1 bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 rounded-lg text-xs font-black select-none tracking-wider shadow-2xs shrink-0">
                                     ORD
                                 </span>
 
                                 {/* Перша рисочка (нестираєма) */}
-                                <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5">
+                                <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5 shrink-0">
                                     −
                                 </span>
 
@@ -312,13 +312,13 @@ export default function VerifyOrderModal({ show, onClose }) {
                                         }
                                     }}
                                     onPaste={handlePaste}
-                                    className="w-14 text-center bg-transparent border-0 p-0 focus:outline-none focus:ring-0 text-slate-800 dark:text-white font-mono font-bold text-sm sm:text-base"
+                                    className="w-12 text-center bg-transparent border-0 p-0 focus:outline-none focus:ring-0 text-slate-800 dark:text-white font-mono font-bold text-sm sm:text-base shrink-0"
                                     placeholder={String(currentYear)}
                                     title="Рік ордера"
                                 />
 
                                 {/* Друга рисочка (нестираєма) */}
-                                <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5">
+                                <span className="text-slate-300 dark:text-gray-600 font-black text-base select-none px-1.5 shrink-0">
                                     −
                                 </span>
 
@@ -336,14 +336,14 @@ export default function VerifyOrderModal({ show, onClose }) {
                                     }}
                                     onPaste={handlePaste}
                                     placeholder="XXXXXX"
-                                    className="flex-1 min-w-[80px] bg-transparent border-0 p-0 focus:outline-none focus:ring-0 uppercase text-slate-900 dark:text-white font-mono font-black tracking-widest text-sm sm:text-base placeholder:text-slate-300 dark:placeholder:text-gray-600"
+                                    className="flex-1 min-w-[70px] bg-transparent border-0 p-0 focus:outline-none focus:ring-0 uppercase text-slate-900 dark:text-white font-mono font-black tracking-widest text-sm sm:text-base placeholder:text-slate-300 dark:placeholder:text-gray-600"
                                 />
 
                                 {suffix && (
                                     <button
                                         type="button"
                                         onClick={handleReset}
-                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs font-semibold px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 text-xs font-semibold px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors shrink-0 ml-1"
                                         title="Стерти код"
                                     >
                                         Стерти
@@ -354,7 +354,7 @@ export default function VerifyOrderModal({ show, onClose }) {
                             <button
                                 type="submit"
                                 disabled={loading || !suffix.trim()}
-                                className="w-full sm:w-auto px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-2xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0"
+                                className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-2xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
                             >
                                 {loading ? (
                                     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
