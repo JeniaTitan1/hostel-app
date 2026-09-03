@@ -10,6 +10,10 @@ import { getEcho } from "@/echo";
 // але зберігається при навігації в межах Inertia (SPA)
 let hasSeenIntroInAppSession = false;
 
+// Глобальний захист від дублювання тостів (діє між перемонтуваннями компонентів та паралельними викликами)
+const recentToastsMap = new Map();
+const DUPLICATE_PREVENTION_WINDOW_MS = 8000;
+
 export default function AuthenticatedLayout({
     header,
     children,
@@ -61,27 +65,67 @@ export default function AuthenticatedLayout({
         setAnimating(false);
     }, []);
 
-    // Захист від дублювання тостів та комфортний час читання
-    const seenFlashMessagesRef = useRef(new Set());
+    const isDuplicateToast = (message) => {
+        if (!message || typeof message !== "string") return true;
+        const cleanMsg = message.trim();
+        const now = Date.now();
+        const lastSeen = recentToastsMap.get(cleanMsg);
+        if (lastSeen && now - lastSeen < DUPLICATE_PREVENTION_WINDOW_MS) {
+            return true;
+        }
+        recentToastsMap.set(cleanMsg, now);
 
-    const calculateToastDuration = (msg) => {
-        if (!msg || typeof msg !== "string") return 5000;
-        // 4500мс базова затримка + 75мс на символ, від 5000мс до 13000мс (13 секунд для довгих повідомлень)
-        return Math.min(13000, Math.max(5000, 4500 + msg.length * 75));
+        // Очищення записів, старіших за 30 секунд
+        for (const [msg, timestamp] of recentToastsMap.entries()) {
+            if (now - timestamp > 30000) {
+                recentToastsMap.delete(msg);
+            }
+        }
+        return false;
+    };
+
+    const calculateToastDuration = (msg, type) => {
+        if (!msg || typeof msg !== "string") return 6500;
+        const cleanMsg = msg.trim();
+        const length = cleanMsg.length;
+
+        // Базовий час для коротких повідомлень — мінімум 6.5 секунд
+        let duration = 6500;
+
+        // Для довгих текстів додаємо по 85мс на символ понад 25 символів
+        if (length > 25) {
+            duration += (length - 25) * 85;
+        }
+
+        // Для попереджень та системних помилок даємо ще +2.5 секунди на комфортне читання
+        const isWarningOrError =
+            type === "warning" ||
+            type === "error" ||
+            /помилка|не вдалося|error|не визначити|заборонено|немає прав|увага|попередження|warning|не налаштовано|налаштуйте/i.test(
+                cleanMsg
+            );
+
+        if (isWarningOrError) {
+            duration += 2500;
+        }
+
+        // Обмежуємо комфортним діапазоном: від 6.5с до 16с
+        return Math.min(16000, Math.max(6500, Math.round(duration)));
     };
 
     const showToastOnce = (msg, customDuration, type) => {
         if (!msg || typeof msg !== "string") return;
-        if (seenFlashMessagesRef.current.has(msg)) {
+        const cleanMsg = msg.trim();
+        if (isDuplicateToast(cleanMsg)) {
             return;
         }
-        seenFlashMessagesRef.current.add(msg);
 
-        const duration = customDuration || calculateToastDuration(msg);
+        const duration =
+            customDuration || calculateToastDuration(cleanMsg, type);
 
         window.dispatchEvent(
             new CustomEvent("show-toast", {
-                detail: { message: msg, duration, type },
+                detail: { message: cleanMsg, duration, type },
             })
         );
     };
@@ -91,20 +135,23 @@ export default function AuthenticatedLayout({
         const handleToast = (e) => {
             const message = e.detail?.message;
             if (!message || typeof message !== "string") return;
+            const cleanMsg = message.trim();
 
-            // Динамічний час читання
-            const duration =
-                e.detail.duration || calculateToastDuration(message);
+            // Динамічний комфортний час читання
+            const duration = Math.max(
+                e.detail.duration || 0,
+                calculateToastDuration(cleanMsg, e.detail.type)
+            );
             const type = e.detail.type;
 
             setToasts((prev) => {
                 // Захист від дублювання: якщо тост з таким самим текстом вже висить на екрані — не додаємо другий
-                if (prev.some((t) => t.message === message)) {
+                if (prev.some((t) => t.message.trim() === cleanMsg)) {
                     return prev;
                 }
                 const newToast = {
                     id: Date.now() + Math.random(),
-                    message,
+                    message: cleanMsg,
                     duration,
                     type,
                 };
@@ -129,6 +176,9 @@ export default function AuthenticatedLayout({
         if (flash.success) {
             showToastOnce(flash.success, undefined, "success");
         }
+        if (flash.warning) {
+            showToastOnce(flash.warning, undefined, "warning");
+        }
         if (flash.error) {
             showToastOnce(flash.error, undefined, "error");
         }
@@ -140,13 +190,6 @@ export default function AuthenticatedLayout({
 
     // Subsequent Inertia page flash check (ігнорує фонові GET reload запити)
     useEffect(() => {
-        const removeBeforeListener = router.on("before", (event) => {
-            // При новому POST/PATCH/DELETE запиті очищаємо історію показаних повідомлень
-            if (event.detail.visit.method !== "get") {
-                seenFlashMessagesRef.current.clear();
-            }
-        });
-
         const removeSuccessListener = router.on("success", (event) => {
             // Якщо це фоновий GET-запит (background reload), не показуємо застарілі флеш-повідомлення
             if (
@@ -161,6 +204,9 @@ export default function AuthenticatedLayout({
             if (pageFlash.success) {
                 showToastOnce(pageFlash.success, undefined, "success");
             }
+            if (pageFlash.warning) {
+                showToastOnce(pageFlash.warning, undefined, "warning");
+            }
             if (pageFlash.error) {
                 showToastOnce(pageFlash.error, undefined, "error");
             }
@@ -172,7 +218,6 @@ export default function AuthenticatedLayout({
         });
 
         return () => {
-            removeBeforeListener();
             removeSuccessListener();
         };
     }, []);

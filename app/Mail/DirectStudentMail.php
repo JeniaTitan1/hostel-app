@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -34,11 +35,14 @@ class DirectStudentMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $replyTo = [];
+        if (!empty($this->sender->email) && filter_var($this->sender->email, FILTER_VALIDATE_EMAIL)) {
+            $replyTo[] = new Address($this->sender->email, $this->sender->name ?? 'Адміністрація');
+        }
+
         return new Envelope(
             subject: "[МНАУ Гуртожитки] {$this->emailSubject}",
-            replyTo: [
-                $this->sender->email => $this->sender->name,
-            ],
+            replyTo: $replyTo,
         );
     }
 

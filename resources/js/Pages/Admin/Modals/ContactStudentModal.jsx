@@ -47,6 +47,7 @@ export default function ContactStudentModal({ student, onClose }) {
             { subject: sentSubject, message: sentMessage },
             {
                 preserveScroll: true,
+                preserveState: true,
             }
         );
     };

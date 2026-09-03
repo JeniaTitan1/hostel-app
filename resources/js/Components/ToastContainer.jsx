@@ -28,20 +28,20 @@ export function Toast({ toast, onClose }) {
     const isError =
         toast.type === "error" ||
         /помилка|не вдалося|error|не визначити|заборонено|немає прав/i.test(
-            toast.message
+            toast.message,
         );
     const isWarning =
         toast.type === "warning" ||
         (!isError &&
             /увага|попередження|warning|змішана|не налаштовано|налаштуйте/i.test(
-                toast.message
+                toast.message,
             ));
     const isSuccess =
         toast.type === "success" ||
         (!isError &&
             !isWarning &&
             /успішно|створено|видалено|затверджено|виселено|заселено|доставлено|збережено|скопійовано/i.test(
-                toast.message
+                toast.message,
             ));
 
     let icon = (
@@ -163,7 +163,9 @@ export default function ToastContainer({ toasts, setToasts }) {
                     key={toast.id}
                     toast={toast}
                     onClose={() =>
-                        setToasts((prev) => prev.filter((t) => t.id !== toast.id))
+                        setToasts((prev) =>
+                            prev.filter((t) => t.id !== toast.id),
+                        )
                     }
                 />
             ))}
