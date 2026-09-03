@@ -145,8 +145,10 @@ export default function AccessLogsTab({
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* Зайшло сьогодні */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xl shrink-0 border border-emerald-100 dark:border-emerald-800/40">
-                        🟢
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/40">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
                     </div>
                     <div>
                         <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -160,8 +162,10 @@ export default function AccessLogsTab({
 
                 {/* Вийшло сьогодні */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xl shrink-0 border border-amber-100 dark:border-amber-800/40">
-                        🔴
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-800/40">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                     </div>
                     <div>
                         <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -175,8 +179,10 @@ export default function AccessLogsTab({
 
                 {/* Відмовлено у вході */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black text-xl shrink-0 border border-rose-100 dark:border-rose-800/40">
-                        🚫
+                    <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-100 dark:border-rose-800/40">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
                     </div>
                     <div>
                         <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -190,8 +196,10 @@ export default function AccessLogsTab({
 
                 {/* Всього перевірок */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center font-black text-xl shrink-0 border border-sky-100 dark:border-sky-800/40">
-                        ⚡
+                    <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 border border-sky-100 dark:border-sky-800/40">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
                     </div>
                     <div>
                         <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -228,7 +236,7 @@ export default function AccessLogsTab({
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
-                        <span>📷 Відкрити QR-сканер КПП</span>
+                        <span>Відкрити QR-сканер КПП</span>
                     </button>
                 </div>
 
@@ -252,8 +260,8 @@ export default function AccessLogsTab({
                         className="text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     >
                         <option value="all">Усі напрямки (Вхід + Вихід)</option>
-                        <option value="entry">🟢 Тільки Вхід</option>
-                        <option value="exit">🔴 Тільки Вихід</option>
+                        <option value="entry">Тільки Вхід</option>
+                        <option value="exit">Тільки Вихід</option>
                     </select>
 
                     {/* Фільтр за статусом */}
@@ -263,8 +271,8 @@ export default function AccessLogsTab({
                         className="text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     >
                         <option value="all">Усі статуси</option>
-                        <option value="granted">✅ Доступ дозволено</option>
-                        <option value="denied">❌ Відмовлено</option>
+                        <option value="granted">Доступ дозволено</option>
+                        <option value="denied">Відмовлено</option>
                     </select>
 
                     {/* Фільтр за гуртожитком */}
@@ -289,7 +297,11 @@ export default function AccessLogsTab({
             <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl shadow-sm overflow-hidden">
                 {paginatedLogs.length === 0 ? (
                     <div className="p-12 text-center text-slate-400 dark:text-gray-500">
-                        <div className="text-4xl mb-2">📋</div>
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-gray-700/60 text-slate-400 dark:text-gray-500 flex items-center justify-center mx-auto mb-3">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
                         <p className="font-bold text-sm text-slate-600 dark:text-gray-300">
                             Журнал відвідувань порожній
                         </p>
@@ -299,7 +311,7 @@ export default function AccessLogsTab({
                     </div>
                 ) : (
                     <>
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto scrollbar-none">
                             <table className="w-full text-left text-xs">
                                 <thead className="bg-slate-50/80 dark:bg-gray-900/50 text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100 dark:border-gray-700">
                                     <tr>
@@ -366,14 +378,18 @@ export default function AccessLogsTab({
                                                 {/* Напрямок */}
                                                 <td className="px-4 py-3.5 whitespace-nowrap">
                                                     <span
-                                                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
+                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider ${
                                                             isEntry
                                                                 ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40"
                                                                 : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40"
                                                         }`}
                                                     >
-                                                        <span>{isEntry ? "🟢" : "🔴"}</span>
-                                                        <span>{isEntry ? "ВХІД" : "ВИХІД"}</span>
+                                                        <span
+                                                            className={`w-1.5 h-1.5 rounded-full ${
+                                                                isEntry ? "bg-emerald-500" : "bg-amber-500"
+                                                            }`}
+                                                        />
+                                                        <span>{isEntry ? "Вхід" : "Вихід"}</span>
                                                     </span>
                                                 </td>
 
@@ -395,8 +411,8 @@ export default function AccessLogsTab({
                                                     <div className="font-semibold">
                                                         {log.scanner?.name || "КПП"}
                                                     </div>
-                                                    <div className="text-[9px] text-slate-400 uppercase">
-                                                        {log.method === "qr_scan" ? "📷 QR-сканер" : "⌨️ Вручну"}
+                                                    <div className="text-[9px] text-slate-400 uppercase flex items-center gap-1">
+                                                        {log.method === "qr_scan" ? "QR-сканер" : "Вручну"}
                                                     </div>
                                                 </td>
 
