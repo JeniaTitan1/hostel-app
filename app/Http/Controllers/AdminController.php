@@ -162,6 +162,9 @@ class AdminController extends Controller
                     'author_name' => $a->author ? $a->author->name : 'Адміністрація',
                     'author_role' => $a->author ? ($a->author->role === 'admin' ? 'Головний Адміністратор' : 'Комендант') : 'Адміністрація',
                     'created_at' => $a->created_at ? $a->created_at->format('d.m.Y H:i') : null,
+                ];
+            });
+
         $accessLogsQuery = AccessLog::with(['user', 'booking.room.building', 'building', 'scanner'])
             ->latest()
             ->when($isCommandant, function ($q) use ($commandantBuildingId) {
