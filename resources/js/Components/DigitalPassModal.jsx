@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import QRCode from 'qrcode';
 import { generateOrderPdf } from '@/Utils/OrderPdfGenerator';
@@ -6,19 +6,30 @@ import { generateOrderPdf } from '@/Utils/OrderPdfGenerator';
 export default function DigitalPassModal({ show, onClose, booking, user }) {
     const [qrUrl, setQrUrl] = useState('');
     const [copied, setCopied] = useState(false);
-    const cardRef = useRef(null);
 
     const orderNumber = booking?.order_number || `ORD-${new Date().getFullYear()}-PENDING`;
     const roomNumber = booking?.room?.room_number || '-';
     const floorNumber = booking?.room?.floor || '-';
     const buildingName = booking?.room?.building?.name || 'Гуртожиток МНАУ';
 
-    // Генерація QR-коду
+    // Блокування фонового скролу сторінки під час відкриття перепустки
+    useEffect(() => {
+        if (show) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [show]);
+
+    // Генерація чіткого QR-коду
     useEffect(() => {
         if (show && booking) {
             const verifyUrl = `${window.location.origin}/verify-order/${encodeURIComponent(orderNumber)}`;
             QRCode.toDataURL(verifyUrl, {
-                width: 380,
+                width: 340,
                 margin: 1,
                 color: {
                     dark: '#044e3a',
@@ -48,40 +59,33 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
     return (
         <Transition show={show} as={React.Fragment}>
             <Dialog as="div" className="relative z-50" onClose={onClose}>
-                {/* 1. Глибокий матовий туманний фон (Backdrop blur) */}
+                {/* 1. Легкий апаратно-прискорений матовий фон (без лагів на мобільних) */}
                 <TransitionChild
                     as={React.Fragment}
-                    enter="ease-out duration-300"
+                    enter="ease-out duration-200"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
-                    leave="ease-in duration-200"
+                    leave="ease-in duration-150"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl transition-all" />
+                    <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity" />
                 </TransitionChild>
 
-                {/* 2. Контейнер для ідеального центрування картки */}
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
+                {/* 2. Контейнер: ідеальне центрування, без скролу */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 overflow-y-auto scrollbar-none">
                     <TransitionChild
                         as={React.Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0 scale-95 translate-y-3"
-                        enterTo="opacity-100 scale-100 translate-y-0"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100 scale-100 translate-y-0"
-                        leaveTo="opacity-0 scale-95 translate-y-3"
+                        enter="ease-out duration-200"
+                        enterFrom="opacity-0 scale-95"
+                        enterTo="opacity-100 scale-100"
+                        leave="ease-in duration-150"
+                        leaveFrom="opacity-100 scale-100"
+                        leaveTo="opacity-0 scale-95"
                     >
-                        <DialogPanel
-                            ref={cardRef}
-                            className="w-full max-w-[360px] bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-950 text-white rounded-3xl border border-emerald-400/40 shadow-2xl p-5 relative overflow-hidden select-none"
-                        >
-                            {/* Фоновий м'який ембіент */}
-                            <div className="absolute -top-16 -left-16 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-                            <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
-
-                            {/* Верхня плашка: заголовок і статус */}
-                            <div className="flex items-center justify-between pb-3 border-b border-white/10 relative z-30 mb-3">
+                        <DialogPanel className="w-full max-w-[350px] bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-950 text-white rounded-3xl border border-emerald-400/30 shadow-2xl p-4 sm:p-5 relative select-none transform-gpu">
+                            {/* Верхня плашка */}
+                            <div className="flex items-center justify-between pb-2.5 border-b border-white/10 mb-3">
                                 <div>
                                     <div className="text-[10px] uppercase font-black tracking-widest text-emerald-400/90 leading-tight">
                                         МНАУ • КАМПУС
@@ -99,9 +103,9 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </button>
                             </div>
 
-                            {/* Статус бейдж */}
-                            <div className="flex justify-between items-center mb-3 relative z-30 px-1">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-sm uppercase tracking-wider">
+                            {/* Статус-бейдж */}
+                            <div className="flex justify-between items-center mb-3 px-0.5">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-xs uppercase tracking-wider">
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
                                     ДІЙСНИЙ
                                 </span>
@@ -110,8 +114,8 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                 </span>
                             </div>
 
-                            {/* Великий білий блок для QR-коду */}
-                            <div className="bg-white p-3 rounded-2xl shadow-xl mx-auto w-fit border-2 border-emerald-300 relative z-30">
+                            {/* Великий висококонтрастний блок із QR-кодом */}
+                            <div className="bg-white p-3 rounded-2xl shadow-xl mx-auto w-fit border-2 border-emerald-300">
                                 {qrUrl ? (
                                     <img
                                         src={qrUrl}
@@ -126,11 +130,11 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                             </div>
 
                             {/* Унікальний номер коду з копіюванням */}
-                            <div className="mt-3 text-center relative z-30">
+                            <div className="mt-3 text-center">
                                 <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
                                     Унікальний номер ордера:
                                 </div>
-                                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl transition-all">
+                                <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl transition-all">
                                     <span className="font-mono font-black text-sm text-emerald-300 tracking-widest">
                                         {orderNumber}
                                     </span>
@@ -146,7 +150,7 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                             </div>
 
                             {/* Інформація про студента та кімнату */}
-                            <div className="mt-3.5 pt-3 border-t border-white/10 grid grid-cols-2 gap-2 text-left relative z-30">
+                            <div className="mt-3 pt-2.5 border-t border-white/10 grid grid-cols-2 gap-2 text-left">
                                 <div>
                                     <div className="text-[9px] uppercase font-bold text-gray-400">Студент</div>
                                     <div className="text-xs font-bold text-white truncate">{user?.name || '-'}</div>
@@ -163,12 +167,12 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                             </div>
 
                             {/* Підказка */}
-                            <p className="text-center text-[10px] text-gray-400 mt-2 font-medium relative z-30">
+                            <p className="text-center text-[10px] text-gray-400 mt-2 font-medium">
                                 Покажіть цей QR-код на прохідній гуртожитку
                             </p>
 
-                            {/* Дії внизу */}
-                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/10 relative z-30">
+                            {/* Кнопки дій */}
+                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/10">
                                 <button
                                     type="button"
                                     onClick={handleDownloadPdf}
