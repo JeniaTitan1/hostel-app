@@ -248,7 +248,18 @@ export default function AuthenticatedLayout({
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen flex flex-col antialiased bg-slate-50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
+        <div className="min-h-screen flex flex-col antialiased bg-slate-50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200 relative">
+            {/* Легкий витончений фоновий патерн та м'яке ембієнт-освітлення */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
+                {/* Делікатна мікро-сітка точок */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-40 dark:opacity-20" />
+
+                {/* М'які пастельні світлові плями (ambient lighting) */}
+                <div className="absolute -top-40 -right-32 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-emerald-400/12 via-teal-300/8 to-transparent blur-[120px] dark:from-emerald-500/10 dark:via-teal-600/5 animate-ambient-slow" />
+                <div className="absolute top-1/3 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-teal-400/9 via-cyan-300/6 to-transparent blur-[110px] dark:from-teal-500/8 dark:via-cyan-600/5 animate-ambient-reverse" />
+                <div className="absolute -bottom-40 right-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tl from-emerald-300/8 via-green-200/5 to-transparent blur-[130px] dark:from-emerald-600/5 dark:via-slate-800/10" />
+            </div>
+
             {/* Flash Message Toasts */}
             <ToastContainer toasts={toasts} setToasts={setToasts} />
 
