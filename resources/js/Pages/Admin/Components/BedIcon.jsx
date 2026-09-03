@@ -5,17 +5,12 @@ export const BedIcon = ({ gender, isOccupied, name }) => {
         return (
             <svg
                 className="w-5 h-5 text-slate-300 dark:text-gray-600 hover:text-emerald-500 transition-colors shrink-0"
-                fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+                fill="currentColor"
                 title="Вільне ліжко"
             >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2 4v16M2 8h20M22 4v16M2 18h20M6 8v5a3 3 0 003 3h6a3 3 0 003-3V8"
-                />
+                {/* Класична піктограма вільного ліжка */}
+                <path d="M7 11.5c1.4 0 2.5-1.1 2.5-2.5S8.4 6.5 7 6.5 4.5 7.6 4.5 9s1.1 2.5 2.5 2.5zm12-5h-8v7H4V5H2v15h2v-3h16v3h2v-9c0-2.2-1.8-4-4-4z" />
             </svg>
         );
     }
