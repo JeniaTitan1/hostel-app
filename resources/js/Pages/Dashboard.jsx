@@ -300,9 +300,22 @@ export default function Dashboard({
     };
 
     const [showVerifyModal, setShowVerifyModal] = useState(false);
-    const [showDigitalPass, setShowDigitalPass] = useState(false);
+    const [showDigitalPass, setShowDigitalPass] = useState(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("open_pass") === "true" || params.get("open_pass") === "1";
+        }
+        return false;
+    });
     const [showBuildingCatalog, setShowBuildingCatalog] = useState(false);
     const [showReallocationModal, setShowReallocationModal] = useState(false);
+
+    // Слухач PWA ярлика
+    useEffect(() => {
+        const handleOpenPass = () => setShowDigitalPass(true);
+        window.addEventListener("open-digital-pass", handleOpenPass);
+        return () => window.removeEventListener("open-digital-pass", handleOpenPass);
+    }, []);
 
     // Генерація PDF-ордера на заселення
     const handleDownloadSlip = () => {

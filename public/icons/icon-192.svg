@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="48" fill="url(#bg192)" />
+  <g fill="#ffffff">
+    <!-- Roof -->
+    <path d="M96 36 L141 72 L128 72 L96 47 L64 72 L51 72 Z" fill="#34d399" />
+    <!-- Letter M -->
+    <path d="M55 78 L72 78 L96 117 L120 78 L137 78 L137 144 L119 144 L119 108 L101 138 L91 138 L73 108 L73 144 L55 144 Z" />
+    <!-- Dot -->
+    <circle cx="96" cy="158" r="6" fill="#34d399" />
+  </g>
+</svg>

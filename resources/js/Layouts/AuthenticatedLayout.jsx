@@ -4,6 +4,8 @@ import IntroWaveAnimation from "@/Components/IntroWaveAnimation";
 import ToastContainer from "@/Components/ToastContainer";
 import LayoutHeader from "@/Components/LayoutHeader";
 import LayoutFooter from "@/Components/LayoutFooter";
+import GyroscopeLavaLamp from "@/Components/GyroscopeLavaLamp";
+import PwaInstallPrompt from "@/Components/PwaInstallPrompt";
 import { getEcho } from "@/echo";
 
 // Внутрішній прапорець сесії модуля: ресетиться при перезавантаженні сторінки (F5),
@@ -281,6 +283,9 @@ export default function AuthenticatedLayout({
                 </div>
             )}
 
+            {/* Інтерактивний фон з лава-лампою та гіроскопом */}
+            <GyroscopeLavaLamp opacity={darkMode ? 0.35 : 0.45} />
+
             {/* Header & Subheader */}
             <LayoutHeader
                 user={user}
@@ -297,6 +302,9 @@ export default function AuthenticatedLayout({
             <main className="flex-grow animate-fade-in relative z-10">
                 {children}
             </main>
+
+            {/* Кнопка та банер встановлення PWA додатка */}
+            <PwaInstallPrompt />
 
             {/* Footer */}
             <LayoutFooter />
