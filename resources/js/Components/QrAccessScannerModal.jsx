@@ -48,8 +48,8 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     const [lastResult, setLastResult] = useState(null);
     const [activeTab, setActiveTab] = useState("camera"); // 'camera' | 'manual'
     const [notes, setNotes] = useState("");
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
-    const scannerRef = useRef(null);
     const html5QrCodeRef = useRef(null);
     const lastScannedCodeRef = useRef(null);
     const lastScanTimeRef = useRef(0);
@@ -88,8 +88,8 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
             html5QrCodeRef.current = html5QrCode;
 
             const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
+                fps: 15,
+                qrbox: { width: 260, height: 260 },
                 aspectRatio: 1.0,
             };
 
@@ -98,7 +98,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                 config,
                 onQrDecoded,
                 (errorMessage) => {
-                    // Ігноруємо проміжні помилки пошуку QR в кадрі
+                    // Проміжні кадри без QR
                 }
             );
         } catch (err) {
@@ -149,16 +149,17 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
         try {
             // Вібрація на смартфонах при зчитуванні
             if (typeof window !== "undefined" && window.navigator?.vibrate) {
-                window.navigator.vibrate(15);
+                window.navigator.vibrate(20);
             }
 
             const res = await fetch(route("admin.access-logs.scan"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute("content") || "",
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
                     Accept: "application/json",
                 },
                 body: JSON.stringify({
@@ -200,6 +201,18 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
         e.preventDefault();
         if (!manualCode.trim()) return;
         handleSendCode(manualCode.trim());
+    };
+
+    // Швидке продовження сканування для наступного студента
+    const handleContinueScan = () => {
+        setLastResult(null);
+        setManualCode("");
+        setNotes("");
+        lastScannedCodeRef.current = null;
+        lastScanTimeRef.current = 0;
+        if (activeTab === "camera" && !isScanning) {
+            startCamera();
+        }
     };
 
     // Швидке ручне перемикання напрямку після сканування
@@ -257,11 +270,17 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
 
     if (!isOpen) return null;
 
+    const modalSizeClasses = isFullscreen
+        ? "fixed inset-0 w-full h-full rounded-none max-w-none max-h-none"
+        : "w-full h-full sm:h-auto sm:max-w-2xl sm:max-h-[92vh] sm:rounded-3xl rounded-none";
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-xl bg-white dark:bg-gray-900 rounded-3xl border border-slate-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-                {/* Шапка модалки */}
-                <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between bg-slate-50/70 dark:bg-gray-800/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+            <div
+                className={`bg-white dark:bg-gray-900 border-0 sm:border border-slate-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col ${modalSizeClasses}`}
+            >
+                {/* Шапка сканера */}
+                <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between bg-slate-50/80 dark:bg-gray-800/60">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-xs">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -273,21 +292,42 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 Сканер пропускного пункту (КПП)
                             </h3>
                             <p className="text-xs text-slate-500 dark:text-gray-400">
-                                Автоматична або примусова фіксація входу/виходу
+                                Повноекранний швидкий режим фіксації перепусток
                             </p>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="w-8 h-8 rounded-xl bg-slate-200/80 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
-                    >
-                        ✕
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                        {/* Кнопка перемикання повного екрану на ПК */}
+                        <button
+                            type="button"
+                            onClick={() => setIsFullscreen(!isFullscreen)}
+                            className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-200/80 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 items-center justify-center font-bold text-xs transition-colors cursor-pointer"
+                            title={isFullscreen ? "Згорнути у вікно" : "На весь екран"}
+                        >
+                            {isFullscreen ? (
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0l5 0m-5 0l0 5M15 9l5-5m0 0l-5 0m5 0l0 5M9 15l-5 5m0 0l5 0m-5 0l0-5M15 15l5 5m0 0l-5 0m5 0l0-5" />
+                                </svg>
+                            ) : (
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="w-9 h-9 rounded-xl bg-slate-200/80 dark:bg-gray-800 hover:bg-slate-300 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
 
                 {/* Налаштування напрямку (Вхід / Вихід / Авто) */}
-                <div className="px-4 sm:px-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="px-4 sm:px-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                     <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-gray-800 rounded-2xl w-full sm:w-auto">
                         <button
                             type="button"
@@ -337,7 +377,10 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     <div className="flex items-center gap-2 text-xs font-bold w-full sm:w-auto justify-end">
                         <button
                             type="button"
-                            onClick={() => setActiveTab("camera")}
+                            onClick={() => {
+                                setActiveTab("camera");
+                                handleContinueScan();
+                            }}
                             className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
                                 activeTab === "camera"
                                     ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black"
@@ -352,7 +395,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         </button>
                         <button
                             type="button"
-                            onClick={() => setActiveTab("manual")}
+                            onClick={() => {
+                                setActiveTab("manual");
+                            }}
                             className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
                                 activeTab === "manual"
                                     ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black"
@@ -368,16 +413,16 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                 </div>
 
                 {/* Основний блок вмісту */}
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 scrollbar-none">
                     {/* ТАБ 1: КАМЕРА СКАНЕРА */}
                     {activeTab === "camera" && (
                         <div className="relative flex flex-col items-center">
-                            <div className="relative w-full max-w-sm aspect-square bg-slate-950 rounded-3xl overflow-hidden border-2 border-emerald-500/30 shadow-inner flex items-center justify-center">
+                            <div className="relative w-full max-w-sm aspect-square bg-slate-950 rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl flex items-center justify-center">
                                 <div id="access-qr-reader" className="w-full h-full" />
 
                                 {processing && (
-                                    <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-2 z-20">
-                                        <div className="w-8 h-8 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                                    <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-2 z-20">
+                                        <div className="w-9 h-9 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin" />
                                         <span className="text-xs font-bold">Перевірка перепустки...</span>
                                     </div>
                                 )}
@@ -431,7 +476,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                             <button
                                 type="submit"
                                 disabled={processing || !manualCode.trim()}
-                                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black text-xs transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -444,37 +489,37 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     {/* РЕЗУЛЬТАТ ОСТАННЬОГО СКАНУВАННЯ */}
                     {lastResult && (
                         <div
-                            className={`p-4 rounded-2xl border transition-all animate-fade-in ${
+                            className={`p-4 rounded-3xl border-2 transition-all animate-fade-in shadow-lg ${
                                 lastResult.valid
                                     ? lastResult.type === "entry"
-                                        ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-100"
-                                        : "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-100"
-                                    : "bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-700 text-red-950 dark:text-red-100"
+                                        ? "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-400 dark:border-emerald-600 text-emerald-950 dark:text-emerald-100"
+                                        : "bg-amber-50 dark:bg-amber-950/50 border-amber-400 dark:border-amber-600 text-amber-950 dark:text-amber-100"
+                                    : "bg-red-50 dark:bg-red-950/50 border-red-400 dark:border-red-600 text-red-950 dark:text-red-100"
                             }`}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                                        className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                                             lastResult.valid
                                                 ? lastResult.type === "entry"
-                                                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                                                    : "bg-amber-600 text-white shadow-md shadow-amber-600/30"
-                                                : "bg-red-600 text-white shadow-md shadow-red-600/30"
+                                                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/40"
+                                                    : "bg-amber-600 text-white shadow-lg shadow-amber-600/40"
+                                                : "bg-red-600 text-white shadow-lg shadow-red-600/40"
                                         }`}
                                     >
                                         {lastResult.valid ? (
                                             lastResult.type === "entry" ? (
-                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                                 </svg>
                                             ) : (
-                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                                 </svg>
                                             )
                                         ) : (
-                                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         )}
@@ -482,7 +527,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <span
-                                                className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                                className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                                                     lastResult.valid
                                                         ? lastResult.type === "entry"
                                                             ? "bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-white"
@@ -497,12 +542,12 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                                     : "ДОСТУП ЗАБОРОНЕНО"}
                                             </span>
                                             {lastResult.log && (
-                                                <span className="text-[10px] font-semibold text-slate-500 dark:text-gray-400">
+                                                <span className="text-[10px] font-semibold opacity-70">
                                                     {lastResult.log.created_at}
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-sm font-black mt-0.5">
+                                        <h4 className="text-base font-black mt-1">
                                             {lastResult.student?.name || "Невідомий користувач"}
                                         </h4>
                                     </div>
@@ -513,7 +558,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                             {lastResult.student && (
                                 <div className="mt-3 pt-3 border-t border-current/10 grid grid-cols-2 gap-2 text-xs">
                                     <div>
-                                        <span className="text-[10px] opacity-75 block">Академічні дані:</span>
+                                        <span className="text-[10px] opacity-75 block">Спеціальність / Курс:</span>
                                         <span className="font-bold">
                                             {lastResult.student.specialty || "Студент"}{" "}
                                             {lastResult.student.course ? `(${lastResult.student.course} курс)` : ""}
@@ -541,9 +586,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 </div>
                             )}
 
-                            {/* ⚡ ШВИДКА КНОПКА РУЧНОГО ВИПРАВЛЕННЯ НАПРЯМКУ (якщо студент проскочив) */}
+                            {/* ⚡ ШВИДКА КНОПКА РУЧНОГО ВИПРАВЛЕННЯ НАПРЯМКУ */}
                             {lastResult.valid && lastResult.log && (
-                                <div className="mt-3 pt-3 border-t border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/40 dark:bg-black/20 p-2.5 rounded-xl">
+                                <div className="mt-3 pt-3 border-t border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/50 dark:bg-black/25 p-2.5 rounded-2xl">
                                     <span className="text-[11px] font-bold opacity-90">
                                         Студент проскочив? Виправити напрямок:
                                     </span>
@@ -552,10 +597,10 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                             type="button"
                                             disabled={updatingDirection || lastResult.type === "entry"}
                                             onClick={() => handleToggleDirection("entry")}
-                                            className={`px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1 ${
+                                            className={`px-3 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
                                                 lastResult.type === "entry"
                                                     ? "bg-emerald-600 text-white shadow-xs"
-                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-950 border border-slate-200 dark:border-gray-700 cursor-pointer"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-950 border border-slate-200 dark:border-gray-700"
                                             }`}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -567,10 +612,10 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                             type="button"
                                             disabled={updatingDirection || lastResult.type === "exit"}
                                             onClick={() => handleToggleDirection("exit")}
-                                            className={`px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1 ${
+                                            className={`px-3 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
                                                 lastResult.type === "exit"
                                                     ? "bg-amber-600 text-white shadow-xs"
-                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-950 border border-slate-200 dark:border-gray-700 cursor-pointer"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-950 border border-slate-200 dark:border-gray-700"
                                             }`}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -582,21 +627,47 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 </div>
                             )}
 
-                            <p className="mt-2 text-[11px] font-medium leading-tight">
-                                {lastResult.message}
-                            </p>
+                            {/* 🚀 ВЕЛИКА КНОПКА «ПРОДОВЖИТИ СКАНУВАННЯ» */}
+                            <button
+                                type="button"
+                                onClick={handleContinueScan}
+                                className="mt-4 w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm tracking-wide transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Продовжити сканування (Наступний)</span>
+                            </button>
                         </div>
                     )}
                 </div>
 
                 {/* Футер */}
-                <div className="p-4 border-t border-slate-100 dark:border-gray-800 flex justify-end bg-slate-50/50 dark:bg-gray-800/30">
+                <div className="p-4 border-t border-slate-100 dark:border-gray-800 flex items-center justify-between bg-slate-50/70 dark:bg-gray-800/40 shrink-0">
+                    {lastResult ? (
+                        <button
+                            type="button"
+                            onClick={handleContinueScan}
+                            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            </svg>
+                            <span>Продовжити</span>
+                        </button>
+                    ) : (
+                        <span className="text-[11px] text-slate-400">
+                            Готовий до зчитування перепусток
+                        </span>
+                    )}
+
                     <button
                         type="button"
                         onClick={onClose}
                         className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 text-slate-800 dark:text-white text-xs font-bold transition-all cursor-pointer"
                     >
-                        Закрити сканер
+                        Закрити
                     </button>
                 </div>
             </div>
