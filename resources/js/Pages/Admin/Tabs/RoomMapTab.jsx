@@ -852,10 +852,6 @@ export default function RoomMapTab({
                                                                                                 title="Кімната для осіб з обмеженими фізичними можливостями / інвалідністю"
                                                                                             >
                                                                                                 <div className="flex items-center gap-1.5">
-                                                                                                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                        <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
-                                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
-                                                                                                    </svg>
                                                                                                     <span className="font-semibold text-gray-700 dark:text-gray-200">
                                                                                                         {Boolean(room.is_accessible) ? "Інклюзивна кімната" : "Звичайна кімната"}
                                                                                                     </span>

@@ -21,10 +21,24 @@ export default function CloseRoomModal({ room, onClose }) {
         });
     };
 
+    const backdropMouseDownRef = React.useRef(false);
+
+    const handleBackdropMouseDown = (e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+    };
+
+    const handleBackdropClick = (e) => {
+        if (backdropMouseDownRef.current && e.target === e.currentTarget) {
+            onClose();
+        }
+        backdropMouseDownRef.current = false;
+    };
+
     return createPortal(
         <div
             className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md"
-            onClick={onClose}
+            onMouseDown={handleBackdropMouseDown}
+            onClick={handleBackdropClick}
         >
             <div
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-gray-700 w-full max-w-md p-6 space-y-4 mx-4 my-auto"

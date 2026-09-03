@@ -308,14 +308,6 @@ export default function Dashboard({
                     setReallocateBookingData(null);
                     setReallocateCurrentRoom(null);
                     setIsReallocating(false);
-                    window.dispatchEvent(
-                        new CustomEvent("show-toast", {
-                            detail: {
-                                message: "Користувача успішно переселено!",
-                                type: "success",
-                            },
-                        })
-                    );
                 },
                 onError: (errors) => {
                     setIsReallocating(false);

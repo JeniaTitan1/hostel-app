@@ -54,10 +54,24 @@ export default function ContactStudentModal({ student, onClose }) {
 
     const telegramUser = cleanTelegramUsername(student.telegram);
 
+    const backdropMouseDownRef = React.useRef(false);
+
+    const handleBackdropMouseDown = (e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+    };
+
+    const handleBackdropClick = (e) => {
+        if (backdropMouseDownRef.current && e.target === e.currentTarget) {
+            onClose();
+        }
+        backdropMouseDownRef.current = false;
+    };
+
     return createPortal(
         <div
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 z-[99999] animate-in fade-in zoom-in-95 duration-150"
-            onClick={onClose}
+            onMouseDown={handleBackdropMouseDown}
+            onClick={handleBackdropClick}
         >
             <div
                 className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto"

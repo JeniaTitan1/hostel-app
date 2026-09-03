@@ -4,10 +4,24 @@ import { createPortal } from "react-dom";
 export default function EditUserModal({ editingUser, onClose, userEditForm, onSubmit }) {
     if (!editingUser) return null;
 
+    const backdropMouseDownRef = React.useRef(false);
+
+    const handleBackdropMouseDown = (e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+    };
+
+    const handleBackdropClick = (e) => {
+        if (backdropMouseDownRef.current && e.target === e.currentTarget) {
+            onClose();
+        }
+        backdropMouseDownRef.current = false;
+    };
+
     return createPortal(
         <div
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 z-[99999] animate-in fade-in zoom-in-95 duration-150"
-            onClick={onClose}
+            onMouseDown={handleBackdropMouseDown}
+            onClick={handleBackdropClick}
         >
             <div
                 className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col my-auto"
