@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
 
 /**
@@ -316,12 +317,12 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || typeof document === "undefined") return null;
 
-    return (
-        <div className="fixed inset-0 z-[99999] w-screen h-[100dvh] bg-[#070e1b] text-white flex flex-col overflow-hidden animate-in fade-in duration-200">
-            {/* ВЕРХНЯ ПАНЕЛЬ УПРАВЛІННЯ КПП (WORKSTATION TOP BAR) */}
-            <header className="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-4 shrink-0 shadow-lg">
+    return createPortal(
+        <div className="fixed inset-0 z-[999999] w-screen h-[100dvh] bg-[#070e1b] text-white flex flex-col overflow-hidden animate-in fade-in duration-200">
+            {/* ВЕРХНЯ ПАНЕЛЬ УПРАВЛІННЯ КПП (WORKSTATION TOP BAR - 100% ШИРИНИ) */}
+            <header className="w-full px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-4 shrink-0 shadow-lg">
                 {/* Ліва частина: Логотип та статус режиму КПП */}
                 <div className="flex items-center gap-3">
                     <button
@@ -468,10 +469,10 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                 </div>
             </header>
 
-            {/* ОСНОВНА ЧАСТИНА: 2-КОЛОНКОВИЙ FULL-SCREEN РОБОЧИЙ ПРОСТІР НА ПК */}
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto w-full items-stretch justify-center">
-                {/* ЛІВА КОЛОНКА: ВІДЕОПОТІК КАМЕРИ / РУЧНИЙ ВВІД */}
-                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/60 border border-slate-800/80 rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+            {/* ОСНОВНА ЧАСТИНА: 2-КОЛОНКОВИЙ FULL-SCREEN РОБОЧИЙ ПРОСТІР НА ВЕСЬ ЕКРАН */}
+            <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 items-stretch justify-center overflow-y-auto">
+                {/* ЛІВА КОЛОНКА: ВІДЕОПОТІК КАМЕРИ / РУЧНИЙ ВВІД (ШИРОКА ПАНЕЛЬ) */}
+                <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-slate-900/60 border border-slate-800/80 rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative">
                     {/* Перемикач вкладок для мобільних екранів */}
                     <div className="flex sm:hidden items-center gap-1.5 mb-4 p-1 bg-slate-950 rounded-2xl w-full">
                         <button
@@ -502,8 +503,8 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     </div>
 
                     {activeTab === "camera" && (
-                        <div className="w-full flex flex-col items-center max-w-md">
-                            <div className="relative w-full aspect-square bg-black rounded-3xl overflow-hidden border-2 border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.2)] flex items-center justify-center">
+                        <div className="w-full flex flex-col items-center justify-center flex-1 max-w-lg">
+                            <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg aspect-square bg-black rounded-3xl overflow-hidden border-2 border-emerald-500/50 shadow-[0_0_50px_rgba(16,185,129,0.25)] flex items-center justify-center">
                                 <div id="access-qr-reader" className="w-full h-full" />
 
                                 {processing && (
@@ -528,7 +529,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                     </button>
                                 </div>
                             ) : (
-                                <div className="mt-4 flex items-center justify-between w-full px-2 text-xs text-slate-400">
+                                <div className="mt-4 flex items-center justify-between w-full max-w-md px-2 text-xs text-slate-400">
                                     <span className="flex items-center gap-1.5">
                                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                                         Сканер активний
@@ -593,8 +594,8 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     )}
                 </div>
 
-                {/* ПРАВА КОЛОНКА: РЕЗУЛЬТАТ СКАНУВАННЯ / КАРТКА СТУДЕНТА КПП */}
-                <div className="flex-1 flex flex-col justify-center bg-slate-900/60 border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                {/* ПРАВА КОЛОНКА: РЕЗУЛЬТАТ СКАНУВАННЯ / КАРТКА СТУДЕНТА КПП (ШИРОКА ПАНЕЛЬ) */}
+                <div className="w-full lg:w-1/2 flex flex-col justify-center bg-slate-900/60 border border-slate-800/80 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden">
                     {lastResult ? (
                         <div className="w-full space-y-6 animate-in fade-in zoom-in-95 duration-200">
                             {/* Статусний бейдж пропуску */}
@@ -767,6 +768,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     )}
                 </div>
             </main>
-        </div>
+        </div>,
+        document.body
     );
 }
