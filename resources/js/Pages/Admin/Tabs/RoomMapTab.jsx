@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import CommandantOccupancyVisualizer from "@/Components/CommandantOccupancyVisualizer";
+import React, { useState, useEffect, useMemo } from "react";
 
 export default function RoomMapTab({
     buildings = [],
@@ -23,9 +22,66 @@ export default function RoomMapTab({
     isSuperAdmin,
     liveHighlightedRoomIds = [],
 }) {
-    const [viewMode, setViewMode] = useState("visualizer");
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
+
+    // Зведена статистика зайнятості для обраного корпусу або всіх корпусів
+    const overviewStats = useMemo(() => {
+        const targetBuildings = selectedBuildingFilter
+            ? buildings.filter((b) => Number(b.id) === Number(selectedBuildingFilter))
+            : buildings;
+
+        let totalRooms = 0;
+        let totalCapacity = 0;
+        let totalOccupied = 0;
+        let maleBeds = 0;
+        let femaleBeds = 0;
+        let emptyRoomBeds = 0;
+        let repairRooms = 0;
+
+        targetBuildings.forEach((b) => {
+            (b.rooms || []).forEach((room) => {
+                totalRooms += 1;
+                const capacity = Number(room.max_capacity) || 0;
+                const approvedBookings = (room.bookings || []).filter(
+                    (bk) => bk.status === "approved" || (bk.status === "pending" && bk.new_room_id !== null)
+                );
+                const occupied = approvedBookings.length;
+                const free = Math.max(0, capacity - occupied);
+
+                totalCapacity += capacity;
+                totalOccupied += occupied;
+
+                if (room.status === "closed") {
+                    repairRooms += 1;
+                }
+
+                const gender = getRoomGender ? getRoomGender(room) : { type: "empty" };
+                if (gender.type === "male") {
+                    maleBeds += free;
+                } else if (gender.type === "female") {
+                    femaleBeds += free;
+                } else {
+                    emptyRoomBeds += free;
+                }
+            });
+        });
+
+        const totalFree = Math.max(0, totalCapacity - totalOccupied);
+        const percent = totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
+
+        return {
+            totalRooms,
+            totalCapacity,
+            totalOccupied,
+            totalFree,
+            maleBeds,
+            femaleBeds,
+            emptyRoomBeds,
+            repairRooms,
+            percent,
+        };
+    }, [buildings, selectedBuildingFilter, getRoomGender]);
 
     // Клік за межами налаштувань закриває попап
     useEffect(() => {
@@ -41,70 +97,94 @@ export default function RoomMapTab({
 
     return (
         <div className="space-y-6">
-            {/* Панель перемикання режимів перегляду */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm">
-                <div>
-                    <h3 className="font-extrabold text-gray-900 dark:text-white text-base tracking-tight flex items-center gap-2">
-                        <span>Житловий фонд та кімнати</span>
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                        {viewMode === "visualizer" ? "Інтерактивний зріз корпусу, ліжка та детальна зайнятість" : "Класичний картковий вигляд"}
-                    </p>
+            {/* Коротке та функціональне зведення зайнятості (без емодзі) */}
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-2xl shadow-xs p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-gray-700/70">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                Стан житлового фонду
+                            </h4>
+                            <span className="text-xs text-gray-400">
+                                {selectedBuildingFilter
+                                    ? buildings.find((b) => Number(b.id) === Number(selectedBuildingFilter))?.name || "Обраний корпус"
+                                    : "Усі корпуси"}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Заповненість:</span>
+                        <span className="text-sm font-black text-gray-900 dark:text-white">{overviewStats.percent}%</span>
+                        <div className="w-24 bg-slate-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-300 ${
+                                    overviewStats.percent >= 90
+                                        ? "bg-rose-500"
+                                        : overviewStats.percent >= 70
+                                        ? "bg-amber-500"
+                                        : "bg-emerald-500"
+                                }`}
+                                style={{ width: `${Math.min(overviewStats.percent, 100)}%` }}
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl">
-                    <button
-                        type="button"
-                        onClick={() => setViewMode("visualizer")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                            viewMode === "visualizer"
-                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
-                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                        }`}
-                    >
-                        <span>🌟 Інтерактивний зріз та ліжка</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setViewMode("classic")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                            viewMode === "classic"
-                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
-                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                        }`}
-                    >
-                        <span>📋 Класична сітка</span>
-                    </button>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-3.5 text-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/40 border border-slate-100 dark:border-gray-700">
+                        <span className="text-[11px] text-gray-400 block mb-0.5">Всього місць</span>
+                        <span className="text-base font-black text-gray-900 dark:text-white">
+                            {overviewStats.totalCapacity}
+                        </span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">у {overviewStats.totalRooms} кімнатах</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/40 border border-slate-100 dark:border-gray-700">
+                        <span className="text-[11px] text-gray-400 block mb-0.5">Заселено</span>
+                        <span className="text-base font-black text-emerald-600 dark:text-emerald-400">
+                            {overviewStats.totalOccupied}
+                        </span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">{overviewStats.percent}% фонду</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/40">
+                        <span className="text-[11px] text-emerald-700 dark:text-emerald-300 block mb-0.5 font-semibold">Вільних місць</span>
+                        <span className="text-base font-black text-emerald-700 dark:text-emerald-300">
+                            {overviewStats.totalFree}
+                        </span>
+                        <span className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 block mt-0.5">доступно для заселення</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-800/40">
+                        <span className="text-[11px] text-sky-700 dark:text-sky-300 block mb-0.5 font-semibold">Вільні для хлопців</span>
+                        <span className="text-base font-black text-sky-700 dark:text-sky-300">
+                            {overviewStats.maleBeds}
+                        </span>
+                        <span className="text-[10px] text-sky-600/70 dark:text-sky-400/70 block mt-0.5">у чоловічих кімнатах</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-800/40">
+                        <span className="text-[11px] text-rose-700 dark:text-rose-300 block mb-0.5 font-semibold">Вільні для дівчат</span>
+                        <span className="text-base font-black text-rose-700 dark:text-rose-300">
+                            {overviewStats.femaleBeds}
+                        </span>
+                        <span className="text-[10px] text-rose-600/70 dark:text-rose-400/70 block mt-0.5">у жіночих кімнатах</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/40 border border-slate-100 dark:border-gray-700">
+                        <span className="text-[11px] text-gray-400 block mb-0.5">Ремонт / Вільні кімн.</span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-base font-black text-gray-800 dark:text-gray-200">{overviewStats.emptyRoomBeds}</span>
+                            <span className="text-[10px] text-gray-400">вільних</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">{overviewStats.repairRooms} кімн. на ремонті</span>
+                    </div>
                 </div>
             </div>
 
-            {viewMode === "visualizer" ? (
-                <CommandantOccupancyVisualizer
-                    building={
-                        selectedBuildingFilter
-                            ? buildings.find((b) => Number(b.id) === Number(selectedBuildingFilter)) || buildings[0]
-                            : buildings[0]
-                    }
-                    allBuildings={buildings}
-                    selectedBuildingId={selectedBuildingFilter}
-                    onSelectBuilding={setSelectedBuildingFilter}
-                    getRoomGender={getRoomGender}
-                    handleOpenManualBooking={handleOpenManualBooking}
-                    handleOpenCloseRoomModal={handleOpenCloseRoomModal}
-                    handleToggleStatus={handleToggleStatus}
-                    handleToggleIntake={handleToggleIntake}
-                    handleToggleVisibility={handleToggleVisibility}
-                    handleUpdateCapacity={handleUpdateCapacity}
-                    handleEvictStudent={handleEvictStudent}
-                    handleOpenEditUserModal={handleOpenEditUserModal}
-                    handleRequestReallocate={handleRequestReallocate}
-                    isSuperAdmin={isSuperAdmin}
-                    liveHighlightedRoomIds={liveHighlightedRoomIds}
-                />
-            ) : (
-                <>
-                    {/* Пошук та фільтри для мапи */}
-                    <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Пошук та фільтри для мапи */}
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
                         Карта корпусів МНАУ
@@ -853,8 +933,6 @@ export default function RoomMapTab({
                         </div>
                     );
                 })}
-                </>
-            )}
         </div>
     );
 }

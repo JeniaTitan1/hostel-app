@@ -443,11 +443,7 @@ export default function Dashboard({
     const handleImpersonate = (userId, userName, role = "user") => {
         const roleLabel = role === "commandant" ? "комендантом" : "студентом";
         if (confirm(`Ви дійсно бажаєте увійти як ${roleLabel} "${userName}"?`)) {
-            router.post(route("admin.users.impersonate", userId), {}, {
-                onSuccess: () => {
-                    window.location.href = role === "commandant" ? "/admin/dashboard" : "/dashboard";
-                }
-            });
+            router.post(route("admin.users.impersonate", userId));
         }
     };
 

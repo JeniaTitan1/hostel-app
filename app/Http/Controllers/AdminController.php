@@ -1121,12 +1121,13 @@ class AdminController extends Controller
         $roleLabel = $currentUser->role === 'admin' ? 'Адміністратор' : 'Комендант';
         AuditLog::log($currentUser->id, 'impersonated_user', "{$roleLabel} {$currentUser->name} увійшов під ім'ям {$user->name} (ID: {$user->id})");
 
+        // Логінимося під обраним користувачем
         Auth::login($user);
-        $request->session()->regenerate();
         $request->session()->put('impersonator_id', $impersonatorId);
+        $request->session()->save();
 
         $targetRoute = in_array($user->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
-        return redirect()->route($targetRoute)->with('success', "Ви увійшли під ім'ям {$user->name}");
+        return Inertia::location(route($targetRoute));
     }
 
     /**
@@ -1145,14 +1146,14 @@ class AdminController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('login')->with('error', 'Початкового користувача не знайдено.');
+            return Inertia::location(route('login'));
         }
 
         Auth::login($impersonator);
-        $request->session()->regenerate();
         $request->session()->forget('impersonator_id');
+        $request->session()->save();
 
         $targetRoute = in_array($impersonator->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
-        return redirect()->route($targetRoute)->with('success', "Ви успішно повернулися до свого облікового запису ({$impersonator->name})");
+        return Inertia::location(route($targetRoute));
     }
 }

@@ -191,7 +191,7 @@ export default function AuthenticatedLayout({
                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-300"></span>
                         </span>
                         <span>
-                            👁️ <strong>Режим перегляду:</strong> Ви увійшли під акаунтом <span className="text-amber-300 font-bold underline">{user.name}</span> ({user.role === 'commandant' ? 'Комендант' : user.role === 'admin' ? 'Адміністратор' : 'Студент'}). Початковий акаунт: <strong>{props.auth.impersonator.name}</strong>
+                            <strong>Режим перегляду:</strong> Ви увійшли під акаунтом <span className="text-amber-300 font-bold underline">{user.name}</span> ({user.role === 'commandant' ? 'Комендант' : user.role === 'admin' ? 'Адміністратор' : 'Студент'}). Початковий акаунт: <strong>{props.auth.impersonator.name}</strong>
                         </span>
                     </div>
                     <button
