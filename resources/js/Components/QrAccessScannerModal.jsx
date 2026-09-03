@@ -695,12 +695,12 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                 </div>
 
                 {/* ПРАВА КОЛОНКА (НА ПК) / НИЖНІЙ БЛОК (НА ТЕЛЕФОНІ): РЕЗУЛЬТАТ СКАНУВАННЯ / КАРТКА СТУДЕНТА */}
-                <div className="kpp-details-panel w-full lg:w-1/2 flex flex-col justify-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-5 lg:p-8 shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-colors duration-200">
+                <div className="kpp-details-panel w-full lg:w-1/2 flex flex-col justify-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-8 shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-colors duration-200">
                     {lastResult ? (
-                        <div className="w-full space-y-2.5 sm:space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="w-full space-y-3 sm:space-y-5 animate-in fade-in zoom-in-95 duration-200">
                             {/* Статусний бейдж пропуску */}
                             <div
-                                className={`p-2.5 sm:p-3.5 rounded-2xl border-2 flex items-center gap-3 ${
+                                className={`p-3 sm:p-4.5 rounded-2xl sm:rounded-3xl border-2 flex items-center gap-3.5 sm:gap-4.5 ${
                                     lastResult.valid
                                         ? lastResult.type === "entry"
                                             ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-500/80 text-emerald-950 dark:text-emerald-100 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
@@ -709,7 +709,7 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 }`}
                             >
                                 <div
-                                    className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+                                    className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
                                         lastResult.valid
                                             ? lastResult.type === "entry"
                                                 ? "bg-emerald-600 text-white shadow-emerald-600/40"
@@ -719,26 +719,26 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 >
                                     {lastResult.valid ? (
                                         lastResult.type === "entry" ? (
-                                            <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                             </svg>
                                         ) : (
-                                            <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                             </svg>
                                         )
                                     ) : (
-                                        <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                         </svg>
                                     )}
                                 </div>
 
-                                <div>
-                                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider block opacity-80">
-                                        Результат верифікації:
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider block opacity-75">
+                                        Результат верифікації
                                     </span>
-                                    <h3 className="text-sm sm:text-base font-black">
+                                    <h3 className="text-sm sm:text-xl font-black truncate">
                                         {lastResult.valid
                                             ? lastResult.type === "entry"
                                                 ? "ВХІД ДОЗВОЛЕНО"
@@ -746,54 +746,54 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                             : "ДОСТУП ЗАБОРОНЕНО"}
                                     </h3>
                                     {lastResult.message && (
-                                        <p className="text-[11px] opacity-80">{lastResult.message}</p>
+                                        <p className="text-[11px] sm:text-xs opacity-80 mt-0.5 truncate">{lastResult.message}</p>
                                     )}
                                 </div>
                             </div>
 
                             {/* Персональні дані студента */}
                             {lastResult.student ? (
-                                <div className="p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-2.5">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center text-white text-sm sm:text-base font-black shadow-inner shrink-0">
+                                <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-3 sm:space-y-4">
+                                    <div className="flex items-center gap-3 sm:gap-4">
+                                        <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center text-white text-base sm:text-xl font-black shadow-inner shrink-0">
                                             {lastResult.student.name?.charAt(0).toUpperCase() || "С"}
                                         </div>
-                                        <div>
-                                            <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="text-sm sm:text-lg font-black text-slate-900 dark:text-white truncate">
                                                 {lastResult.student.name}
                                             </h4>
-                                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
                                                 {lastResult.student.email}
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/80 text-[11px]">
+                                    <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-2.5 sm:pt-3 border-t border-slate-200 dark:border-slate-800/80 text-xs">
                                         <div>
-                                            <span className="text-[9px] text-slate-500 dark:text-slate-400 block font-bold">Спеціальність / Курс:</span>
-                                            <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold">Спеціальність / Курс:</span>
+                                            <span className="font-bold text-slate-800 dark:text-slate-200">
                                                 {lastResult.student.specialty || "Студент"}{" "}
                                                 {lastResult.student.course ? `(${lastResult.student.course} курс)` : ""}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="text-[9px] text-slate-500 dark:text-slate-400 block font-bold">Академічна група:</span>
-                                            <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold">Академічна група:</span>
+                                            <span className="font-bold text-slate-800 dark:text-slate-200">
                                                 {lastResult.student.group || "Не вказано"}
                                             </span>
                                         </div>
 
                                         {lastResult.room && (
-                                            <div className="col-span-2 p-2 rounded-xl bg-emerald-100/70 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60">
-                                                <span className="text-[9px] text-emerald-700 dark:text-emerald-400 block font-bold">Місце проживання:</span>
-                                                <span className="font-black text-emerald-950 dark:text-white text-xs">
+                                            <div className="col-span-2 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60">
+                                                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block font-bold">Місце проживання:</span>
+                                                <span className="font-black text-emerald-950 dark:text-white text-xs sm:text-sm">
                                                     Кімната {lastResult.room.room_number} (Поверх {lastResult.room.floor}) • {lastResult.room.building?.name}
                                                 </span>
                                             </div>
                                         )}
 
                                         {lastResult.order_number && (
-                                            <div className="col-span-2 text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                                            <div className="col-span-2 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                                 Ордер: {lastResult.order_number}
                                             </div>
                                         )}
@@ -801,53 +801,76 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                                 </div>
                             ) : null}
 
-                            {/* Швидке виправлення напрямку */}
+                            {/* Блок швидкої зміни напрямку запису */}
                             {lastResult.valid && lastResult.log && (
-                                <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
-                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                        Помилковий напрямок?
-                                    </span>
-                                    <div className="flex items-center gap-1.5">
+                                <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-2">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                            <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                            </svg>
+                                            Помилковий напрямок запису?
+                                        </span>
+                                        <span className="text-[10px] sm:text-[11px] text-slate-400">
+                                            (змінити дію)
+                                        </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                         <button
                                             type="button"
                                             disabled={updatingDirection || lastResult.type === "entry"}
                                             onClick={() => handleToggleDirection("entry")}
-                                            className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                                            className={`py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-xs ${
                                                 lastResult.type === "entry"
-                                                    ? "bg-emerald-600 text-white shadow-xs"
-                                                    : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700"
+                                                    ? "bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-400"
+                                                    : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                                             }`}
                                         >
-                                            Вхід
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span>Вхід</span>
+                                            {lastResult.type === "entry" && (
+                                                <span className="w-2 h-2 rounded-full bg-white animate-pulse ml-1" />
+                                            )}
                                         </button>
                                         <button
                                             type="button"
                                             disabled={updatingDirection || lastResult.type === "exit"}
                                             onClick={() => handleToggleDirection("exit")}
-                                            className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                                            className={`py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-xs ${
                                                 lastResult.type === "exit"
-                                                    ? "bg-amber-600 text-white shadow-xs"
-                                                    : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700"
+                                                    ? "bg-amber-600 text-white shadow-amber-600/30 ring-2 ring-amber-400"
+                                                    : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                                             }`}
                                         >
-                                            Вихід
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span>Вихід</span>
+                                            {lastResult.type === "exit" && (
+                                                <span className="w-2 h-2 rounded-full bg-white animate-pulse ml-1" />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Велика кнопка «Наступний студент» */}
+                            {/* Велика головна кнопка «Продовжити сканування» */}
                             <button
                                 type="button"
                                 onClick={handleContinueScan}
-                                className="w-full py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm tracking-wide transition-all shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+                                className="w-full py-3.5 sm:py-4.5 px-4 sm:px-6 rounded-xl sm:rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-base tracking-wide transition-all shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/50 flex items-center justify-center gap-2.5 sm:gap-3 active:scale-[0.98] cursor-pointer ring-2 ring-emerald-400/40 hover:ring-emerald-400"
                             >
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    </svg>
+                                </div>
                                 <span>Продовжити сканування</span>
-                                <span className="hidden lg:inline opacity-75 text-xs font-semibold ml-1">(Пробіл)</span>
+                                <kbd className="hidden lg:inline-flex items-center px-2 py-0.5 text-xs font-mono font-bold bg-white/20 border border-white/30 rounded-lg tracking-wider">
+                                    ПРОБІЛ
+                                </kbd>
                             </button>
                         </div>
                     ) : (
