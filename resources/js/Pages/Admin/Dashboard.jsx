@@ -277,6 +277,7 @@ export default function Dashboard({
     const [selectedReallocateRoomId, setSelectedReallocateRoomId] = useState("");
     const [reallocateReason, setReallocateReason] = useState("");
     const [allowMixedReallocate, setAllowMixedReallocate] = useState(false);
+    const [isReallocating, setIsReallocating] = useState(false);
 
     const handleRequestReallocate = (booking, currentRoom) => {
         setReallocateBookingData(booking);
@@ -284,15 +285,19 @@ export default function Dashboard({
         setSelectedReallocateRoomId("");
         setReallocateReason("");
         setAllowMixedReallocate(false);
+        setIsReallocating(false);
     };
 
     const handleReallocateSubmit = (e) => {
         e.preventDefault();
         if (!reallocateBookingData || !selectedReallocateRoomId) return;
 
+        setIsReallocating(true);
+
         router.post(
             route("admin.bookings.reallocate", reallocateBookingData.id),
             {
+                room_id: selectedReallocateRoomId,
                 new_room_id: selectedReallocateRoomId,
                 reason: reallocateReason,
                 force_mixed: allowMixedReallocate,
@@ -302,6 +307,35 @@ export default function Dashboard({
                 onSuccess: () => {
                     setReallocateBookingData(null);
                     setReallocateCurrentRoom(null);
+                    setIsReallocating(false);
+                    window.dispatchEvent(
+                        new CustomEvent("show-toast", {
+                            detail: {
+                                message: "Користувача успішно переселено!",
+                                type: "success",
+                            },
+                        })
+                    );
+                },
+                onError: (errors) => {
+                    setIsReallocating(false);
+                    const errorMsg =
+                        errors.error ||
+                        errors.room_id ||
+                        errors.new_room_id ||
+                        errors.message ||
+                        "Не вдалося переселити користувача. Перевірте вибір кімнати.";
+                    window.dispatchEvent(
+                        new CustomEvent("show-toast", {
+                            detail: {
+                                message: errorMsg,
+                                type: "error",
+                            },
+                        })
+                    );
+                },
+                onFinish: () => {
+                    setIsReallocating(false);
                 },
             }
         );
@@ -832,6 +866,7 @@ export default function Dashboard({
                     setReallocateReason={setReallocateReason}
                     allowMixedReallocate={allowMixedReallocate}
                     setAllowMixedReallocate={setAllowMixedReallocate}
+                    isProcessing={isReallocating}
                     availableRooms={buildings.flatMap((b) => b.rooms || []).map((r) => {
                         const genderObj = getRoomGender(r);
                         return {

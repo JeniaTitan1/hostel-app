@@ -604,13 +604,16 @@ class AdminController extends Controller
     {
         $this->ensureSuperAdmin($request->user());
 
+        $roomId = $request->input('room_id') ?? $request->input('new_room_id');
+        $request->merge(['room_id' => $roomId, 'new_room_id' => $roomId]);
+
         $request->validate([
             'room_id' => 'required|exists:rooms,id',
             'reason' => 'nullable|string|max:255',
             'force_mixed' => 'nullable|boolean',
         ]);
 
-        $targetRoom = Room::findOrFail($request->room_id);
+        $targetRoom = Room::findOrFail($roomId);
         $activeBookingsCount = Booking::where('room_id', $targetRoom->id)
             ->where(function ($query) {
                 $query->where('status', 'approved')
