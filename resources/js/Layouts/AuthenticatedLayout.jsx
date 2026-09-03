@@ -4,7 +4,6 @@ import IntroWaveAnimation from "@/Components/IntroWaveAnimation";
 import ToastContainer from "@/Components/ToastContainer";
 import LayoutHeader from "@/Components/LayoutHeader";
 import LayoutFooter from "@/Components/LayoutFooter";
-import GyroscopeLavaLamp from "@/Components/GyroscopeLavaLamp";
 import PwaInstallPrompt from "@/Components/PwaInstallPrompt";
 import { getEcho } from "@/echo";
 
@@ -282,9 +281,6 @@ export default function AuthenticatedLayout({
                     </button>
                 </div>
             )}
-
-            {/* Інтерактивний фон з лава-лампою та гіроскопом */}
-            <GyroscopeLavaLamp opacity={darkMode ? 0.35 : 0.45} />
 
             {/* Header & Subheader */}
             <LayoutHeader
