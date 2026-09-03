@@ -239,12 +239,13 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
 
                                     {/* ✨ КРАСИВА ЖИВА АНІМАЦІЯ ГАЛОЧКИ ПРИ СКАНУВАННІ НА ВХОДІ/ВИХОДІ */}
                                     {scanApproved && (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-500/95 backdrop-blur-xs animate-checkmark-pop">
-                                            {/* Розширювальне сяйво */}
-                                            <div className="absolute w-32 h-32 rounded-full bg-white/25 animate-ping" />
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-600/95 backdrop-blur-xs animate-checkmark-pop overflow-hidden">
+                                            {/* 💫 Спалах і розліт сяйва безпосередньо від самої галочки */}
+                                            <div className="absolute w-28 h-28 rounded-full border-4 border-white/80 animate-check-flash pointer-events-none" />
+                                            <div className="absolute w-40 h-40 rounded-full border border-emerald-200/60 animate-check-flash pointer-events-none" style={{ animationDelay: '0.35s' }} />
 
-                                            {/* Анімована кругла галочка SVG */}
-                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                                            {/* Анімована кругла галочка SVG з прямим світінням від ліній */}
+                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center animate-check-glow">
                                                 <svg
                                                     className="w-full h-full"
                                                     viewBox="0 0 100 100"
@@ -270,11 +271,19 @@ export default function DigitalPassModal({ show, onClose, booking, user }) {
                                                         className="animate-check-tick"
                                                     />
                                                 </svg>
+
+                                                {/* Розлітні спалахи-промені від галочки */}
+                                                <div className="absolute inset-0 pointer-events-none animate-check-sparkle flex items-center justify-center">
+                                                    <div className="w-1.5 h-6 bg-white rounded-full absolute -top-2 opacity-90" />
+                                                    <div className="w-1.5 h-6 bg-white rounded-full absolute -bottom-2 opacity-90" />
+                                                    <div className="h-1.5 w-6 bg-white rounded-full absolute -left-2 opacity-90" />
+                                                    <div className="h-1.5 w-6 bg-white rounded-full absolute -right-2 opacity-90" />
+                                                </div>
                                             </div>
 
-                                            {/* М'який індикатор напрямку знизу */}
-                                            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md">
-                                                <span className="w-2 h-2 rounded-full bg-white" />
+                                            {/* М'який акуратний індикатор напрямку знизу */}
+                                            <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md">
+                                                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                                                 <span>{scanApproved.type === 'entry' ? 'ВХІД' : 'ВИХІД'}</span>
                                             </div>
                                         </div>
