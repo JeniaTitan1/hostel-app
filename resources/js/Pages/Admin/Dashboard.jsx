@@ -14,6 +14,7 @@ import TicketsTab from "@/Pages/Admin/Tabs/TicketsTab";
 import AcademicSettingsTab from "@/Pages/Admin/Tabs/AcademicSettingsTab";
 import SystemSettingsTab from "@/Pages/Admin/Tabs/SystemSettingsTab";
 import AnnouncementsTab from "@/Pages/Admin/Tabs/AnnouncementsTab";
+import AccessLogsTab from "@/Pages/Admin/Tabs/AccessLogsTab";
 
 import EditUserModal from "@/Pages/Admin/Modals/EditUserModal";
 import ReallocateBookingModal from "@/Pages/Admin/Modals/ReallocateBookingModal";
@@ -42,6 +43,13 @@ export default function Dashboard({
     groups = [],
     systemSettings = {},
     announcements = [],
+    accessLogs = [],
+    accessStats = {
+        entries_today: 0,
+        exits_today: 0,
+        denied_today: 0,
+        total_scans_today: 0,
+    },
 }) {
     const isSuperAdmin = auth?.user?.role === "admin";
 
@@ -590,6 +598,26 @@ export default function Dashboard({
 
                     <button
                         type="button"
+                        onClick={() => setActiveTab("access_logs")}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
+                            activeTab === "access_logs"
+                                ? "bg-white dark:bg-gray-700 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                                : "text-slate-600 dark:text-gray-300 hover:text-slate-900 hover:bg-white/50 dark:hover:bg-gray-700/50"
+                        }`}
+                    >
+                        <svg className="w-4 h-4 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        <span>КПП / Відвідування</span>
+                        {accessStats.total_scans_today > 0 && (
+                            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-600 text-white font-extrabold">
+                                {accessStats.total_scans_today}
+                            </span>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
                         onClick={() => setActiveTab("logs")}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 snap-start whitespace-nowrap ${
                             activeTab === "logs"
@@ -736,6 +764,14 @@ export default function Dashboard({
                         buildings={buildings}
                         isSuperAdmin={isSuperAdmin}
                         currentUser={auth.user}
+                    />
+                )}
+
+                {activeTab === "access_logs" && (
+                    <AccessLogsTab
+                        accessLogs={accessLogs}
+                        accessStats={accessStats}
+                        buildings={buildings}
                     />
                 )}
 

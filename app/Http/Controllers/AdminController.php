@@ -9,7 +9,9 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\AuditLog;
+use App\Models\AccessLog;
 use App\Models\EmailChangeRequest;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -160,8 +162,34 @@ class AdminController extends Controller
                     'author_name' => $a->author ? $a->author->name : 'Адміністрація',
                     'author_role' => $a->author ? ($a->author->role === 'admin' ? 'Головний Адміністратор' : 'Комендант') : 'Адміністрація',
                     'created_at' => $a->created_at ? $a->created_at->format('d.m.Y H:i') : null,
-                ];
+        $accessLogsQuery = AccessLog::with(['user', 'booking.room.building', 'building', 'scanner'])
+            ->latest()
+            ->when($isCommandant, function ($q) use ($commandantBuildingId) {
+                $q->where(function ($sq) use ($commandantBuildingId) {
+                    $sq->where('building_id', $commandantBuildingId)
+                      ->orWhereHas('booking.room', function ($rq) use ($commandantBuildingId) {
+                          $rq->where('building_id', $commandantBuildingId);
+                      });
+                });
             });
+
+        $accessLogs = (clone $accessLogsQuery)->take(50)->get();
+
+        $today = Carbon::today();
+        $statsTodayQuery = AccessLog::whereDate('created_at', $today)
+            ->when($isCommandant, function ($q) use ($commandantBuildingId) {
+                $q->where('building_id', $commandantBuildingId);
+            });
+        $entriesToday = (clone $statsTodayQuery)->where('type', 'entry')->where('status', 'granted')->count();
+        $exitsToday = (clone $statsTodayQuery)->where('type', 'exit')->where('status', 'granted')->count();
+        $deniedToday = (clone $statsTodayQuery)->where('status', 'denied')->count();
+
+        $accessStats = [
+            'entries_today' => $entriesToday,
+            'exits_today' => $exitsToday,
+            'denied_today' => $deniedToday,
+            'total_scans_today' => $entriesToday + $exitsToday + $deniedToday,
+        ];
 
         return Inertia::render('Admin/Dashboard', [
             'pendingBookings'     => $pendingBookings,
@@ -181,6 +209,8 @@ class AdminController extends Controller
             'groups'              => $groups,
             'systemSettings'      => $systemSettings,
             'announcements'       => $announcements,
+            'accessLogs'          => $accessLogs,
+            'accessStats'         => $accessStats,
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)

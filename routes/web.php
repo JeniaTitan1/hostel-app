@@ -9,6 +9,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderVerificationController;
 use App\Http\Controllers\StudentContactController;
+use App\Http\Controllers\AccessLogController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -113,7 +114,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Оголошення гуртожитку
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
     Route::post('/announcements/{announcement}/delete', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+    // Журнал пропускного пункту (КПП) та сканування перепусток
+    Route::get('/access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
+    Route::post('/access-logs/scan', [AccessLogController::class, 'scan'])->name('access-logs.scan');
 });
+
+// Окремий швидкий екран сканера для вахтера / коменданта
+Route::get('/access-scanner', [AccessLogController::class, 'index'])->middleware(['auth', 'admin'])->name('access-scanner');
 
 // Заявка на ремонт от пользователя
 Route::post('/tickets', [TicketController::class, 'store'])->middleware('auth')->name('tickets.store');
