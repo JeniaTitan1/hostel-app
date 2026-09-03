@@ -62,6 +62,28 @@ export default function AuthenticatedLayout({
     });
     const notifications = props.auth?.notifications || [];
 
+    // Захист мобільної історії: запобігає вильоту на сторінку логіну при натисканні «Назад» на телефоні
+    useEffect(() => {
+        if (typeof window === "undefined" || !window.history) return;
+
+        try {
+            window.history.replaceState({ appHostel: true, root: true }, "", window.location.href);
+        } catch (e) {}
+
+        const handlePopState = (event) => {
+            // Якщо користувач на головній сторінці кабінету натискає «Назад» на телефоні,
+            // утримуємо його в застосунку, щоб не було вильоту на екран авторизації
+            if (!event.state || event.state?.root) {
+                try {
+                    window.history.pushState({ appHostel: true, active: true }, "", window.location.href);
+                } catch (e) {}
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
+
     const handleCloseIntroAnimation = React.useCallback(() => {
         setAnimating(false);
     }, []);

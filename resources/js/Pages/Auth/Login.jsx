@@ -31,6 +31,7 @@ export default function Login({ status }) {
     const submit = (e) => {
         e.preventDefault();
         post(route('login'), {
+            replace: true,
             onFinish: () => reset('password'),
         });
     };

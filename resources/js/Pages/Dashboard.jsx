@@ -317,6 +317,41 @@ export default function Dashboard({
         return () => window.removeEventListener("open-digital-pass", handleOpenPass);
     }, []);
 
+    // Інтуїтивна навігація на мобільних: свайп або кнопка «Назад» закривають модалки / повертають до кабінету
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const hasActiveOverlay = showDigitalPass || showReallocationModal || showVerifyModal || selectedBuildingId;
+
+        const handlePopState = () => {
+            if (showDigitalPass) {
+                setShowDigitalPass(false);
+                return;
+            }
+            if (showReallocationModal) {
+                setShowReallocationModal(false);
+                return;
+            }
+            if (showVerifyModal) {
+                setShowVerifyModal(false);
+                return;
+            }
+            if (selectedBuildingId) {
+                setSelectedBuildingId(null);
+                return;
+            }
+        };
+
+        if (hasActiveOverlay) {
+            try {
+                window.history.pushState({ hostelModal: true }, "");
+            } catch (e) {}
+        }
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [showDigitalPass, showReallocationModal, showVerifyModal, selectedBuildingId]);
+
     // Генерація PDF-ордера на заселення
     const handleDownloadSlip = () => {
         if (!userBooking) return;
