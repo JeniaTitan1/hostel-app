@@ -319,6 +319,7 @@ export default function Dashboard({
 
     const [showVerifyModal, setShowVerifyModal] = useState(false);
     const [showDigitalPass, setShowDigitalPass] = useState(false);
+    const [showBuildingCatalog, setShowBuildingCatalog] = useState(false);
 
     // Генерація PDF-ордера на заселення
     const handleDownloadSlip = () => {
@@ -583,6 +584,237 @@ export default function Dashboard({
         userBooking.new_room_id !== null &&
         Number(userBooking.new_room_id) === Number(selectedRoom.id);
 
+    // Відображення дошки оголошень гуртожитку
+    const renderAnnouncementsBoard = () => {
+        if (!announcements || announcements.length === 0) return null;
+
+        const filteredAnnouncements = announcements.filter(
+            (a) => announcementFilter === "all" || a.priority === announcementFilter
+        );
+
+        return (
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 sm:p-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-gray-700/80 pb-4">
+                    <div>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/60">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
+                                Дошка оголошень гуртожитку
+                            </h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                                {announcements.length}
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">
+                            Важливі новини, розклад санітарних днів та студентські події МНАУ
+                        </p>
+                    </div>
+
+                    {/* Quick Filter Pills */}
+                    <div className="flex items-center bg-slate-100 dark:bg-gray-900 p-1 rounded-xl gap-1 border border-slate-200/60 dark:border-gray-700/80 overflow-x-auto no-scrollbar">
+                        <button
+                            type="button"
+                            onClick={() => setAnnouncementFilter("all")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                                announcementFilter === "all"
+                                    ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs border border-transparent dark:border-gray-700"
+                                    : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            Всі
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAnnouncementFilter("important")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                                announcementFilter === "important"
+                                    ? "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 shadow-xs border border-transparent dark:border-gray-700"
+                                    : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            <span>Важливо</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAnnouncementFilter("info")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                                announcementFilter === "info"
+                                    ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs border border-transparent dark:border-gray-700"
+                                    : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                            <span>Інформація</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAnnouncementFilter("event")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                                announcementFilter === "event"
+                                    ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-xs border border-transparent dark:border-gray-700"
+                                    : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                            <span>Заходи</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Grid of Announcements */}
+                {filteredAnnouncements.length === 0 ? (
+                    <p className="text-xs text-gray-400 py-6 text-center italic">
+                        Немає оголошень у цій категорії
+                    </p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filteredAnnouncements.map((a) => {
+                            const isImportant = a.priority === "important";
+                            const isEvent = a.priority === "event";
+
+                            return (
+                                <div
+                                    key={a.id}
+                                    className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
+                                        isImportant
+                                            ? "bg-red-50/40 dark:bg-gray-800/90 border-red-200 dark:border-red-900/60 shadow-xs border-l-4 border-l-red-500"
+                                            : isEvent
+                                            ? "bg-purple-50/40 dark:bg-gray-800/90 border-purple-200 dark:border-purple-900/60 shadow-xs border-l-4 border-l-purple-500"
+                                            : "bg-slate-50/60 dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/90 shadow-xs border-l-4 border-l-blue-500"
+                                    }`}
+                                >
+                                    <div className="space-y-2">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                {a.is_pinned && (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
+                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                                        </svg>
+                                                        <span>Закріплено</span>
+                                                    </span>
+                                                )}
+                                                <span
+                                                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                                        isImportant
+                                                            ? "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200/80 dark:border-red-800/60"
+                                                            : isEvent
+                                                            ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/60"
+                                                            : "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/60"
+                                                    }`}
+                                                >
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${isImportant ? "bg-red-500 animate-pulse" : isEvent ? "bg-purple-500" : "bg-blue-500"}`} />
+                                                    <span>{isImportant ? "Важливо" : isEvent ? "Захід" : "Інформація"}</span>
+                                                </span>
+                                            </div>
+
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-500 dark:text-gray-300 bg-white/80 dark:bg-gray-900/80 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-gray-700">
+                                                <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                                <span>{a.building_name}</span>
+                                            </span>
+                                        </div>
+
+                                        <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
+                                            {a.title}
+                                        </h4>
+
+                                        <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                                            {a.content}
+                                        </p>
+                                    </div>
+
+                                    <div className="pt-2.5 border-t border-slate-200/60 dark:border-gray-700/80 flex items-center justify-between text-[11px] text-gray-400">
+                                        <span className="font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                                            <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold inline-flex items-center justify-center">
+                                                {a.author_name?.charAt(0) || "М"}
+                                            </span>
+                                            <span>{a.author_role}: {a.author_name}</span>
+                                        </span>
+                                        <span>{a.created_at}</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // Відображення карток гуртожитків
+    const renderBuildingCards = (title = null, subtitle = null) => {
+        if (buildings.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-md mx-auto shadow-sm">
+                    <svg className="w-10 h-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <h3 className="text-base font-medium text-gray-900 dark:text-white">Корпуси відсутні</h3>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-4">
+                {title && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                                {title}
+                            </h2>
+                            {subtitle && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {subtitle}
+                                </p>
+                            )}
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 self-start sm:self-auto">
+                            {buildings.length} {buildings.length === 1 ? "корпус" : "корпуси"} доступно
+                        </span>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {buildings.map((building, idx) => (
+                        <button
+                            key={building.id}
+                            onClick={() => handleSelectBuilding(building.id)}
+                            title={building.name}
+                            className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-2xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] transition-all duration-200 ease-out animate-card-fade-in"
+                            style={{ animationDelay: `${idx * 60}ms` }}
+                        >
+                            <div className="w-full flex justify-between items-start">
+                                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200 border border-emerald-100 dark:border-emerald-900/60">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    Перейти →
+                                </span>
+                            </div>
+                            <div className="w-full mt-4">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                    Гуртожиток
+                                </span>
+                                <h3 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    {building.name}
+                                </h3>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <AuthenticatedLayout
             user={auth?.user}
@@ -845,8 +1077,51 @@ export default function Dashboard({
                                 </div>
 
                                 <p className="text-emerald-100/90 text-sm max-w-xl leading-relaxed">
-                                    Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку.
+                                    {hasApprovedBooking
+                                        ? `Ваше активне поселення: ${userBooking.room?.building?.name}, поверх ${userBooking.room?.floor}, кімната №${userBooking.room?.room_number}.`
+                                        : "Система онлайн-бронювання місць та поселення студентів у гуртожитки МНАУ. Оберіть корпус нижче, щоб переглянути вільні кімнати та подати заявку."}
                                 </p>
+
+                                {hasApprovedBooking && (
+                                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDigitalPass(true)}
+                                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-emerald-950 hover:bg-emerald-50 active:scale-95 transition-all shadow-sm flex items-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                            </svg>
+                                            <span>Цифрова перепустка (QR)</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleDownloadSlip}
+                                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/15 hover:bg-white/25 active:scale-95 text-white backdrop-blur-md border border-white/20 transition-all shadow-xs flex items-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>Ордер (PDF)</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowBuildingCatalog(true);
+                                                const el = document.getElementById("building-catalog-section");
+                                                if (el) el.scrollIntoView({ behavior: "smooth" });
+                                            }}
+                                            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-black/25 hover:bg-black/35 active:scale-95 text-emerald-200 border border-emerald-400/25 transition-all flex items-center gap-1.5"
+                                        >
+                                            <svg className="w-4 h-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                            </svg>
+                                            <span>Зміна кімнати / Переселення</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                             <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-10">
                                 <svg
@@ -865,402 +1140,328 @@ export default function Dashboard({
                         </div>
                     )}
 
-                    {!selectedBuildingId &&
-                        userBooking &&
-                        userBooking.status === "approved" && (
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                {/* Сусіди по кімнаті */}
-                                <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3 flex justify-between items-center">
-                                        <div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Мої сусіди по кімнаті</h3>
-                                            <p className="text-xs text-gray-400">
-                                                Контакти студентів, що
-                                                проживають з вами
-                                            </p>
-                                        </div>
-                                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/50">
-                                            Кімната №
-                                            {userBooking.room?.room_number}
-                                        </span>
-                                    </div>
-
-                                    {roommates.length === 0 ? (
-                                        <p className="text-xs text-gray-400 py-4 text-center">
-                                            У вашій кімнаті більше ніхто не
-                                            проживає.
-                                        </p>
-                                    ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {roommates.map((r, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="p-4 rounded-xl border border-slate-100/80 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2"
-                                                >
+                    {!selectedBuildingId && (
+                        <>
+                            {/* Сценарій 1: Студент ВЖЕ ПОСЕЛЕНИЙ (Осередок студента) */}
+                            {hasApprovedBooking ? (
+                                <div className="space-y-8">
+                                    {/* Головна сітка: 2/3 (Кімната, сусіди, оголошення) та 1/3 (Перепустка, підтримка) */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                        {/* Ліва частина (2/3): Моя кімната + Дошка оголошень */}
+                                        <div className="lg:col-span-2 space-y-6">
+                                            {/* Картка кімнати та сусідів */}
+                                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-6 space-y-5">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-gray-700/80 pb-4">
                                                     <div>
-                                                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">
-                                                            {r.name}
-                                                        </h4>
-                                                        <p className="text-xs text-gray-400">
-                                                            {r.email}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex flex-col gap-1 pt-1 border-t border-slate-100/80 text-[11px] text-gray-500">
-                                                        {r.telegram && (
-                                                            <span className="flex items-center gap-1.5">
-                                                                <strong className="text-gray-400">
-                                                                    Telegram:
-                                                                </strong>
-                                                                <a
-                                                                    href={`https://t.me/${r.telegram.replace("@", "")}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-emerald-600 hover:underline"
-                                                                >
-                                                                    {r.telegram}
-                                                                </a>
-                                                            </span>
-                                                        )}
-                                                        {r.phone && (
-                                                            <span className="flex items-center gap-1.5">
-                                                                <strong className="text-gray-400">
-                                                                    Тел:
-                                                                </strong>
-                                                                <a
-                                                                    href={`tel:${r.phone}`}
-                                                                    className="hover:underline"
-                                                                >
-                                                                    {r.phone}
-                                                                </a>
-                                                            </span>
-                                                        )}
-                                                        {!r.telegram &&
-                                                            !r.phone && (
-                                                                <span className="text-gray-400 italic">
-                                                                    Контакти не
-                                                                    вказані
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                            <h3 className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">
+                                                                Кімната №{userBooking.room?.room_number}
+                                                            </h3>
+                                                            {Boolean(userBooking.room?.is_accessible) && (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                    Інклюзивна
                                                                 </span>
                                                             )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                            {userBooking.room?.building?.name} • Поверх {userBooking.room?.floor}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                                                            {roommates.length + 1} з {userBooking.room?.max_capacity || 4} місць зайнято
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setShowBuildingCatalog(true);
+                                                                const el = document.getElementById("building-catalog-section");
+                                                                if (el) el.scrollIntoView({ behavior: "smooth" });
+                                                            }}
+                                                            className="px-3 py-1 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-gray-700/60 transition-colors flex items-center gap-1 border border-slate-200 dark:border-gray-700"
+                                                        >
+                                                            <span>Змінити кімнату</span>
+                                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 </div>
-                                            ))}
+
+                                                {/* Сусіди по кімнаті */}
+                                                <div>
+                                                    <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">
+                                                        Мешканці кімнати
+                                                    </h4>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                                        {/* Картка користувача */}
+                                                        <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20 flex items-start gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                                                                {auth?.user?.name?.charAt(0)?.toUpperCase() || "Я"}
+                                                            </div>
+                                                            <div className="min-w-0 flex-1">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="font-bold text-sm text-gray-900 dark:text-white truncate">
+                                                                        {auth?.user?.name}
+                                                                    </span>
+                                                                    <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded-md">
+                                                                        Ви
+                                                                    </span>
+                                                                </div>
+                                                                <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">
+                                                                    {auth?.user?.email}
+                                                                </span>
+                                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block mt-1">
+                                                                    Ордер №{userBooking.order_number || userBooking.id}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Картки сусідів */}
+                                                        {roommates.map((r, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="p-3.5 rounded-xl border border-slate-100 dark:border-gray-700 bg-slate-50/60 dark:bg-gray-800/50 flex items-start gap-3"
+                                                            >
+                                                                <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-sm flex items-center justify-center shrink-0">
+                                                                    {r.name?.charAt(0)?.toUpperCase() || "С"}
+                                                                </div>
+                                                                <div className="min-w-0 flex-1 space-y-1">
+                                                                    <h5 className="font-bold text-sm text-gray-900 dark:text-white truncate">
+                                                                        {r.name}
+                                                                    </h5>
+                                                                    <p className="text-[11px] text-gray-400 truncate">
+                                                                        {r.email}
+                                                                    </p>
+                                                                    <div className="flex items-center gap-3 pt-1">
+                                                                        {r.telegram && (
+                                                                            <a
+                                                                                href={`https://t.me/${r.telegram.replace("@", "")}`}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1"
+                                                                            >
+                                                                                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" />
+                                                                                </svg>
+                                                                                <span>Telegram</span>
+                                                                            </a>
+                                                                        )}
+                                                                        {r.phone && (
+                                                                            <a
+                                                                                href={`tel:${r.phone}`}
+                                                                                className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                                                                            >
+                                                                                <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                                                </svg>
+                                                                                <span>{r.phone}</span>
+                                                                            </a>
+                                                                        )}
+                                                                        {!r.telegram && !r.phone && (
+                                                                            <span className="text-[11px] text-gray-400 italic">Контакти не вказані</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+
+                                                        {/* Вільні місця в кімнаті */}
+                                                        {Array.from({ length: Math.max(0, (userBooking.room?.max_capacity || 4) - (roommates.length + 1)) }).map((_, idx) => (
+                                                            <div
+                                                                key={`free-${idx}`}
+                                                                className="p-3.5 rounded-xl border border-dashed border-slate-200 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-800/20 flex items-center gap-3"
+                                                            >
+                                                                <div className="w-10 h-10 rounded-xl border border-dashed border-slate-300 dark:border-gray-600 flex items-center justify-center text-gray-400 font-bold shrink-0">
+                                                                    +
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300 block">
+                                                                        Вільне ліжко-місце
+                                                                    </span>
+                                                                    <span className="text-[10px] text-gray-400 block">
+                                                                        Очікує поселення студента
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Дошка оголошень гуртожитку (прямо під кімнатою) */}
+                                            {renderAnnouncementsBoard()}
                                         </div>
-                                    )}
-                                </div>
 
-                                {/* Технічна підтримка / Ремонт */}
-                                <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-4">
-                                    <div className="border-b border-slate-100/80 dark:border-gray-700 pb-3">
-                                        <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Технічна підтримка</h3>
-                                        <p className="text-xs text-gray-400">
-                                            Повідомити про поломку в кімнаті
-                                        </p>
-                                    </div>
-
-                                    <form
-                                        onSubmit={handleCreateTicket}
-                                        className="space-y-3"
-                                    >
-                                        <textarea
-                                            rows="2"
-                                            placeholder="Опишіть проблему (напр. протікає кран, зламався замок)..."
-                                            value={ticketForm.data.description}
-                                            onChange={(e) =>
-                                                ticketForm.setData(
-                                                    "description",
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full text-xs rounded-lg border border-slate-100 dark:border-gray-700 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-                                            required
-                                            disabled={ticketForm.processing}
-                                        />
-                                        <button
-                                            type="submit"
-                                            disabled={ticketForm.processing}
-                                            className="w-full py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs disabled:opacity-50"
-                                        >
-                                            {ticketForm.processing
-                                                ? "Надсилання..."
-                                                : "Надіслати заявку"}
-                                        </button>
-                                    </form>
-
-                                    {/* Список заявок */}
-                                    <div className="space-y-2 pt-2 border-t border-slate-100/80 max-h-40 overflow-y-auto">
-                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Мої заявки</h4>
-                                        {liveTickets.length === 0 ? (
-                                            <p className="text-[10px] text-gray-400 italic">
-                                                Немає поданих заявок
-                                            </p>
-                                        ) : (
-                                            liveTickets.map((t) => (
-                                                <div
-                                                    key={t.id}
-                                                    className="p-2 rounded-lg border border-gray-105 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/30 flex items-start justify-between gap-2 text-xs"
-                                                >
-                                                    <div className="space-y-1">
-                                                        <p className="text-gray-700 dark:text-gray-300 leading-tight text-[11px] line-clamp-2">
-                                                            {t.description}
-                                                        </p>
-                                                        <span className="text-[9px] text-gray-400 block">
-                                                            {new Date(
-                                                                t.created_at,
-                                                            ).toLocaleDateString()}
+                                        {/* Права частина (1/3): Перепустка + Техпідтримка */}
+                                        <div className="space-y-6">
+                                            {/* Віджет цифрової перепустки */}
+                                            <div className="bg-gradient-to-br from-emerald-900 via-teal-950 to-slate-950 rounded-2xl p-5 text-white shadow-md border border-emerald-700/40 relative overflow-hidden space-y-4">
+                                                <div className="absolute inset-0 pointer-events-none bg-dot-pattern opacity-30" />
+                                                <div className="relative z-10 space-y-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                                                            Цифрова перепустка
+                                                        </span>
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-400/30">
+                                                            Дійсна
                                                         </span>
                                                     </div>
-                                                    <span
-                                                        className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                                                            t.status ===
-                                                            "resolved"
-                                                                ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/30"
-                                                                : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/30"
-                                                        }`}
-                                                    >
-                                                        {t.status === "resolved"
-                                                            ? "Виконано"
-                                                            : "В процесі"}
-                                                    </span>
+
+                                                    <div>
+                                                        <h4 className="font-extrabold text-base tracking-tight">
+                                                            {userBooking.room?.building?.name}
+                                                        </h4>
+                                                        <p className="text-xs text-emerald-200/90 font-mono mt-0.5">
+                                                            Кімната №{userBooking.room?.room_number} • {userBooking.room?.floor} поверх
+                                                        </p>
+                                                        <p className="text-[10px] text-emerald-400/80 font-mono mt-0.5">
+                                                            Ордер: #{userBooking.order_number || userBooking.id}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="pt-1 flex flex-col gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowDigitalPass(true)}
+                                                            className="w-full py-2.5 rounded-xl text-xs font-bold bg-white text-emerald-950 hover:bg-emerald-50 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                                                        >
+                                                            <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                            </svg>
+                                                            <span>Відкрити перепустку (QR)</span>
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleDownloadSlip}
+                                                            className="w-full py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/15 transition-all flex items-center justify-center gap-1.5"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                            <span>Завантажити ордер (PDF)</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            ))
+                                            </div>
+
+                                            {/* Технічна підтримка / Ремонт */}
+                                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 space-y-4">
+                                                <div className="border-b border-slate-100 dark:border-gray-700 pb-3">
+                                                    <h3 className="font-bold text-gray-900 dark:text-white tracking-tight">Технічна підтримка</h3>
+                                                    <p className="text-xs text-gray-400">Повідомити про несправність або поломку</p>
+                                                </div>
+
+                                                <form onSubmit={handleCreateTicket} className="space-y-3">
+                                                    <textarea
+                                                        rows="2"
+                                                        placeholder="Опишіть проблему (напр. протікає кран, зламався замок)..."
+                                                        value={ticketForm.data.description}
+                                                        onChange={(e) => ticketForm.setData("description", e.target.value)}
+                                                        className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-700 p-2.5 focus:border-emerald-600 focus:ring-0 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                                                        required
+                                                        disabled={ticketForm.processing}
+                                                    />
+                                                    <button
+                                                        type="submit"
+                                                        disabled={ticketForm.processing}
+                                                        className="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                                    >
+                                                        {ticketForm.processing ? "Надсилання..." : "Надіслати заявку"}
+                                                    </button>
+                                                </form>
+
+                                                {/* Список заявок */}
+                                                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-gray-700 max-h-48 overflow-y-auto">
+                                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                                        Мої заявки ({liveTickets.length})
+                                                    </h4>
+                                                    {liveTickets.length === 0 ? (
+                                                        <p className="text-[10px] text-gray-400 italic">Немає поданих заявок</p>
+                                                    ) : (
+                                                        liveTickets.map((t) => (
+                                                            <div
+                                                                key={t.id}
+                                                                className="p-2.5 rounded-xl border border-slate-100 dark:border-gray-700 bg-slate-50/50 dark:bg-gray-800/30 flex items-start justify-between gap-2 text-xs"
+                                                            >
+                                                                <div className="space-y-1">
+                                                                    <p className="text-gray-700 dark:text-gray-300 leading-tight text-[11px] line-clamp-2">
+                                                                        {t.description}
+                                                                    </p>
+                                                                    <span className="text-[9px] text-gray-400 block">
+                                                                        {new Date(t.created_at).toLocaleDateString("uk-UA")}
+                                                                    </span>
+                                                                </div>
+                                                                <span
+                                                                    className={`px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${
+                                                                        t.status === "resolved"
+                                                                            ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/30"
+                                                                            : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/30"
+                                                                    }`}
+                                                                >
+                                                                    {t.status === "resolved" ? "Виконано" : "В процесі"}
+                                                                </span>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Розділ зміни кімнати / Каталог інших гуртожитків */}
+                                    <div id="building-catalog-section" className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-6 space-y-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-gray-700 pb-4">
+                                            <div>
+                                                <h3 className="font-bold text-gray-900 dark:text-white text-base tracking-tight flex items-center gap-2">
+                                                    <span>Каталог гуртожитків та переселення</span>
+                                                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                        {buildings.length} корпуси
+                                                    </span>
+                                                </h3>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                    {showBuildingCatalog 
+                                                        ? "Оберіть корпус, щоб переглянути кімнати та подати заявку на переїзд."
+                                                        : "Бажаєте змінити кімнату чи корпус? Розгорніть каталог, щоб обрати іншу кімнату."}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowBuildingCatalog(!showBuildingCatalog)}
+                                                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+                                            >
+                                                <span>{showBuildingCatalog ? "Згорнути корпуси" : "Переглянути корпуси"}</span>
+                                                <svg className={`w-3.5 h-3.5 transform transition-transform ${showBuildingCatalog ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        {showBuildingCatalog && (
+                                            <div className="pt-2 animate-in fade-in duration-200">
+                                                {renderBuildingCards(null, null)}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                /* Сценарій 2: Новий студент або ще не поселений */
+                                <div className="space-y-8">
+                                    {/* 1. Вибір гуртожитку на першому плані */}
+                                    {renderBuildingCards(
+                                        "Оберіть гуртожиток для проживання",
+                                        "Доступні корпуси студентського містечка МНАУ. Оберіть корпус, щоб переглянути вільні кімнати та подати заявку."
+                                    )}
 
-                    {!selectedBuildingId &&
-                        (buildings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-md mx-auto shadow-sm">
-                                <svg
-                                    className="w-10 h-10 text-gray-400 mb-3"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1.5}
-                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                    />
-                                </svg>
-                                <h3 className="text-base font-medium text-gray-900 dark:text-white">Корпуси відсутні</h3>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                {buildings.map((building, idx) => (
-                                    <button
-                                        key={building.id}
-                                        onClick={() =>
-                                            handleSelectBuilding(building.id)
-                                        }
-                                        title={building.name}
-                                        className="group flex flex-col justify-between items-start p-6 text-left w-full h-44 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 hover:bg-slate-50/50/40 dark:hover:bg-gray-800/40 hover:shadow-md hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 transition-all duration-300 ease-out animate-card-fade-in"
-                                        style={{ animationDelay: `${idx * 60}ms` }}
-                                    >
-                                        <div className="w-full flex justify-between items-start">
-                                            <div className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 group-hover:bg-gray-900 dark:group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
-                                                <svg
-                                                    className="w-5 h-5"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <span className="h-1.5 w-1.5 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-slate-50/500 transition-colors duration-200 mt-1" />
-                                        </div>
-                                        <div className="w-full mt-4 flex justify-between items-end">
-                                            <div className="flex flex-col max-w-[85%] gap-0.5">
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                                    Об'єкт
-                                                </span>
-                                                <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2 leading-snug">
-                                                    {building.name}
-                                                </h3>
-                                            </div>
-                                            <div className="text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-emerald-400 transform translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200 mb-0.5 shrink-0">
-                                                <svg
-                                                    className="w-4 h-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2.5}
-                                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                                    />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        ))}
-
-                    {/* ================= ДОШКА ОГОЛОШЕНЬ ГУРТОЖИТКУ (HOSTEL FEED / NEWS BOARD) ================= */}
-                    {!selectedBuildingId && announcements && announcements.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 sm:p-6 space-y-5">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-gray-700/80 pb-4">
-                                <div>
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/60">
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
-                                            Дошка оголошень гуртожитку
-                                        </h3>
-                                        <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-                                            {announcements.length}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        Важливі новини, розклад санітарних днів та студентські події МНАУ
-                                    </p>
+                                    {/* 2. Дошка оголошень для нових студентів */}
+                                    {renderAnnouncementsBoard()}
                                 </div>
-
-                                {/* Quick Filter Pills */}
-                                <div className="flex items-center bg-slate-100 dark:bg-gray-900 p-1 rounded-xl gap-1 border border-slate-200/60 dark:border-gray-700/80 overflow-x-auto no-scrollbar">
-                                    <button
-                                        type="button"
-                                        onClick={() => setAnnouncementFilter("all")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                                            announcementFilter === "all"
-                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs border border-transparent dark:border-gray-700"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                                        }`}
-                                    >
-                                        Всі
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setAnnouncementFilter("important")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
-                                            announcementFilter === "important"
-                                                ? "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 shadow-xs border border-transparent dark:border-gray-700"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                                        }`}
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                        <span>Важливо</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setAnnouncementFilter("info")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
-                                            announcementFilter === "info"
-                                                ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs border border-transparent dark:border-gray-700"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                                        }`}
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                        <span>Інформація</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setAnnouncementFilter("event")}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
-                                            announcementFilter === "event"
-                                                ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-xs border border-transparent dark:border-gray-700"
-                                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-                                        }`}
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                                        <span>Заходи</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Grid of Announcements */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {announcements
-                                    .filter(
-                                        (a) =>
-                                            announcementFilter === "all" ||
-                                            a.priority === announcementFilter
-                                    )
-                                    .map((a) => {
-                                        const isImportant = a.priority === "important";
-                                        const isEvent = a.priority === "event";
-
-                                        return (
-                                            <div
-                                                key={a.id}
-                                                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
-                                                    isImportant
-                                                        ? "bg-red-50/40 dark:bg-gray-800/90 border-red-200 dark:border-red-900/60 shadow-xs border-l-4 border-l-red-500"
-                                                        : isEvent
-                                                        ? "bg-purple-50/40 dark:bg-gray-800/90 border-purple-200 dark:border-purple-900/60 shadow-xs border-l-4 border-l-purple-500"
-                                                        : "bg-slate-50/60 dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/90 shadow-xs border-l-4 border-l-blue-500"
-                                                }`}
-                                            >
-                                                <div className="space-y-2">
-                                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                                        <div className="flex items-center gap-1.5 flex-wrap">
-                                                            {a.is_pinned && (
-                                                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
-                                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                                                    </svg>
-                                                                    <span>Закріплено</span>
-                                                                </span>
-                                                            )}
-                                                            <span
-                                                                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                                                    isImportant
-                                                                        ? "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200/80 dark:border-red-800/60"
-                                                                        : isEvent
-                                                                        ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/60"
-                                                                        : "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/60"
-                                                                }`}
-                                                            >
-                                                                <span className={`w-1.5 h-1.5 rounded-full ${isImportant ? "bg-red-500 animate-pulse" : isEvent ? "bg-purple-500" : "bg-blue-500"}`} />
-                                                                <span>{isImportant ? "Важливо" : isEvent ? "Захід" : "Інформація"}</span>
-                                                            </span>
-                                                        </div>
-
-                                                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-500 dark:text-gray-300 bg-white/80 dark:bg-gray-900/80 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-gray-700">
-                                                            <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                            </svg>
-                                                            <span>{a.building_name}</span>
-                                                        </span>
-                                                    </div>
-
-                                                    <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
-                                                        {a.title}
-                                                    </h4>
-
-                                                    <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-                                                        {a.content}
-                                                    </p>
-                                                </div>
-
-                                                <div className="pt-2.5 border-t border-slate-200/60 dark:border-gray-700/80 flex items-center justify-between text-[11px] text-gray-400">
-                                                    <span className="font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
-                                                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold inline-flex items-center justify-center">
-                                                            {a.author_name?.charAt(0) || "М"}
-                                                        </span>
-                                                        <span>{a.author_role}: {a.author_name}</span>
-                                                    </span>
-                                                    <span>{a.created_at}</span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                            </div>
-                        </div>
+                            )}
+                        </>
                     )}
 
                     {selectedBuildingId && (
