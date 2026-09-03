@@ -299,11 +299,12 @@ class AdminController extends Controller
             $booking->update($updateData);
             AuditLog::log($booking->user_id, 'relocation_approved', "Ухвалено переїзд користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$newRoom->room_number}");
             
-            \App\Models\Notification::create([
+            $notif1 = \App\Models\Notification::create([
                 'user_id' => $booking->user_id,
                 'title' => 'Запит на переселення схвалено',
                 'message' => "Ваш запит на переселення з кімнати №{$oldRoomNumber} до кімнати №{$newRoom->room_number} схвалено.",
             ]);
+            \App\Events\NotificationCreated::dispatchSafe($booking->user_id, $notif1);
 
             if ($oldRoomId) {
                 \App\Events\RoomOccupancyUpdated::dispatchSafe($oldRoomId, 'relocation_approved', "Звільнено місце в кімнаті №{$oldRoomNumber}");
@@ -315,11 +316,12 @@ class AdminController extends Controller
             $booking->update($updateData);
             AuditLog::log($booking->user_id, 'booking_approved', "Ухвалено заселення користувача {$booking->user->name} до кімнати №{$booking->room->room_number}");
             
-            \App\Models\Notification::create([
+            $notif2 = \App\Models\Notification::create([
                 'user_id' => $booking->user_id,
                 'title' => 'Заявку на заселення схвалено',
                 'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} схвалено.",
             ]);
+            \App\Events\NotificationCreated::dispatchSafe($booking->user_id, $notif2);
 
             \App\Events\RoomOccupancyUpdated::dispatchSafe($booking->room_id, 'booking_approved', "Заселено жильця в кімнату №{$booking->room->room_number}");
         }
@@ -352,11 +354,12 @@ class AdminController extends Controller
             
             $reason = $request->input('rejection_reason');
             $reasonText = $reason ? " Причина: {$reason}." : "";
-            \App\Models\Notification::create([
+            $notif3 = \App\Models\Notification::create([
                 'user_id' => $booking->user_id,
                 'title' => 'Запит на переселення відхилено',
                 'message' => "Ваш запит на переселення до кімнати №{$targetRoom->room_number} відхилено.{$reasonText}",
             ]);
+            \App\Events\NotificationCreated::dispatchSafe($booking->user_id, $notif3);
 
             if ($targetRoom) {
                 \App\Events\RoomOccupancyUpdated::dispatchSafe($targetRoom->id, 'relocation_rejected', "Знято бронь переїзду в кімнату №{$targetRoom->room_number}");
@@ -374,11 +377,12 @@ class AdminController extends Controller
 
         $reason = $request->input('rejection_reason');
         $reasonText = $reason ? " Причина: {$reason}." : " Без вказання причини.";
-        \App\Models\Notification::create([
+        $notif4 = \App\Models\Notification::create([
             'user_id' => $booking->user_id,
             'title' => 'Заявку на заселення відхилено',
             'message' => "Вашу заявку на заселення до кімнати №{$booking->room->room_number} відхилено.{$reasonText}",
         ]);
+        \App\Events\NotificationCreated::dispatchSafe($booking->user_id, $notif4);
 
         \App\Events\RoomOccupancyUpdated::dispatchSafe($booking->room_id, 'booking_rejected', "Звільнено бронь у кімнаті №{$booking->room->room_number}");
 
@@ -611,11 +615,12 @@ class AdminController extends Controller
             'reallocated_reason' => $request->input('reason') ?: 'Виробнича необхідність',
         ]);
 
-        \App\Models\Notification::create([
+        $notif5 = \App\Models\Notification::create([
             'user_id' => $booking->user_id,
             'title' => 'Переселення',
             'message' => "Адміністратор переселив вас з кімнати №{$oldRoomNumber} до кімнати №{$targetRoom->room_number} ({$targetRoom->building->name}). Причина: " . ($request->input('reason') ?: 'Виробнича необхідність') . ".",
         ]);
+        \App\Events\NotificationCreated::dispatchSafe($booking->user_id, $notif5);
 
         AuditLog::log($booking->user_id, 'manual_relocation', "Адміністратор переселив користувача {$booking->user->name} з кімнати №{$oldRoomNumber} до №{$targetRoom->room_number} ({$targetRoom->building->name})");
 
@@ -642,11 +647,12 @@ class AdminController extends Controller
 
         $booking->delete();
 
-        \App\Models\Notification::create([
+        $notif6 = \App\Models\Notification::create([
             'user_id' => $userId,
             'title' => 'Виселення',
             'message' => "Вас виселено з кімнати №{$roomNumber}.",
         ]);
+        \App\Events\NotificationCreated::dispatchSafe($userId, $notif6);
 
         AuditLog::log($userId, 'evicted', "Виселено користувача {$userName} з кімнати №{$roomNumber}");
 
@@ -723,11 +729,12 @@ class AdminController extends Controller
 
         $user = User::find($request->user_id);
         
-        \App\Models\Notification::create([
+        $notif7 = \App\Models\Notification::create([
             'user_id' => $user->id,
             'title' => 'Заселення',
             'message' => "Адміністратор заселив вас до кімнати №{$room->room_number} ({$room->building->name}).",
         ]);
+        \App\Events\NotificationCreated::dispatchSafe($user->id, $notif7);
 
         $mixedNote = $request->boolean('force_mixed') ? ' (змішана кімната)' : '';
         AuditLog::log($user->id, 'manual_checkin', "Адміністратор вручну заселив користувача {$user->name} до кімнати №{$room->room_number}{$mixedNote}");
@@ -1094,7 +1101,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Швидкий вхід під акаунтом студента (Impersonate)
+     * Швидкий вхід під акаунтом студента чи коменданта (Impersonate)
      */
     public function impersonate(Request $request, User $user)
     {
@@ -1108,11 +1115,44 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Комендант може входити лише під акаунтами студентів.');
         }
 
-        AuditLog::log($currentUser->id, 'impersonated_user', "Адміністратор {$currentUser->name} увійшов під ім'ям {$user->name} (ID: {$user->id})");
+        // Записуємо оригінального користувача, якщо ще не в режимі імперсонації
+        $impersonatorId = $request->session()->get('impersonator_id', $currentUser->id);
+
+        $roleLabel = $currentUser->role === 'admin' ? 'Адміністратор' : 'Комендант';
+        AuditLog::log($currentUser->id, 'impersonated_user', "{$roleLabel} {$currentUser->name} увійшов під ім'ям {$user->name} (ID: {$user->id})");
 
         Auth::login($user);
         $request->session()->regenerate();
+        $request->session()->put('impersonator_id', $impersonatorId);
 
-        return redirect()->route('dashboard')->with('success', "Ви увійшли під ім'ям {$user->name}");
+        $targetRoute = in_array($user->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
+        return redirect()->route($targetRoute)->with('success', "Ви увійшли під ім'ям {$user->name}");
+    }
+
+    /**
+     * Повернення до оригінального акаунта адміністратора/коменданта
+     */
+    public function leaveImpersonate(Request $request)
+    {
+        $impersonatorId = $request->session()->get('impersonator_id');
+
+        if (!$impersonatorId) {
+            return redirect()->route('dashboard')->with('error', 'Ви не знаходитесь у режимі перегляду іншого акаунту.');
+        }
+
+        $impersonator = User::find($impersonatorId);
+        if (!$impersonator) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Початкового користувача не знайдено.');
+        }
+
+        Auth::login($impersonator);
+        $request->session()->regenerate();
+        $request->session()->forget('impersonator_id');
+
+        $targetRoute = in_array($impersonator->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
+        return redirect()->route($targetRoute)->with('success', "Ви успішно повернулися до свого облікового запису ({$impersonator->name})");
     }
 }

@@ -56,17 +56,17 @@ export default function Dashboard({
         const interval = setInterval(() => {
             if (document.visibilityState === "visible") {
                 router.reload({
-                    only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                    only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
                     preserveScroll: true,
                     preserveState: true,
                 });
             }
-        }, 4000);
+        }, 5000);
 
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === "visible") {
                 router.reload({
-                    only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                    only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
                     preserveScroll: true,
                     preserveState: true,
                 });
@@ -83,13 +83,13 @@ export default function Dashboard({
         };
     }, []);
 
-    // Слухаємо оновлення кімнат та заявок через WebSockets у реальному часі (якщо доступно)
+    // Слухаємо оновлення кімнат, заявок, звернень та оголошень через WebSockets у реальному часі
     useEffect(() => {
         const echo = getEcho();
         if (!echo) return;
 
-        const channel = echo.channel("rooms");
-        channel.listen(".RoomOccupancyUpdated", (e) => {
+        const roomsChannel = echo.channel("rooms");
+        roomsChannel.listen(".RoomOccupancyUpdated", (e) => {
             if (e.roomId) {
                 setLiveHighlightedRoomIds((prev) => [...prev, Number(e.roomId)]);
                 setTimeout(() => {
@@ -99,7 +99,32 @@ export default function Dashboard({
 
             // Фонова синхронізація адмінських даних без F5
             router.reload({
-                only: ["buildings", "pendingBookings", "stats", "allUsers"],
+                only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
+        const ticketsChannel = echo.channel("tickets");
+        ticketsChannel.listen(".TicketUpdated", (e) => {
+            if (e.action === "created") {
+                window.dispatchEvent(
+                    new CustomEvent("show-toast", {
+                        detail: { message: e.message || "Нове звернення від студента!", duration: 4500 }
+                    })
+                );
+            }
+            router.reload({
+                only: ["tickets", "stats", "auditLogs"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
+        const announcementsChannel = echo.channel("announcements");
+        announcementsChannel.listen(".AnnouncementUpdated", () => {
+            router.reload({
+                only: ["announcements", "auditLogs"],
                 preserveScroll: true,
                 preserveState: true,
             });
@@ -107,6 +132,8 @@ export default function Dashboard({
 
         return () => {
             echo.leaveChannel("rooms");
+            echo.leaveChannel("tickets");
+            echo.leaveChannel("announcements");
         };
     }, []);
 
@@ -413,9 +440,14 @@ export default function Dashboard({
         }
     };
 
-    const handleImpersonate = (userId, userName) => {
-        if (confirm(`Ви дійсно бажаєте увійти під акаунтом "${userName}"?`)) {
-            router.post(route("admin.users.impersonate", userId));
+    const handleImpersonate = (userId, userName, role = "user") => {
+        const roleLabel = role === "commandant" ? "комендантом" : "студентом";
+        if (confirm(`Ви дійсно бажаєте увійти як ${roleLabel} "${userName}"?`)) {
+            router.post(route("admin.users.impersonate", userId), {}, {
+                onSuccess: () => {
+                    window.location.href = role === "commandant" ? "/admin/dashboard" : "/dashboard";
+                }
+            });
         }
     };
 
@@ -724,6 +756,7 @@ export default function Dashboard({
                         allBuildings={allBuildings}
                         buildings={buildings}
                         handleOpenEditUserModal={handleOpenEditUserModal}
+                        handleImpersonate={handleImpersonate}
                     />
                 )}
 

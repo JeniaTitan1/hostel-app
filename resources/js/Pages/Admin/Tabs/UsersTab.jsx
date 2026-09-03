@@ -399,10 +399,10 @@ export default function UsersTab({
                                             >
                                                 Редагувати
                                             </button>
-                                            {isSuperAdmin && u.role !== "admin" && (
+                                            {u.role !== "admin" && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleImpersonate && handleImpersonate(u.id, u.name)}
+                                                    onClick={() => handleImpersonate && handleImpersonate(u.id, u.name, "user")}
                                                     className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold rounded-lg hover:bg-indigo-100 transition-all text-[11px]"
                                                 >
                                                     Увійти як

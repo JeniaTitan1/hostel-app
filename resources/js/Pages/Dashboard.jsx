@@ -41,7 +41,12 @@ export default function Dashboard({
     const [processing, setProcessing] = useState(false);
     const [announcementFilter, setAnnouncementFilter] = useState("all");
     const [liveRooms, setLiveRooms] = useState(rooms);
+    const [liveTickets, setLiveTickets] = useState(tickets);
     const [highlightedRoomIds, setHighlightedRoomIds] = useState([]);
+
+    useEffect(() => {
+        setLiveTickets(tickets);
+    }, [tickets]);
 
     useEffect(() => {
         setLiveRooms(rooms);
@@ -128,10 +133,91 @@ export default function Dashboard({
             });
         });
 
+        // Слухаємо оновлення звернень у реальному часі (якщо кран підтікає і статус вирішено)
+        const ticketsChannel = echo.channel("tickets");
+        ticketsChannel.listen(".TicketUpdated", (e) => {
+            if (e.userId && auth.user && Number(e.userId) === Number(auth.user.id)) {
+                setLiveTickets((prev) => {
+                    const idx = prev.findIndex((t) => Number(t.id) === Number(e.ticketId));
+                    if (idx >= 0) {
+                        const copy = [...prev];
+                        copy[idx] = {
+                            ...copy[idx],
+                            status: e.action === "resolved" ? "resolved" : copy[idx].status,
+                            ...(e.ticket || {}),
+                        };
+                        return copy;
+                    } else if (e.ticket && e.action === "created") {
+                        return [e.ticket, ...prev];
+                    }
+                    return prev;
+                });
+
+                if (e.action === "resolved") {
+                    window.dispatchEvent(
+                        new CustomEvent("show-toast", {
+                            detail: {
+                                message: e.message || "Вашу заявку на обслуговування успішно виконано!",
+                                duration: 4500,
+                            },
+                        })
+                    );
+                }
+
+                router.reload({
+                    only: ["tickets", "auth"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }
+        });
+
+        // Персональний канал для прямих оновлень
+        let userChannel = null;
+        if (auth.user?.id) {
+            userChannel = echo.channel(`user.${auth.user.id}`);
+            userChannel.listen(".TicketUpdated", (e) => {
+                setLiveTickets((prev) => {
+                    const idx = prev.findIndex((t) => Number(t.id) === Number(e.ticketId));
+                    if (idx >= 0) {
+                        const copy = [...prev];
+                        copy[idx] = {
+                            ...copy[idx],
+                            status: e.action === "resolved" ? "resolved" : copy[idx].status,
+                            ...(e.ticket || {}),
+                        };
+                        return copy;
+                    }
+                    return prev;
+                });
+
+                router.reload({
+                    only: ["tickets", "auth"],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            });
+        }
+
+        // Синхронізація оголошень
+        const announcementsChannel = echo.channel("announcements");
+        announcementsChannel.listen(".AnnouncementUpdated", () => {
+            router.reload({
+                only: ["announcements"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
         return () => {
             echo.leaveChannel("rooms");
+            echo.leaveChannel("tickets");
+            echo.leaveChannel("announcements");
+            if (auth.user?.id) {
+                echo.leaveChannel(`user.${auth.user.id}`);
+            }
         };
-    }, [selectedBuildingId, selectedFloor]);
+    }, [selectedBuildingId, selectedFloor, auth.user?.id]);
 
     // Сповіщення про нові події (відхилення, схвалення, переселення тощо)
     const seenNotificationIdsRef = useRef(new Set((auth.notifications || []).map((n) => n.id)));
@@ -652,12 +738,12 @@ export default function Dashboard({
                                     {/* Список заявок */}
                                     <div className="space-y-2 pt-2 border-t border-slate-100/80 max-h-40 overflow-y-auto">
                                         <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Мої заявки</h4>
-                                        {tickets.length === 0 ? (
+                                        {liveTickets.length === 0 ? (
                                             <p className="text-[10px] text-gray-400 italic">
                                                 Немає поданих заявок
                                             </p>
                                         ) : (
-                                            tickets.map((t) => (
+                                            liveTickets.map((t) => (
                                                 <div
                                                     key={t.id}
                                                     className="p-2 rounded-lg border border-gray-105 dark:border-gray-700 bg-slate-50/50/50 dark:bg-gray-800/30 flex items-start justify-between gap-2 text-xs"

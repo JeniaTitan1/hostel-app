@@ -51,6 +51,8 @@ class AnnouncementController extends Controller
             'details' => "Опубліковано нове оголошення: \"{$announcement->title}\" (Ціль: {$targetBuildingName}, Пріоритет: {$announcement->priority})",
         ]);
 
+        \App\Events\AnnouncementUpdated::dispatchSafe('created', "Опубліковано нове оголошення: {$announcement->title}", $announcement->building_id);
+
         return redirect()->back()->with('success', 'Оголошення успішно опубліковано!');
     }
 
@@ -66,6 +68,7 @@ class AnnouncementController extends Controller
         }
 
         $title = $announcement->title;
+        $buildingId = $announcement->building_id;
         $announcement->delete();
 
         AuditLog::create([
@@ -73,6 +76,8 @@ class AnnouncementController extends Controller
             'action' => 'delete_announcement',
             'details' => "Видалено оголошення: \"{$title}\"",
         ]);
+
+        \App\Events\AnnouncementUpdated::dispatchSafe('deleted', "Видалено оголошення: {$title}", $buildingId);
 
         return redirect()->back()->with('success', 'Оголошення успішно видалено.');
     }

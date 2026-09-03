@@ -57,6 +57,9 @@ class HandleInertiaRequests extends Middleware
                     'reallocated_reason' => $request->user()->reallocated_reason,
                 ] : null,
                 'notifications' => $request->user() ? (in_array($request->user()->role, ['admin', 'commandant']) ? $this->getAdminNotifications($request->user()) : $request->user()->notifications()->latest()->get()) : [],
+                'impersonator' => $request->session()->has('impersonator_id')
+                    ? \App\Models\User::find($request->session()->get('impersonator_id'), ['id', 'name', 'email', 'role'])
+                    : null,
             ],
             // Если у тебя используются флеш-уведомления (например, статус изменения профиля)
             'status' => $request->session()->get('status'),

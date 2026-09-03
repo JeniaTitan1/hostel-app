@@ -38,6 +38,9 @@ Route::middleware('auth')->group(function () {
 
     // Перевірка справжності ордерів
     Route::get('/verify-order/{orderNumber?}', [OrderVerificationController::class, 'verify'])->name('verify-order');
+
+    // Вихід з режиму перегляду іншого акаунту
+    Route::post('/impersonate/leave', [AdminController::class, 'leaveImpersonate'])->name('impersonate.leave');
 });
 
 Route::post('/bookings/{booking}/request-reallocate', [AdminController::class, 'requestReallocate'])->name('bookings.request-reallocate');

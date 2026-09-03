@@ -11,6 +11,7 @@ export default function CommandantsTab({
     allBuildings = [],
     buildings = [],
     handleOpenEditUserModal,
+    handleImpersonate,
 }) {
     const buildingsList = allBuildings.length > 0 ? allBuildings : buildings;
 
@@ -191,6 +192,15 @@ export default function CommandantsTab({
                                             </span>
                                         </td>
                                         <td className="p-4 text-right space-x-2">
+                                            {handleImpersonate && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleImpersonate(c.id, c.name, "commandant")}
+                                                    className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold rounded-lg hover:bg-indigo-100 transition-all text-[11px]"
+                                                >
+                                                    Увійти як
+                                                </button>
+                                            )}
                                             <button
                                                 type="button"
                                                 onClick={() => handleOpenEditUserModal(c)}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import CommandantOccupancyVisualizer from "@/Components/CommandantOccupancyVisualizer";
 
 export default function RoomMapTab({
     buildings = [],
@@ -22,6 +23,7 @@ export default function RoomMapTab({
     isSuperAdmin,
     liveHighlightedRoomIds = [],
 }) {
+    const [viewMode, setViewMode] = useState("visualizer");
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
 
@@ -39,8 +41,70 @@ export default function RoomMapTab({
 
     return (
         <div className="space-y-6">
-            {/* Пошук та фільтри для мапи */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Панель перемикання режимів перегляду */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm">
+                <div>
+                    <h3 className="font-extrabold text-gray-900 dark:text-white text-base tracking-tight flex items-center gap-2">
+                        <span>Житловий фонд та кімнати</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                        {viewMode === "visualizer" ? "Інтерактивний зріз корпусу, ліжка та детальна зайнятість" : "Класичний картковий вигляд"}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl">
+                    <button
+                        type="button"
+                        onClick={() => setViewMode("visualizer")}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                            viewMode === "visualizer"
+                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                    >
+                        <span>🌟 Інтерактивний зріз та ліжка</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setViewMode("classic")}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                            viewMode === "classic"
+                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                                : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                    >
+                        <span>📋 Класична сітка</span>
+                    </button>
+                </div>
+            </div>
+
+            {viewMode === "visualizer" ? (
+                <CommandantOccupancyVisualizer
+                    building={
+                        selectedBuildingFilter
+                            ? buildings.find((b) => Number(b.id) === Number(selectedBuildingFilter)) || buildings[0]
+                            : buildings[0]
+                    }
+                    allBuildings={buildings}
+                    selectedBuildingId={selectedBuildingFilter}
+                    onSelectBuilding={setSelectedBuildingFilter}
+                    getRoomGender={getRoomGender}
+                    handleOpenManualBooking={handleOpenManualBooking}
+                    handleOpenCloseRoomModal={handleOpenCloseRoomModal}
+                    handleToggleStatus={handleToggleStatus}
+                    handleToggleIntake={handleToggleIntake}
+                    handleToggleVisibility={handleToggleVisibility}
+                    handleUpdateCapacity={handleUpdateCapacity}
+                    handleEvictStudent={handleEvictStudent}
+                    handleOpenEditUserModal={handleOpenEditUserModal}
+                    handleRequestReallocate={handleRequestReallocate}
+                    isSuperAdmin={isSuperAdmin}
+                    liveHighlightedRoomIds={liveHighlightedRoomIds}
+                />
+            ) : (
+                <>
+                    {/* Пошук та фільтри для мапи */}
+                    <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
                         Карта корпусів МНАУ
@@ -789,6 +853,8 @@ export default function RoomMapTab({
                         </div>
                     );
                 })}
+                </>
+            )}
         </div>
     );
 }

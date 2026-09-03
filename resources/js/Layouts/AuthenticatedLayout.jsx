@@ -4,6 +4,7 @@ import IntroWaveAnimation from "@/Components/IntroWaveAnimation";
 import ToastContainer from "@/Components/ToastContainer";
 import LayoutHeader from "@/Components/LayoutHeader";
 import LayoutFooter from "@/Components/LayoutFooter";
+import { getEcho } from "@/echo";
 
 // Внутрішній прапорець сесії модуля: ресетиться при перезавантаженні сторінки (F5),
 // але зберігається при навігації в межах Inertia (SPA)
@@ -147,6 +148,30 @@ export default function AuthenticatedLayout({
         };
     }, []);
 
+    // Слухаємо персональні сповіщення в реальному часі (WebSockets)
+    useEffect(() => {
+        if (!user?.id) return;
+        const echo = getEcho();
+        if (!echo) return;
+
+        const userChannel = echo.channel(`user.${user.id}`);
+        userChannel.listen(".NotificationCreated", (e) => {
+            const msg = e.notification?.message || e.message || "Нове сповіщення";
+            window.dispatchEvent(
+                new CustomEvent("show-toast", { detail: { message: msg, duration: 4000 } })
+            );
+            router.reload({
+                only: ["auth"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        });
+
+        return () => {
+            echo.leaveChannel(`user.${user.id}`);
+        };
+    }, [user?.id]);
+
     return (
         <div className="min-h-screen flex flex-col antialiased bg-slate-50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200">
             {/* Flash Message Toasts */}
@@ -155,6 +180,31 @@ export default function AuthenticatedLayout({
             {/* Intro Canvas Wave Animation */}
             {animating && (
                 <IntroWaveAnimation onClose={handleCloseIntroAnimation} />
+            )}
+
+            {/* Impersonation Banner */}
+            {props.auth?.impersonator && (
+                <div className="bg-gradient-to-r from-purple-800 via-indigo-800 to-purple-900 text-white px-4 py-2.5 text-xs shadow-lg sticky top-0 z-50 flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-purple-500/30">
+                    <div className="flex items-center gap-2.5 text-center sm:text-left">
+                        <span className="flex h-2.5 w-2.5 relative shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-300"></span>
+                        </span>
+                        <span>
+                            👁️ <strong>Режим перегляду:</strong> Ви увійшли під акаунтом <span className="text-amber-300 font-bold underline">{user.name}</span> ({user.role === 'commandant' ? 'Комендант' : user.role === 'admin' ? 'Адміністратор' : 'Студент'}). Початковий акаунт: <strong>{props.auth.impersonator.name}</strong>
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => router.post(route('impersonate.leave'))}
+                        className="px-3.5 py-1.5 bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold rounded-xl transition-all border border-white/30 shadow-xs flex items-center gap-1.5 shrink-0"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Повернутися до мого акаунту</span>
+                    </button>
+                </div>
             )}
 
             {/* Header & Subheader */}

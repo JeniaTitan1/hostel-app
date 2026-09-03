@@ -15,6 +15,11 @@ class EnforceProfileSetup
     {
         $user = $request->user();
 
+        // Якщо адміністратор чи комендант переглядає профіль студента в режимі імперсонації, не блокувати його
+        if ($request->session()->has('impersonator_id')) {
+            return $next($request);
+        }
+
         if ($user && $user->must_change_password) {
             if ($user->isProfileSetupComplete()) {
                 $user->must_change_password = false;
