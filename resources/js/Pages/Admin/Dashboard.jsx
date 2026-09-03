@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
 
@@ -51,35 +51,32 @@ export default function Dashboard({
     const [roomToCloseForRepair, setRoomToCloseForRepair] = useState(null);
     const [liveHighlightedRoomIds, setLiveHighlightedRoomIds] = useState([]);
 
-    // Фонова Real-time синхронізація для адмінки (надійно оновлює без F5)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (document.visibilityState === "visible") {
-                router.reload({
-                    only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
-                    preserveScroll: true,
-                    preserveState: true,
-                });
-            }
-        }, 5000);
+    const isReloadingRef = useRef(false);
 
-        const handleVisibilityOrFocus = () => {
-            if (document.visibilityState === "visible") {
-                router.reload({
-                    only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
-                    preserveScroll: true,
-                    preserveState: true,
-                });
-            }
+    // Фонова Real-time синхронізація для адмінки (безпечно та без перевантаження сесії)
+    useEffect(() => {
+        const safeReload = () => {
+            if (document.visibilityState !== "visible" || isReloadingRef.current) return;
+            isReloadingRef.current = true;
+            router.reload({
+                only: ["buildings", "pendingBookings", "stats", "allUsers", "tickets", "auditLogs", "announcements"],
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => {
+                    isReloadingRef.current = false;
+                },
+            });
         };
 
-        window.addEventListener("focus", handleVisibilityOrFocus);
-        document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+        const interval = setInterval(safeReload, 20000);
+
+        window.addEventListener("focus", safeReload);
+        document.addEventListener("visibilitychange", safeReload);
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener("focus", handleVisibilityOrFocus);
-            document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+            window.removeEventListener("focus", safeReload);
+            document.removeEventListener("visibilitychange", safeReload);
         };
     }, []);
 

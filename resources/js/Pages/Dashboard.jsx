@@ -58,35 +58,32 @@ export default function Dashboard({
         }
     }, [rooms]);
 
-    // Фонова Real-time синхронізація (працює надійно на будь-яких пристроях та мережах)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (document.visibilityState === "visible") {
-                router.reload({
-                    only: ["rooms", "floors", "userBooking", "roommates", "auth"],
-                    preserveScroll: true,
-                    preserveState: true,
-                });
-            }
-        }, 4000);
+    const isReloadingRef = useRef(false);
 
-        const handleVisibilityOrFocus = () => {
-            if (document.visibilityState === "visible") {
-                router.reload({
-                    only: ["rooms", "floors", "userBooking", "roommates", "auth"],
-                    preserveScroll: true,
-                    preserveState: true,
-                });
-            }
+    // Фонова Real-time синхронізація (безпечно та без перевантаження сесії)
+    useEffect(() => {
+        const safeReload = () => {
+            if (document.visibilityState !== "visible" || isReloadingRef.current) return;
+            isReloadingRef.current = true;
+            router.reload({
+                only: ["rooms", "floors", "userBooking", "roommates", "tickets", "announcements"],
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => {
+                    isReloadingRef.current = false;
+                },
+            });
         };
 
-        window.addEventListener("focus", handleVisibilityOrFocus);
-        document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+        const interval = setInterval(safeReload, 20000);
+
+        window.addEventListener("focus", safeReload);
+        document.addEventListener("visibilitychange", safeReload);
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener("focus", handleVisibilityOrFocus);
-            document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+            window.removeEventListener("focus", safeReload);
+            document.removeEventListener("visibilitychange", safeReload);
         };
     }, [selectedBuildingId, selectedFloor]);
 

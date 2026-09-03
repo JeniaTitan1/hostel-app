@@ -12,6 +12,7 @@ use App\Models\AuditLog;
 use App\Models\EmailChangeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -1121,13 +1122,18 @@ class AdminController extends Controller
         $roleLabel = $currentUser->role === 'admin' ? 'Адміністратор' : 'Комендант';
         AuditLog::log($currentUser->id, 'impersonated_user', "{$roleLabel} {$currentUser->name} увійшов під ім'ям {$user->name} (ID: {$user->id})");
 
-        // Логінимося під обраним користувачем
-        Auth::login($user);
+        // Оновлюємо сесію без знищення session ID для 100% стабільності сесії
+        $guard = Auth::guard('web');
+        $request->session()->put($guard->getName(), $user->getAuthIdentifier());
         $request->session()->put('impersonator_id', $impersonatorId);
+        $guard->setUser($user);
         $request->session()->save();
 
-        $targetRoute = in_array($user->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
-        return Inertia::location(route($targetRoute));
+        // Очищаємо remember cookie оригінального адміна, щоб не було конфлікту сесій
+        Cookie::queue(Cookie::forget($guard->getRecallerName()));
+
+        $targetUrl = in_array($user->role, ['admin', 'commandant']) ? '/admin/dashboard' : '/dashboard';
+        return Inertia::location($targetUrl);
     }
 
     /**
@@ -1146,14 +1152,17 @@ class AdminController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return Inertia::location(route('login'));
+            return Inertia::location('/login');
         }
 
-        Auth::login($impersonator);
+        // Повертаємо оригінального користувача без зміни session ID
+        $guard = Auth::guard('web');
+        $request->session()->put($guard->getName(), $impersonator->getAuthIdentifier());
         $request->session()->forget('impersonator_id');
+        $guard->setUser($impersonator);
         $request->session()->save();
 
-        $targetRoute = in_array($impersonator->role, ['admin', 'commandant']) ? 'admin.dashboard' : 'dashboard';
-        return Inertia::location(route($targetRoute));
+        $targetUrl = in_array($impersonator->role, ['admin', 'commandant']) ? '/admin/dashboard' : '/dashboard';
+        return Inertia::location($targetUrl);
     }
 }
