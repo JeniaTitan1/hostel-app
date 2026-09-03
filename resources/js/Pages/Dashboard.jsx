@@ -839,145 +839,145 @@ export default function Dashboard({
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start md:self-center">
-                        {!hasApprovedBooking && !hasPendingBooking && (
-                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                                <span className="text-xs font-bold text-amber-800 leading-tight">
-                                    На даний момент ви ніде не проживаєте. Будь
-                                    ласка, оберіть кімнату та подайте заявку.
+                    {selectedBuildingId ? (
+                        /* У режимі вибору кімнати / переселення показуємо ТІЛЬКИ кнопку повернення до кабінету */
+                        <div className="flex items-center gap-3 self-start md:self-center shrink-0">
+                            {hasApprovedBooking && (
+                                <span className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 items-center gap-1.5 shrink-0">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                    <span>Режим переселення</span>
                                 </span>
-                            </div>
-                        )}
-
-                        {hasRejectedBooking && (
-                            <div className="flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/40">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                                    <span className="text-xs font-bold text-red-800">
-                                        Заявку відхилено
-                                    </span>
-                                </div>
-                                {userBooking.rejection_reason && (
-                                    <p className="text-[11px] text-red-700 leading-tight max-w-xs">
-                                        Причина: {userBooking.rejection_reason}
-                                    </p>
-                                )}
-                                <p className="text-[10px] text-red-600 font-medium">
-                                    Оберіть іншу кімнату та подайте нову заявку.
-                                </p>
-                            </div>
-                        )}
-
-                        {hasApprovedBooking && (
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setShowDigitalPass(true)}
-                                    className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer"
-                                    title="Відкрити цифрову перепустку"
-                                >
-                                    <svg
-                                        className="w-4 h-4"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                                        />
-                                    </svg>
-                                    <span>Цифрова перепустка (QR)</span>
-                                </button>
-
-                                <button
-                                    onClick={handleDownloadSlip}
-                                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
-                                    title="Завантажити ордер у форматі PDF"
-                                >
-                                    <svg
-                                        className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                        />
-                                    </svg>
-                                    <span>Ордер (PDF)</span>
-                                </button>
-                            </div>
-                        )}
-
-                        {userBooking && (
-                            <div className="flex flex-col gap-1 px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-sm">
-                                <div className="flex items-center gap-2">
-                                    <span
-                                        className={`w-2 h-2 rounded-full animate-pulse ${
-                                            hasPendingReallocation
-                                                ? "bg-indigo-500"
-                                                : userBooking.status ===
-                                                    "approved"
-                                                  ? "bg-emerald-500"
-                                                  : userBooking.status ===
-                                                      "pending"
-                                                    ? "bg-amber-500"
-                                                    : "bg-red-500"
-                                        }`}
-                                    />
-                                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                                        {hasPendingReallocation
-                                            ? "Очікується переселення"
-                                            : userBooking.status === "approved"
-                                              ? "Затверджено"
-                                              : userBooking.status === "pending"
-                                                ? "Заявка на розгляді"
-                                                : "Відхилено"}
-                                    </span>
-                                </div>
-                                <span className="text-[10px] text-gray-500 font-medium">
-                                    {userBooking.room?.building?.name} • Пв.{" "}
-                                    {userBooking.room?.floor} • Км. №
-                                    {userBooking.room?.room_number}
-                                    {hasPendingReallocation && (
-                                        <span className="text-indigo-600 font-semibold block mt-0.5">
-                                            → Очікує переїзду в кімн. №
-                                            {userBooking.new_room
-                                                ?.room_number || "?"}
-                                        </span>
-                                    )}
-                                </span>
-                            </div>
-                        )}
-
-                        {selectedBuildingId && (
+                            )}
                             <button
+                                type="button"
                                 onClick={() => router.visit(route("dashboard"))}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-100 rounded-lg text-xs font-semibold text-gray-600 bg-white hover:bg-slate-50/50 hover:text-gray-900 transition-colors h-fit"
+                                className="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
                             >
-                                <svg
-                                    className="w-3.5 h-3.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2.5}
-                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                                    />
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
-                                Назад до корпусів
+                                <span>{hasApprovedBooking ? "Назад до мого кабінету" : "Назад до вибору корпусу"}</span>
                             </button>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        /* У звичайному кабінеті студента показуємо перепустку, ордер та статус */
+                        <div className="flex flex-wrap items-center gap-3 self-start md:self-center">
+                            {!hasApprovedBooking && !hasPendingBooking && (
+                                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 shadow-3xs animate-pulse">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                                    <span className="text-xs font-bold text-amber-800 leading-tight">
+                                        На даний момент ви ніде не проживаєте. Будь ласка, оберіть кімнату та подайте заявку.
+                                    </span>
+                                </div>
+                            )}
+
+                            {hasRejectedBooking && (
+                                <div className="flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/40">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                                        <span className="text-xs font-bold text-red-800">
+                                            Заявку відхилено
+                                        </span>
+                                    </div>
+                                    {userBooking.rejection_reason && (
+                                        <p className="text-[11px] text-red-700 leading-tight max-w-xs">
+                                            Причина: {userBooking.rejection_reason}
+                                        </p>
+                                    )}
+                                    <p className="text-[10px] text-red-600 font-medium">
+                                        Оберіть іншу кімнату та подайте нову заявку.
+                                    </p>
+                                </div>
+                            )}
+
+                            {hasApprovedBooking && (
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <button
+                                        onClick={() => setShowDigitalPass(true)}
+                                        className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
+                                        title="Відкрити цифрову перепустку"
+                                    >
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                                            />
+                                        </svg>
+                                        <span>Цифрова перепустка (QR)</span>
+                                    </button>
+
+                                    <button
+                                        onClick={handleDownloadSlip}
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+                                        title="Завантажити ордер у форматі PDF"
+                                    >
+                                        <svg
+                                            className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                            />
+                                        </svg>
+                                        <span>Ордер (PDF)</span>
+                                    </button>
+                                </div>
+                            )}
+
+                            {userBooking && (
+                                <div className="flex flex-col gap-0.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-xs shrink-0">
+                                    <div className="flex items-center gap-1.5">
+                                        <span
+                                            className={`w-2 h-2 rounded-full animate-pulse ${
+                                                hasPendingReallocation
+                                                    ? "bg-indigo-500"
+                                                    : userBooking.status ===
+                                                        "approved"
+                                                      ? "bg-emerald-500"
+                                                      : userBooking.status ===
+                                                          "pending"
+                                                        ? "bg-amber-500"
+                                                        : "bg-red-500"
+                                            }`}
+                                        />
+                                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                                            {hasPendingReallocation
+                                                ? "Очікується переселення"
+                                                : userBooking.status === "approved"
+                                                  ? "Затверджено"
+                                                  : userBooking.status === "pending"
+                                                    ? "Заявка на розгляді"
+                                                    : "Відхилено"}
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-500 font-medium">
+                                        {userBooking.room?.building?.name} • Пв.{" "}
+                                        {userBooking.room?.floor} • Км. №
+                                        {userBooking.room?.room_number}
+                                        {hasPendingReallocation && (
+                                            <span className="text-indigo-600 font-semibold block mt-0.5">
+                                                → Очікує переїзду в кімн. №
+                                                {userBooking.new_room
+                                                    ?.room_number || "?"}
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             }
         >
@@ -1149,9 +1149,9 @@ export default function Dashboard({
                                                                 Кімната №{userBooking.room?.room_number}
                                                             </h3>
                                                             {Boolean(userBooking.room?.is_accessible) && (
-                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                                    <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                                        <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
+                                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                    <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                                                                        <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
                                                                     </svg>
                                                                     <span>Інклюзивна</span>
                                                                 </span>
@@ -1393,32 +1393,20 @@ export default function Dashboard({
 
                     {selectedBuildingId && (
                         <div className="space-y-6">
-                            {/* Панель навігації та повернення до кабінету */}
+                            {/* Інформаційна плашка обраного корпусу */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-4 rounded-2xl shadow-xs">
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.visit(route("dashboard"))}
-                                        className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 text-xs font-bold transition-all flex items-center gap-1.5 shadow-3xs active:scale-95 cursor-pointer"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                        </svg>
-                                        <span>{hasApprovedBooking ? "Назад до мого кабінету" : "Назад до вибору корпусу"}</span>
-                                    </button>
-                                    <div>
-                                        <h3 className="font-bold text-sm text-gray-900 dark:text-white">
-                                            {currentBuilding?.name}
-                                        </h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            {hasApprovedBooking
-                                                ? "Оберіть поверх та вільне ліжко-місце для подачі заявки на переїзд"
-                                                : "Оберіть поверх та вільну кімнату для онлайн-поселення"}
-                                        </p>
-                                    </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-gray-900 dark:text-white">
+                                        {currentBuilding?.name}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                        {hasApprovedBooking
+                                            ? "Оберіть поверх та вільне ліжко-місце для подачі заявки на переїзд"
+                                            : "Оберіть поверх та вільну кімнату для онлайн-поселення"}
+                                    </p>
                                 </div>
                                 {hasApprovedBooking && (
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 self-start sm:self-auto">
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 self-start sm:self-auto shrink-0">
                                         Режим переселення
                                     </span>
                                 )}
@@ -1597,11 +1585,11 @@ export default function Dashboard({
                                                                     )}
                                                                     {Boolean(room.is_accessible) && (
                                                                         <span
-                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1 shrink-0"
+                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 shrink-0"
                                                                             title="Кімната обладнана для осіб з інвалідністю / обмеженими фізичними можливостями (інклюзивна)"
                                                                         >
-                                                                            <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                                                <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
+                                                                            <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                                                                                <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
                                                                             </svg>
                                                                             <span>Інклюзивна</span>
                                                                         </span>
@@ -1679,8 +1667,8 @@ export default function Dashboard({
 
                                                         {Boolean(selectedRoom.is_accessible) && (
                                                             <div className="flex items-center gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 mt-2">
-                                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                                                                    <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5 10.5V11c0-.55-.45-1-1-1H12V8h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h2.5v1.5H10c-.55 0-1 .45-1 1s.45 1 1 1h4.5c.55 0 1-.45 1-1v-2h1zm-5.5 3c-1.93 0-3.5 1.57-3.5 3.5S9.07 22.5 11 22.5c1.78 0 3.25-1.33 3.47-3.06l-1.52-.38c-.14.94-.95 1.66-1.95 1.66-1.1 0-2-.9-2-2s.9-2 2-2c.75 0 1.4.42 1.74 1.03l1.54-.62C13.68 16.03 12.44 15.5 11 15.5z"/>
+                                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                                                                    <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
                                                                 </svg>
                                                                 <div className="text-xs leading-tight">
                                                                     <span className="font-bold block">Інклюзивна кімната</span>
