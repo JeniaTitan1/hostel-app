@@ -36,38 +36,46 @@ export default function ContactStudentModal({ student, onClose }) {
         e.preventDefault();
         if (!subject.trim() || !message.trim()) return;
 
-        setProcessing(true);
+        const sentSubject = subject.trim();
+        const sentMessage = message.trim();
+        const targetStudentName = student.name;
+        const targetStudentEmail = student.email;
+
+        // Одразу закриваємо модальне вікно за запитом користувача
+        onClose();
+
+        window.dispatchEvent(
+            new CustomEvent("show-toast", {
+                detail: {
+                    message: `Надсилаємо звернення для ${targetStudentName}...`,
+                },
+            })
+        );
+
         router.post(
             route("admin.students.contact-email", student.id),
-            { subject: subject.trim(), message: message.trim() },
+            { subject: sentSubject, message: sentMessage },
             {
                 preserveScroll: true,
-                onSuccess: () => {
-                    setProcessing(false);
-                    onClose();
+                onSuccess: (page) => {
+                    const serverMsg = page.props?.flash?.success || `Повідомлення для ${targetStudentName} успішно доставлено!`;
                     window.dispatchEvent(
                         new CustomEvent("show-toast", {
-                            detail: {
-                                message: `Лист успішно надіслано на ${student.email}!`,
-                            },
+                            detail: { message: serverMsg },
                         })
                     );
                 },
                 onError: (errors) => {
-                    setProcessing(false);
                     const errorMsg =
                         errors.email ||
                         errors.subject ||
                         errors.message ||
-                        "Помилка при надсиланні листа.";
+                        "Не вдалося доставити лист.";
                     window.dispatchEvent(
                         new CustomEvent("show-toast", {
                             detail: { message: errorMsg, type: "error" },
                         })
                     );
-                },
-                onFinish: () => {
-                    setProcessing(false);
                 },
             }
         );

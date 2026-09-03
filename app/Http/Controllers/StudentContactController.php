@@ -33,27 +33,35 @@ class StudentContactController extends Controller
             ]);
         }
 
+        // 1. Доставляємо внутрішнє сповіщення в кабінет студента (іконка дзвіночка в шапці)
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => "Повідомлення від адміністрації: {$validated['subject']}",
+            'message' => $validated['message'],
+        ]);
+
+        // 2. Фіксуємо дію в журналі аудиту
+        AuditLog::create([
+            'user_id' => $sender->id,
+            'action' => 'contact_student_email',
+            'details' => "Надіслано звернення студенту {$user->name} ({$user->email}) на тему: \"{$validated['subject']}\"",
+        ]);
+
+        // 3. Відправляємо на зовнішній email, якщо налаштовано поштовий сервер
+        $emailDelivered = false;
         try {
             Mail::to($user->email)->send(
                 new DirectStudentMail($user, $sender, $validated['subject'], $validated['message'])
             );
-
-            AuditLog::create([
-                'user_id' => $sender->id,
-                'action' => 'contact_student_email',
-                'details' => "Надіслано персональний лист студенту {$user->name} ({$user->email}) на тему: \"{$validated['subject']}\"",
-            ]);
-
-            return redirect()->back()->with(
-                'success',
-                "Лист успішно надіслано на пошту студента ({$user->email})!"
-            );
+            $emailDelivered = true;
         } catch (\Throwable $e) {
-            Log::error("Помилка при відправці листа студенту {$user->id}: " . $e->getMessage());
-
-            return redirect()->back()->withErrors([
-                'email' => 'Не вдалося надіслати лист через помилку поштового сервера. Повідомлення збережено в системному лозі.',
-            ]);
+            Log::warning("Зовнішній поштовий сервер не налаштований або повернув помилку при відправці студенту {$user->id} ({$user->email}): " . $e->getMessage());
         }
+
+        $flashMessage = $emailDelivered
+            ? "Лист успішно надіслано на email ({$user->email}) та в особистий кабінет студента!"
+            : "Повідомлення успішно доставлено в особистий кабінет студента! (Зовнішній email-сервер ще не налаштовано)";
+
+        return redirect()->back()->with('success', $flashMessage);
     }
 }
