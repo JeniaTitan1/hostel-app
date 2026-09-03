@@ -45,8 +45,28 @@ export default function ContactStudentModal({ student, onClose }) {
                 onSuccess: () => {
                     setProcessing(false);
                     onClose();
+                    window.dispatchEvent(
+                        new CustomEvent("show-toast", {
+                            detail: {
+                                message: `Лист успішно надіслано на ${student.email}!`,
+                            },
+                        })
+                    );
                 },
-                onError: () => {
+                onError: (errors) => {
+                    setProcessing(false);
+                    const errorMsg =
+                        errors.email ||
+                        errors.subject ||
+                        errors.message ||
+                        "Помилка при надсиланні листа.";
+                    window.dispatchEvent(
+                        new CustomEvent("show-toast", {
+                            detail: { message: errorMsg, type: "error" },
+                        })
+                    );
+                },
+                onFinish: () => {
                     setProcessing(false);
                 },
             }

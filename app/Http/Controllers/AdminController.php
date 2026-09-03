@@ -1406,8 +1406,8 @@ class AdminController extends Controller
         // Очищаємо remember cookie оригінального адміна, щоб не було конфлікту сесій
         Cookie::queue(Cookie::forget($guard->getRecallerName()));
 
-        $targetUrl = in_array($user->role, ['admin', 'commandant']) ? '/admin/dashboard' : '/dashboard';
-        return Inertia::location($targetUrl);
+        $targetUrl = in_array($user->role, ['admin', 'commandant']) ? route('admin.dashboard') : route('dashboard');
+        return redirect($targetUrl);
     }
 
     /**

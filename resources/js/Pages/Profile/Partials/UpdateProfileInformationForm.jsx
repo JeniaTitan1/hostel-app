@@ -66,7 +66,7 @@ export default function UpdateProfileInformation({
         e.preventDefault();
 
         patch(route("profile.update"), {
-            preserveScroll: true,
+            preserveScroll: !user?.must_change_password,
             onSuccess: () => {
                 reset("current_password", "password", "password_confirmation");
             },

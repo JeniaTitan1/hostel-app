@@ -86,10 +86,17 @@ class ProfileController extends Controller
 
         $user->save();
 
+        $wasMustChange = (bool) $user->must_change_password;
+
         // Якщо користувач підлягає обов'язковій перевірці на зміну пароля та профілю
         if ($user->must_change_password && $user->isProfileSetupComplete()) {
             $user->must_change_password = false;
             $user->save();
+        }
+
+        // Після успішної первинної реєстрації/налаштування профілю одразу перекидаємо на головний дашборд
+        if ($wasMustChange && !$user->must_change_password) {
+            return Redirect::route('dashboard')->with('success', 'Первинне налаштування завершено! Вітаємо у системі гуртожитків.');
         }
 
         return Redirect::route('profile.edit');

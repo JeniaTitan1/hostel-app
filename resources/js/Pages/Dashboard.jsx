@@ -604,7 +604,7 @@ export default function Dashboard({
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                                 </svg>
                             </div>
-                            <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight">
+                            <h3 className="font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100 tracking-tight">
                                 Дошка оголошень гуртожитку
                             </h3>
                             <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
@@ -768,7 +768,7 @@ export default function Dashboard({
                 {title && (
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
-                            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                                 {title}
                             </h2>
                             {subtitle && (
@@ -1149,11 +1149,8 @@ export default function Dashboard({
                                                                 Кімната №{userBooking.room?.room_number}
                                                             </h3>
                                                             {Boolean(userBooking.room?.is_accessible) && (
-                                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                                    <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
-                                                                        <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
-                                                                    </svg>
-                                                                    <span>Інклюзивна</span>
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                    Інклюзивна
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1585,13 +1582,10 @@ export default function Dashboard({
                                                                     )}
                                                                     {Boolean(room.is_accessible) && (
                                                                         <span
-                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 shrink-0"
+                                                                            className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shrink-0"
                                                                             title="Кімната обладнана для осіб з інвалідністю / обмеженими фізичними можливостями (інклюзивна)"
                                                                         >
-                                                                            <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
-                                                                                <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
-                                                                            </svg>
-                                                                            <span>Інклюзивна</span>
+                                                                            Інклюзивна
                                                                         </span>
                                                                     )}
                                                                     {!isClosed && (
@@ -1666,13 +1660,10 @@ export default function Dashboard({
                                                         </p>
 
                                                         {Boolean(selectedRoom.is_accessible) && (
-                                                            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 mt-2">
-                                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
-                                                                    <path d="M192 64a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm56 128H152c-13.3 0-24 10.7-24 24v120c0 13.3 10.7 24 24 24s24-10.7 24-24V240h48l43.2 129.6c4.2 12.6 16.1 21.2 29.4 21.4H424c13.3 0 24-10.7 24-24s-10.7-24-24-24H312.4L278 240h50c13.3 0 24-10.7 24-24s-10.7-24-24-24H248zm-88 96c-53 0-96 43-96 96s43 96 96 96 96-43 96-96c0-11.4-2-22.3-5.7-32.4l-35.3 11.8c2 6.6 3 13.5 3 20.6 0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64c7.1 0 14 1 20.6 3l11.8-35.3C182.3 290 171.4 288 160 288z"/>
-                                                                </svg>
+                                                            <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 mt-2">
                                                                 <div className="text-xs leading-tight">
                                                                     <span className="font-bold block">Інклюзивна кімната</span>
-                                                                    <span className="text-[10px] text-blue-700/80 dark:text-blue-300/80 block">
+                                                                    <span className="text-[10px] text-blue-700/80 dark:text-blue-300/80 block mt-0.5">
                                                                         Обладнана для осіб з обмеженими фізичними можливостями
                                                                     </span>
                                                                 </div>
