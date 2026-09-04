@@ -24,10 +24,21 @@ class BuildingController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        $currentUser = $request->user();
         $selectedBuildingId = $request->query('building_id');
         $selectedFloor = $request->query('floor');
 
-        $buildings = Building::all();
+        $buildingsQuery = Building::query();
+        if ($currentUser && !empty($currentUser->allowed_buildings)) {
+            $buildingsQuery->whereIn('id', $currentUser->allowed_buildings);
+        }
+        $buildings = $buildingsQuery->get();
+
+        if ($currentUser && !empty($currentUser->allowed_buildings) && $selectedBuildingId) {
+            if (!$currentUser->canAccessBuilding($selectedBuildingId)) {
+                $selectedBuildingId = $buildings->first()?->id;
+            }
+        }
         $floors = [];
         $rooms = [];
 
@@ -144,7 +155,12 @@ class BuildingController extends Controller
         ]);
 
         $userId = Auth::id();
+        $user = Auth::user();
         $room = Room::findOrFail($request->room_id);
+
+        if ($user && method_exists($user, 'canAccessBuilding') && !$user->canAccessBuilding($room->building_id)) {
+            return redirect()->back()->with('error', 'Ви можете обирати кімнати лише у дозволених для вас корпусах.');
+        }
 
         if ((bool) \App\Models\Setting::get('global_intake_closed', false)) {
             return redirect()->back()->with('error', 'Подача нових заявок на заселення тимчасово закрита адміністрацією.');

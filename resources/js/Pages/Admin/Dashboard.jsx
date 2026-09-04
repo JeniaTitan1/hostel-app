@@ -231,6 +231,8 @@ export default function Dashboard({
         telegram: "",
         gender: "male",
         is_inclusive: false,
+        building_mode: "all",
+        allowed_buildings: [],
         specialty: "",
         course: 1,
         group: "",
@@ -248,6 +250,8 @@ export default function Dashboard({
             buildingName: roomInfo?.building_name || targetUser.room?.building?.name || null,
         });
 
+        const hasSpecificBuildings = Array.isArray(u.allowed_buildings) && u.allowed_buildings.length > 0;
+
         userEditForm.setData({
             name: u.name || "",
             email: u.email || "",
@@ -255,6 +259,8 @@ export default function Dashboard({
             telegram: u.telegram || "",
             gender: u.gender || "male",
             is_inclusive: Boolean(u.is_inclusive),
+            building_mode: hasSpecificBuildings ? "specific" : "all",
+            allowed_buildings: hasSpecificBuildings ? u.allowed_buildings.map(Number) : [],
             specialty: u.specialty || "",
             course: u.course || 1,
             group: u.group || "",
@@ -408,6 +414,8 @@ export default function Dashboard({
     const userGenForm = useForm({
         count: 5,
         gender: "",
+        building_mode: "all",
+        allowed_buildings: [],
     });
 
     const handleGenerateUsers = (e) => {
@@ -785,6 +793,7 @@ export default function Dashboard({
                         generatedUsers={generatedUsers}
                         userGenForm={userGenForm}
                         handleGenerateUsers={handleGenerateUsers}
+                        availableBuildings={allBuildings?.length ? allBuildings : buildings.map((b) => ({ id: b.id, name: b.name }))}
                     />
                 )}
 
@@ -857,6 +866,7 @@ export default function Dashboard({
                     onClose={() => setEditingUser(null)}
                     userEditForm={userEditForm}
                     onSubmit={handleUpdateUserSubmit}
+                    availableBuildings={allBuildings?.length ? allBuildings : buildings.map((b) => ({ id: b.id, name: b.name }))}
                 />
 
                 <ReallocateBookingModal

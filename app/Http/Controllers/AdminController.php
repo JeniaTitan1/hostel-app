@@ -90,7 +90,7 @@ class AdminController extends Controller
             ->whereDoesntHave('bookings', function ($query) {
                 $query->where('status', 'approved');
             })
-            ->get(['id', 'name', 'email', 'gender', 'is_inclusive']);
+            ->get(['id', 'name', 'email', 'gender', 'is_inclusive', 'allowed_buildings']);
 
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
@@ -99,7 +99,7 @@ class AdminController extends Controller
             ->get([
                 'id', 'name', 'email', 'gender', 'telegram', 'phone', 
                 'must_change_password', 'password_changed', 'created_at',
-                'specialty', 'course', 'group', 'is_inclusive'
+                'specialty', 'course', 'group', 'is_inclusive', 'allowed_buildings'
             ]);
 
         // Аналітика по корпусах
@@ -203,7 +203,7 @@ class AdminController extends Controller
             'allUsers'            => $allUsers,
             'commandants'         => $commandants,
             'emailChangeRequests' => $emailChangeRequests,
-            'allBuildings'        => $isCommandant ? [] : Building::all(['id', 'name']),
+            'allBuildings'        => Building::all(['id', 'name']),
             'generatedUsers'      => session('generated_users'),
             'generatedCommandant' => session('generated_commandant'),
             'stats'               => $stats,
@@ -1083,10 +1083,25 @@ class AdminController extends Controller
         $request->validate([
             'count' => ['required', 'integer', 'min:1', 'max:50'],
             'gender' => ['nullable', 'string', 'in:male,female'],
+            'building_mode' => ['nullable', 'string', 'in:all,specific'],
+            'allowed_buildings' => ['nullable', 'array'],
+            'allowed_buildings.*' => ['integer', 'exists:buildings,id'],
         ]);
 
         $count = (int)$request->input('count');
         $gender = $request->input('gender');
+        $buildingMode = $request->input('building_mode', 'all');
+        $allowedBuildings = null;
+
+        if ($buildingMode === 'specific' && !empty($request->input('allowed_buildings'))) {
+            $allowedBuildings = array_values(array_unique(array_map('intval', $request->input('allowed_buildings'))));
+        }
+
+        $allBuildingsMap = Building::pluck('name', 'id')->toArray();
+        $allowedBuildingNames = $allowedBuildings 
+            ? implode(', ', array_filter(array_map(fn($id) => $allBuildingsMap[$id] ?? null, $allowedBuildings)))
+            : 'Усі корпуси';
+
         $generated = [];
 
         $adjectives = ['Smart', 'Happy', 'Wise', 'Brave', 'Honest', 'Friendly', 'Active', 'Kind'];
@@ -1109,6 +1124,7 @@ class AdminController extends Controller
                 'must_change_password' => true,
                 'password_changed' => false,
                 'gender' => $gender,
+                'allowed_buildings' => $allowedBuildings,
             ]);
 
             $generated[] = [
@@ -1117,9 +1133,12 @@ class AdminController extends Controller
                 'email' => $email,
                 'password' => $password,
                 'gender' => $user->gender,
+                'allowed_buildings' => $user->allowed_buildings,
+                'allowed_building_names' => $allowedBuildingNames,
             ];
             
-            AuditLog::log($request->user()->id, 'user_generated', "Адміністратор згенерував тимчасового користувача $email ($name)");
+            $logBuildingsDesc = $allowedBuildings ? "дозволені корпуси: $allowedBuildingNames" : "всі корпуси";
+            AuditLog::log($request->user()->id, 'user_generated', "Адміністратор згенерував тимчасового користувача $email ($name), $logBuildingsDesc");
         }
 
         return redirect()->back()
@@ -1377,6 +1396,9 @@ class AdminController extends Controller
             'telegram' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
             'is_inclusive' => ['nullable', 'boolean'],
+            'building_mode' => ['nullable', 'string', Rule::in(['all', 'specific'])],
+            'allowed_buildings' => ['nullable', 'array'],
+            'allowed_buildings.*' => ['integer', 'exists:buildings,id'],
             'specialty' => ['nullable', 'string', 'max:50'],
             'course' => ['nullable', 'integer', 'min:1', 'max:6'],
             'group' => ['nullable', 'string', 'max:20'],
@@ -1384,6 +1406,17 @@ class AdminController extends Controller
         ]);
 
         $validated['is_inclusive'] = $request->boolean('is_inclusive');
+
+        if ($request->has('building_mode')) {
+            if ($request->input('building_mode') === 'all') {
+                $validated['allowed_buildings'] = null;
+            } else {
+                $validated['allowed_buildings'] = !empty($request->input('allowed_buildings'))
+                    ? array_values(array_unique(array_map('intval', $request->input('allowed_buildings'))))
+                    : null;
+            }
+        }
+        unset($validated['building_mode']);
 
         if (!empty($validated['password'])) {
             $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);

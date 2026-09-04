@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password_changed',
         'gender',
         'is_inclusive',
+        'allowed_buildings',
         'specialty',
         'course',
         'group',
@@ -47,8 +48,20 @@ class User extends Authenticatable
             'must_change_password' => 'boolean',
             'password_changed' => 'boolean',
             'is_inclusive' => 'boolean',
+            'allowed_buildings' => 'array',
             'email_changes_count' => 'integer',
         ];
+    }
+
+    /**
+     * Перевірка чи має студент доступ до поселення в корпус
+     */
+    public function canAccessBuilding($buildingId): bool
+    {
+        if (empty($this->allowed_buildings)) {
+            return true;
+        }
+        return in_array((int)$buildingId, array_map('intval', $this->allowed_buildings));
     }
 
     /**

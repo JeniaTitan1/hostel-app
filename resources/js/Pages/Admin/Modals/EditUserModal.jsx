@@ -1,7 +1,13 @@
 import React from "react";
 import { createPortal } from "react-dom";
 
-export default function EditUserModal({ editingUser, onClose, userEditForm, onSubmit }) {
+export default function EditUserModal({
+    editingUser,
+    onClose,
+    userEditForm,
+    onSubmit,
+    availableBuildings = [],
+}) {
     if (!editingUser) return null;
 
     const backdropMouseDownRef = React.useRef(false);
@@ -203,6 +209,128 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                                 </label>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Секція: Дозволені корпуси для поселення */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-1">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                                🏢 Дозволені корпуси для поселення
+                            </h4>
+                            <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                {userEditForm.data.building_mode === "all"
+                                    ? "Доступні всі корпуси"
+                                    : `Обрано: ${userEditForm.data.allowed_buildings?.length || 0}`}
+                            </span>
+                        </div>
+
+                        {/* Перемикач режиму */}
+                        <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    userEditForm.setData((prev) => ({
+                                        ...prev,
+                                        building_mode: "all",
+                                        allowed_buildings: [],
+                                    }));
+                                }}
+                                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                    userEditForm.data.building_mode === "all"
+                                        ? "bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                }`}
+                            >
+                                <span>🌐</span> Усі корпуси
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    userEditForm.setData((prev) => ({
+                                        ...prev,
+                                        building_mode: "specific",
+                                    }));
+                                }}
+                                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                    userEditForm.data.building_mode === "specific"
+                                        ? "bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                }`}
+                            >
+                                <span>🏢</span> Обрати конкретні
+                            </button>
+                        </div>
+
+                        {userEditForm.data.building_mode === "specific" && (
+                            <div className="space-y-2 p-2.5 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-xl border border-indigo-100 dark:border-indigo-900/40">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[11px] text-gray-600 dark:text-gray-400 font-medium">
+                                        Позначте корпуси, до яких цей студент матиме доступ для вибору кімнат:
+                                    </p>
+                                    {availableBuildings && availableBuildings.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const allIds = availableBuildings.map((b) => Number(b.id));
+                                                const isAllSelected = allIds.every((id) =>
+                                                    (userEditForm.data.allowed_buildings || []).map(Number).includes(id)
+                                                );
+                                                userEditForm.setData("allowed_buildings", isAllSelected ? [] : allIds);
+                                            }}
+                                            className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                        >
+                                            {(userEditForm.data.allowed_buildings || []).length === availableBuildings.length
+                                                ? "Зняти всі"
+                                                : "Вибрати всі"}
+                                        </button>
+                                    )}
+                                </div>
+                                {availableBuildings && availableBuildings.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {availableBuildings.map((b) => {
+                                            const isChecked = (userEditForm.data.allowed_buildings || [])
+                                                .map(Number)
+                                                .includes(Number(b.id));
+                                            return (
+                                                <label
+                                                    key={b.id}
+                                                    className={`flex items-center gap-2.5 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                                                        isChecked
+                                                            ? "bg-white dark:bg-gray-800 border-indigo-400 text-indigo-700 dark:text-indigo-300 font-bold shadow-xs"
+                                                            : "bg-white/60 dark:bg-gray-800/40 border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-slate-300"
+                                                    }`}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={(e) => {
+                                                            const current = (userEditForm.data.allowed_buildings || []).map(Number);
+                                                            const next = e.target.checked
+                                                                ? [...current, Number(b.id)]
+                                                                : current.filter((id) => id !== Number(b.id));
+                                                            userEditForm.setData("allowed_buildings", next);
+                                                        }}
+                                                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-gray-600"
+                                                    />
+                                                    <span className="truncate">{b.name}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                                        Корпусів не знайдено
+                                    </p>
+                                )}
+                                {userEditForm.data.building_mode === "specific" &&
+                                    (!userEditForm.data.allowed_buildings ||
+                                        userEditForm.data.allowed_buildings.length === 0) && (
+                                        <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                            ⚠️ Увага: не вибрано жодного корпусу. Студент не зможе переглядати кімнати.
+                                        </p>
+                                    )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Секція 2: Академічна інформація */}
