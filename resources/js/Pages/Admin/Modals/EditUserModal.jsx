@@ -212,10 +212,11 @@ export default function EditUserModal({
                     </div>
 
                     {/* Секція: Дозволені корпуси для поселення */}
+                    {/* Секція: Дозволені корпуси для поселення */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-1">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-                                🏢 Дозволені корпуси для поселення
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                Дозволені корпуси для поселення
                             </h4>
                             <span className="text-[10px] text-gray-500 dark:text-gray-400">
                                 {userEditForm.data.building_mode === "all"
@@ -235,13 +236,13 @@ export default function EditUserModal({
                                         allowed_buildings: [],
                                     }));
                                 }}
-                                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center ${
                                     userEditForm.data.building_mode === "all"
                                         ? "bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
                                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                 }`}
                             >
-                                <span>🌐</span> Усі корпуси
+                                Усі корпуси
                             </button>
                             <button
                                 type="button"
@@ -251,13 +252,13 @@ export default function EditUserModal({
                                         building_mode: "specific",
                                     }));
                                 }}
-                                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center ${
                                     userEditForm.data.building_mode === "specific"
                                         ? "bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
                                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                 }`}
                             >
-                                <span>🏢</span> Обрати конкретні
+                                Обрати конкретні
                             </button>
                         </div>
 
@@ -294,9 +295,9 @@ export default function EditUserModal({
                                             return (
                                                 <label
                                                     key={b.id}
-                                                    className={`flex items-center gap-2.5 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                                                    className={`flex items-center gap-2.5 p-2 rounded-xl border text-xs cursor-pointer select-none transition-colors ${
                                                         isChecked
-                                                            ? "bg-white dark:bg-gray-800 border-indigo-400 text-indigo-700 dark:text-indigo-300 font-bold shadow-xs"
+                                                            ? "bg-white dark:bg-gray-800 border-indigo-400 text-indigo-700 dark:text-indigo-300 shadow-2xs"
                                                             : "bg-white/60 dark:bg-gray-800/40 border-slate-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-slate-300"
                                                     }`}
                                                 >
@@ -310,9 +311,9 @@ export default function EditUserModal({
                                                                 : current.filter((id) => id !== Number(b.id));
                                                             userEditForm.setData("allowed_buildings", next);
                                                         }}
-                                                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-gray-600"
+                                                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-gray-600 shrink-0 cursor-pointer"
                                                     />
-                                                    <span className="truncate">{b.name}</span>
+                                                    <span className="font-medium truncate leading-tight">{b.name}</span>
                                                 </label>
                                             );
                                         })}
@@ -326,7 +327,7 @@ export default function EditUserModal({
                                     (!userEditForm.data.allowed_buildings ||
                                         userEditForm.data.allowed_buildings.length === 0) && (
                                         <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                                            ⚠️ Увага: не вибрано жодного корпусу. Студент не зможе переглядати кімнати.
+                                            Увага: не вибрано жодного корпусу. Студент не зможе переглядати кімнати.
                                         </p>
                                     )}
                             </div>

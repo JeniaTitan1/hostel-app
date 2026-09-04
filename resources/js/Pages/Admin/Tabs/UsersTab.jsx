@@ -187,9 +187,9 @@ export default function UsersTab({
 
                 {showGenerator && userGenForm && (
                     <form onSubmit={handleGenerateUsers} className="pt-3 space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 block">
                                     Кількість акаунтів (1 – 50)
                                 </label>
                                 <input
@@ -198,19 +198,19 @@ export default function UsersTab({
                                     max="50"
                                     value={userGenForm.data.count}
                                     onChange={(e) => userGenForm.setData("count", e.target.value)}
-                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                                    className="w-full h-10 text-xs rounded-xl border border-slate-200 dark:border-gray-600 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 shadow-2xs"
                                     required
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 block">
                                     Стать (для розселення)
                                 </label>
                                 <select
                                     value={userGenForm.data.gender}
                                     onChange={(e) => userGenForm.setData("gender", e.target.value)}
-                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                    className="w-full h-10 text-xs rounded-xl border border-slate-200 dark:border-gray-600 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 shadow-2xs"
                                 >
                                     <option value="">Будь-яка / Не вказано</option>
                                     <option value="male">Чоловіча</option>
@@ -219,15 +219,17 @@ export default function UsersTab({
                             </div>
 
                             <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
-                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center justify-between">
-                                    <span>Доступні корпуси</span>
-                                    <span className="text-[11px] font-normal text-gray-400">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                        Доступні корпуси
+                                    </label>
+                                    <span className="text-[11px] font-medium text-gray-400">
                                         {userGenForm.data.building_mode === "all"
-                                            ? "Всі корпуси"
-                                            : `Вибрано: ${userGenForm.data.allowed_buildings?.length || 0}`}
+                                            ? "Усі корпуси"
+                                            : `Обрано: ${userGenForm.data.allowed_buildings?.length || 0}`}
                                     </span>
-                                </label>
-                                <div className="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl">
+                                </div>
+                                <div className="h-10 p-1 rounded-xl bg-slate-100 dark:bg-gray-700/60 border border-slate-200 dark:border-gray-600 grid grid-cols-2 gap-1">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -237,13 +239,13 @@ export default function UsersTab({
                                                 allowed_buildings: [],
                                             }));
                                         }}
-                                        className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-center ${
+                                        className={`h-full rounded-lg text-xs font-semibold transition-all flex items-center justify-center ${
                                             userGenForm.data.building_mode === "all"
-                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-2xs"
+                                                ? "bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 shadow-2xs"
                                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                         }`}
                                     >
-                                        🌐 Усі корпуси
+                                        Усі корпуси
                                     </button>
                                     <button
                                         type="button"
@@ -253,13 +255,13 @@ export default function UsersTab({
                                                 building_mode: "specific",
                                             }));
                                         }}
-                                        className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-center ${
+                                        className={`h-full rounded-lg text-xs font-semibold transition-all flex items-center justify-center ${
                                             userGenForm.data.building_mode === "specific"
-                                                ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-2xs"
+                                                ? "bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 shadow-2xs"
                                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                         }`}
                                     >
-                                        🏢 Обрати корпуси
+                                        Обрати корпуси
                                     </button>
                                 </div>
                             </div>
@@ -267,11 +269,18 @@ export default function UsersTab({
 
                         {/* Вибір конкретних корпусів */}
                         {userGenForm.data.building_mode === "specific" && (
-                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-gray-700/40 border border-slate-200 dark:border-gray-600 space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                        Оберіть корпуси, в яких дозволено заселятись цим студентам:
-                                    </span>
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-750/50 border border-slate-200 dark:border-gray-700 space-y-3">
+                                <div className="flex items-center justify-between pb-1 border-b border-slate-200/60 dark:border-gray-700/60">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                            Оберіть корпуси, в яких дозволено заселятись цим студентам:
+                                        </span>
+                                        {userGenForm.data.allowed_buildings && userGenForm.data.allowed_buildings.length > 0 && (
+                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">
+                                                {userGenForm.data.allowed_buildings.length} з {availableBuildings.length}
+                                            </span>
+                                        )}
+                                    </div>
                                     {availableBuildings && availableBuildings.length > 0 && (
                                         <button
                                             type="button"
@@ -282,7 +291,7 @@ export default function UsersTab({
                                                 );
                                                 userGenForm.setData("allowed_buildings", isAllSelected ? [] : allIds);
                                             }}
-                                            className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                                            className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors"
                                         >
                                             {(userGenForm.data.allowed_buildings || []).length === availableBuildings.length
                                                 ? "Зняти всі"
@@ -292,7 +301,7 @@ export default function UsersTab({
                                 </div>
 
                                 {availableBuildings && availableBuildings.length > 0 ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                                         {availableBuildings.map((b) => {
                                             const isChecked = (userGenForm.data.allowed_buildings || [])
                                                 .map(Number)
@@ -300,10 +309,10 @@ export default function UsersTab({
                                             return (
                                                 <label
                                                     key={b.id}
-                                                    className={`flex items-center gap-2 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                                                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-xs cursor-pointer select-none transition-colors ${
                                                         isChecked
-                                                            ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600 text-emerald-800 dark:text-emerald-200 font-bold shadow-2xs"
-                                                            : "bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-slate-300"
+                                                            ? "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-100 shadow-2xs"
+                                                            : "bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-slate-300 hover:bg-slate-50/70"
                                                     }`}
                                                 >
                                                     <input
@@ -316,9 +325,9 @@ export default function UsersTab({
                                                                 : current.filter((id) => id !== Number(b.id));
                                                             userGenForm.setData("allowed_buildings", next);
                                                         }}
-                                                        className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-gray-600"
+                                                        className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-gray-600 shrink-0 cursor-pointer"
                                                     />
-                                                    <span className="truncate">{b.name}</span>
+                                                    <span className="font-medium truncate leading-tight">{b.name}</span>
                                                 </label>
                                             );
                                         })}
@@ -327,13 +336,12 @@ export default function UsersTab({
                                     <p className="text-xs text-gray-400 italic">Немає доступних корпусів</p>
                                 )}
 
-                                {userGenForm.data.building_mode === "specific" &&
-                                    (!userGenForm.data.allowed_buildings ||
-                                        userGenForm.data.allowed_buildings.length === 0) && (
-                                        <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                                            ⚠️ Оберіть хоча б один корпус, інакше студенти не матимуть доступу до жодного гуртожитку.
-                                        </p>
-                                    )}
+                                {(!userGenForm.data.allowed_buildings ||
+                                    userGenForm.data.allowed_buildings.length === 0) && (
+                                    <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+                                        Оберіть хоча б один корпус, інакше студенти не матимуть доступу до жодного гуртожитку.
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -341,7 +349,7 @@ export default function UsersTab({
                             <button
                                 type="submit"
                                 disabled={userGenForm.processing}
-                                className="py-2.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+                                className="h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
                             >
                                 {userGenForm.processing
                                     ? "Створення..."
@@ -405,8 +413,8 @@ export default function UsersTab({
                                             <td className="p-2.5">{renderGenderBadge ? renderGenderBadge(u.gender) : (u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "—")}</td>
                                             <td className="p-2.5">
                                                 {u.allowed_building_names && u.allowed_building_names.length > 0 ? (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 font-semibold text-[10px]">
-                                                        🏢 {u.allowed_building_names.join(", ")}
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100/80 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 font-semibold text-[10px]">
+                                                        {u.allowed_building_names.join(", ")}
                                                     </span>
                                                 ) : (
                                                     <span className="text-gray-500 dark:text-gray-400 font-normal">Усі корпуси</span>
@@ -591,7 +599,7 @@ export default function UsersTab({
                                             {Array.isArray(u.allowed_buildings) && u.allowed_buildings.length > 0 && (
                                                 <div className="mt-1 flex items-center gap-1 flex-wrap">
                                                     <span
-                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60"
+                                                        className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60"
                                                         title={`Дозволено заселення лише у визначені корпуси (${u.allowed_buildings
                                                             .map(
                                                                 (id) =>
@@ -600,13 +608,10 @@ export default function UsersTab({
                                                             )
                                                             .join(", ")})`}
                                                     >
-                                                        <span>🏢</span>
-                                                        <span>
-                                                            {u.allowed_buildings.length === 1
-                                                                ? availableBuildings.find((b) => Number(b.id) === Number(u.allowed_buildings[0]))?.name ||
-                                                                  `Корпус #${u.allowed_buildings[0]}`
-                                                                : `${u.allowed_buildings.length} корп.`}
-                                                        </span>
+                                                        {u.allowed_buildings.length === 1
+                                                            ? availableBuildings.find((b) => Number(b.id) === Number(u.allowed_buildings[0]))?.name ||
+                                                              `Корпус #${u.allowed_buildings[0]}`
+                                                            : `${u.allowed_buildings.length} корп.`}
                                                     </span>
                                                 </div>
                                             )}
