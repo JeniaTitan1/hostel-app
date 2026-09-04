@@ -43,6 +43,9 @@ class AdminController extends Controller
         $isCommandant = $currentUser->role === 'commandant';
         $commandantBuildingId = $currentUser->building_id;
 
+        // Автоматична перевірка та переведення на новий навчальний рік з 1 вересня
+        \App\Services\AcademicPromotionService::checkAndAutoPromote($currentUser->id);
+
         if ($isCommandant) {
             $buildings = Building::where('id', $commandantBuildingId)
                 ->with(['rooms.bookings.user', 'rooms.bookings.newRoom'])
@@ -90,7 +93,7 @@ class AdminController extends Controller
             ->whereDoesntHave('bookings', function ($query) {
                 $query->where('status', 'approved');
             })
-            ->get(['id', 'name', 'email', 'gender', 'is_inclusive', 'allowed_buildings']);
+            ->get(['id', 'name', 'email', 'gender', 'is_inclusive', 'allowed_buildings', 'specialty', 'course', 'group']);
 
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
@@ -214,6 +217,12 @@ class AdminController extends Controller
             'announcements'       => $announcements,
             'accessLogs'          => $accessLogs,
             'accessStats'         => $accessStats,
+            'academicPromotionInfo' => [
+                'currentAcademicYear' => \App\Services\AcademicPromotionService::getCurrentAcademicYear(),
+                'lastPromotedYear'    => (int) \App\Models\Setting::get('last_academic_promotion_year', 0),
+                'lastPromotedDate'    => \App\Models\Setting::get('last_academic_promotion_date'),
+                'autoPromote'         => \App\Models\Setting::get('auto_promote_courses_on_september', '1') === '1',
+            ],
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -1218,6 +1227,32 @@ class AdminController extends Controller
         $group->delete();
         \App\Models\AuditLog::log($request->user()->id, 'group_deleted', "Адміністратор видалив групу " . $name);
         return redirect()->back()->with('success', 'Групу успішно видалено!');
+    }
+
+    /**
+     * Переведення студентів на наступний курс (+1 курс з 1 вересня)
+     */
+    public function promoteAcademicCourses(Request $request)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        $force = (bool) $request->input('force', true);
+        $result = \App\Services\AcademicPromotionService::promoteAllStudents($force, $request->user()->id);
+
+        return redirect()->back()->with('success', "Студентів успішно переведено на наступний курс (+1 курс). Оновлено: {$result['count']} студентів.");
+    }
+
+    /**
+     * Увімкнення/вимкнення автоматичного переведення курсів щороку 1 вересня
+     */
+    public function toggleAcademicAutoPromote(Request $request)
+    {
+        $this->ensureSuperAdmin($request->user());
+
+        $current = \App\Models\Setting::get('auto_promote_courses_on_september', '1') === '1';
+        \App\Models\Setting::set('auto_promote_courses_on_september', $current ? '0' : '1');
+
+        return redirect()->back()->with('success', 'Налаштування автоматичного переведення курсів успішно оновлено.');
     }
 
     /**

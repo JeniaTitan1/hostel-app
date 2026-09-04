@@ -50,6 +50,7 @@ export default function Dashboard({
         denied_today: 0,
         total_scans_today: 0,
     },
+    academicPromotionInfo = {},
 }) {
     const isSuperAdmin = auth?.user?.role === "admin";
 
@@ -850,6 +851,7 @@ export default function Dashboard({
                         specialties={specialties}
                         courses={courses}
                         groups={groups}
+                        academicPromotionInfo={academicPromotionInfo}
                     />
                 )}
 

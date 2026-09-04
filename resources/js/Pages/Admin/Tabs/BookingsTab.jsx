@@ -400,6 +400,21 @@ export default function BookingsTab({
                                                             </span>
                                                         )}
                                                     </div>
+                                                    <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 dark:text-gray-400 flex-wrap">
+                                                        {booking.user?.specialty && (
+                                                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                                                                {booking.user.specialty}
+                                                            </span>
+                                                        )}
+                                                        {booking.user?.course && (
+                                                            <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-gray-700 font-bold text-slate-700 dark:text-gray-200 text-[9px]">
+                                                                {booking.user.course} курс
+                                                            </span>
+                                                        )}
+                                                        {booking.user?.group && (
+                                                            <span className="opacity-75">(Гр. {booking.user.group})</span>
+                                                        )}
+                                                    </div>
                                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                                                         <span className="text-xs text-gray-400 font-mono">
                                                             {booking.user?.email}
@@ -548,6 +563,21 @@ export default function BookingsTab({
                                                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
                                                                         Інклюзивний
                                                                     </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 dark:text-gray-400">
+                                                                {booking.user?.specialty && (
+                                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">
+                                                                        {booking.user.specialty}
+                                                                    </span>
+                                                                )}
+                                                                {booking.user?.course && (
+                                                                    <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-gray-700/80 font-bold text-slate-700 dark:text-gray-200 text-[10px] border border-slate-200/50 dark:border-gray-600/50">
+                                                                        {booking.user.course} курс
+                                                                    </span>
+                                                                )}
+                                                                {booking.user?.group && (
+                                                                    <span className="opacity-75">(Гр. {booking.user.group})</span>
                                                                 )}
                                                             </div>
                                                             <div className="flex items-center gap-2 mt-1">

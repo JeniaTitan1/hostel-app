@@ -97,6 +97,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/academic-courses/{course}/delete', [AdminController::class, 'destroyCourse'])->name('courses.destroy');
     Route::post('/academic-groups', [AdminController::class, 'storeGroup'])->name('groups.store');
     Route::post('/academic-groups/{group}/delete', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
+    Route::post('/academic/promote', [AdminController::class, 'promoteAcademicCourses'])->name('academic.promote');
+    Route::post('/academic/toggle-auto-promote', [AdminController::class, 'toggleAcademicAutoPromote'])->name('academic.toggle-auto-promote');
+
 
     // Керування комендантами
     Route::post('/commandants', [AdminController::class, 'storeCommandant'])->name('commandants.store');

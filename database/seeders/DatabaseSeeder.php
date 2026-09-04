@@ -74,6 +74,9 @@ class DatabaseSeeder extends Seeder
         Setting::set('min_beds_per_room', '1');
         Setting::set('max_beds_per_room', '6');
         Setting::set('global_intake_closed', '0');
+        Setting::set('auto_promote_courses_on_september', '1');
+        Setting::set('last_academic_promotion_year', '2026');
+        Setting::set('last_academic_promotion_date', Carbon::create(2026, 9, 1, 0, 1, 0)->toDateTimeString());
     }
 
     /**
@@ -526,7 +529,7 @@ class DatabaseSeeder extends Seeder
             'is_inclusive' => false,
             'allowed_buildings' => [$buildingAId, $buildingBId], // Лише Гуртожитки 1 та 2
             'specialty' => 'ФІН',
-            'course' => 1,
+            'course' => 2,
             'group' => '1',
         ]);
 
@@ -681,7 +684,7 @@ class DatabaseSeeder extends Seeder
             'password_changed' => true,
             'gender' => 'male',
             'specialty' => 'ЕТ',
-            'course' => 1,
+            'course' => 2,
             'group' => '1',
             'allowed_buildings' => [$buildingBId],
         ]);

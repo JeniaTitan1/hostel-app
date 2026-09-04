@@ -450,9 +450,16 @@ export default function AccessLogsTab({
                                                     <div className="font-bold text-slate-900 dark:text-white text-xs truncate">
                                                         {log.user?.name || "Невідомий"}
                                                     </div>
-                                                    <div className="text-[10px] text-slate-400 truncate">
-                                                        {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
-                                                        {log.user?.group ? ` (${log.user.group})` : ""}
+                                                    <div className="text-[10px] text-slate-400 truncate flex items-center gap-1.5 flex-wrap">
+                                                        <span>{log.user?.specialty || log.user?.email}</span>
+                                                        {log.user?.course && (
+                                                            <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-gray-700 font-bold text-slate-700 dark:text-gray-200 text-[9px]">
+                                                                {log.user.course} курс
+                                                            </span>
+                                                        )}
+                                                        {log.user?.group && (
+                                                            <span className="opacity-75">(Гр. {log.user.group})</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -576,9 +583,16 @@ export default function AccessLogsTab({
                                                             <div className="font-bold text-slate-900 dark:text-white truncate">
                                                                 {log.user?.name || "Невідомий"}
                                                             </div>
-                                                            <div className="text-[10px] text-slate-400 dark:text-gray-500 truncate">
-                                                                {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
-                                                                {log.user?.group ? ` (${log.user.group})` : ""}
+                                                            <div className="text-[10px] text-slate-400 dark:text-gray-500 truncate flex items-center gap-1.5 mt-0.5">
+                                                                <span>{log.user?.specialty ? `${log.user.specialty}` : log.user?.email}</span>
+                                                                {log.user?.course && (
+                                                                    <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-gray-700/80 font-bold text-slate-700 dark:text-gray-200 text-[10px] border border-slate-200/50 dark:border-gray-600/50">
+                                                                        {log.user.course} курс
+                                                                    </span>
+                                                                )}
+                                                                {log.user?.group && (
+                                                                    <span className="opacity-75">(Гр. {log.user.group})</span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
