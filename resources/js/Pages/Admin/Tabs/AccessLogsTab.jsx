@@ -487,20 +487,27 @@ export default function AccessLogsTab({
 
                                         {/* Нижній рядок: Перемикач напрямку + хто перевірив */}
                                         <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-gray-700/40">
-                                            <button
-                                                type="button"
-                                                disabled={isToggling}
-                                                onClick={() => handleToggleLogRow(log.id, log.type)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer border shadow-2xs ${
-                                                    isEntry
-                                                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50"
-                                                        : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50"
-                                                }`}
-                                            >
-                                                <span className={`w-2 h-2 rounded-full ${isEntry ? "bg-emerald-500" : "bg-amber-500"}`} />
-                                                <span>{isEntry ? "ВХІД" : "ВИХІД"}</span>
-                                                <span className="text-[10px] opacity-60 font-normal lowercase">(змінити ⇄)</span>
-                                            </button>
+                                            {isGranted ? (
+                                                <button
+                                                    type="button"
+                                                    disabled={isToggling}
+                                                    onClick={() => handleToggleLogRow(log.id, log.type)}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer border shadow-2xs ${
+                                                        isEntry
+                                                            ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50"
+                                                            : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50"
+                                                    }`}
+                                                >
+                                                    <span className={`w-2 h-2 rounded-full ${isEntry ? "bg-emerald-500" : "bg-amber-500"}`} />
+                                                    <span>{isEntry ? "ВХІД" : "ВИХІД"}</span>
+                                                    <span className="text-[10px] opacity-60 font-normal lowercase">(змінити ⇄)</span>
+                                                </button>
+                                            ) : (
+                                                <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1.5 py-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                                    Прохід заблоковано
+                                                </span>
+                                            )}
 
                                             <div className="text-[10px] text-slate-400">
                                                 Перевірив: <strong className="text-slate-700 dark:text-gray-300">{log.scanner?.name || "КПП"}</strong>
@@ -597,27 +604,31 @@ export default function AccessLogsTab({
 
                                                 {/* Напрямок (Інтерактивна кнопка швидкої зміни) */}
                                                 <td className="px-4 py-3.5 whitespace-nowrap">
-                                                    <button
-                                                        type="button"
-                                                        disabled={isToggling}
-                                                        onClick={() => handleToggleLogRow(log.id, log.type)}
-                                                        title="Натисніть для швидкої зміни: Вхід ⇄ Вихід"
-                                                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer border shadow-2xs ${
-                                                            isEntry
-                                                                ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 hover:bg-emerald-100"
-                                                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50 hover:bg-amber-100"
-                                                        }`}
-                                                    >
-                                                        <span
-                                                            className={`w-2 h-2 rounded-full ${
-                                                                isEntry ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]" : "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)]"
+                                                    {isGranted ? (
+                                                        <button
+                                                            type="button"
+                                                            disabled={isToggling}
+                                                            onClick={() => handleToggleLogRow(log.id, log.type)}
+                                                            title="Натисніть для швидкої зміни: Вхід ⇄ Вихід"
+                                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer border shadow-2xs ${
+                                                                isEntry
+                                                                    ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 hover:bg-emerald-100"
+                                                                    : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50 hover:bg-amber-100"
                                                             }`}
-                                                        />
-                                                        <span>{isEntry ? "Вхід" : "Вихід"}</span>
-                                                        <svg className="w-3 h-3 opacity-60 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                        </svg>
-                                                    </button>
+                                                        >
+                                                            <span
+                                                                className={`w-2 h-2 rounded-full ${
+                                                                    isEntry ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]" : "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)]"
+                                                                }`}
+                                                            />
+                                                            <span>{isEntry ? "Вхід" : "Вихід"}</span>
+                                                            <svg className="w-3 h-3 opacity-60 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                            </svg>
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-slate-400 dark:text-gray-500 font-mono text-xs pl-4" title="Прохід заблоковано">—</span>
+                                                    )}
                                                 </td>
 
                                                 {/* Статус */}
