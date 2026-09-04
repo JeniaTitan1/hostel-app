@@ -140,9 +140,6 @@ export default function BookingsTab({
 
     const handleConfirmRejectEmail = (e) => {
         e.preventDefault();
-        if (!rejectingEmailReq) return;
-        setIsSubmittingReject(true);
-
         router.post(
             route("admin.email-requests.reject", rejectingEmailReq.id),
             { rejection_reason: rejectReasonInput },
@@ -155,6 +152,59 @@ export default function BookingsTab({
                 },
             }
         );
+    };
+
+    // Визначення стилю рядка / картки за типом заявки та особливими умовами
+    const getBookingRowStyle = (booking) => {
+        const mixedStatus = checkMixedRoomStatus(booking);
+        const accessibleStatus = checkAccessibleRoomStatus(booking);
+        const isRelocation = Boolean(booking.new_room_id);
+
+        if (mixedStatus) {
+            return {
+                gradient: "bg-gradient-to-r from-amber-500/[0.08] via-amber-500/[0.025] to-transparent hover:from-amber-500/[0.13] dark:from-amber-500/[0.12] dark:via-amber-500/[0.035] dark:to-transparent dark:hover:from-amber-500/[0.18]",
+                borderColor: "border-l-amber-500",
+                borderClass: "border-l-4 border-l-amber-500",
+                dotColor: "bg-amber-500",
+                mixedStatus,
+                accessibleStatus,
+                isRelocation,
+            };
+        }
+
+        if (accessibleStatus) {
+            return {
+                gradient: "bg-gradient-to-r from-sky-500/[0.08] via-sky-500/[0.025] to-transparent hover:from-sky-500/[0.13] dark:from-sky-500/[0.12] dark:via-sky-500/[0.035] dark:to-transparent dark:hover:from-sky-500/[0.18]",
+                borderColor: "border-l-sky-500",
+                borderClass: "border-l-4 border-l-sky-500",
+                dotColor: "bg-sky-500",
+                mixedStatus,
+                accessibleStatus,
+                isRelocation,
+            };
+        }
+
+        if (isRelocation) {
+            return {
+                gradient: "bg-gradient-to-r from-indigo-500/[0.065] via-indigo-500/[0.02] to-transparent hover:from-indigo-500/[0.11] dark:from-indigo-500/[0.09] dark:via-indigo-500/[0.025] dark:to-transparent dark:hover:from-indigo-500/[0.15]",
+                borderColor: "border-l-indigo-500",
+                borderClass: "border-l-4 border-l-indigo-500",
+                dotColor: "bg-indigo-500",
+                mixedStatus,
+                accessibleStatus,
+                isRelocation,
+            };
+        }
+
+        return {
+            gradient: "bg-gradient-to-r from-emerald-500/[0.065] via-emerald-500/[0.02] to-transparent hover:from-emerald-500/[0.11] dark:from-emerald-500/[0.09] dark:via-emerald-500/[0.025] dark:to-transparent dark:hover:from-emerald-500/[0.15]",
+            borderColor: "border-l-emerald-500",
+            borderClass: "border-l-4 border-l-emerald-500",
+            dotColor: "bg-emerald-500",
+            mixedStatus,
+            accessibleStatus,
+            isRelocation,
+        };
     };
 
     return (
@@ -207,7 +257,7 @@ export default function BookingsTab({
                                             </span>
                                             {req.user?.is_inclusive && (
                                                 <span className="text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">
-                                                    ♿ Інклюзивність
+                                                    Інклюзивність
                                                 </span>
                                             )}
                                         </div>
@@ -277,6 +327,25 @@ export default function BookingsTab({
                         <p className="text-xs text-gray-400">
                             Схвалення або відхилення запитів на поселення та переселення
                         </p>
+                        {/* Кольорові підказки типів заявок */}
+                        <div className="flex items-center gap-3 mt-2 flex-wrap text-[11px] text-gray-500 dark:text-gray-400">
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="font-medium">Заселення</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                                <span className="font-medium">Переселення</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="font-medium">Змішана кімната</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                                <span className="font-medium">Інклюзивна кімната</span>
+                            </span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <input
@@ -304,19 +373,12 @@ export default function BookingsTab({
                                 const targetRoom = booking.new_room_id
                                     ? booking.new_room
                                     : booking.room;
-                                const mixedStatus = checkMixedRoomStatus(booking);
-                                const accessibleStatus = checkAccessibleRoomStatus(booking);
+                                const style = getBookingRowStyle(booking);
 
                                 return (
                                     <div
                                         key={booking.id}
-                                        className={`p-4 space-y-3 transition-colors ${
-                                            mixedStatus
-                                                ? "bg-amber-50/25 dark:bg-amber-950/15"
-                                                : accessibleStatus
-                                                ? "bg-sky-50/25 dark:bg-sky-950/15"
-                                                : "bg-white dark:bg-gray-800"
-                                        }`}
+                                        className={`p-4 space-y-3 transition-all border-l-4 ${style.borderClass} ${style.gradient}`}
                                     >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="flex items-center gap-2.5 min-w-0">
@@ -331,14 +393,6 @@ export default function BookingsTab({
                                                     <div className="flex items-center gap-1.5 flex-wrap">
                                                         <span className="font-bold text-sm text-gray-900 dark:text-white truncate">
                                                             {booking.user?.name || "Користувач"}
-                                                        </span>
-                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                                            booking.user?.gender === "female"
-                                                                ? "bg-pink-50/90 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
-                                                                : "bg-blue-50/90 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                                                        }`}>
-                                                            <span className={`w-1 h-1 rounded-full ${booking.user?.gender === "female" ? "bg-pink-500 shadow-[0_0_4px_rgba(244,63,94,0.8)]" : "bg-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.8)]"}`} />
-                                                            <span>{booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}</span>
                                                         </span>
                                                         {booking.user?.is_inclusive && (
                                                             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
@@ -367,16 +421,28 @@ export default function BookingsTab({
                                                 </div>
                                             </div>
 
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide shrink-0 ${
-                                                booking.new_room_id 
-                                                    ? "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60"
-                                                    : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
-                                            }`}>
-                                                {booking.new_room_id ? "Переселення" : "Поселення"}
-                                            </span>
+                                            <div className="flex flex-col items-end gap-1 shrink-0">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shadow-2xs ${
+                                                    style.isRelocation 
+                                                        ? "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60"
+                                                        : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                                                }`}>
+                                                    {style.isRelocation ? "Переселення" : "Поселення"}
+                                                </span>
+                                                {style.mixedStatus && (
+                                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100/90 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">
+                                                        Змішана кімната
+                                                    </span>
+                                                )}
+                                                {style.accessibleStatus && (
+                                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-sky-100/90 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-700/60">
+                                                        Інклюзивна
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div className="p-3 bg-slate-50 dark:bg-gray-800/90 rounded-xl border border-slate-100 dark:border-gray-700 text-xs space-y-1.5">
+                                        <div className="p-3 bg-white/70 dark:bg-gray-800/80 backdrop-blur-xs rounded-xl border border-slate-200/60 dark:border-gray-700 text-xs space-y-1.5 shadow-2xs">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-400">Корпус:</span>
                                                 <span className="font-semibold text-gray-800 dark:text-gray-200">{targetRoom?.building?.name || "Корпус"}</span>
@@ -389,25 +455,25 @@ export default function BookingsTab({
                                                     </span>
                                                     {Boolean(targetRoom?.is_accessible) && (
                                                         <span className="block text-[10px] text-sky-600 dark:text-sky-400 font-bold">
-                                                            ♿ Інклюзивна кімната
+                                                            Інклюзивна кімната
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
 
                                             {/* Попередження про змішану кімнату */}
-                                            {mixedStatus && (
+                                            {style.mixedStatus && (
                                                 <div className="text-[11px] text-amber-700 dark:text-amber-300 font-medium pt-1.5 border-t border-amber-200/60 dark:border-amber-900/50 flex items-center gap-1.5">
-                                                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                                                    <span>{mixedStatus.shortSummary}</span>
+                                                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+                                                    <span>{style.mixedStatus.shortSummary}</span>
                                                 </div>
                                             )}
 
                                             {/* Легке попередження про заселення в кімнату для людей з інвалідністю */}
-                                            {accessibleStatus && (
+                                            {style.accessibleStatus && (
                                                 <div className="text-[11px] text-sky-700 dark:text-sky-300 font-medium pt-1.5 border-t border-sky-200/60 dark:border-sky-900/50 flex items-center gap-1.5">
-                                                    <span className="text-sm leading-none shrink-0">♿</span>
-                                                    <span>{accessibleStatus.shortSummary}</span>
+                                                    <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+                                                    <span>{style.accessibleStatus.shortSummary}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -416,8 +482,8 @@ export default function BookingsTab({
                                             <button
                                                 type="button"
                                                 disabled={actionProcessingId === booking.id}
-                                                onClick={() => handleApproveWithPrompt(booking, mixedStatus, accessibleStatus)}
-                                                className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center justify-center gap-1.5"
+                                                onClick={() => handleApproveWithPrompt(booking, style.mixedStatus, style.accessibleStatus)}
+                                                className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -427,7 +493,7 @@ export default function BookingsTab({
                                             <button
                                                 type="button"
                                                 onClick={() => handleReject(booking.id)}
-                                                className="w-full py-2 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-bold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center justify-center gap-1.5"
+                                                className="w-full py-2 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-bold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -457,21 +523,14 @@ export default function BookingsTab({
                                         const targetRoom = booking.new_room_id
                                             ? booking.new_room
                                             : booking.room;
-                                        const mixedStatus = checkMixedRoomStatus(booking);
-                                        const accessibleStatus = checkAccessibleRoomStatus(booking);
+                                        const style = getBookingRowStyle(booking);
 
                                         return (
                                             <tr
                                                 key={booking.id}
-                                                className={`transition-colors ${
-                                                    mixedStatus
-                                                        ? "bg-amber-50/20 dark:bg-amber-950/10 hover:bg-amber-50/30 dark:hover:bg-amber-950/20"
-                                                        : accessibleStatus
-                                                        ? "bg-sky-50/20 dark:bg-sky-950/10 hover:bg-sky-50/30 dark:hover:bg-sky-950/20"
-                                                        : "hover:bg-slate-50/50 dark:hover:bg-gray-700/30"
-                                                }`}
+                                                className={`transition-all ${style.gradient}`}
                                             >
-                                                <td className="p-4 font-medium text-gray-900 dark:text-white align-middle">
+                                                <td className={`p-4 font-medium text-gray-900 dark:text-white align-middle border-l-4 ${style.borderColor}`}>
                                                     <div className="flex items-center gap-2.5">
                                                         <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 border ${
                                                             booking.user?.gender === "female"
@@ -484,14 +543,6 @@ export default function BookingsTab({
                                                             <div className="flex items-center gap-1.5 flex-wrap">
                                                                 <span className="font-bold">
                                                                     {booking.user?.name || "Користувач"}
-                                                                </span>
-                                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                                                    booking.user?.gender === "female"
-                                                                        ? "bg-pink-50/90 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
-                                                                        : "bg-blue-50/90 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                                                                }`}>
-                                                                    <span className={`w-1 h-1 rounded-full ${booking.user?.gender === "female" ? "bg-pink-500 shadow-[0_0_4px_rgba(244,63,94,0.8)]" : "bg-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.8)]"}`} />
-                                                                    <span>{booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}</span>
                                                                 </span>
                                                                 {booking.user?.is_inclusive && (
                                                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
@@ -522,16 +573,30 @@ export default function BookingsTab({
                                                 </td>
 
                                                 <td className="p-4 align-middle whitespace-nowrap">
-                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                                                        booking.new_room_id 
-                                                            ? "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60"
-                                                            : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
-                                                    }`}>
-                                                        {booking.new_room_id ? "Переселення" : "Поселення"}
-                                                    </span>
+                                                    <div className="flex flex-col gap-1 items-start">
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shadow-2xs ${
+                                                            style.isRelocation 
+                                                                ? "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60"
+                                                                : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                                                        }`}>
+                                                            {style.isRelocation ? "Переселення" : "Поселення"}
+                                                        </span>
+                                                        {style.mixedStatus && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100/90 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 shadow-2xs">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                                                Змішана кімната
+                                                            </span>
+                                                        )}
+                                                        {style.accessibleStatus && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100/90 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-700/60 shadow-2xs">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                                                                Інклюзивна кімната
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
 
-                                                <td className="p-4 align-middle text-gray-700 dark:text-gray-300">
+                                                <td className="p-4 align-middle text-gray-700 dark:text-gray-300 font-medium">
                                                     {targetRoom?.building?.name || "Корпус"}
                                                 </td>
 
@@ -541,24 +606,24 @@ export default function BookingsTab({
                                                         <span className="text-gray-400 font-normal text-xs">(Поверх {targetRoom?.floor})</span>
                                                         {Boolean(targetRoom?.is_accessible) && (
                                                             <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 px-1.5 py-0.5 rounded">
-                                                                ♿ Інклюзивна
+                                                                Інклюзивна
                                                             </span>
                                                         )}
                                                     </div>
 
                                                     {/* Попередження про змішану кімнату */}
-                                                    {mixedStatus && (
+                                                    {style.mixedStatus && (
                                                         <div className="text-[11px] text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1.5 mt-1 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 rounded-lg px-2 py-0.5 w-fit">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                                                            <span>{mixedStatus.shortSummary}</span>
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+                                                            <span>{style.mixedStatus.shortSummary}</span>
                                                         </div>
                                                     )}
 
                                                     {/* Легке попередження про кімнату для людей з інвалідністю */}
-                                                    {accessibleStatus && (
+                                                    {style.accessibleStatus && (
                                                         <div className="text-[11px] text-sky-700 dark:text-sky-300 font-medium flex items-center gap-1.5 mt-1 bg-sky-50 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-900/40 rounded-lg px-2 py-0.5 w-fit">
-                                                            <span className="text-xs leading-none shrink-0">♿</span>
-                                                            <span>{accessibleStatus.shortSummary}</span>
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                                                            <span>{style.accessibleStatus.shortSummary}</span>
                                                         </div>
                                                     )}
                                                 </td>
@@ -568,8 +633,8 @@ export default function BookingsTab({
                                                         <button
                                                             type="button"
                                                             disabled={actionProcessingId === booking.id}
-                                                            onClick={() => handleApproveWithPrompt(booking, mixedStatus, accessibleStatus)}
-                                                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center gap-1"
+                                                            onClick={() => handleApproveWithPrompt(booking, style.mixedStatus, style.accessibleStatus)}
+                                                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center gap-1 cursor-pointer"
                                                         >
                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -579,7 +644,7 @@ export default function BookingsTab({
                                                         <button
                                                             type="button"
                                                             onClick={() => handleReject(booking.id)}
-                                                            className="px-3.5 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-semibold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center gap-1"
+                                                            className="px-3.5 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-semibold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center gap-1 cursor-pointer"
                                                         >
                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
