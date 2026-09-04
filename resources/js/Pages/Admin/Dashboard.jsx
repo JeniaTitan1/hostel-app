@@ -852,6 +852,8 @@ export default function Dashboard({
                         courses={courses}
                         groups={groups}
                         academicPromotionInfo={academicPromotionInfo}
+                        buildings={allBuildings}
+                        allUsers={allUsers}
                     />
                 )}
 

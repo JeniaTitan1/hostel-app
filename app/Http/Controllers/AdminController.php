@@ -98,12 +98,22 @@ class AdminController extends Controller
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
         $allUsers = User::where('role', 'user')
+            ->with(['bookings' => function ($q) {
+                $q->where('status', 'approved')->with('room.building');
+            }])
             ->orderBy('created_at', 'desc')
             ->get([
                 'id', 'name', 'email', 'gender', 'telegram', 'phone', 
                 'must_change_password', 'password_changed', 'created_at',
                 'specialty', 'course', 'group', 'is_inclusive', 'allowed_buildings'
-            ]);
+            ])
+            ->map(function ($u) {
+                $approved = $u->bookings->first();
+                $u->current_building_id = $approved?->room?->building_id;
+                $u->current_building_name = $approved?->room?->building?->name;
+                unset($u->bookings);
+                return $u;
+            });
 
         // Аналітика по корпусах
         $roomsQuery = $isCommandant ? Room::where('building_id', $commandantBuildingId) : Room::query();
@@ -217,12 +227,7 @@ class AdminController extends Controller
             'announcements'       => $announcements,
             'accessLogs'          => $accessLogs,
             'accessStats'         => $accessStats,
-            'academicPromotionInfo' => [
-                'currentAcademicYear' => \App\Services\AcademicPromotionService::getCurrentAcademicYear(),
-                'lastPromotedYear'    => (int) \App\Models\Setting::get('last_academic_promotion_year', 0),
-                'lastPromotedDate'    => \App\Models\Setting::get('last_academic_promotion_date'),
-                'autoPromote'         => \App\Models\Setting::get('auto_promote_courses_on_september', '1') === '1',
-            ],
+            'academicPromotionInfo' => \App\Services\AcademicPromotionService::getPromotionStatistics(),
         ]);
     }
     public function requestReallocate(Request $request, Booking $booking)
@@ -1230,16 +1235,24 @@ class AdminController extends Controller
     }
 
     /**
-     * Переведення студентів на наступний курс (+1 курс з 1 вересня)
+     * Переведення студентів на наступний/попередній курс (глобальне або за фільтрами корпусу/спеціальності)
      */
     public function promoteAcademicCourses(Request $request)
     {
         $this->ensureSuperAdmin($request->user());
 
-        $force = (bool) $request->input('force', true);
-        $result = \App\Services\AcademicPromotionService::promoteAllStudents($force, $request->user()->id);
+        $filters = [
+            'direction'     => $request->input('direction', '+1'),
+            'building_id'   => $request->input('building_id', 'all'),
+            'specialty'     => $request->input('specialty', 'all'),
+            'source_course' => $request->input('source_course', 'all'),
+            'force'         => (bool) $request->input('force', true),
+        ];
 
-        return redirect()->back()->with('success', "Студентів успішно переведено на наступний курс (+1 курс). Оновлено: {$result['count']} студентів.");
+        $result = \App\Services\AcademicPromotionService::processTargetedPromotion($filters, $request->user()->id);
+
+        $dirText = $filters['direction'] === '+1' ? 'на наступний курс (+1)' : 'на курс нижче (-1)';
+        return redirect()->back()->with('success', "Студентів успішно переведено {$dirText}. Оновлено: {$result['count']} студентів.");
     }
 
     /**
