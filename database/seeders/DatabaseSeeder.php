@@ -15,6 +15,8 @@ use App\Models\Setting;
 use App\Models\Notification;
 use App\Models\EmailChangeRequest;
 use App\Models\Announcement;
+use App\Models\AccessLog;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,7 +31,8 @@ class DatabaseSeeder extends Seeder
         $this->seedSystemSettings();
         $buildings = $this->seedBuildingsAndRooms();
         $staff = $this->seedAdministratorsAndCommandants($buildings);
-        $this->seedStudentsAndScenarios($buildings, $staff);
+        $students = $this->seedStudentsAndScenarios($buildings, $staff);
+        $this->seedAccessLogs($buildings, $staff, $students);
     }
 
     /**
@@ -74,7 +77,7 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * 3. Створення гуртожитків та номерного фонду кімнат
+     * 3. Створення гуртожитків та номерного фонду кімнат (включаючи інклюзивні кімнати)
      */
     protected function seedBuildingsAndRooms(): array
     {
@@ -88,11 +91,15 @@ class DatabaseSeeder extends Seeder
                 // Різноманітна місткість кімнат: 1 поверх - 3-місні, 2 поверх - 2 та 3-місні, 3 поверх - 4-місні
                 $capacity = ($floor === 3) ? 4 : (($floor === 1) ? 3 : (($r % 2 === 0) ? 2 : 3));
 
+                // Кімнати 101 та 102 на 1 поверсі обладнані як інклюзивні
+                $isAccessible = ($floor === 1 && in_array($r, [1, 2]));
+
                 $room = Room::create([
                     'building_id' => $buildingA->id,
                     'floor' => $floor,
                     'room_number' => $roomNumber,
                     'max_capacity' => $capacity,
+                    'is_accessible' => $isAccessible,
                     'status' => 'active',
                 ]);
 
@@ -127,11 +134,15 @@ class DatabaseSeeder extends Seeder
                 $roomNumber = $floor . '0' . $r;
                 $capacity = ($r === 3) ? 3 : 2;
 
+                // Кімната 101 - інклюзивна
+                $isAccessible = ($floor === 1 && $r === 1);
+
                 $room = Room::create([
                     'building_id' => $buildingB->id,
                     'floor' => $floor,
                     'room_number' => $roomNumber,
                     'max_capacity' => $capacity,
+                    'is_accessible' => $isAccessible,
                     'status' => 'active',
                 ]);
 
@@ -148,11 +159,15 @@ class DatabaseSeeder extends Seeder
                 $roomNumber = $floor . '0' . $r;
                 $capacity = ($floor === 2 && $r === 1) ? 4 : 3;
 
+                // Кімната 101 - інклюзивна
+                $isAccessible = ($floor === 1 && $r === 1);
+
                 $room = Room::create([
                     'building_id' => $buildingC->id,
                     'floor' => $floor,
                     'room_number' => $roomNumber,
                     'max_capacity' => $capacity,
+                    'is_accessible' => $isAccessible,
                     'status' => 'active',
                 ]);
 
@@ -242,7 +257,7 @@ class DatabaseSeeder extends Seeder
     /**
      * 5. Створення студентів та тестових сценаріїв
      */
-    protected function seedStudentsAndScenarios(array $buildings, array $staff): void
+    protected function seedStudentsAndScenarios(array $buildings, array $staff): array
     {
         $admin = $staff['admin'];
         $commandantA = $staff['commandantA'];
@@ -253,8 +268,12 @@ class DatabaseSeeder extends Seeder
         $roomsB = $buildings['B']['rooms'];
         $roomsC = $buildings['C']['rooms'];
 
+        $buildingAId = $buildings['A']['building']->id;
+        $buildingBId = $buildings['B']['building']->id;
+        $buildingCId = $buildings['C']['building']->id;
+
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 1: Поселений студент (Хлопець, Кімната 101, Корпус А)
+        // СЦЕНАРІЙ 1: Поселені студенти (Кімната 101, Корпус А, інклюзивна)
         // -------------------------------------------------------------
         $user1 = User::create([
             'name' => 'Іван Петренко',
@@ -265,6 +284,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380991112233',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => null, // Доступ до всіх корпусів
             'specialty' => 'КН',
             'course' => 2,
             'group' => '1',
@@ -279,6 +300,25 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380994445566',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => null,
+            'specialty' => 'КН',
+            'course' => 2,
+            'group' => '1',
+        ]);
+
+        // Студент з інклюзивністю, заселений в інклюзивну кімнату
+        $userInclusive = User::create([
+            'name' => 'Максим Василенко',
+            'email' => 'inclusive@test.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'telegram' => '@max_vasylenko',
+            'phone' => '+380997771122',
+            'password_changed' => true,
+            'gender' => 'male',
+            'is_inclusive' => true, // Особа з інвалідністю / особливими потребами
+            'allowed_buildings' => [$buildingAId], // Обмеження: тільки Гуртожиток №1
             'specialty' => 'КН',
             'course' => 2,
             'group' => '1',
@@ -298,10 +338,24 @@ class DatabaseSeeder extends Seeder
             'order_number' => 'ORD-2026-A10102',
         ]);
 
+        $bookingInclusive = Booking::create([
+            'user_id' => $userInclusive->id,
+            'room_id' => $roomsA['101']->id,
+            'status' => 'approved',
+            'order_number' => 'ORD-2026-INC101',
+        ]);
+
         Notification::create([
             'user_id' => $user1->id,
             'title' => 'Ордер на поселення успішно сформовано',
             'message' => "Ваш ордер №{$booking1->order_number} у кімнату №101 ({$buildings['A']['building']->name}) готовий. Збережіть його для пред'явлення коменданту.",
+            'is_read' => true,
+        ]);
+
+        Notification::create([
+            'user_id' => $userInclusive->id,
+            'title' => 'Першочерговий ордер на поселення сформовано',
+            'message' => "Ваш ордер №{$bookingInclusive->order_number} у спеціально обладнану інклюзивну кімнату №101 ({$buildings['A']['building']->name}) затверджено.",
             'is_read' => true,
         ]);
 
@@ -314,9 +368,10 @@ class DatabaseSeeder extends Seeder
 
         AuditLog::log($user1->id, 'booking_requested', "Студент {$user1->name} надіслав запит на заселення в кімнату №101");
         AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення студента {$user1->name} в кімнату №101 (Ордер: {$booking1->order_number})");
+        AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив першочергове заселення студента з інклюзивністю {$userInclusive->name} в інклюзивну кімнату №101 (Ордер: {$bookingInclusive->order_number})");
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 2: Поселена студентка (Дівчина, Кімната 102, Корпус А)
+        // СЦЕНАРІЙ 2: Поселені студентки (Дівчата, Кімната 102, Корпус А, інклюзивна)
         // -------------------------------------------------------------
         $userOlena = User::create([
             'name' => 'Олена Шевченко',
@@ -327,6 +382,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380931234567',
             'password_changed' => true,
             'gender' => 'female',
+            'is_inclusive' => false,
+            'allowed_buildings' => null,
             'specialty' => 'ГРС',
             'course' => 2,
             'group' => '1',
@@ -341,6 +398,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380937654321',
             'password_changed' => true,
             'gender' => 'female',
+            'is_inclusive' => false,
+            'allowed_buildings' => null,
             'specialty' => 'ГРС',
             'course' => 2,
             'group' => '1',
@@ -371,7 +430,26 @@ class DatabaseSeeder extends Seeder
         AuditLog::log($admin->id, 'booking_approved', "Адміністратор схвалив заселення студентки {$userOlena->name} в кімнату №102 (Ордер: {$bookingOlena->order_number})");
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 3: Заявка на розгляд (Pending Booking, Хлопець)
+        // СЦЕНАРІЙ 3: Вільна студентка з інклюзивністю (Шукає кімнату, 1 курс)
+        // -------------------------------------------------------------
+        $userInclusiveGirl = User::create([
+            'name' => 'Софія Бондар',
+            'email' => 'inclusive_girl@test.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'telegram' => '@sofia_bondar',
+            'phone' => '+380975556677',
+            'password_changed' => true,
+            'gender' => 'female',
+            'is_inclusive' => true, // Особа з особливими потребами
+            'allowed_buildings' => [$buildingAId, $buildingBId], // Корпуси 1 та 2
+            'specialty' => 'ГРС',
+            'course' => 1,
+            'group' => '1',
+        ]);
+
+        // -------------------------------------------------------------
+        // СЦЕНАРІЙ 4: Заявка на розгляд (Pending Booking, Хлопець)
         // -------------------------------------------------------------
         $userPending = User::create([
             'name' => 'Петро Кравченко',
@@ -382,6 +460,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380956667788',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => [$buildingAId], // Дозволено тільки 1-й корпус
             'specialty' => 'АІ',
             'course' => 1,
             'group' => '2',
@@ -396,7 +476,7 @@ class DatabaseSeeder extends Seeder
         AuditLog::log($userPending->id, 'booking_requested', "Студент {$userPending->name} надіслав запит на заселення в кімнату №201 ({$buildings['A']['building']->name})");
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 4: Запит на переселення (Relocation Request, Хлопець)
+        // СЦЕНАРІЙ 5: Запит на переселення (Relocation Request, Хлопець)
         // -------------------------------------------------------------
         $userReallocate = User::create([
             'name' => 'Сергій Коваленко',
@@ -407,6 +487,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380509876543',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => null, // Доступ до всіх корпусів
             'specialty' => 'КН',
             'course' => 3,
             'group' => '1',
@@ -430,9 +512,9 @@ class DatabaseSeeder extends Seeder
         AuditLog::log($userReallocate->id, 'relocation_requested', "Студент {$userReallocate->name} подав заявку на переселення з кімнати №103 до №202");
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 5: Вільний студент-хлопець (Без кімнати, готовий профіль)
+        // СЦЕНАРІЙ 6: Вільний студент-хлопець (Обмежено корпуси 1 та 2)
         // -------------------------------------------------------------
-        User::create([
+        $userFree = User::create([
             'name' => 'Андрій Мельничук',
             'email' => 'free@test.com',
             'password' => Hash::make('password'),
@@ -441,15 +523,17 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380671112244',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => [$buildingAId, $buildingBId], // Лише Гуртожитки 1 та 2
             'specialty' => 'ФІН',
             'course' => 1,
             'group' => '1',
         ]);
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 6: Вільна студентка-дівчина (Без кімнати, готовий профіль)
+        // СЦЕНАРІЙ 7: Вільна студентка-дівчина (Обмежено корпус 3)
         // -------------------------------------------------------------
-        User::create([
+        $userMaryna = User::create([
             'name' => 'Марина Коваленко',
             'email' => 'maryna@test.com',
             'password' => Hash::make('password'),
@@ -458,13 +542,15 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380672223355',
             'password_changed' => true,
             'gender' => 'female',
+            'is_inclusive' => false,
+            'allowed_buildings' => [$buildingCId], // Лише Гуртожиток №3
             'specialty' => 'МЕН',
             'course' => 2,
             'group' => '2',
         ]);
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 7: Студент із запитом на зміну Email
+        // СЦЕНАРІЙ 8: Студент із запитом на зміну Email
         // -------------------------------------------------------------
         $userEmailChange = User::create([
             'name' => 'Дмитро Мороз',
@@ -475,6 +561,8 @@ class DatabaseSeeder extends Seeder
             'phone' => '+380963334455',
             'password_changed' => true,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => null,
             'specialty' => 'ЕТ',
             'course' => 3,
             'group' => '1',
@@ -497,7 +585,7 @@ class DatabaseSeeder extends Seeder
         AuditLog::log($userEmailChange->id, 'email_change_requested', "Студент {$userEmailChange->name} надіслав запит на зміну пошти на dmitro.moroz.new@gmail.com");
 
         // -------------------------------------------------------------
-        // СЦЕНАРІЙ 8: Студент-Новачок (Тимчасовий акаунт, перший вхід)
+        // СЦЕНАРІЙ 9: Студент-Новачок (Тимчасовий акаунт, перший вхід)
         // -------------------------------------------------------------
         User::create([
             'name' => 'Студент-Новачок #1111',
@@ -507,6 +595,8 @@ class DatabaseSeeder extends Seeder
             'must_change_password' => true,
             'password_changed' => false,
             'gender' => 'male',
+            'is_inclusive' => false,
+            'allowed_buildings' => null, // Доступ до всіх
         ]);
 
         // -------------------------------------------------------------
@@ -581,7 +671,7 @@ class DatabaseSeeder extends Seeder
             'order_number' => 'ORD-2026-B30401',
         ]);
 
-        // Гуртожиток 2 (Інженерно-енергетичний): Заселення
+        // Гуртожиток 2 (Інженерно-енергетичний): Заселення в інклюзивну кімнату 101
         $userArtem = User::create([
             'name' => 'Артем Гриценко',
             'email' => 'artem@test.com',
@@ -593,8 +683,9 @@ class DatabaseSeeder extends Seeder
             'specialty' => 'ЕТ',
             'course' => 1,
             'group' => '1',
+            'allowed_buildings' => [$buildingBId],
         ]);
-        Booking::create([
+        $bookingArtem = Booking::create([
             'user_id' => $userArtem->id,
             'room_id' => $roomsB['101']->id,
             'status' => 'approved',
@@ -717,10 +808,19 @@ class DatabaseSeeder extends Seeder
         Announcement::create([
             'building_id' => null, // Загальноуніверситетське для всіх
             'user_id' => $admin->id,
+            'title' => 'Інклюзивне середовище та електронні перепустки (QR-код)',
+            'content' => 'Університет забезпечує рівний доступ до житлового фонду. Студенти з особливими потребами мають право першочергового поселення в адаптовані кімнати на 1 поверсі. Прохід через КПП здійснюється за персональним цифровим QR-кодом з особистого кабінету студента.',
+            'priority' => 'important',
+            'is_pinned' => true,
+        ]);
+
+        Announcement::create([
+            'building_id' => null, // Загальноуніверситетське для всіх
+            'user_id' => $admin->id,
             'title' => 'Графік видачі та планової заміни комплектів постільної білизни',
             'content' => 'Заміна комплектів постільної білизни проводиться щовівторка та щочетверга з 14:00 до 18:00 у кімнаті кастелянші (цокольний поверх кожного корпусу). При собі обов\'язково мати студентський квиток або ордер на поселення.',
             'priority' => 'info',
-            'is_pinned' => true,
+            'is_pinned' => false,
         ]);
 
         Announcement::create([
@@ -741,6 +841,124 @@ class DatabaseSeeder extends Seeder
             'is_pinned' => false,
         ]);
 
-        AuditLog::log($admin->id, 'create_announcement', 'Головний адміністратор опублікував оголошення: "Графік видачі та планової заміни комплектів постільної білизни"');
+        AuditLog::log($admin->id, 'create_announcement', 'Головний адміністратор опублікував оголошення: "Інклюзивне середовище та електронні перепустки (QR-код)"');
+
+        return [
+            'user1' => $user1,
+            'booking1' => $booking1,
+            'user2' => $user2,
+            'booking2' => $booking2,
+            'userInclusive' => $userInclusive,
+            'bookingInclusive' => $bookingInclusive,
+            'userInclusiveGirl' => $userInclusiveGirl,
+            'userOlena' => $userOlena,
+            'bookingOlena' => $bookingOlena,
+            'userFree' => $userFree,
+            'userMaryna' => $userMaryna,
+            'userPending' => $userPending,
+            'userReallocate' => $userReallocate,
+            'userArtem' => $userArtem,
+            'bookingArtem' => $bookingArtem,
+        ];
+    }
+
+    /**
+     * 8. Створення записів проходів через КПП та турнікети (Access Logs)
+     */
+    protected function seedAccessLogs(array $buildings, array $staff, array $students): void
+    {
+        $commandantA = $staff['commandantA'];
+        $commandantB = $staff['commandantB'];
+        $commandantC = $staff['commandantC'];
+
+        $buildingA = $buildings['A']['building'];
+        $buildingB = $buildings['B']['building'];
+        $buildingC = $buildings['C']['building'];
+
+        $now = Carbon::now();
+
+        // 1. Успішний вхід за QR-кодом (Корпус 1)
+        AccessLog::create([
+            'user_id' => $students['user1']->id,
+            'booking_id' => $students['booking1']->id,
+            'building_id' => $buildingA->id,
+            'scanned_by' => $commandantA->id,
+            'type' => 'entry',
+            'status' => 'granted',
+            'method' => 'qr_scan',
+            'notes' => 'Успішний прохід через турнікет за цифровим QR-кодом',
+            'created_at' => $now->copy()->subHours(3),
+            'updated_at' => $now->copy()->subHours(3),
+        ]);
+
+        // 2. Успішний вхід інклюзивного студента (Корпус 1, кімната 101)
+        AccessLog::create([
+            'user_id' => $students['userInclusive']->id,
+            'booking_id' => $students['bookingInclusive']->id,
+            'building_id' => $buildingA->id,
+            'scanned_by' => $commandantA->id,
+            'type' => 'entry',
+            'status' => 'granted',
+            'method' => 'qr_scan',
+            'notes' => 'Інклюзивний доступ: пандус та спеціальний прохід відкрито',
+            'created_at' => $now->copy()->subHours(2)->subMinutes(15),
+            'updated_at' => $now->copy()->subHours(2)->subMinutes(15),
+        ]);
+
+        // 3. Успішний вихід за QR-кодом (Корпус 1)
+        AccessLog::create([
+            'user_id' => $students['user2']->id,
+            'booking_id' => $students['booking2']->id,
+            'building_id' => $buildingA->id,
+            'scanned_by' => $commandantA->id,
+            'type' => 'exit',
+            'status' => 'granted',
+            'method' => 'qr_scan',
+            'notes' => 'Вихід з території гуртожитку',
+            'created_at' => $now->copy()->subHours(1)->subMinutes(40),
+            'updated_at' => $now->copy()->subHours(1)->subMinutes(40),
+        ]);
+
+        // 4. Ручний пропуск черговим комендантом (Корпус 1)
+        AccessLog::create([
+            'user_id' => $students['userOlena']->id,
+            'booking_id' => $students['bookingOlena']->id,
+            'building_id' => $buildingA->id,
+            'scanned_by' => $commandantA->id,
+            'type' => 'entry',
+            'status' => 'granted',
+            'method' => 'manual',
+            'notes' => 'Пропуск за студентським квитком (розряджений телефон)',
+            'created_at' => $now->copy()->subMinutes(45),
+            'updated_at' => $now->copy()->subMinutes(45),
+        ]);
+
+        // 5. Відхилена спроба проходу (Студент намагався увійти у недозволений корпус)
+        AccessLog::create([
+            'user_id' => $students['userFree']->id,
+            'booking_id' => null,
+            'building_id' => $buildingC->id,
+            'scanned_by' => $commandantC->id,
+            'type' => 'entry',
+            'status' => 'denied',
+            'method' => 'qr_scan',
+            'notes' => 'Відмова: відсутній дійсний ордер на поселення у цей корпус',
+            'created_at' => $now->copy()->subMinutes(20),
+            'updated_at' => $now->copy()->subMinutes(20),
+        ]);
+
+        // 6. Успішний вхід у Гуртожитку №2
+        AccessLog::create([
+            'user_id' => $students['userArtem']->id,
+            'booking_id' => $students['bookingArtem']->id,
+            'building_id' => $buildingB->id,
+            'scanned_by' => $commandantB->id,
+            'type' => 'entry',
+            'status' => 'granted',
+            'method' => 'qr_scan',
+            'notes' => 'Успішний прохід',
+            'created_at' => $now->copy()->subMinutes(10),
+            'updated_at' => $now->copy()->subMinutes(10),
+        ]);
     }
 }
