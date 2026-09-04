@@ -198,15 +198,10 @@ export default function AccessLogsTab({
         }
     };
 
-    // Кольорове стилізування запису КПП за статусом, напрямком та інклюзивністю
+    // Кольорове стилізування запису КПП за статусом та напрямком
     const getLogRowStyle = (log) => {
         const isGranted = log.status === "granted";
         const isEntry = log.type === "entry";
-        const isInclusive = Boolean(
-            log.user?.is_inclusive ||
-            log.notes?.toLowerCase().includes("інклюзив") ||
-            log.notes?.toLowerCase().includes("пандус")
-        );
 
         if (!isGranted) {
             // Заборонено / відмова — м'який червоно-рожевий застережний градієнт
@@ -215,18 +210,6 @@ export default function AccessLogsTab({
                 borderColor: "border-l-rose-500",
                 borderClass: "border-l-4 border-l-rose-500",
                 isDenied: true,
-                isInclusive,
-            };
-        }
-
-        if (isInclusive) {
-            // Інклюзивний доступ — ніжний небесно-блакитний градієнт
-            return {
-                gradient: "bg-gradient-to-r from-sky-500/[0.08] via-sky-500/[0.025] to-transparent hover:from-sky-500/[0.13] dark:from-sky-500/[0.12] dark:via-sky-500/[0.035] dark:to-transparent dark:hover:from-sky-500/[0.18]",
-                borderColor: "border-l-sky-500",
-                borderClass: "border-l-4 border-l-sky-500",
-                isDenied: false,
-                isInclusive: true,
             };
         }
 
@@ -237,7 +220,6 @@ export default function AccessLogsTab({
                 borderColor: "border-l-emerald-500",
                 borderClass: "border-l-4 border-l-emerald-500",
                 isDenied: false,
-                isInclusive: false,
             };
         }
 
@@ -247,7 +229,6 @@ export default function AccessLogsTab({
             borderColor: "border-l-amber-500",
             borderClass: "border-l-4 border-l-amber-500",
             isDenied: false,
-            isInclusive: false,
         };
     };
 
@@ -352,10 +333,6 @@ export default function AccessLogsTab({
                             <span className="inline-flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-rose-500" />
                                 <span className="font-medium">Заборонено (Відмова)</span>
-                            </span>
-                            <span className="inline-flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-sky-500" />
-                                <span className="font-medium">Інклюзивний доступ</span>
                             </span>
                         </div>
                     </div>
@@ -470,15 +447,8 @@ export default function AccessLogsTab({
                                                     {log.user?.name?.charAt(0)?.toUpperCase() || "S"}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                                        <span className="font-bold text-slate-900 dark:text-white text-xs truncate">
-                                                            {log.user?.name || "Невідомий"}
-                                                        </span>
-                                                        {log.user?.is_inclusive && (
-                                                            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                                                                Інклюзивний
-                                                            </span>
-                                                        )}
+                                                    <div className="font-bold text-slate-900 dark:text-white text-xs truncate">
+                                                        {log.user?.name || "Невідомий"}
                                                     </div>
                                                     <div className="text-[10px] text-slate-400 truncate">
                                                         {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
@@ -596,15 +566,8 @@ export default function AccessLogsTab({
                                                             {log.user?.name?.charAt(0)?.toUpperCase() || "S"}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <div className="flex items-center gap-1.5 flex-wrap">
-                                                                <span className="font-bold text-slate-900 dark:text-white truncate">
-                                                                    {log.user?.name || "Невідомий"}
-                                                                </span>
-                                                                {log.user?.is_inclusive && (
-                                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
-                                                                        Інклюзивний
-                                                                    </span>
-                                                                )}
+                                                            <div className="font-bold text-slate-900 dark:text-white truncate">
+                                                                {log.user?.name || "Невідомий"}
                                                             </div>
                                                             <div className="text-[10px] text-slate-400 dark:text-gray-500 truncate">
                                                                 {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
@@ -618,13 +581,8 @@ export default function AccessLogsTab({
                                                 <td className="px-4 py-3.5">
                                                     {log.booking?.room ? (
                                                         <div>
-                                                            <div className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 flex-wrap">
-                                                                <span>Кімната {log.booking.room.room_number} (Поверх {log.booking.room.floor})</span>
-                                                                {Boolean(log.booking.room.is_accessible) && (
-                                                                    <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 px-1 py-0.5 rounded">
-                                                                        Інклюзивна
-                                                                    </span>
-                                                                )}
+                                                            <div className="font-bold text-emerald-700 dark:text-emerald-400">
+                                                                Кімната {log.booking.room.room_number} (Поверх {log.booking.room.floor})
                                                             </div>
                                                             <div className="text-[10px] text-slate-400">
                                                                 {log.booking.room.building?.name || log.building?.name}
