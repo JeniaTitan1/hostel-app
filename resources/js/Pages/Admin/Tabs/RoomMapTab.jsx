@@ -26,9 +26,17 @@ export default function RoomMapTab({
     BedIcon,
     isSuperAdmin,
     liveHighlightedRoomIds = [],
+    allUsers = [],
+    specialties = [],
+    courses = [],
 }) {
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
+
+    // Фільтри контингенту для інфографіки та підсвічування кімнат на шахматці
+    const [academicCourseFilter, setAcademicCourseFilter] = useState("all");
+    const [academicSpecialtyFilter, setAcademicSpecialtyFilter] = useState("all");
+    const [isDemographicsOpen, setIsDemographicsOpen] = useState(true);
 
     const [addRoomModalOpen, setAddRoomModalOpen] = useState(false);
     const [roomModalData, setRoomModalData] = useState({ buildingId: null, buildingName: "", floor: 1, suggestedRoomNumber: "" });
@@ -166,6 +174,78 @@ export default function RoomMapTab({
         };
     }, [buildings, selectedBuildingFilter, getRoomGender]);
 
+    // Розрахунок детальної інфографіки контингенту мешканців (курси, спеціальності, стать)
+    const residentDemographics = useMemo(() => {
+        const targetBuildings = selectedBuildingFilter
+            ? buildings.filter((b) => Number(b.id) === Number(selectedBuildingFilter))
+            : buildings;
+
+        const courseCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        const specialtyCounts = {};
+        let maleResidents = 0;
+        let femaleResidents = 0;
+        let totalResidents = 0;
+
+        targetBuildings.forEach((b) => {
+            (b.rooms || []).forEach((room) => {
+                const approved = (room.bookings || []).filter(
+                    (bk) => bk.status === "approved" || (bk.status === "pending" && bk.new_room_id !== null)
+                );
+                approved.forEach((bk) => {
+                    const u = bk.user;
+                    if (!u) return;
+                    totalResidents += 1;
+
+                    const c = Number(u.course);
+                    if (courseCounts[c] !== undefined) {
+                        courseCounts[c] += 1;
+                    }
+
+                    const spec = String(u.specialty || "Не вказано").trim().toUpperCase();
+                    if (spec) {
+                        specialtyCounts[spec] = (specialtyCounts[spec] || 0) + 1;
+                    }
+
+                    if (u.gender === "male") maleResidents += 1;
+                    else if (u.gender === "female") femaleResidents += 1;
+                });
+            });
+        });
+
+        return {
+            totalResidents,
+            courseCounts,
+            specialtyCounts,
+            maleResidents,
+            femaleResidents,
+        };
+    }, [buildings, selectedBuildingFilter]);
+
+    const COURSE_CONFIG = [
+        { num: 1, label: "1 курс", bg: "bg-sky-500", text: "text-sky-700 dark:text-sky-300", lightBg: "bg-sky-50 dark:bg-sky-950/40", border: "border-sky-300 dark:border-sky-700", ring: "ring-sky-500" },
+        { num: 2, label: "2 курс", bg: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300", lightBg: "bg-emerald-50 dark:bg-emerald-950/40", border: "border-emerald-300 dark:border-emerald-700", ring: "ring-emerald-500" },
+        { num: 3, label: "3 курс", bg: "bg-indigo-500", text: "text-indigo-700 dark:text-indigo-300", lightBg: "bg-indigo-50 dark:bg-indigo-950/40", border: "border-indigo-300 dark:border-indigo-700", ring: "ring-indigo-500" },
+        { num: 4, label: "4 курс", bg: "bg-amber-500", text: "text-amber-700 dark:text-amber-300", lightBg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-300 dark:border-amber-700", ring: "ring-amber-500" },
+        { num: 5, label: "5 курс", bg: "bg-purple-500", text: "text-purple-700 dark:text-purple-300", lightBg: "bg-purple-50 dark:bg-purple-950/40", border: "border-purple-300 dark:border-purple-700", ring: "ring-purple-500" },
+        { num: 6, label: "6 курс", bg: "bg-rose-500", text: "text-rose-700 dark:text-rose-300", lightBg: "bg-rose-50 dark:bg-rose-950/40", border: "border-rose-300 dark:border-rose-700", ring: "ring-rose-500" },
+    ];
+
+    const matchesAcademicFilter = (room) => {
+        if (academicCourseFilter === "all" && academicSpecialtyFilter === "all") return true;
+
+        const approved = (room.bookings || []).filter(
+            (bk) => bk.status === "approved" || (bk.status === "pending" && bk.new_room_id !== null)
+        );
+
+        return approved.some((bk) => {
+            const u = bk.user;
+            if (!u) return false;
+            const matchCourse = academicCourseFilter === "all" || Number(u.course) === Number(academicCourseFilter);
+            const matchSpec = academicSpecialtyFilter === "all" || String(u.specialty || "").trim().toUpperCase() === String(academicSpecialtyFilter).trim().toUpperCase();
+            return matchCourse && matchSpec;
+        });
+    };
+
     // Клік за межами налаштувань закриває попап
     useEffect(() => {
         const handleGlobalClick = () => {
@@ -180,41 +260,56 @@ export default function RoomMapTab({
 
     return (
         <div className="space-y-6">
-            {/* Коротке та функціональне зведення зайнятості (без емодзі) */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-2xl shadow-xs p-4 sm:p-5">
+            {/* Комплексний Стан житлового фонду та Детальна інфографіка контингенту */}
+            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-2xl shadow-xs p-4 sm:p-5 space-y-5">
+                {/* 1. Верхній рядок: Назва корпусу + Заповненість + Кнопка згортання інфографіки */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-gray-700/70">
                     <div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                                Стан житлового фонду
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
+                                Стан житлового фонду та контингенту
                             </h4>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs font-semibold text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-gray-700/70 px-2 py-0.5 rounded-md">
                                 {selectedBuildingFilter
                                     ? buildings.find((b) => Number(b.id) === Number(selectedBuildingFilter))?.name || "Обраний корпус"
                                     : (isSuperAdmin && buildings.length > 1 ? "Усі корпуси" : (buildings[0]?.name || "Корпус"))}
                             </span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">Заповненість:</span>
-                        <span className="text-sm font-black text-gray-900 dark:text-white">{overviewStats.percent}%</span>
-                        <div className="w-24 bg-slate-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full rounded-full transition-all duration-300 ${
-                                    overviewStats.percent >= 90
-                                        ? "bg-rose-500"
-                                        : overviewStats.percent >= 70
-                                        ? "bg-amber-500"
-                                        : "bg-emerald-500"
-                                }`}
-                                style={{ width: `${Math.min(overviewStats.percent, 100)}%` }}
-                            />
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Заповненість:</span>
+                            <span className="text-sm font-black text-gray-900 dark:text-white">{overviewStats.percent}%</span>
+                            <div className="w-24 bg-slate-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full transition-all duration-300 ${
+                                        overviewStats.percent >= 90
+                                            ? "bg-rose-500"
+                                            : overviewStats.percent >= 70
+                                            ? "bg-amber-500"
+                                            : "bg-emerald-500"
+                                    }`}
+                                    style={{ width: `${Math.min(overviewStats.percent, 100)}%` }}
+                                />
+                            </div>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsDemographicsOpen(!isDemographicsOpen)}
+                            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                        >
+                            <span>{isDemographicsOpen ? "Згорнути інфографіку" : "Інфографіка контингенту"}</span>
+                            <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${isDemographicsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-3.5 text-xs">
+                {/* 2. Шість карток житлового фонду (Місткість та вільні ліжка) */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
                     <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700/40 border border-slate-100 dark:border-gray-700">
                         <span className="text-[11px] text-gray-400 block mb-0.5">Всього місць</span>
                         <span className="text-base font-black text-gray-900 dark:text-white">
@@ -264,6 +359,167 @@ export default function RoomMapTab({
                         <span className="text-[10px] text-gray-400 block mt-0.5">{overviewStats.repairRooms} кімн. на ремонті</span>
                     </div>
                 </div>
+
+                {/* 3. Детальна Інфографіка мешканців гуртожитку (Контингент) */}
+                {isDemographicsOpen && (
+                    <div className="pt-4 border-t border-slate-100 dark:border-gray-700/60 space-y-4 animate-in fade-in duration-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Інфографіка контингенту мешканців
+                                </span>
+                                <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-full">
+                                    {residentDemographics.totalResidents} студентів
+                                </span>
+
+                                {/* Гендерне співвідношення */}
+                                {residentDemographics.totalResidents > 0 && (
+                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-gray-400 ml-1">
+                                        <span className="text-sky-600 dark:text-sky-400 font-bold">Хлопці: {residentDemographics.maleResidents} ({Math.round((residentDemographics.maleResidents / residentDemographics.totalResidents) * 100)}%)</span>
+                                        <span>•</span>
+                                        <span className="text-rose-600 dark:text-rose-400 font-bold">Дівчата: {residentDemographics.femaleResidents} ({Math.round((residentDemographics.femaleResidents / residentDemographics.totalResidents) * 100)}%)</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Активний фільтр на мапі */}
+                            {(academicCourseFilter !== "all" || academicSpecialtyFilter !== "all") && (
+                                <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs">
+                                        <span>Підсвічено на мапі:</span>
+                                        {academicCourseFilter !== "all" && <span>{academicCourseFilter} курс</span>}
+                                        {academicSpecialtyFilter !== "all" && <span>• {academicSpecialtyFilter}</span>}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setAcademicCourseFilter("all");
+                                            setAcademicSpecialtyFilter("all");
+                                        }}
+                                        className="text-[11px] font-semibold text-slate-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 underline decoration-dotted cursor-pointer"
+                                    >
+                                        ✕ Скинути
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Сегментована смуга розподілу курсів мешканців */}
+                        <div className="h-3 w-full bg-slate-100 dark:bg-gray-700/60 rounded-full overflow-hidden flex p-0.5 gap-0.5 shadow-inner">
+                            {residentDemographics.totalResidents === 0 ? (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">
+                                    У цьому корпусі наразі немає зареєстрованих мешканців
+                                </div>
+                            ) : (
+                                COURSE_CONFIG.map((c) => {
+                                    const count = residentDemographics.courseCounts[c.num] || 0;
+                                    if (count === 0) return null;
+                                    const pct = Math.round((count / residentDemographics.totalResidents) * 100);
+                                    const isSelected = academicCourseFilter === String(c.num);
+                                    return (
+                                        <div
+                                            key={c.num}
+                                            style={{ width: `${(count / residentDemographics.totalResidents) * 100}%` }}
+                                            title={`${c.label}: ${count} студ. (${pct}%) — клікніть щоб фільтрувати кімнати на мапі`}
+                                            className={`${c.bg} h-full rounded-full transition-all duration-300 hover:brightness-110 cursor-pointer ${isSelected ? "ring-2 ring-white ring-offset-1" : ""}`}
+                                            onClick={() => setAcademicCourseFilter(academicCourseFilter === String(c.num) ? "all" : String(c.num))}
+                                        />
+                                    );
+                                })
+                            )}
+                        </div>
+
+                        {/* 6 Карток курсів (клік підсвічує кімнати на шахматці) */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                            {COURSE_CONFIG.map((c) => {
+                                const count = residentDemographics.courseCounts[c.num] || 0;
+                                const pct = residentDemographics.totalResidents > 0 ? Math.round((count / residentDemographics.totalResidents) * 100) : 0;
+                                const isSelected = academicCourseFilter === String(c.num);
+
+                                return (
+                                    <button
+                                        key={c.num}
+                                        type="button"
+                                        onClick={() => setAcademicCourseFilter(isSelected ? "all" : String(c.num))}
+                                        title={`Показати кімнати ${c.label} на шахматці`}
+                                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative ${
+                                            isSelected
+                                                ? `bg-white dark:bg-gray-800 ${c.border} ring-2 ${c.ring} shadow-xs scale-[1.02]`
+                                                : count > 0
+                                                ? `bg-slate-50/70 dark:bg-gray-850/60 border-slate-200/80 dark:border-gray-700 hover:border-slate-300 hover:bg-white`
+                                                : `bg-slate-50/40 dark:bg-gray-800/30 border-slate-100 dark:border-gray-750 opacity-60 hover:opacity-100`
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between gap-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className={`w-2 h-2 rounded-full ${c.bg}`} />
+                                                <span className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
+                                                    {c.label}
+                                                </span>
+                                            </div>
+                                            {isSelected && (
+                                                <span className={`text-[9px] font-black px-1 py-0.2 rounded ${c.lightBg} ${c.text}`}>
+                                                    На мапі
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="mt-1.5 flex items-baseline justify-between">
+                                            <span className="text-base font-black text-slate-900 dark:text-white">
+                                                {count}
+                                            </span>
+                                            <span className={`text-[10px] font-black ${count > 0 ? c.text : "text-slate-400"}`}>
+                                                {pct}%
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Спеціальності / Напрями підготовки мешканців корпусу */}
+                        {Object.keys(residentDemographics.specialtyCounts).length > 0 && (
+                            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-gray-400 mr-1">
+                                    Спеціальності у корпусі:
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setAcademicSpecialtyFilter("all")}
+                                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                        academicSpecialtyFilter === "all"
+                                            ? "bg-slate-800 dark:bg-white text-white dark:text-slate-900"
+                                            : "bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300 hover:bg-slate-200"
+                                    }`}
+                                >
+                                    Всі ({residentDemographics.totalResidents})
+                                </button>
+                                {Object.entries(residentDemographics.specialtyCounts).map(([spec, count]) => {
+                                    const isSpecSelected = academicSpecialtyFilter === spec;
+                                    return (
+                                        <button
+                                            key={spec}
+                                            type="button"
+                                            onClick={() => setAcademicSpecialtyFilter(isSpecSelected ? "all" : spec)}
+                                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                                                isSpecSelected
+                                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50"
+                                            }`}
+                                        >
+                                            <span>{spec}</span>
+                                            <span className={`ml-1 font-black ${isSpecSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400"}`}>
+                                                ({count})
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Пошук та фільтри для мапи */}
@@ -455,6 +711,9 @@ export default function RoomMapTab({
                                         const floorRooms = floorsMap[
                                             floor
                                         ].filter((room) => {
+                                            if (!matchesAcademicFilter(room)) {
+                                                return false;
+                                            }
                                             const approvedBookings =
                                                 room.bookings?.filter(
                                                     (b) =>
@@ -627,6 +886,7 @@ export default function RoomMapTab({
                                                             }
 
                                                             const isHighlighted = liveHighlightedRoomIds.includes(Number(room.id));
+                                                            const isAcademicFiltered = (academicCourseFilter !== "all" || academicSpecialtyFilter !== "all") && matchesAcademicFilter(room);
 
                                                             return (
                                                                 <div
@@ -640,6 +900,8 @@ export default function RoomMapTab({
                                                                     } ${
                                                                         isHighlighted
                                                                             ? "ring-4 ring-emerald-400 dark:ring-emerald-500 scale-[1.02] shadow-lg shadow-emerald-500/25 transition-all duration-300 animate-pulse"
+                                                                            : isAcademicFiltered
+                                                                            ? "ring-2 ring-indigo-500/80 shadow-md shadow-indigo-500/10"
                                                                             : ""
                                                                     }`}
                                                                 >

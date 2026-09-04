@@ -769,6 +769,9 @@ export default function Dashboard({
                         BedIcon={BedIcon}
                         isSuperAdmin={isSuperAdmin}
                         liveHighlightedRoomIds={liveHighlightedRoomIds}
+                        allUsers={allUsers}
+                        specialties={specialties}
+                        courses={courses}
                     />
                 )}
 

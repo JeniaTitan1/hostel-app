@@ -238,16 +238,18 @@ export default function AcademicSettingsTab({
         { num: 6, label: "6 курс", bg: "bg-rose-500", text: "text-rose-700 dark:text-rose-300", lightBg: "bg-rose-50 dark:bg-rose-950/40", border: "border-rose-300 dark:border-rose-700", ring: "ring-rose-500" },
     ];
 
+    const [promotionMode, setPromotionMode] = React.useState("targeted"); // "targeted" | "mass"
+
     return (
         <div className="space-y-6">
-            {/* Головний Центр Керування Навчальним Роком та Курсами */}
+            {/* Пульт керування та переведення курсів */}
             <div className="bg-gradient-to-br from-indigo-50/90 via-white to-emerald-50/80 dark:from-indigo-950/40 dark:via-gray-800 dark:to-emerald-950/30 border border-indigo-100/90 dark:border-indigo-800/50 rounded-3xl p-5 sm:p-7 shadow-sm space-y-6">
                 
-                {/* 1. Верхній рядок: Інформація про період + Компактні, вирівняні дії */}
+                {/* 1. Верхній рядок: Інформація про період + Автопереведення */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-indigo-100/70 dark:border-gray-700/60 pb-5">
-                    <div className="space-y-2 max-w-2xl">
+                    <div className="space-y-1.5 max-w-2xl">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="px-3.5 py-1 rounded-xl text-xs font-black bg-indigo-600 text-white shadow-xs tracking-wider uppercase">
+                            <span className="px-3 py-1 rounded-xl text-xs font-black bg-indigo-600 text-white shadow-xs tracking-wider uppercase">
                                 {yearLabel} Навчальний рік
                             </span>
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold border ${
@@ -260,268 +262,93 @@ export default function AcademicSettingsTab({
                             </span>
                         </div>
                         <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                            Академічний календар та керування курсами
+                            Пульт керування та переведення курсів
                         </h3>
                         <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
-                            Щороку 1 вересня діючі студенти переходять на наступний курс навчання (1 → 2, 2 → 3 тощо). 
-                            Ви можете виконати масове підвищення, повернути курс назад (-1), або гнучко обрати студентів конкретного корпусу чи спеціальності.
+                            Інструмент переведення студентів з курсу на курс (+1 або -1). Ви можете перевести всіх студентів коледжу в один клік або точково обрати окремий корпус, факультет чи курс.
                         </p>
                     </div>
 
-                    {/* Блок швидких глобальних дій: компактний та згрупований */}
-                    <div className="flex flex-wrap items-center gap-2 flex-shrink-0 self-start lg:self-center">
-                        {/* Кнопка перемикання автопереведення */}
+                    {/* Перемикач автоматичного переведення */}
+                    <div className="flex items-center gap-2.5 flex-shrink-0 self-start lg:self-center">
                         <button
                             type="button"
                             onClick={handleToggleAutoPromote}
-                            title="Автоматичне переведення щороку 1 вересня"
-                            className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-600 transition-all cursor-pointer shadow-2xs whitespace-nowrap flex items-center gap-1.5"
+                            title="Перемикач автоматичного переведення на 1 вересня"
+                            className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-600 transition-all cursor-pointer shadow-2xs whitespace-nowrap flex items-center gap-2"
                         >
                             <span className={`w-2 h-2 rounded-full ${autoPromote ? "bg-emerald-500" : "bg-slate-400"}`} />
-                            <span>{autoPromote ? "Вимкнути авто" : "Увімкнути авто"}</span>
+                            <span>{autoPromote ? "Вимкнути авто 1 вересня" : "Увімкнути авто 1 вересня"}</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* 2. Перемикач режимів: Точкове за фільтрами / Масове для всіх */}
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="inline-flex p-1 bg-slate-100 dark:bg-gray-800 rounded-2xl border border-slate-200/80 dark:border-gray-700 shadow-inner">
+                        <button
+                            type="button"
+                            onClick={() => setPromotionMode("targeted")}
+                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                                promotionMode === "targeted"
+                                    ? "bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                                    : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            </svg>
+                            <span>Вибіркове переведення за параметрами</span>
+                            {hasActiveFilters && (
+                                <span className="w-2 h-2 rounded-full bg-indigo-600" />
+                            )}
                         </button>
 
-                        {/* Згрупований сегментований тулбар: -1 курс та +1 курс */}
-                        <div className="inline-flex items-center bg-white dark:bg-gray-700 p-1 rounded-xl border border-slate-200 dark:border-gray-600 shadow-2xs whitespace-nowrap">
-                            {/* Понизити -1 курс для всіх */}
-                            <button
-                                type="button"
-                                disabled={isProcessing}
-                                onClick={handleDemoteAll}
-                                title="Повернути ВСІХ студентів на 1 курс назад (мінімум 1 курс)"
-                                className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/50 active:scale-95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-40"
-                            >
-                                <svg className="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-                                </svg>
-                                <span>-1 курс</span>
-                            </button>
+                        <button
+                            type="button"
+                            onClick={() => setPromotionMode("mass")}
+                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                                promotionMode === "mass"
+                                    ? "bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                                    : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                            <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span>Масове переведення для всіх студентів</span>
+                        </button>
+                    </div>
 
-                            {/* Розділювач */}
-                            <div className="h-4 w-px bg-slate-200 dark:bg-gray-600 mx-1" />
-
-                            {/* Підвищити +1 курс для всіх */}
-                            <button
-                                type="button"
-                                disabled={isProcessing}
-                                onClick={handlePromoteAll}
-                                title="Перевести ВСІХ діючих студентів на наступний курс (+1)"
-                                className="px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-40"
-                            >
-                                <span>+1 курс</span>
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                            </button>
-                        </div>
+                    <div className="text-xs text-slate-500 dark:text-gray-400 flex items-center gap-1.5 font-medium">
+                        <span>Загалом у коледжі:</span>
+                        <strong className="text-slate-800 dark:text-white font-black">{totalStudents} діючих студентів</strong>
                     </div>
                 </div>
 
-                {/* 2. Блок аналітики та динамічного графіка розподілу курсів */}
-                <div className="bg-white/90 dark:bg-gray-850/90 backdrop-blur-sm rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-4 sm:p-5 space-y-4 shadow-2xs">
-                    {/* Верхній рядок графіка: назва вибірки + швидкі фільтри корпусу/напряму + кнопка деталей */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-gray-700/60">
-                        <div className="space-y-1">
+                {/* 3. РЕЖИМ А: ВИБІРКОВЕ ПЕРЕВЕДЕННЯ ЗА ФІЛЬТРАМИ */}
+                {promotionMode === "targeted" && (
+                    <div className="bg-white/95 dark:bg-gray-850 backdrop-blur-sm rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-5 space-y-5 shadow-xs animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/60 pb-3 flex-wrap gap-2">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
-                                    <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                    Графік розподілу студентів
-                                </span>
-
-                                {/* Динамічний тег активної вибірки з кількістю */}
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                                    hasActiveFilters
-                                        ? "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
-                                        : "bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-gray-700"
-                                }`}>
-                                    <span>{scopeBadgeText}</span>
-                                    <span className="font-black ml-0.5">({scopedStudents.length} студ.)</span>
-                                </span>
-
-                                {/* Кнопка швидкого скидання фільтрів */}
-                                {hasActiveFilters && (
-                                    <button
-                                        type="button"
-                                        onClick={resetAllFilters}
-                                        className="text-[11px] font-semibold text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 underline decoration-dotted ml-1 transition-colors cursor-pointer"
-                                    >
-                                        ✕ Показати всіх
-                                    </button>
-                                )}
-                            </div>
-
-                            <p className="text-[11px] text-slate-500 dark:text-gray-400">
-                                {scopeDescriptionText}
-                            </p>
-                        </div>
-
-                        {/* Швидкі селектори фільтрації корпусу та напряму прямо на графіку */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                            {/* Швидкий вибір корпусу */}
-                            <select
-                                value={filterBuilding}
-                                onChange={(e) => setFilterBuilding(e.target.value)}
-                                className="text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-800 dark:text-gray-200 py-1.5 px-2.5 focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs"
-                            >
-                                <option value="all">Усі корпуси</option>
-                                {buildings.map((b) => (
-                                    <option key={b.id} value={b.id}>
-                                        {b.name} ({buildingCounts[b.id] ?? 0} студ.)
-                                    </option>
-                                ))}
-                                <option value="unassigned">Без корпусу ({buildingCounts["unassigned"] ?? 0})</option>
-                            </select>
-
-                            {/* Швидкий вибір спеціальності */}
-                            <select
-                                value={filterSpecialty}
-                                onChange={(e) => setFilterSpecialty(e.target.value)}
-                                className="text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-800 dark:text-gray-200 py-1.5 px-2.5 focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs"
-                            >
-                                <option value="all">Усі спеціальності</option>
-                                {specialties.map((s) => (
-                                    <option key={s.id} value={s.name}>
-                                        {s.name} ({specialtyCounts[s.name.toUpperCase()] ?? 0} студ.)
-                                    </option>
-                                ))}
-                            </select>
-
-                            {/* Кнопка розгортання панелі параметрів точкового переведення */}
-                            <button
-                                type="button"
-                                onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
-                                    isAdvancedOpen 
-                                        ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-600/20" 
-                                        : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-750"
-                                }`}
-                            >
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                </svg>
-                                <span>Точкове керування</span>
-                                {filterCourse !== "all" && (
-                                    <span className="px-1.5 py-0.2 bg-white/20 rounded-md text-[10px]">
-                                        {filterCourse} курс
-                                    </span>
-                                )}
-                                <svg
-                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isAdvancedOpen ? "rotate-180" : ""}`}
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Візуальна кольорова сегментована смуга розподілу */}
-                    <div className="space-y-1.5">
-                        <div className="h-3.5 w-full bg-slate-100 dark:bg-gray-750 rounded-full overflow-hidden flex p-0.5 gap-0.5 shadow-inner">
-                            {scopedStudents.length === 0 ? (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400 font-medium">
-                                    Немає студентів за обраними критеріями
-                                </div>
-                            ) : (
-                                COURSE_CONFIG.map((c) => {
-                                    const count = scopedCourseDistribution[c.num] || 0;
-                                    if (count === 0) return null;
-                                    const pct = Math.round((count / scopedStudents.length) * 100);
-                                    return (
-                                        <div
-                                            key={c.num}
-                                            style={{ width: `${(count / scopedStudents.length) * 100}%` }}
-                                            title={`${c.label}: ${count} студ. (${pct}%)`}
-                                            className={`${c.bg} h-full rounded-full transition-all duration-300 hover:brightness-110 cursor-pointer`}
-                                            onClick={() => {
-                                                setFilterCourse(filterCourse === String(c.num) ? "all" : String(c.num));
-                                                if (!isAdvancedOpen) setIsAdvancedOpen(true);
-                                            }}
-                                        />
-                                    );
-                                })
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Інтерактивні картки курсів (1 - 6) */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-                        {COURSE_CONFIG.map((c) => {
-                            const count = scopedCourseDistribution[c.num] || 0;
-                            const pct = scopedStudents.length > 0 ? Math.round((count / scopedStudents.length) * 100) : 0;
-                            const isSelected = filterCourse === String(c.num);
-
-                            return (
-                                <button
-                                    key={c.num}
-                                    type="button"
-                                    onClick={() => {
-                                        setFilterCourse(isSelected ? "all" : String(c.num));
-                                        if (!isAdvancedOpen) setIsAdvancedOpen(true);
-                                    }}
-                                    className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer relative overflow-hidden group shadow-2xs ${
-                                        isSelected
-                                            ? `bg-white dark:bg-gray-800 ${c.border} ring-2 ${c.ring} shadow-md scale-[1.02]`
-                                            : count > 0
-                                            ? `bg-white dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/80 hover:border-slate-300 dark:hover:border-gray-600 hover:shadow-xs`
-                                            : `bg-slate-50/70 dark:bg-gray-800/40 border-slate-100 dark:border-gray-750 opacity-60 hover:opacity-100`
-                                    }`}
-                                >
-                                    <div className="flex items-center justify-between gap-1 w-full">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className={`w-2 h-2 rounded-full ${c.bg}`} />
-                                            <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
-                                                {c.label}
-                                            </span>
-                                        </div>
-                                        {isSelected && (
-                                            <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${c.lightBg} ${c.text}`}>
-                                                Обрано
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="mt-2.5 flex items-baseline justify-between w-full">
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-xl font-black text-slate-900 dark:text-white">
-                                                {count}
-                                            </span>
-                                            <span className="text-[10px] text-slate-400 font-medium">
-                                                студ.
-                                            </span>
-                                        </div>
-                                        <span className={`text-[11px] font-black ${count > 0 ? c.text : "text-slate-400"}`}>
-                                            {pct}%
-                                        </span>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* 3. Розгорнута панель точкового / вибіркового керування */}
-                {isAdvancedOpen && (
-                    <div className="bg-white/95 dark:bg-gray-850 backdrop-blur-md rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-5 space-y-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/60 pb-3">
-                            <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-indigo-500" />
                                 <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-200">
-                                    Параметри вибіркового переведення
+                                    Параметри вибірки студентів
                                 </h4>
+                                {hasActiveFilters && (
+                                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                        {scopeBadgeText}
+                                    </span>
+                                )}
                             </div>
                             <span className="text-[11px] text-slate-400">
-                                Оберіть корпус, напрям чи курс для точкової зміни
+                                Оберіть корпус, напрям та початковий курс для точкового переведення
                             </span>
                         </div>
 
-                        {/* Сітка фільтрів */}
+                        {/* Сітка 4-х селекторів */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                            {/* А) Корпус */}
+                            {/* 1. Корпус */}
                             <div className="space-y-1">
                                 <label className="text-[11px] font-bold text-slate-700 dark:text-gray-300">
                                     Гуртожиток / Корпус
@@ -529,7 +356,7 @@ export default function AcademicSettingsTab({
                                 <select
                                     value={filterBuilding}
                                     onChange={(e) => setFilterBuilding(e.target.value)}
-                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі корпуси (загалом)</option>
                                     {buildings.map((b) => (
@@ -541,15 +368,15 @@ export default function AcademicSettingsTab({
                                 </select>
                             </div>
 
-                            {/* Б) Спеціальність */}
+                            {/* 2. Спеціальність / Факультет */}
                             <div className="space-y-1">
                                 <label className="text-[11px] font-bold text-slate-700 dark:text-gray-300">
-                                    Спеціальність / Напрям
+                                    Спеціальність / Факультет
                                 </label>
                                 <select
                                     value={filterSpecialty}
                                     onChange={(e) => setFilterSpecialty(e.target.value)}
-                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі спеціальності</option>
                                     {specialties.map((s) => (
@@ -560,7 +387,7 @@ export default function AcademicSettingsTab({
                                 </select>
                             </div>
 
-                            {/* В) Початковий курс */}
+                            {/* 3. Початковий курс */}
                             <div className="space-y-1">
                                 <label className="text-[11px] font-bold text-slate-700 dark:text-gray-300">
                                     Поточний курс студентів
@@ -568,7 +395,7 @@ export default function AcademicSettingsTab({
                                 <select
                                     value={filterCourse}
                                     onChange={(e) => setFilterCourse(e.target.value)}
-                                    className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white p-2.5 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі курси (1 - 6)</option>
                                     {courses.map((c) => (
@@ -579,7 +406,7 @@ export default function AcademicSettingsTab({
                                 </select>
                             </div>
 
-                            {/* Г) Дія: +1 або -1 */}
+                            {/* 4. Напрямок зміни курсу */}
                             <div className="space-y-1">
                                 <label className="text-[11px] font-bold text-slate-700 dark:text-gray-300">
                                     Напрямок переведення
@@ -588,62 +415,78 @@ export default function AcademicSettingsTab({
                                     <button
                                         type="button"
                                         onClick={() => setDirection("+1")}
-                                        className={`py-1.5 text-xs font-black rounded-lg transition-all ${
+                                        className={`py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
                                             direction === "+1" 
                                                 ? "bg-emerald-600 text-white shadow-xs" 
                                                 : "text-slate-600 dark:text-gray-400 hover:text-slate-900"
                                         }`}
                                     >
-                                        +1 Наступний
+                                        <span>+1 Наступний</span>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setDirection("-1")}
-                                        className={`py-1.5 text-xs font-black rounded-lg transition-all ${
+                                        className={`py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
                                             direction === "-1" 
                                                 ? "bg-amber-600 text-white shadow-xs" 
                                                 : "text-slate-600 dark:text-gray-400 hover:text-slate-900"
                                         }`}
                                     >
-                                        -1 Попередній
+                                        <span>-1 Попередній</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Підсумок вибірки та кнопка запуску */}
-                        <div className="pt-3 border-t border-slate-100 dark:border-gray-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div className="flex items-center gap-2 flex-wrap text-xs">
-                                <span className="font-bold text-slate-700 dark:text-gray-200">
-                                    Під дію підпадає:
-                                </span>
-                                <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-black">
-                                    {matchingStudents.length} студентів
-                                </span>
+                        {/* Live Preview панель підсумку та запуску дії */}
+                        <div className="pt-4 border-t border-slate-100 dark:border-gray-700/60 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 flex-wrap text-xs">
+                                    <span className="font-bold text-slate-700 dark:text-gray-200">
+                                        Під дію підпадає:
+                                    </span>
+                                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-black">
+                                        {matchingStudents.length} студентів
+                                    </span>
+                                    <span className="text-slate-400 font-medium text-[11px]">
+                                        ({direction === "+1" ? "перейдуть на курс вище" : "повернуться на курс назад"})
+                                    </span>
+                                </div>
 
+                                {/* Список карток студентів з зазначенням конкретного переходу */}
                                 {matchingStudents.length > 0 && (
-                                    <div className="hidden lg:flex items-center gap-1.5 ml-2 text-[11px] text-slate-500">
-                                        <span>Наприклад:</span>
-                                        {matchingStudents.slice(0, 3).map((s) => (
-                                            <span key={s.id} className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-gray-800 text-slate-700 dark:text-gray-300">
-                                                {s.name} ({s.course} к.)
+                                    <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                                        <span className="text-slate-400 font-medium">Попередній перегляд:</span>
+                                        {matchingStudents.slice(0, 5).map((s) => {
+                                            const currentC = Number(s.course);
+                                            const targetC = direction === "+1" ? Math.min(6, currentC + 1) : Math.max(1, currentC - 1);
+                                            return (
+                                                <span key={s.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-slate-800 dark:text-gray-200 border border-slate-200/80 dark:border-gray-700">
+                                                    <span className="font-bold">{s.name}</span>
+                                                    <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400">
+                                                        ({currentC}к → {targetC}к)
+                                                    </span>
+                                                </span>
+                                            );
+                                        })}
+                                        {matchingStudents.length > 5 && (
+                                            <span className="text-slate-400 font-medium">
+                                                + ще {matchingStudents.length - 5} студентів
                                             </span>
-                                        ))}
-                                        {matchingStudents.length > 3 && (
-                                            <span className="text-slate-400">+ ще {matchingStudents.length - 3}</span>
                                         )}
                                     </div>
                                 )}
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            {/* Кнопки скидання та застосування */}
+                            <div className="flex items-center gap-2.5 self-end lg:self-center">
                                 {hasActiveFilters && (
                                     <button
                                         type="button"
                                         onClick={resetAllFilters}
-                                        className="px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                                        className="px-3.5 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors cursor-pointer"
                                     >
-                                        Скинути фільтри
+                                        Скинути параметри
                                     </button>
                                 )}
 
@@ -651,15 +494,116 @@ export default function AcademicSettingsTab({
                                     type="button"
                                     disabled={isProcessing || matchingStudents.length === 0}
                                     onClick={handleExecuteTargeted}
-                                    className={`px-5 py-2 rounded-xl text-xs font-black text-white transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-40 ${
+                                    className={`px-5 py-2.5 rounded-xl text-xs font-black text-white transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-40 flex items-center gap-2 ${
                                         direction === "+1"
                                             ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20"
                                             : "bg-amber-600 hover:bg-amber-700 shadow-amber-500/20"
                                     }`}
                                 >
-                                    {isProcessing
-                                        ? "Виконується..."
-                                        : `Застосувати ${direction === "+1" ? "+1 курс" : "-1 курс"} для ${matchingStudents.length} студ.`}
+                                    {isProcessing ? (
+                                        "Виконується..."
+                                    ) : (
+                                        <>
+                                            <span>Застосувати {direction === "+1" ? "+1 курс" : "-1 курс"}</span>
+                                            <span className="bg-white/20 px-1.5 py-0.5 rounded-md text-[10px]">
+                                                для {matchingStudents.length} студ.
+                                            </span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 4. РЕЖИМ Б: МАСОВЕ ПЕРЕВЕДЕННЯ ДЛЯ ВСІХ СТУДЕНТІВ */}
+                {promotionMode === "mass" && (
+                    <div className="bg-white/95 dark:bg-gray-850 backdrop-blur-sm rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-5 space-y-5 shadow-xs animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/60 pb-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-200">
+                                    Масове переведення для всіх студентів коледжу
+                                </h4>
+                            </div>
+                            <span className="text-[11px] text-slate-400">
+                                Діє одночасно на всіх {totalStudents} діючих студентів
+                            </span>
+                        </div>
+
+                        {/* Зведення студентів за курсами */}
+                        <div className="flex items-center gap-2 flex-wrap text-xs bg-slate-50 dark:bg-gray-800/60 p-3 rounded-xl border border-slate-100 dark:border-gray-700">
+                            <span className="text-slate-500 dark:text-gray-400 font-bold mr-1">
+                                Поточний розподіл ({totalStudents} студентів):
+                            </span>
+                            {[1, 2, 3, 4, 5, 6].map((num) => {
+                                const count = courseDistribution[num] || 0;
+                                return (
+                                    <span
+                                        key={num}
+                                        className="px-2.5 py-1 rounded-lg font-bold bg-white dark:bg-gray-700 text-slate-800 dark:text-gray-200 border border-slate-200 dark:border-gray-600 text-xs shadow-2xs"
+                                    >
+                                        {num} курс: <strong className="ml-0.5 text-indigo-600 dark:text-indigo-400">{count}</strong>
+                                    </span>
+                                );
+                            })}
+                        </div>
+
+                        {/* Дві великі картки швидкої масової дії */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Картка підвищення +1 */}
+                            <div className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800/70 bg-gradient-to-br from-emerald-50/70 to-white dark:from-emerald-950/30 dark:to-gray-800 space-y-3 flex flex-col justify-between shadow-2xs">
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black shadow-xs">
+                                            +1
+                                        </span>
+                                        <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                                            Перевести ВСІХ на наступний курс
+                                        </h5>
+                                    </div>
+                                    <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                                        Збільшує курс кожного діючого студента на +1 (1 курс → 2, 2 → 3 тощо). Випускники 6-го курсу позначаються як такі, що завершили навчання.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    disabled={isProcessing || totalStudents === 0}
+                                    onClick={handlePromoteAll}
+                                    className="w-full py-3 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-emerald-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                    <span>Перевести всіх {totalStudents} студентів на +1 курс</span>
+                                </button>
+                            </div>
+
+                            {/* Картка повернення -1 */}
+                            <div className="p-5 rounded-2xl border border-amber-200 dark:border-amber-800/70 bg-gradient-to-br from-amber-50/70 to-white dark:from-amber-950/30 dark:to-gray-800 space-y-3 flex flex-col justify-between shadow-2xs">
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black shadow-xs">
+                                            -1
+                                        </span>
+                                        <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                                            Повернути ВСІХ на 1 курс назад
+                                        </h5>
+                                    </div>
+                                    <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                                        Зменшує курс кожного студента на 1 назад (2 курс → 1, 3 → 2 тощо). Використовуйте у разі випадкової помилки або для відкату. Мінімальний курс — 1-й.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    disabled={isProcessing || totalStudents === 0}
+                                    onClick={handleDemoteAll}
+                                    className="w-full py-3 rounded-xl text-xs font-black bg-amber-600 hover:bg-amber-700 text-white shadow-md hover:shadow-amber-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                                    </svg>
+                                    <span>Повернути всіх {totalStudents} студентів на -1 курс</span>
                                 </button>
                             </div>
                         </div>
