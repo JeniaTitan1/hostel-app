@@ -198,6 +198,59 @@ export default function AccessLogsTab({
         }
     };
 
+    // Кольорове стилізування запису КПП за статусом, напрямком та інклюзивністю
+    const getLogRowStyle = (log) => {
+        const isGranted = log.status === "granted";
+        const isEntry = log.type === "entry";
+        const isInclusive = Boolean(
+            log.user?.is_inclusive ||
+            log.notes?.toLowerCase().includes("інклюзив") ||
+            log.notes?.toLowerCase().includes("пандус")
+        );
+
+        if (!isGranted) {
+            // Заборонено / відмова — м'який червоно-рожевий застережний градієнт
+            return {
+                gradient: "bg-gradient-to-r from-rose-500/[0.08] via-rose-500/[0.025] to-transparent hover:from-rose-500/[0.13] dark:from-rose-500/[0.12] dark:via-rose-500/[0.035] dark:to-transparent dark:hover:from-rose-500/[0.18]",
+                borderColor: "border-l-rose-500",
+                borderClass: "border-l-4 border-l-rose-500",
+                isDenied: true,
+                isInclusive,
+            };
+        }
+
+        if (isInclusive) {
+            // Інклюзивний доступ — ніжний небесно-блакитний градієнт
+            return {
+                gradient: "bg-gradient-to-r from-sky-500/[0.08] via-sky-500/[0.025] to-transparent hover:from-sky-500/[0.13] dark:from-sky-500/[0.12] dark:via-sky-500/[0.035] dark:to-transparent dark:hover:from-sky-500/[0.18]",
+                borderColor: "border-l-sky-500",
+                borderClass: "border-l-4 border-l-sky-500",
+                isDenied: false,
+                isInclusive: true,
+            };
+        }
+
+        if (isEntry) {
+            // Вхід — м'який смарагдовий градієнт
+            return {
+                gradient: "bg-gradient-to-r from-emerald-500/[0.065] via-emerald-500/[0.02] to-transparent hover:from-emerald-500/[0.11] dark:from-emerald-500/[0.09] dark:via-emerald-500/[0.025] dark:to-transparent dark:hover:from-emerald-500/[0.15]",
+                borderColor: "border-l-emerald-500",
+                borderClass: "border-l-4 border-l-emerald-500",
+                isDenied: false,
+                isInclusive: false,
+            };
+        }
+
+        // Вихід — м'який теплий бурштиновий градієнт
+        return {
+            gradient: "bg-gradient-to-r from-amber-500/[0.065] via-amber-500/[0.02] to-transparent hover:from-amber-500/[0.11] dark:from-amber-500/[0.09] dark:via-amber-500/[0.025] dark:to-transparent dark:hover:from-amber-500/[0.15]",
+            borderColor: "border-l-amber-500",
+            borderClass: "border-l-4 border-l-amber-500",
+            isDenied: false,
+            isInclusive: false,
+        };
+    };
+
     return (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
             {/* 1. ВЕРХНІ КАРТКИ СТАТИСТИКИ (KPI) - Адаптовані для будь-яких екранів */}
@@ -286,6 +339,25 @@ export default function AccessLogsTab({
                         <p className="text-xs text-gray-400 mt-0.5">
                             Фіксація входу/виходу студентів та гостей через цифрові QR-перепустки
                         </p>
+                        {/* Кольорові підказки статусів */}
+                        <div className="flex items-center gap-3 mt-2 flex-wrap text-[11px] text-gray-500 dark:text-gray-400">
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="font-medium">Вхід (Дозволено)</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="font-medium">Вихід</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                                <span className="font-medium">Заборонено (Відмова)</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                                <span className="font-medium">Інклюзивний доступ</span>
+                            </span>
+                        </div>
                     </div>
 
                     {/* Головна кнопка виклику сканера */}
@@ -378,21 +450,35 @@ export default function AccessLogsTab({
                                 const isEntry = log.type === "entry";
                                 const isGranted = log.status === "granted";
                                 const isToggling = togglingLogId === log.id;
+                                const style = getLogRowStyle(log);
 
                                 return (
                                     <div
                                         key={log.id}
-                                        className="p-3.5 bg-slate-50/70 dark:bg-gray-900/40 rounded-2xl border border-slate-100 dark:border-gray-700/80 space-y-2.5 my-2"
+                                        className={`p-3.5 rounded-2xl border border-slate-200/70 dark:border-gray-700/80 space-y-2.5 my-2 border-l-4 ${style.borderClass} ${style.gradient} shadow-2xs transition-all`}
                                     >
                                         {/* Верхній рядок: Аватар + Ім'я + Дата */}
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="flex items-center gap-2.5 min-w-0">
-                                                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black text-xs flex items-center justify-center shrink-0">
+                                                <div className={`w-9 h-9 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 border transition-all ${
+                                                    log.user?.gender === "female"
+                                                        ? "bg-pink-100/80 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border-pink-200/80 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.18)]"
+                                                        : log.user?.gender === "male"
+                                                        ? "bg-blue-100/80 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.18)]"
+                                                        : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-200 border-slate-200 dark:border-gray-600"
+                                                }`}>
                                                     {log.user?.name?.charAt(0)?.toUpperCase() || "S"}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-bold text-slate-900 dark:text-white text-xs truncate">
-                                                        {log.user?.name || "Невідомий"}
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <span className="font-bold text-slate-900 dark:text-white text-xs truncate">
+                                                            {log.user?.name || "Невідомий"}
+                                                        </span>
+                                                        {log.user?.is_inclusive && (
+                                                            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                                                Інклюзивний
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="text-[10px] text-slate-400 truncate">
                                                         {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
@@ -405,19 +491,20 @@ export default function AccessLogsTab({
                                                     {formatDate(log.created_at)}
                                                 </div>
                                                 <span
-                                                    className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border mt-0.5 ${
                                                         isGranted
-                                                            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
-                                                            : "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200"
+                                                            ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                                                            : "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60 animate-pulse"
                                                     }`}
                                                 >
-                                                    {isGranted ? "Дозволено" : "Заборонено"}
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${isGranted ? "bg-emerald-500" : "bg-rose-500"}`} />
+                                                    <span>{isGranted ? "Дозволено" : "Заборонено"}</span>
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Інфо про кімнату та корпус */}
-                                        <div className="text-xs text-slate-600 dark:text-gray-300 bg-white dark:bg-gray-800/80 p-2 rounded-xl border border-slate-100 dark:border-gray-700/60 flex items-center justify-between">
+                                        <div className="text-xs text-slate-600 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs p-2 rounded-xl border border-slate-100 dark:border-gray-700/60 flex items-center justify-between shadow-2xs">
                                             <span className="font-semibold text-emerald-700 dark:text-emerald-400 text-[11px] truncate">
                                                 {log.booking?.room
                                                     ? `Кімната ${log.booking.room.room_number} (Поверх ${log.booking.room.floor})`
@@ -434,21 +521,32 @@ export default function AccessLogsTab({
                                                 type="button"
                                                 disabled={isToggling}
                                                 onClick={() => handleToggleLogRow(log.id, log.type)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer ${
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer border shadow-2xs ${
                                                     isEntry
-                                                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40"
-                                                        : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40"
+                                                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50"
+                                                        : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50"
                                                 }`}
                                             >
                                                 <span className={`w-2 h-2 rounded-full ${isEntry ? "bg-emerald-500" : "bg-amber-500"}`} />
                                                 <span>{isEntry ? "ВХІД" : "ВИХІД"}</span>
-                                                <span className="text-[10px] text-slate-400 font-normal lowercase">(змінити ⇄)</span>
+                                                <span className="text-[10px] opacity-60 font-normal lowercase">(змінити ⇄)</span>
                                             </button>
 
                                             <div className="text-[10px] text-slate-400">
-                                                Перевірив: <strong>{log.scanner?.name || "КПП"}</strong>
+                                                Перевірив: <strong className="text-slate-700 dark:text-gray-300">{log.scanner?.name || "КПП"}</strong>
                                             </div>
                                         </div>
+
+                                        {/* Примітки у мобільному вигляді, якщо є */}
+                                        {log.notes && (
+                                            <div className={`text-[10px] px-2.5 py-1 rounded-lg ${
+                                                !isGranted 
+                                                    ? "bg-rose-50/80 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/50 font-medium" 
+                                                    : "bg-slate-100/80 dark:bg-gray-800 text-slate-500 dark:text-gray-400"
+                                            }`}>
+                                                {log.notes}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -456,7 +554,7 @@ export default function AccessLogsTab({
 
                         {/* Б) ДЕСКТОПНИЙ ВИГЛЯД (ПОВНОЦІННА ТАБЛИЦЯ ДЛЯ ПК) */}
                         <div className="hidden md:block overflow-x-auto scrollbar-none">
-                            <table className="w-full text-left text-xs">
+                            <table className="w-full text-left text-xs border-collapse">
                                 <thead className="bg-slate-50/80 dark:bg-gray-900/50 text-slate-500 dark:text-gray-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100 dark:border-gray-700">
                                     <tr>
                                         <th className="px-4 py-3.5">Час / Дата</th>
@@ -468,31 +566,45 @@ export default function AccessLogsTab({
                                         <th className="px-4 py-3.5">Примітки</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-gray-700/60">
+                                <tbody className="divide-y divide-slate-100 dark:divide-gray-700/60 text-slate-700 dark:text-gray-200">
                                     {paginatedLogs.map((log) => {
                                         const isEntry = log.type === "entry";
                                         const isGranted = log.status === "granted";
                                         const isToggling = togglingLogId === log.id;
+                                        const style = getLogRowStyle(log);
 
                                         return (
                                             <tr
                                                 key={log.id}
-                                                className="hover:bg-slate-50/60 dark:hover:bg-gray-700/40 transition-colors"
+                                                className={`transition-all ${style.gradient}`}
                                             >
-                                                {/* Час */}
-                                                <td className="px-4 py-3.5 whitespace-nowrap font-semibold text-slate-700 dark:text-gray-300 font-mono text-[11px]">
+                                                {/* Час із лівою кольоровою смугою border-l-4 */}
+                                                <td className={`px-4 py-3.5 whitespace-nowrap font-semibold text-slate-700 dark:text-gray-300 font-mono text-[11px] border-l-4 ${style.borderColor}`}>
                                                     {formatDate(log.created_at)}
                                                 </td>
 
                                                 {/* Студент */}
                                                 <td className="px-4 py-3.5">
                                                     <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-200 font-black text-xs flex items-center justify-center shrink-0">
+                                                        <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 border transition-all ${
+                                                            log.user?.gender === "female"
+                                                                ? "bg-pink-100/80 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border-pink-200/80 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.18)]"
+                                                                : log.user?.gender === "male"
+                                                                ? "bg-blue-100/80 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.18)]"
+                                                                : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-200 border-slate-200 dark:border-gray-600"
+                                                        }`}>
                                                             {log.user?.name?.charAt(0)?.toUpperCase() || "S"}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <div className="font-bold text-slate-900 dark:text-white truncate">
-                                                                {log.user?.name || "Невідомий"}
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                <span className="font-bold text-slate-900 dark:text-white truncate">
+                                                                    {log.user?.name || "Невідомий"}
+                                                                </span>
+                                                                {log.user?.is_inclusive && (
+                                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
+                                                                        Інклюзивний
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                             <div className="text-[10px] text-slate-400 dark:text-gray-500 truncate">
                                                                 {log.user?.specialty ? `${log.user.specialty}` : log.user?.email}
@@ -506,8 +618,13 @@ export default function AccessLogsTab({
                                                 <td className="px-4 py-3.5">
                                                     {log.booking?.room ? (
                                                         <div>
-                                                            <div className="font-bold text-emerald-700 dark:text-emerald-400">
-                                                                Кімната {log.booking.room.room_number} (Поверх {log.booking.room.floor})
+                                                            <div className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 flex-wrap">
+                                                                <span>Кімната {log.booking.room.room_number} (Поверх {log.booking.room.floor})</span>
+                                                                {Boolean(log.booking.room.is_accessible) && (
+                                                                    <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 px-1 py-0.5 rounded">
+                                                                        Інклюзивна
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                             <div className="text-[10px] text-slate-400">
                                                                 {log.booking.room.building?.name || log.building?.name}
@@ -526,16 +643,16 @@ export default function AccessLogsTab({
                                                         type="button"
                                                         disabled={isToggling}
                                                         onClick={() => handleToggleLogRow(log.id, log.type)}
-                                                        title="Натисніть для зміни: Вхід ⇄ Вихід"
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                                                        title="Натисніть для швидкої зміни: Вхід ⇄ Вихід"
+                                                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 cursor-pointer border shadow-2xs ${
                                                             isEntry
-                                                                ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40 hover:bg-emerald-100"
-                                                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 hover:bg-amber-100"
+                                                                ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 hover:bg-emerald-100"
+                                                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/50 hover:bg-amber-100"
                                                         }`}
                                                     >
                                                         <span
-                                                            className={`w-1.5 h-1.5 rounded-full ${
-                                                                isEntry ? "bg-emerald-500" : "bg-amber-500"
+                                                            className={`w-2 h-2 rounded-full ${
+                                                                isEntry ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]" : "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.8)]"
                                                             }`}
                                                         />
                                                         <span>{isEntry ? "Вхід" : "Вихід"}</span>
@@ -548,29 +665,44 @@ export default function AccessLogsTab({
                                                 {/* Статус */}
                                                 <td className="px-4 py-3.5 whitespace-nowrap">
                                                     <span
-                                                        className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shadow-2xs ${
                                                             isGranted
-                                                                ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200"
-                                                                : "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200"
+                                                                ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                                                                : "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60 animate-pulse"
                                                         }`}
                                                     >
-                                                        {isGranted ? "Дозволено" : "Заборонено"}
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${isGranted ? "bg-emerald-500" : "bg-rose-500"}`} />
+                                                        <span>{isGranted ? "Дозволено" : "Заборонено"}</span>
                                                     </span>
                                                 </td>
 
                                                 {/* Хто перевірив */}
                                                 <td className="px-4 py-3.5 whitespace-nowrap text-slate-600 dark:text-gray-400 text-[11px]">
-                                                    <div className="font-semibold">
+                                                    <div className="font-semibold text-slate-800 dark:text-gray-200">
                                                         {log.scanner?.name || "КПП"}
                                                     </div>
-                                                    <div className="text-[9px] text-slate-400 uppercase flex items-center gap-1">
+                                                    <span className={`inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border ${
+                                                        log.method === "qr_scan"
+                                                            ? "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/40"
+                                                            : "bg-slate-100 dark:bg-gray-700/60 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-gray-600"
+                                                    }`}>
                                                         {log.method === "qr_scan" ? "QR-сканер" : "Вручну"}
-                                                    </div>
+                                                    </span>
                                                 </td>
 
                                                 {/* Примітки */}
-                                                <td className="px-4 py-3.5 text-slate-500 dark:text-gray-400 text-[11px] max-w-xs truncate">
-                                                    {log.notes || "—"}
+                                                <td className="px-4 py-3.5 text-[11px] max-w-xs">
+                                                    {log.notes ? (
+                                                        <span className={`${
+                                                            !isGranted 
+                                                                ? "text-rose-700 dark:text-rose-400 font-medium" 
+                                                                : "text-slate-500 dark:text-gray-400"
+                                                        } line-clamp-2`} title={log.notes}>
+                                                            {log.notes}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-slate-300 dark:text-gray-600">—</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         );
