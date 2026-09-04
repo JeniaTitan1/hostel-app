@@ -305,23 +305,23 @@ const consumedFlashSet = new Set();
         <div className="min-h-screen flex flex-col antialiased bg-slate-50/90 dark:bg-[#070e1b] text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200 relative">
             {/* Органічний живий фон «Liquid Lava Waves & Aurora Mesh» для всього сайту */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
-                {/* Делікатна мікро-сітка точок для створення глибини */}
-                <div className="absolute inset-0 bg-dot-pattern opacity-45 dark:opacity-25" />
+                {/* Делікатна мікро-сітка точок для створення тактильної глибини */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-20" />
 
-                {/* 1. Верхня ліва смарагдово-м'ятна лавова хвиля */}
-                <div className="absolute -top-28 -left-28 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent dark:from-emerald-500/25 dark:via-teal-600/15 blur-[85px] animate-lava-1" />
+                {/* 1. Верхня ліва смарагдово-м'ятна хвиля — м'яко просвічує крізь навбар і шапку */}
+                <div className="absolute -top-32 -left-32 w-[680px] h-[680px] rounded-full bg-gradient-to-br from-emerald-400/22 via-teal-300/14 to-transparent dark:from-emerald-500/18 dark:via-teal-600/12 blur-[120px] animate-lava-1" />
 
-                {/* 2. Верхня права ціаново-смарагдова хвиля */}
-                <div className="absolute -top-16 -right-28 w-[580px] h-[580px] rounded-full bg-gradient-to-bl from-cyan-400/28 via-emerald-400/20 to-transparent dark:from-cyan-500/20 dark:via-teal-500/15 blur-[95px] animate-lava-2" />
+                {/* 2. Верхня права ціаново-смарагдова хвиля — просвічує праву частину навбару та віджетів */}
+                <div className="absolute -top-24 -right-28 w-[640px] h-[640px] rounded-full bg-gradient-to-bl from-cyan-400/20 via-emerald-400/14 to-transparent dark:from-cyan-500/16 dark:via-teal-500/10 blur-[125px] animate-lava-2" />
 
-                {/* 3. Центрально-ліва жива морська хвиля */}
-                <div className="absolute top-1/3 -left-20 w-[540px] h-[540px] rounded-full bg-gradient-to-tr from-teal-400/25 via-emerald-500/18 to-transparent dark:from-teal-600/20 dark:via-emerald-700/12 blur-[90px] animate-lava-3" />
+                {/* 3. Центрально-ліва жива морська хвиля — м'яка аура під картками кабінету */}
+                <div className="absolute top-1/3 -left-28 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-teal-400/18 via-emerald-500/12 to-transparent dark:from-teal-600/14 dark:via-emerald-700/08 blur-[115px] animate-lava-3" />
 
-                {/* 4. Нижня права лавова хвиля */}
-                <div className="absolute -bottom-28 -right-20 w-[650px] h-[650px] rounded-full bg-gradient-to-tl from-emerald-400/28 via-teal-300/18 to-transparent dark:from-emerald-600/22 dark:via-cyan-900/15 blur-[105px] animate-lava-4" />
+                {/* 4. Нижня права лавова хвиля — плавно заходить під напівпрозорий футер */}
+                <div className="absolute -bottom-28 -right-24 w-[720px] h-[720px] rounded-full bg-gradient-to-tl from-emerald-400/20 via-teal-300/14 to-transparent dark:from-emerald-600/16 dark:via-cyan-900/10 blur-[130px] animate-lava-4" />
 
-                {/* 5. Нижня ліва плаваюча лавова крапля */}
-                <div className="absolute -bottom-36 left-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-cyan-300/22 via-emerald-400/18 to-transparent dark:from-teal-500/18 dark:via-slate-800/15 blur-[95px] animate-lava-1" />
+                {/* 5. Нижня ліва плаваюча лавова крапля — делікатне підсвічування підвалу */}
+                <div className="absolute -bottom-36 left-1/4 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-cyan-300/18 via-emerald-400/12 to-transparent dark:from-teal-500/14 dark:via-slate-800/10 blur-[115px] animate-lava-1" />
             </div>
 
             {/* Flash Message Toasts */}

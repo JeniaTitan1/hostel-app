@@ -143,11 +143,11 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
             } else if (e.code === "Space" && lastResult && activeTab === "camera") {
                 e.preventDefault();
                 handleContinueScan();
-            } else if (e.key === "1" && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== "INPUT") {
+            } else if (e.key === "1" && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== "INPUT") {
                 setMode("auto");
-            } else if (e.key === "2" && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== "INPUT") {
+            } else if (e.key === "2" && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== "INPUT") {
                 setMode("entry");
-            } else if (e.key === "3" && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== "INPUT") {
+            } else if (e.key === "3" && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== "INPUT") {
                 setMode("exit");
             }
         };
@@ -166,11 +166,15 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
             return;
         }
 
+        let timer;
         if (activeTab === "camera") {
-            startCamera();
+            timer = setTimeout(() => {
+                startCamera();
+            }, 60);
         }
 
         return () => {
+            if (timer) clearTimeout(timer);
             stopCamera();
         };
     }, [isOpen, activeTab]);
@@ -365,17 +369,12 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     if (!isOpen || typeof document === "undefined") return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[999999] w-screen h-[100dvh] max-h-[100dvh] bg-slate-100/90 dark:bg-[#070e1b]/95 text-slate-900 dark:text-white flex flex-col overflow-hidden select-none animate-in fade-in duration-200 transition-colors duration-200 relative">
-            {/* Живий фон «Lava Waves & Aurora Mesh» для КПП */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
-                <div className="absolute inset-0 bg-dot-pattern opacity-35 dark:opacity-20" />
-                <div className="absolute -top-32 -left-28 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-emerald-500/25 via-teal-400/20 to-transparent blur-[90px] dark:from-emerald-500/20 dark:via-teal-600/15 animate-lava-1" />
-                <div className="absolute top-1/4 -right-28 w-[520px] h-[520px] rounded-full bg-gradient-to-bl from-cyan-400/25 via-emerald-400/20 to-transparent blur-[100px] dark:from-cyan-500/15 dark:via-teal-500/15 animate-lava-2" />
-                <div className="absolute -bottom-32 left-1/3 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-teal-400/25 via-emerald-500/20 to-transparent blur-[110px] dark:from-teal-600/15 dark:via-slate-800/20 animate-lava-3" />
-            </div>
-
+        <div
+            className="fixed inset-0 w-screen h-[100dvh] max-h-[100dvh] bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white flex flex-col overflow-hidden select-none animate-in fade-in duration-200 transition-colors duration-200"
+            style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999999 }}
+        >
             {/* ВЕРХНЯ ПАНЕЛЬ УПРАВЛІННЯ КПП (WORKSTATION TOP BAR - 100% ШИРИНИ) */}
-            <header className="kpp-header w-full h-11 sm:h-14 lg:h-16 px-2.5 sm:px-4 lg:px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-1.5 sm:gap-4 shrink-0 shadow-xs dark:shadow-lg transition-colors duration-200 relative z-10">
+            <header className="kpp-header w-full h-11 sm:h-14 lg:h-16 px-2.5 sm:px-4 lg:px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex items-center justify-between gap-1.5 sm:gap-4 shrink-0 shadow-xs dark:shadow-lg transition-colors duration-200 relative z-10">
                 {/* Ліва частина: Логотип та назва пункту */}
                 <div className="flex items-center gap-2 sm:gap-3">
                     <button

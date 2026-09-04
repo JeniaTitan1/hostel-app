@@ -2,7 +2,7 @@ import React from "react";
 
 export default function LayoutFooter() {
     return (
-        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8 transition-colors duration-200 relative z-10">
+        <footer className="bg-white/55 dark:bg-[#070e1b]/60 backdrop-blur-xl border-t border-slate-200/50 dark:border-gray-800/60 mt-auto py-8 transition-colors duration-200 relative z-10">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-gray-100 dark:border-gray-700">
                     {/* Logo & Info */}

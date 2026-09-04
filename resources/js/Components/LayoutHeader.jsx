@@ -20,7 +20,7 @@ export default function LayoutHeader({
 
     return (
         <>
-            <nav className="bg-white/95 dark:bg-gray-900/95 border-b border-slate-100 dark:border-gray-800/80 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
+            <nav className="bg-white/65 dark:bg-[#070e1b]/70 border-b border-slate-200/50 dark:border-gray-800/60 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-200">
                 <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Left: Logo & Desktop Links */}
@@ -165,9 +165,9 @@ export default function LayoutHeader({
 
                 {/* Mobile Navigation Dropdown Menu */}
                 {showingNavigationDropdown && (
-                    <div className="sm:hidden border-t border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-xl">
+                    <div className="sm:hidden border-t border-slate-200/50 dark:border-gray-800 bg-white/85 dark:bg-[#070e1b]/85 backdrop-blur-xl px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-xl">
                         {/* User info card on mobile */}
-                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700">
                             <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
                             </div>
@@ -249,13 +249,7 @@ export default function LayoutHeader({
             </nav>
 
             {header && (
-                <header className="bg-white/90 dark:bg-[#0c1322]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 transition-colors duration-200 relative overflow-hidden">
-                    {/* Живий фон «Aurora / Ambient Gradient Mesh» */}
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-                        <div className="absolute inset-0 bg-dot-pattern opacity-40 dark:opacity-30" />
-                        <div className="absolute -top-10 -left-12 w-96 h-48 bg-gradient-to-r from-emerald-400/30 via-teal-400/20 to-transparent dark:from-emerald-500/25 dark:to-teal-500/15 rounded-full blur-2xl animate-lava-1" />
-                        <div className="absolute -top-8 -right-12 w-96 h-48 bg-gradient-to-l from-cyan-400/28 via-emerald-400/20 to-transparent dark:from-cyan-500/20 dark:to-emerald-500/15 rounded-full blur-2xl animate-lava-2" />
-                    </div>
+                <header className="bg-white/35 dark:bg-[#0c1322]/40 backdrop-blur-md border-b border-slate-200/40 dark:border-gray-800/50 transition-colors duration-200 relative">
                     <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
                         {header}
                     </div>

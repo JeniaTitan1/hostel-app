@@ -269,22 +269,22 @@
 }
 
 .animate-lava-1 {
-    animation: lavaDrift1 16s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: lavaDrift1 22s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     will-change: transform, border-radius, opacity;
 }
 
 .animate-lava-2 {
-    animation: lavaDrift2 22s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: lavaDrift2 28s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     will-change: transform, border-radius, opacity;
 }
 
 .animate-lava-3 {
-    animation: lavaDrift3 19s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: lavaDrift3 25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     will-change: transform, border-radius, opacity;
 }
 
 .animate-lava-4 {
-    animation: lavaDrift4 25s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: lavaDrift4 32s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     will-change: transform, opacity;
 }
 

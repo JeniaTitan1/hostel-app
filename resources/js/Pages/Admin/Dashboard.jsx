@@ -534,7 +534,7 @@ export default function Dashboard({
 
             <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                 {/* Компактні Адаптивні Вкладки Навігації з автоматичним розміщенням */}
-                <div className="flex items-center flex-wrap lg:flex-nowrap gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-slate-100/90 dark:bg-gray-800/90 rounded-2xl border border-slate-200/70 dark:border-gray-700 shadow-2xs overflow-x-auto scrollbar-none no-scrollbar">
+                <div className="flex items-center flex-wrap lg:flex-nowrap gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-gray-700/60 shadow-2xs overflow-x-auto scrollbar-none no-scrollbar">
                     <button
                         type="button"
                         onClick={() => setActiveTab("bookings")}
