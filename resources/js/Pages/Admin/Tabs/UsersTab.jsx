@@ -304,13 +304,42 @@ export default function UsersTab({
                         </p>
                     </div>
 
-                    <input
-                        type="text"
-                        placeholder="Пошук за ПІБ, email чи телефоном..."
-                        value={userSearch}
-                        onChange={(e) => setUserSearch(e.target.value)}
-                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-72 focus:ring-2 focus:ring-emerald-500"
-                    />
+                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setUserInclusivityFilter(
+                                    userInclusivityFilter === "inclusive" ? "" : "inclusive"
+                                )
+                            }
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 border cursor-pointer ${
+                                userInclusivityFilter === "inclusive"
+                                    ? "bg-sky-600 border-sky-600 text-white shadow-sm ring-2 ring-sky-500/30"
+                                    : "bg-sky-50/70 dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50"
+                            }`}
+                            title="Фільтрувати: показувати тільки студентів з інвалідністю"
+                        >
+                            <span className="text-sm leading-none">♿</span>
+                            <span>Тільки інклюзивні</span>
+                            <span
+                                className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                    userInclusivityFilter === "inclusive"
+                                        ? "bg-white text-sky-700"
+                                        : "bg-sky-200/80 dark:bg-sky-800 text-sky-800 dark:text-sky-200"
+                                }`}
+                            >
+                                {allUsers.filter((u) => Boolean(u.is_inclusive)).length}
+                            </span>
+                        </button>
+
+                        <input
+                            type="text"
+                            placeholder="Пошук за ПІБ, email чи телефоном..."
+                            value={userSearch}
+                            onChange={(e) => setUserSearch(e.target.value)}
+                            className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-64 focus:ring-2 focus:ring-emerald-500"
+                        />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -395,18 +424,19 @@ export default function UsersTab({
                                 paginatedUsers.map((u) => (
                                     <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-gray-700/30 transition-colors">
                                         <td className="p-3.5 font-medium">
-                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                            <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-bold text-gray-900 dark:text-white">{u.name}</span>
                                                 {Boolean(u.is_inclusive) && (
                                                     <span
-                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
+                                                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-2xs"
                                                         title="Особа з інвалідністю / особливими потребами"
                                                     >
-                                                        ♿ Інклюзивність
+                                                        <span className="text-xs leading-none">♿</span>
+                                                        <span>Інклюзивність</span>
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="text-[11px] text-gray-400 font-mono">{u.email}</div>
+                                            <div className="text-[11px] text-gray-400 font-mono mt-0.5">{u.email}</div>
                                         </td>
                                         <td className="p-3.5 space-y-0.5">
                                             <div>{u.phone || "—"}</div>

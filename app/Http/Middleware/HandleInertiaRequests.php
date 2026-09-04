@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                     'must_change_password' => $request->user()->must_change_password,
                     'password_changed' => $request->user()->password_changed,
                     'gender' => $request->user()->gender,
+                    'is_inclusive' => (bool) $request->user()->is_inclusive,
                     'specialty' => $request->user()->specialty,
                     'course' => $request->user()->course,
                     'group' => $request->user()->group,
