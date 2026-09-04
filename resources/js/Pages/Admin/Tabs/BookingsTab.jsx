@@ -320,7 +320,11 @@ export default function BookingsTab({
                                     >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="flex items-center gap-2.5 min-w-0">
-                                                <div className="w-8 h-8 rounded-full bg-slate-150 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-xs flex items-center justify-center shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 border ${
+                                                    booking.user?.gender === "female"
+                                                        ? "bg-pink-100/80 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border-pink-200/80 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
+                                                        : "bg-blue-100/80 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                                }`}>
                                                     {booking.user?.name ? booking.user.name.charAt(0) : "U"}
                                                 </div>
                                                 <div className="min-w-0">
@@ -328,16 +332,17 @@ export default function BookingsTab({
                                                         <span className="font-bold text-sm text-gray-900 dark:text-white truncate">
                                                             {booking.user?.name || "Користувач"}
                                                         </span>
-                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                             booking.user?.gender === "female"
-                                                                ? "bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800"
-                                                                : "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                                                                ? "bg-pink-50/90 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
+                                                                : "bg-blue-50/90 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                                         }`}>
-                                                            {booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}
+                                                            <span className={`w-1 h-1 rounded-full ${booking.user?.gender === "female" ? "bg-pink-500 shadow-[0_0_4px_rgba(244,63,94,0.8)]" : "bg-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.8)]"}`} />
+                                                            <span>{booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}</span>
                                                         </span>
                                                         {booking.user?.is_inclusive && (
-                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                                                                ♿ Інклюзивний
+                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
+                                                                Інклюзивний
                                                             </span>
                                                         )}
                                                     </div>
@@ -468,7 +473,11 @@ export default function BookingsTab({
                                             >
                                                 <td className="p-4 font-medium text-gray-900 dark:text-white align-middle">
                                                     <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-full bg-slate-150 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-xs flex items-center justify-center shrink-0">
+                                                        <div className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center shrink-0 border ${
+                                                            booking.user?.gender === "female"
+                                                                ? "bg-pink-100/80 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border-pink-200/80 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
+                                                                : "bg-blue-100/80 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                                        }`}>
                                                             {booking.user?.name ? booking.user.name.charAt(0) : "U"}
                                                         </div>
                                                         <div>
@@ -476,16 +485,17 @@ export default function BookingsTab({
                                                                 <span className="font-bold">
                                                                     {booking.user?.name || "Користувач"}
                                                                 </span>
-                                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                                     booking.user?.gender === "female"
-                                                                        ? "bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800"
-                                                                        : "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                                                                        ? "bg-pink-50/90 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_10px_rgba(244,63,94,0.2)]"
+                                                                        : "bg-blue-50/90 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                                                                 }`}>
-                                                                    {booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}
+                                                                    <span className={`w-1 h-1 rounded-full ${booking.user?.gender === "female" ? "bg-pink-500 shadow-[0_0_4px_rgba(244,63,94,0.8)]" : "bg-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.8)]"}`} />
+                                                                    <span>{booking.user?.gender === "female" ? "Жіноча" : "Чоловіча"}</span>
                                                                 </span>
                                                                 {booking.user?.is_inclusive && (
-                                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                                                                        ♿ Інклюзивний
+                                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-[0_0_10px_rgba(14,165,233,0.15)]">
+                                                                        Інклюзивний
                                                                     </span>
                                                                 )}
                                                             </div>

@@ -452,9 +452,19 @@ export default function Dashboard({
 
     const renderGenderBadge = (gender) => {
         if (gender === "female") {
-            return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800">Жіноча</span>;
+            return (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pink-50/90 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_12px_rgba(244,63,94,0.22)] dark:shadow-[0_0_14px_rgba(244,63,94,0.28)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_6px_rgba(244,63,94,0.8)] shrink-0" />
+                    <span>Жіноча</span>
+                </span>
+            );
         }
-        return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Чоловіча</span>;
+        return (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50/90 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_12px_rgba(59,130,246,0.22)] dark:shadow-[0_0_14px_rgba(59,130,246,0.28)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)] shrink-0" />
+                <span>Чоловіча</span>
+            </span>
+        );
     };
 
     const getRoomGender = (room) => {

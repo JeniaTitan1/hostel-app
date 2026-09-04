@@ -273,7 +273,7 @@ export default function UsersTab({
                                             <td className="p-2.5 font-semibold text-gray-900 dark:text-white">{u.name}</td>
                                             <td className="p-2.5 font-mono text-emerald-700 dark:text-emerald-400 font-bold">{u.email}</td>
                                             <td className="p-2.5 font-mono text-amber-700 dark:text-amber-400 font-extrabold">{u.password}</td>
-                                            <td className="p-2.5">{u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "—"}</td>
+                                            <td className="p-2.5">{renderGenderBadge ? renderGenderBadge(u.gender) : (u.gender === "male" ? "Чоловіча" : u.gender === "female" ? "Жіноча" : "—")}</td>
                                             <td className="p-2.5 text-right">
                                                 <button
                                                     type="button"
@@ -304,40 +304,13 @@ export default function UsersTab({
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setUserInclusivityFilter(
-                                    userInclusivityFilter === "inclusive" ? "" : "inclusive"
-                                )
-                            }
-                            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 border cursor-pointer ${
-                                userInclusivityFilter === "inclusive"
-                                    ? "bg-sky-600 border-sky-600 text-white shadow-sm ring-2 ring-sky-500/30"
-                                    : "bg-sky-50/70 dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50"
-                            }`}
-                            title="Фільтрувати: показувати тільки студентів з інвалідністю"
-                        >
-                            <span className="text-sm leading-none">♿</span>
-                            <span>Тільки інклюзивні</span>
-                            <span
-                                className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                    userInclusivityFilter === "inclusive"
-                                        ? "bg-white text-sky-700"
-                                        : "bg-sky-200/80 dark:bg-sky-800 text-sky-800 dark:text-sky-200"
-                                }`}
-                            >
-                                {allUsers.filter((u) => Boolean(u.is_inclusive)).length}
-                            </span>
-                        </button>
-
+                    <div className="w-full sm:w-auto">
                         <input
                             type="text"
                             placeholder="Пошук за ПІБ, email чи телефоном..."
                             value={userSearch}
                             onChange={(e) => setUserSearch(e.target.value)}
-                            className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-64 focus:ring-2 focus:ring-emerald-500"
+                            className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-72 focus:ring-2 focus:ring-emerald-500 shadow-2xs"
                         />
                     </div>
                 </div>
@@ -392,7 +365,7 @@ export default function UsersTab({
                         className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
                     >
                         <option value="">Всі статуси</option>
-                        <option value="inclusive">♿ Тільки інклюзивні</option>
+                        <option value="inclusive">Тільки інклюзивні</option>
                         <option value="standard">Звичайні</option>
                     </select>
                 </div>
@@ -421,23 +394,52 @@ export default function UsersTab({
                                     </td>
                                 </tr>
                             ) : (
-                                paginatedUsers.map((u) => (
-                                    <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td className="p-3.5 font-medium">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-bold text-gray-900 dark:text-white">{u.name}</span>
-                                                {Boolean(u.is_inclusive) && (
-                                                    <span
-                                                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-2xs"
-                                                        title="Особа з інвалідністю / особливими потребами"
+                                paginatedUsers.map((u) => {
+                                    const isFemale = u.gender === "female";
+                                    const isMale = u.gender === "male";
+
+                                    return (
+                                        <tr
+                                            key={u.id}
+                                            className={`transition-all ${
+                                                isFemale
+                                                    ? "bg-gradient-to-r from-pink-500/[0.045] via-pink-500/[0.015] to-transparent hover:from-pink-500/[0.09] dark:from-pink-500/[0.07] dark:via-pink-500/[0.02] dark:to-transparent dark:hover:from-pink-500/[0.13]"
+                                                    : isMale
+                                                    ? "bg-gradient-to-r from-blue-500/[0.045] via-blue-500/[0.015] to-transparent hover:from-blue-500/[0.09] dark:from-blue-500/[0.07] dark:via-blue-500/[0.02] dark:to-transparent dark:hover:from-blue-500/[0.13]"
+                                                    : "hover:bg-slate-50/60 dark:hover:bg-gray-700/30"
+                                            }`}
+                                        >
+                                            <td className="p-3.5 font-medium">
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border transition-all ${
+                                                            isFemale
+                                                                ? "bg-pink-100/80 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border-pink-200/90 dark:border-pink-800/80 shadow-[0_0_12px_rgba(244,63,94,0.22)]"
+                                                                : isMale
+                                                                ? "bg-blue-100/80 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/90 dark:border-blue-800/80 shadow-[0_0_12px_rgba(59,130,246,0.22)]"
+                                                                : "bg-slate-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-slate-200 dark:border-gray-600"
+                                                        }`}
                                                     >
-                                                        <span className="text-xs leading-none">♿</span>
-                                                        <span>Інклюзивність</span>
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="text-[11px] text-gray-400 font-mono mt-0.5">{u.email}</div>
-                                        </td>
+                                                        {u.name ? u.name.charAt(0).toUpperCase() : "U"}
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2.5 flex-wrap">
+                                                            <span className="font-bold text-gray-900 dark:text-white tracking-tight">
+                                                                {u.name}
+                                                            </span>
+                                                            {Boolean(u.is_inclusive) && (
+                                                                <span
+                                                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50/90 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/90 dark:border-sky-800/80 shadow-[0_0_10px_rgba(14,165,233,0.15)] tracking-wide ml-1"
+                                                                    title="Особа з інвалідністю / особливими потребами"
+                                                                >
+                                                                    Інклюзивність
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-[11px] text-gray-400 font-mono mt-0.5">{u.email}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         <td className="p-3.5 space-y-0.5">
                                             <div>{u.phone || "—"}</div>
                                             {u.telegram && <div className="text-emerald-600 dark:text-emerald-400 text-[11px]">{u.telegram}</div>}
@@ -482,8 +484,9 @@ export default function UsersTab({
                                                 )}
                                             </div>
                                         </td>
-                                    </tr>
-                                ))
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
