@@ -27,6 +27,7 @@ export default function UsersTab({
     const [perPage, setPerPage] = useState(15);
     const [showGenerator, setShowGenerator] = useState(false);
     const [contactingUser, setContactingUser] = useState(null);
+    const [userInclusivityFilter, setUserInclusivityFilter] = useState("");
 
     const handleCopyAllText = () => {
         if (!generatedUsers || generatedUsers.length === 0) return;
@@ -130,19 +131,24 @@ export default function UsersTab({
         const matchesGroup = !userGroupFilter || u.group === userGroupFilter;
         const matchesGender =
             !userGenderFilter || u.gender === userGenderFilter;
+        const matchesInclusivity =
+            !userInclusivityFilter ||
+            (userInclusivityFilter === "inclusive" && Boolean(u.is_inclusive)) ||
+            (userInclusivityFilter === "standard" && !u.is_inclusive);
 
         return (
             matchesSearch &&
             matchesSpecialty &&
             matchesCourse &&
             matchesGroup &&
-            matchesGender
+            matchesGender &&
+            matchesInclusivity
         );
     });
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [userSearch, userSpecialtyFilter, userCourseFilter, userGroupFilter, userGenderFilter]);
+    }, [userSearch, userSpecialtyFilter, userCourseFilter, userGroupFilter, userGenderFilter, userInclusivityFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filteredUsers.length / perPage));
     const paginatedUsers = filteredUsers.slice(
@@ -307,7 +313,7 @@ export default function UsersTab({
                     />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     <select
                         value={userSpecialtyFilter}
                         onChange={(e) => setUserSpecialtyFilter(e.target.value)}
@@ -350,6 +356,16 @@ export default function UsersTab({
                         <option value="male">Чоловіча</option>
                         <option value="female">Жіноча</option>
                     </select>
+
+                    <select
+                        value={userInclusivityFilter}
+                        onChange={(e) => setUserInclusivityFilter(e.target.value)}
+                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+                    >
+                        <option value="">Всі статуси</option>
+                        <option value="inclusive">♿ Тільки інклюзивні</option>
+                        <option value="standard">Звичайні</option>
+                    </select>
                 </div>
             </div>
 
@@ -379,7 +395,17 @@ export default function UsersTab({
                                 paginatedUsers.map((u) => (
                                     <tr key={u.id} className="hover:bg-slate-50/60 dark:hover:bg-gray-700/30 transition-colors">
                                         <td className="p-3.5 font-medium">
-                                            <div className="font-bold text-gray-900 dark:text-white">{u.name}</div>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <span className="font-bold text-gray-900 dark:text-white">{u.name}</span>
+                                                {Boolean(u.is_inclusive) && (
+                                                    <span
+                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
+                                                        title="Особа з інвалідністю / особливими потребами"
+                                                    >
+                                                        ♿ Інклюзивність
+                                                    </span>
+                                                )}
+                                            </div>
                                             <div className="text-[11px] text-gray-400 font-mono">{u.email}</div>
                                         </td>
                                         <td className="p-3.5 space-y-0.5">

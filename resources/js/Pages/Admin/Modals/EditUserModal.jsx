@@ -175,6 +175,36 @@ export default function EditUserModal({ editingUser, onClose, userEditForm, onSu
                                     className="w-full text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2 bg-slate-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
                                 />
                             </div>
+
+                            {/* Інклюзивність (особливі потреби) */}
+                            <div className="sm:col-span-2 pt-1">
+                                <label className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 cursor-pointer select-none group hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(userEditForm.data.is_inclusive)}
+                                        onChange={(e) =>
+                                            userEditForm.setData("is_inclusive", e.target.checked)
+                                        }
+                                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 cursor-pointer"
+                                    />
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2}/>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs font-bold text-gray-900 dark:text-white block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                Інклюзивність (особа з інвалідністю / особливими потребами)
+                                            </span>
+                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 block">
+                                                Надає право першочергового поселення в спеціально обладнані інклюзивні кімнати
+                                            </span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

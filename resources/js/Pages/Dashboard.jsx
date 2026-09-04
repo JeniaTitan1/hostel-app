@@ -622,6 +622,7 @@ export default function Dashboard({
             : null;
     const rGenderObj = selectedRoom ? getRoomGender(selectedRoom) : null;
     const isGenderMismatch = userGender && rGenderObj && rGenderObj.type !== 'empty' && rGenderObj.type !== 'mixed' && rGenderObj.type !== userGender;
+    const isAccessibleMismatch = Boolean(selectedRoom?.is_accessible) && !auth?.user?.is_inclusive;
 
     const isTargetReallocationRoom =
         userBooking &&
@@ -1761,18 +1762,31 @@ export default function Dashboard({
                                                                 вільних місць.
                                                             </p>
                                                         </div>
-                                                    ) : isGenderMismatch ? (
+                                                    ) : isGenderMismatch || isAccessibleMismatch ? (
                                                          <div className="space-y-2">
-                                                             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                                                                 <div className="flex items-start gap-2">
-                                                                      <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                                      </svg>
-                                                                     <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
-                                                                         Кімната призначена для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}. Подання заявки створить запит на змішану кімнату.
-                                                                     </p>
+                                                             {isGenderMismatch && (
+                                                                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                                                                     <div className="flex items-start gap-2">
+                                                                          <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                          </svg>
+                                                                         <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                                                                             Кімната призначена для {rGenderObj.type === 'male' ? 'чоловіків' : 'жінок'}. Подання заявки створить запит на змішану кімнату.
+                                                                         </p>
+                                                                     </div>
                                                                  </div>
-                                                             </div>
+                                                             )}
+
+                                                             {isAccessibleMismatch && (
+                                                                 <div className="bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-800 rounded-lg p-3">
+                                                                     <div className="flex items-start gap-2">
+                                                                         <span className="text-sm leading-none shrink-0 mt-0.5">♿</span>
+                                                                         <p className="text-xs text-sky-800 dark:text-sky-300 font-medium">
+                                                                             Ця кімната обладнана для осіб з інвалідністю (інклюзивна). Ви можете подати заявку, але пріоритет надається студентам з особливими потребами.
+                                                                         </p>
+                                                                     </div>
+                                                                 </div>
+                                                             )}
 
                                                              <button
                                                                  onClick={() =>
@@ -1783,7 +1797,11 @@ export default function Dashboard({
                                                                  disabled={
                                                                      processing
                                                                  }
-                                                                 className="w-full text-center bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                                                 className={`w-full text-center ${
+                                                                     isGenderMismatch
+                                                                         ? "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500"
+                                                                         : "bg-sky-600 hover:bg-sky-700 focus:ring-sky-500"
+                                                                 } disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2`}
                                                              >
                                                                  {processing
                                                                      ? "Надсилання..."
@@ -1924,17 +1942,41 @@ export default function Dashboard({
                                                         </p>
                                                     </div>
                                                 ) : (
-                                                    <button
-                                                        onClick={() => handleRequestRoom(selectedRoom.id)}
-                                                        disabled={processing}
-                                                        className="w-full text-center bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-all shadow-md active:scale-95"
-                                                    >
-                                                        {processing
-                                                            ? "Надсилання..."
-                                                            : hasApprovedBooking
-                                                              ? "Подати заявку на переселення"
-                                                              : "Подати заявку на проживання"}
-                                                    </button>
+                                                    <div className="space-y-2">
+                                                        {isGenderMismatch && (
+                                                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                                                                <p className="text-xs text-amber-800 dark:text-amber-300 font-medium flex items-center gap-1.5">
+                                                                    <span>⚠️</span>
+                                                                    <span>Кімната для {rGenderObj?.type === 'male' ? 'чоловіків' : 'жінок'}. Буде створено запит на змішану кімнату.</span>
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        {isAccessibleMismatch && (
+                                                            <div className="bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-800 rounded-xl p-3">
+                                                                <p className="text-xs text-sky-800 dark:text-sky-300 font-medium flex items-center gap-1.5">
+                                                                    <span>♿</span>
+                                                                    <span>Інклюзивна кімната: пріоритет надається особам з інвалідністю.</span>
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleRequestRoom(selectedRoom.id)}
+                                                            disabled={processing}
+                                                            className={`w-full text-center ${
+                                                                isGenderMismatch
+                                                                    ? "bg-amber-600 hover:bg-amber-700"
+                                                                    : isAccessibleMismatch
+                                                                    ? "bg-sky-600 hover:bg-sky-700"
+                                                                    : "bg-emerald-600 hover:bg-emerald-700"
+                                                            } disabled:bg-gray-400 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-all shadow-md active:scale-95`}
+                                                        >
+                                                            {processing
+                                                                ? "Надсилання..."
+                                                                : hasApprovedBooking
+                                                                  ? "Подати заявку на переселення"
+                                                                  : "Подати заявку на проживання"}
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         )}

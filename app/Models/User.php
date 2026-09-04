@@ -27,6 +27,7 @@ class User extends Authenticatable
         'must_change_password',
         'password_changed',
         'gender',
+        'is_inclusive',
         'specialty',
         'course',
         'group',
@@ -45,6 +46,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'must_change_password' => 'boolean',
             'password_changed' => 'boolean',
+            'is_inclusive' => 'boolean',
             'email_changes_count' => 'integer',
         ];
     }

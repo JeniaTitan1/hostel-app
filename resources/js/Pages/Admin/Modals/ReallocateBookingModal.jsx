@@ -30,6 +30,9 @@ export default function ReallocateBookingModal({
         targetRoomGender.type !== "empty" &&
         reallocateBookingData?.user?.gender &&
         reallocateBookingData.user.gender !== targetRoomGender.type;
+    const isAccessibleConflict =
+        Boolean(targetRoom?.is_accessible) &&
+        !reallocateBookingData?.user?.is_inclusive;
 
     const backdropMouseDownRef = React.useRef(false);
 
@@ -103,6 +106,7 @@ export default function ReallocateBookingModal({
                                         Кімн. №{r.room_number} ({r.building_name},
                                         Пов. {r.floor}, Вільно {r.free_spots}/
                                         {r.max_capacity}) {genderNote}
+                                        {r.is_accessible ? " [♿ Інклюзивна]" : ""}
                                         {isMixedWithUser ? " — ЗМІШАНА КІМНАТА" : ""}
                                     </option>
                                 );
@@ -146,6 +150,20 @@ export default function ReallocateBookingModal({
                                 </div>
                             </div>
                         )}
+
+                    {isAccessibleConflict && (
+                        <div className="flex items-start gap-2.5 bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 rounded-xl p-3.5 text-xs text-sky-800 dark:text-sky-300">
+                            <span className="text-base leading-none shrink-0 mt-0.5">♿</span>
+                            <div>
+                                <span className="font-bold block text-sky-900 dark:text-sky-200">
+                                    Інклюзивна кімната
+                                </span>
+                                <span>
+                                    Кімната №{targetRoom.room_number} облаштована для осіб з інвалідністю, а у {reallocateBookingData.user?.name} немає позначки інклюзивності. Переконайтеся, що це узгоджено.
+                                </span>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">

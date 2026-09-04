@@ -90,7 +90,7 @@ class AdminController extends Controller
             ->whereDoesntHave('bookings', function ($query) {
                 $query->where('status', 'approved');
             })
-            ->get(['id', 'name', 'email', 'gender']);
+            ->get(['id', 'name', 'email', 'gender', 'is_inclusive']);
 
         $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
 
@@ -99,7 +99,7 @@ class AdminController extends Controller
             ->get([
                 'id', 'name', 'email', 'gender', 'telegram', 'phone', 
                 'must_change_password', 'password_changed', 'created_at',
-                'specialty', 'course', 'group'
+                'specialty', 'course', 'group', 'is_inclusive'
             ]);
 
         // Аналітика по корпусах
@@ -1376,11 +1376,14 @@ class AdminController extends Controller
             'phone' => ['nullable', 'string', 'max:20'],
             'telegram' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'string', Rule::in(['male', 'female'])],
+            'is_inclusive' => ['nullable', 'boolean'],
             'specialty' => ['nullable', 'string', 'max:50'],
             'course' => ['nullable', 'integer', 'min:1', 'max:6'],
             'group' => ['nullable', 'string', 'max:20'],
             'password' => ['nullable', 'string', 'min:6'],
         ]);
+
+        $validated['is_inclusive'] = $request->boolean('is_inclusive');
 
         if (!empty($validated['password'])) {
             $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
