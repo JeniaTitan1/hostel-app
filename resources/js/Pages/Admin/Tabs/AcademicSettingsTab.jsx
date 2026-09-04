@@ -243,10 +243,10 @@ export default function AcademicSettingsTab({
     return (
         <div className="space-y-6">
             {/* Пульт керування та переведення курсів */}
-            <div className="bg-gradient-to-br from-indigo-50/90 via-white to-emerald-50/80 dark:from-indigo-950/40 dark:via-gray-800 dark:to-emerald-950/30 border border-indigo-100/90 dark:border-indigo-800/50 rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
+            <div className="bg-gradient-to-br from-indigo-50/90 via-white to-emerald-50/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border border-indigo-100/90 dark:border-gray-750/80 rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
                 
                 {/* 1. Верхній рядок: Інформація про період + Автопереведення */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/70 dark:border-gray-700/60 pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/70 dark:border-gray-700/70 pb-4">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
                             <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-indigo-600 text-white shadow-2xs tracking-wider uppercase">
@@ -270,7 +270,7 @@ export default function AcademicSettingsTab({
                             className={`h-9 px-3.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-2xs flex items-center gap-2 ${
                                 autoPromote
                                     ? "bg-emerald-50/90 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/70 hover:bg-emerald-100/80"
-                                    : "bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-gray-600 hover:bg-slate-50"
+                                    : "bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700"
                             }`}
                         >
                             <span className={`w-2 h-2 rounded-full ${autoPromote ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
@@ -281,7 +281,7 @@ export default function AcademicSettingsTab({
 
                 {/* 2. Перемикач режимів: Точкове за фільтрами / Масове для всіх */}
                 <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="inline-flex p-1 bg-slate-200/60 dark:bg-gray-800/90 rounded-xl border border-slate-200/80 dark:border-gray-700 shadow-inner">
+                    <div className="inline-flex p-1 bg-slate-200/60 dark:bg-gray-800 rounded-xl border border-slate-200/80 dark:border-gray-700 shadow-inner">
                         <button
                             type="button"
                             onClick={() => setPromotionMode("targeted")}
@@ -295,9 +295,7 @@ export default function AcademicSettingsTab({
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                             </svg>
                             <span>Вибіркове переведення</span>
-                            {hasActiveFilters && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-                            )}
+                            <span className={`w-1.5 h-1.5 rounded-full bg-indigo-500 transition-opacity ${hasActiveFilters ? "opacity-100" : "opacity-0"}`} />
                         </button>
 
                         <button
@@ -324,35 +322,39 @@ export default function AcademicSettingsTab({
 
                 {/* 3. РЕЖИМ А: ВИБІРКОВЕ ПЕРЕВЕДЕННЯ ЗА ФІЛЬТРАМИ */}
                 {promotionMode === "targeted" && (
-                    <div className="bg-white/95 dark:bg-gray-850 backdrop-blur-sm rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-4 sm:p-5 space-y-4 shadow-xs animate-in fade-in duration-200">
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/60 pb-3 flex-wrap gap-2">
-                            <div className="flex items-center gap-2 flex-wrap">
+                    <div className="bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs animate-in fade-in duration-200">
+                        {/* Стабільний однорядковий заголовок без підскоків */}
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/80 pb-3 gap-3 min-h-[32px]">
+                            <div className="flex items-center gap-2 shrink-0">
                                 <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-200">
+                                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-100">
                                     Параметри вибірки студентів
                                 </h4>
-                                {hasActiveFilters && (
-                                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                                        {scopeBadgeText}
+                            </div>
+                            <div className="text-right shrink-0 truncate max-w-[65%]">
+                                {hasActiveFilters ? (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 truncate max-w-full">
+                                        <span className="truncate">{scopeBadgeText}</span>
+                                    </span>
+                                ) : (
+                                    <span className="text-[11px] text-slate-400 dark:text-gray-400">
+                                        Оберіть корпус, напрям та початковий курс для точкового переведення
                                     </span>
                                 )}
                             </div>
-                            <span className="text-[11px] text-slate-400">
-                                Оберіть корпус, напрям та початковий курс для точкового переведення
-                            </span>
                         </div>
 
                         {/* Сітка 4-х селекторів */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                             {/* 1. Корпус */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-bold text-slate-600 dark:text-gray-300">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
                                     Гуртожиток / Корпус
                                 </label>
                                 <select
                                     value={filterBuilding}
                                     onChange={(e) => setFilterBuilding(e.target.value)}
-                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-gray-100 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі корпуси (загалом)</option>
                                     {buildings.map((b) => (
@@ -366,13 +368,13 @@ export default function AcademicSettingsTab({
 
                             {/* 2. Спеціальність / Факультет */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-bold text-slate-600 dark:text-gray-300">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
                                     Спеціальність / Факультет
                                 </label>
                                 <select
                                     value={filterSpecialty}
                                     onChange={(e) => setFilterSpecialty(e.target.value)}
-                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-gray-100 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі спеціальності</option>
                                     {specialties.map((s) => (
@@ -385,13 +387,13 @@ export default function AcademicSettingsTab({
 
                             {/* 3. Початковий курс */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-bold text-slate-600 dark:text-gray-300">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
                                     Поточний курс студентів
                                 </label>
                                 <select
                                     value={filterCourse}
                                     onChange={(e) => setFilterCourse(e.target.value)}
-                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                    className="w-full h-10 text-xs font-semibold rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-gray-100 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                                 >
                                     <option value="all">Усі курси (1 - 6)</option>
                                     {courses.map((c) => (
@@ -404,10 +406,10 @@ export default function AcademicSettingsTab({
 
                             {/* 4. Напрямок зміни курсу */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-bold text-slate-600 dark:text-gray-300">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
                                     Напрямок переведення
                                 </label>
-                                <div className="h-10 p-1 bg-slate-100 dark:bg-gray-800 rounded-xl border border-slate-200/80 dark:border-gray-700 grid grid-cols-2 gap-1 items-center">
+                                <div className="h-10 p-1 bg-slate-100 dark:bg-gray-900 rounded-xl border border-slate-200/80 dark:border-gray-700 grid grid-cols-2 gap-1 items-center">
                                     <button
                                         type="button"
                                         onClick={() => setDirection("+1")}
@@ -434,57 +436,65 @@ export default function AcademicSettingsTab({
                             </div>
                         </div>
 
-                        {/* Live Preview панель підсумку та запуску дії */}
-                        <div className="pt-3 border-t border-slate-100 dark:border-gray-700/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                            <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 flex-wrap text-xs">
+                        {/* Live Preview панель підсумку та запуску дії з фіксованими висотами */}
+                        <div className="pt-3 border-t border-slate-100 dark:border-gray-700/80 flex flex-col lg:flex-row lg:items-center justify-between gap-3 min-h-[58px]">
+                            <div className="space-y-1 min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap text-xs h-5">
                                     <span className="font-bold text-slate-700 dark:text-gray-200">
                                         Під дію підпадає:
                                     </span>
-                                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-black">
+                                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-black border border-transparent dark:border-indigo-500/30">
                                         {matchingStudents.length} студентів
                                     </span>
-                                    <span className="text-slate-400 font-medium text-[11px]">
+                                    <span className="text-slate-400 dark:text-gray-400 font-medium text-[11px]">
                                         ({direction === "+1" ? "перейдуть на курс вище" : "повертаються на курс назад"})
                                     </span>
                                 </div>
 
-                                {/* Список карток студентів з зазначенням конкретного переходу */}
-                                {matchingStudents.length > 0 && (
-                                    <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-                                        <span className="text-slate-400 font-medium">Попередній перегляд:</span>
-                                        {matchingStudents.slice(0, 5).map((s) => {
-                                            const currentC = Number(s.course);
-                                            const targetC = direction === "+1" ? Math.min(6, currentC + 1) : Math.max(1, currentC - 1);
-                                            return (
-                                                <span key={s.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-slate-800 dark:text-gray-200 border border-slate-200/80 dark:border-gray-700">
-                                                    <span className="font-medium">{s.name}</span>
-                                                    <span className={`text-[10px] font-black ${direction === "+1" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
-                                                        ({currentC}к → {targetC}к)
+                                {/* Список карток студентів з фіксованим однорядковим контейнером без підскоків */}
+                                <div className="h-7 flex items-center gap-1.5 overflow-hidden text-[11px]">
+                                    {matchingStudents.length > 0 ? (
+                                        <>
+                                            <span className="text-slate-400 dark:text-gray-400 font-medium shrink-0">Попередній перегляд:</span>
+                                            <div className="flex items-center gap-1.5 overflow-hidden shrink min-w-0">
+                                                {matchingStudents.slice(0, 4).map((s) => {
+                                                    const currentC = Number(s.course);
+                                                    const targetC = direction === "+1" ? Math.min(6, currentC + 1) : Math.max(1, currentC - 1);
+                                                    return (
+                                                        <span key={s.id} className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-gray-700 text-slate-800 dark:text-gray-200 border border-slate-200 dark:border-gray-600">
+                                                            <span className="font-medium">{s.name}</span>
+                                                            <span className={`text-[10px] font-black ${direction === "+1" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                                                                ({currentC}к → {targetC}к)
+                                                            </span>
+                                                        </span>
+                                                    );
+                                                })}
+                                                {matchingStudents.length > 4 && (
+                                                    <span className="shrink-0 text-slate-400 dark:text-gray-400 font-semibold">
+                                                        + ще {matchingStudents.length - 4}
                                                     </span>
-                                                </span>
-                                            );
-                                        })}
-                                        {matchingStudents.length > 5 && (
-                                            <span className="text-slate-400 font-medium">
-                                                + ще {matchingStudents.length - 5}
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
+                                                )}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <span className="text-slate-400 dark:text-gray-400 italic">
+                                            Студентів за обраними критеріями не знайдено
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Кнопки скидання та застосування */}
+                            {/* Кнопки скидання та застосування з фіксованою позицією */}
                             <div className="flex items-center gap-2 flex-shrink-0 self-end lg:self-center">
-                                {hasActiveFilters && (
-                                    <button
-                                        type="button"
-                                        onClick={resetAllFilters}
-                                        className="h-9 px-3 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer"
-                                    >
-                                        Скинути параметри
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={resetAllFilters}
+                                    className={`h-9 px-3 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-gray-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-gray-700 rounded-xl transition-all cursor-pointer ${
+                                        hasActiveFilters ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                                    }`}
+                                >
+                                    Скинути параметри
+                                </button>
 
                                 <button
                                     type="button"
@@ -517,26 +527,26 @@ export default function AcademicSettingsTab({
 
                 {/* 4. РЕЖИМ Б: МАСОВЕ ПЕРЕВЕДЕННЯ ДЛЯ ВСІХ СТУДЕНТІВ */}
                 {promotionMode === "mass" && (
-                    <div className="bg-white/95 dark:bg-gray-850 backdrop-blur-sm rounded-2xl border border-indigo-100 dark:border-gray-700/80 p-4 sm:p-5 space-y-4 shadow-xs animate-in fade-in duration-200">
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/60 pb-3">
+                    <div className="bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-700/80 pb-3">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-200">
+                                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-gray-100">
                                     Масове переведення для всіх студентів коледжу
                                 </h4>
                             </div>
-                            <span className="text-[11px] text-slate-400">
+                            <span className="text-[11px] text-slate-400 dark:text-gray-400">
                                 Діє одночасно на всіх {totalStudents} діючих студентів
                             </span>
                         </div>
 
                         {/* Зведення та пропорційний розподіл студентів за курсами */}
-                        <div className="space-y-2.5 bg-slate-50/80 dark:bg-gray-800/50 p-3.5 rounded-xl border border-slate-200/70 dark:border-gray-700/70">
+                        <div className="space-y-2.5 bg-slate-50/80 dark:bg-gray-900/60 p-3.5 rounded-xl border border-slate-200/70 dark:border-gray-700">
                             <div className="flex items-center justify-between text-xs">
-                                <span className="font-bold text-slate-700 dark:text-gray-300">
+                                <span className="font-bold text-slate-700 dark:text-gray-200">
                                     Поточний розподіл студентів ({totalStudents} всього)
                                 </span>
-                                <span className="text-[11px] text-slate-400">
+                                <span className="text-[11px] text-slate-400 dark:text-gray-400">
                                     1 - 6 курси
                                 </span>
                             </div>
@@ -563,21 +573,21 @@ export default function AcademicSettingsTab({
                             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-1">
                                 {[1, 2, 3, 4, 5, 6].map((num) => {
                                     const count = courseDistribution[num] || 0;
-                                    const cfg = COURSE_CONFIG.find(c => c.num === num) || { text: "text-indigo-600" };
+                                    const cfg = COURSE_CONFIG.find(c => c.num === num) || { text: "text-indigo-600 dark:text-indigo-400" };
                                     return (
                                         <div
                                             key={num}
                                             className={`px-2.5 py-1.5 rounded-lg border text-center transition-all ${
                                                 count > 0 
                                                     ? "bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 shadow-2xs" 
-                                                    : "bg-slate-50/50 dark:bg-gray-850/40 border-slate-100 dark:border-gray-800 opacity-50"
+                                                    : "bg-slate-50/50 dark:bg-gray-800/40 border-slate-100 dark:border-gray-700/50 opacity-40"
                                             }`}
                                         >
-                                            <div className="text-[10px] font-medium text-slate-400">
+                                            <div className="text-[10px] font-medium text-slate-400 dark:text-gray-400">
                                                 {num} курс
                                             </div>
-                                            <div className={`text-xs font-black ${count > 0 ? cfg.text : "text-slate-400"}`}>
-                                                {count} <span className="text-[10px] font-normal text-slate-400">студ.</span>
+                                            <div className={`text-xs font-black ${count > 0 ? cfg.text : "text-slate-400 dark:text-gray-400"}`}>
+                                                {count} <span className="text-[10px] font-normal text-slate-400 dark:text-gray-400">студ.</span>
                                             </div>
                                         </div>
                                     );
@@ -588,18 +598,18 @@ export default function AcademicSettingsTab({
                         {/* Дві картки дій: гармонійні та акуратні кнопки */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Картка підвищення +1 */}
-                            <div className="p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 bg-white/90 dark:bg-gray-800/90 hover:border-emerald-300 dark:hover:border-emerald-800/80 transition-all flex flex-col justify-between gap-4 shadow-2xs">
+                            <div className="p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all flex flex-col justify-between gap-4 shadow-2xs">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2.5">
-                                            <span className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-200/80 dark:border-emerald-800/60">
+                                            <span className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-200/80 dark:border-emerald-800/70">
                                                 +1
                                             </span>
                                             <h5 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">
                                                 Переведення на наступний курс
                                             </h5>
                                         </div>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
                                             Для всіх
                                         </span>
                                     </div>
@@ -608,8 +618,8 @@ export default function AcademicSettingsTab({
                                     </p>
                                 </div>
                                 
-                                <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-gray-700/50">
-                                    <span className="text-[11px] font-medium text-slate-400">
+                                <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-gray-700/60">
+                                    <span className="text-[11px] font-medium text-slate-400 dark:text-gray-400">
                                         Охоплює: <strong className="text-slate-700 dark:text-gray-200 font-bold">{totalStudents} студентів</strong>
                                     </span>
                                     <button
@@ -627,18 +637,18 @@ export default function AcademicSettingsTab({
                             </div>
 
                             {/* Картка повернення -1 */}
-                            <div className="p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 bg-white/90 dark:bg-gray-800/90 hover:border-amber-300 dark:hover:border-amber-800/80 transition-all flex flex-col justify-between gap-4 shadow-2xs">
+                            <div className="p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 hover:border-amber-300 dark:hover:border-amber-700 transition-all flex flex-col justify-between gap-4 shadow-2xs">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2.5">
-                                            <span className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center font-black text-xs border border-amber-200/80 dark:border-amber-800/60">
+                                            <span className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 flex items-center justify-center font-black text-xs border border-amber-200/80 dark:border-amber-800/70">
                                                 -1
                                             </span>
                                             <h5 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">
                                                 Повернення на курс назад
                                             </h5>
                                         </div>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
                                             Відкат дій
                                         </span>
                                     </div>
@@ -647,15 +657,15 @@ export default function AcademicSettingsTab({
                                     </p>
                                 </div>
                                 
-                                <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-gray-700/50">
-                                    <span className="text-[11px] font-medium text-slate-400">
+                                <div className="pt-3 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-gray-700/60">
+                                    <span className="text-[11px] font-medium text-slate-400 dark:text-gray-400">
                                         Охоплює: <strong className="text-slate-700 dark:text-gray-200 font-bold">{totalStudents} студентів</strong>
                                     </span>
                                     <button
                                         type="button"
                                         disabled={isProcessing || totalStudents === 0}
                                         onClick={handleDemoteAll}
-                                        className="h-9 px-4 rounded-xl text-xs font-bold bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/80 hover:bg-amber-50 dark:hover:bg-amber-950/40 shadow-2xs hover:shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 whitespace-nowrap"
+                                        className="h-9 px-4 rounded-xl text-xs font-bold bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/40 shadow-2xs hover:shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 whitespace-nowrap"
                                     >
                                         <svg className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />

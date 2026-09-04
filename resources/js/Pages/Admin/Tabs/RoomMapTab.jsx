@@ -449,8 +449,8 @@ export default function RoomMapTab({
                                             isSelected
                                                 ? `bg-white dark:bg-gray-800 ${c.border} ring-2 ${c.ring} shadow-xs scale-[1.02]`
                                                 : count > 0
-                                                ? `bg-slate-50/70 dark:bg-gray-850/60 border-slate-200/80 dark:border-gray-700 hover:border-slate-300 hover:bg-white`
-                                                : `bg-slate-50/40 dark:bg-gray-800/30 border-slate-100 dark:border-gray-750 opacity-60 hover:opacity-100`
+                                                ? `bg-slate-50/70 dark:bg-gray-800/60 border-slate-200/80 dark:border-gray-700 hover:border-slate-300 hover:bg-white dark:hover:bg-gray-700`
+                                                : `bg-slate-50/40 dark:bg-gray-800/30 border-slate-100 dark:border-gray-700 opacity-60 hover:opacity-100`
                                         }`}
                                     >
                                         <div className="flex items-center justify-between gap-1">
