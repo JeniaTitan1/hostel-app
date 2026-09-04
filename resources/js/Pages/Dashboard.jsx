@@ -1004,9 +1004,9 @@ export default function Dashboard({
                             {/* Глибокий живий фон «Aurora Gradient Mesh» */}
                             <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
                                 <div className="absolute inset-0 bg-dot-pattern opacity-45" />
-                                <div className="absolute -top-24 -left-20 w-[450px] h-[450px] bg-gradient-to-br from-emerald-400/35 via-teal-400/25 to-transparent rounded-full blur-[80px] animate-aurora-1" />
-                                <div className="absolute -top-10 -right-20 w-[460px] h-[460px] bg-gradient-to-bl from-cyan-400/35 via-emerald-400/25 to-transparent rounded-full blur-[80px] animate-aurora-2" />
-                                <div className="absolute -bottom-24 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-teal-400/30 via-emerald-500/20 to-transparent rounded-full blur-[90px] animate-aurora-1" />
+                                <div className="absolute -top-24 -left-20 w-[450px] h-[450px] bg-gradient-to-br from-emerald-400/35 via-teal-400/25 to-transparent rounded-full blur-[80px] animate-lava-1" />
+                                <div className="absolute -top-10 -right-20 w-[460px] h-[460px] bg-gradient-to-bl from-cyan-400/35 via-emerald-400/25 to-transparent rounded-full blur-[80px] animate-lava-2" />
+                                <div className="absolute -bottom-24 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-teal-400/30 via-emerald-500/20 to-transparent rounded-full blur-[90px] animate-lava-3" />
                             </div>
 
                             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">

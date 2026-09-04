@@ -253,8 +253,8 @@ export default function LayoutHeader({
                     {/* Живий фон «Aurora / Ambient Gradient Mesh» */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
                         <div className="absolute inset-0 bg-dot-pattern opacity-40 dark:opacity-30" />
-                        <div className="absolute -top-10 -left-12 w-80 h-40 bg-gradient-to-r from-emerald-400/25 to-teal-400/20 dark:from-emerald-500/20 dark:to-teal-500/15 rounded-full blur-2xl animate-aurora-1" />
-                        <div className="absolute -top-8 -right-12 w-80 h-40 bg-gradient-to-l from-sky-400/25 to-emerald-400/20 dark:from-sky-500/20 dark:to-emerald-500/15 rounded-full blur-2xl animate-aurora-2" />
+                        <div className="absolute -top-10 -left-12 w-96 h-48 bg-gradient-to-r from-emerald-400/30 via-teal-400/20 to-transparent dark:from-emerald-500/25 dark:to-teal-500/15 rounded-full blur-2xl animate-lava-1" />
+                        <div className="absolute -top-8 -right-12 w-96 h-48 bg-gradient-to-l from-cyan-400/28 via-emerald-400/20 to-transparent dark:from-cyan-500/20 dark:to-emerald-500/15 rounded-full blur-2xl animate-lava-2" />
                     </div>
                     <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
                         {header}

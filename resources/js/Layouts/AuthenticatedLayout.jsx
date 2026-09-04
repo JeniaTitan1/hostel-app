@@ -302,16 +302,26 @@ const consumedFlashSet = new Set();
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen flex flex-col antialiased bg-slate-50 dark:bg-gray-900 text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200 relative">
-            {/* Легкий витончений фоновий патерн та м'яке ембієнт-освітлення */}
+        <div className="min-h-screen flex flex-col antialiased bg-slate-50/90 dark:bg-[#070e1b] text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200 relative">
+            {/* Органічний живий фон «Liquid Lava Waves & Aurora Mesh» для всього сайту */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
-                {/* Делікатна мікро-сітка точок */}
-                <div className="absolute inset-0 bg-dot-pattern opacity-40 dark:opacity-20" />
+                {/* Делікатна мікро-сітка точок для створення глибини */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-45 dark:opacity-25" />
 
-                {/* М'які пастельні світлові плями (ambient lighting) */}
-                <div className="absolute -top-40 -right-32 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-emerald-400/12 via-teal-300/8 to-transparent blur-[120px] dark:from-emerald-500/10 dark:via-teal-600/5 animate-ambient-slow" />
-                <div className="absolute top-1/3 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-teal-400/9 via-cyan-300/6 to-transparent blur-[110px] dark:from-teal-500/8 dark:via-cyan-600/5 animate-ambient-reverse" />
-                <div className="absolute -bottom-40 right-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tl from-emerald-300/8 via-green-200/5 to-transparent blur-[130px] dark:from-emerald-600/5 dark:via-slate-800/10" />
+                {/* 1. Верхня ліва смарагдово-м'ятна лавова хвиля */}
+                <div className="absolute -top-28 -left-28 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent dark:from-emerald-500/25 dark:via-teal-600/15 blur-[85px] animate-lava-1" />
+
+                {/* 2. Верхня права ціаново-смарагдова хвиля */}
+                <div className="absolute -top-16 -right-28 w-[580px] h-[580px] rounded-full bg-gradient-to-bl from-cyan-400/28 via-emerald-400/20 to-transparent dark:from-cyan-500/20 dark:via-teal-500/15 blur-[95px] animate-lava-2" />
+
+                {/* 3. Центрально-ліва жива морська хвиля */}
+                <div className="absolute top-1/3 -left-20 w-[540px] h-[540px] rounded-full bg-gradient-to-tr from-teal-400/25 via-emerald-500/18 to-transparent dark:from-teal-600/20 dark:via-emerald-700/12 blur-[90px] animate-lava-3" />
+
+                {/* 4. Нижня права лавова хвиля */}
+                <div className="absolute -bottom-28 -right-20 w-[650px] h-[650px] rounded-full bg-gradient-to-tl from-emerald-400/28 via-teal-300/18 to-transparent dark:from-emerald-600/22 dark:via-cyan-900/15 blur-[105px] animate-lava-4" />
+
+                {/* 5. Нижня ліва плаваюча лавова крапля */}
+                <div className="absolute -bottom-36 left-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-cyan-300/22 via-emerald-400/18 to-transparent dark:from-teal-500/18 dark:via-slate-800/15 blur-[95px] animate-lava-1" />
             </div>
 
             {/* Flash Message Toasts */}

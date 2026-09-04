@@ -49,7 +49,6 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     const [lastResult, setLastResult] = useState(null);
     const [activeTab, setActiveTab] = useState("camera"); // 'camera' | 'manual'
     const [notes, setNotes] = useState("");
-    const [currentTime, setCurrentTime] = useState("");
     const [isDark, setIsDark] = useState(() => {
         if (typeof window !== "undefined") {
             return (
@@ -107,23 +106,6 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
             );
         }
     };
-
-    // Живий годинник для шапки КПП
-    useEffect(() => {
-        const updateClock = () => {
-            const now = new Date();
-            setCurrentTime(
-                now.toLocaleTimeString("uk-UA", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                })
-            );
-        };
-        updateClock();
-        const timer = setInterval(updateClock, 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     // Блокування скролу сторінки (body) при відкритому повноекранному КПП
     useEffect(() => {
@@ -383,10 +365,18 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
     if (!isOpen || typeof document === "undefined") return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[999999] w-screen h-[100dvh] max-h-[100dvh] bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white flex flex-col overflow-hidden select-none animate-in fade-in duration-200 transition-colors duration-200">
+        <div className="fixed inset-0 z-[999999] w-screen h-[100dvh] max-h-[100dvh] bg-slate-100/90 dark:bg-[#070e1b]/95 text-slate-900 dark:text-white flex flex-col overflow-hidden select-none animate-in fade-in duration-200 transition-colors duration-200 relative">
+            {/* Живий фон «Lava Waves & Aurora Mesh» для КПП */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
+                <div className="absolute inset-0 bg-dot-pattern opacity-35 dark:opacity-20" />
+                <div className="absolute -top-32 -left-28 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-emerald-500/25 via-teal-400/20 to-transparent blur-[90px] dark:from-emerald-500/20 dark:via-teal-600/15 animate-lava-1" />
+                <div className="absolute top-1/4 -right-28 w-[520px] h-[520px] rounded-full bg-gradient-to-bl from-cyan-400/25 via-emerald-400/20 to-transparent blur-[100px] dark:from-cyan-500/15 dark:via-teal-500/15 animate-lava-2" />
+                <div className="absolute -bottom-32 left-1/3 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-teal-400/25 via-emerald-500/20 to-transparent blur-[110px] dark:from-teal-600/15 dark:via-slate-800/20 animate-lava-3" />
+            </div>
+
             {/* ВЕРХНЯ ПАНЕЛЬ УПРАВЛІННЯ КПП (WORKSTATION TOP BAR - 100% ШИРИНИ) */}
-            <header className="kpp-header w-full h-11 sm:h-14 lg:h-16 px-2.5 sm:px-4 lg:px-6 border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-1.5 sm:gap-4 shrink-0 shadow-xs dark:shadow-lg transition-colors duration-200">
-                {/* Ліва частина: Логотип та статус режиму КПП */}
+            <header className="kpp-header w-full h-11 sm:h-14 lg:h-16 px-2.5 sm:px-4 lg:px-6 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-1.5 sm:gap-4 shrink-0 shadow-xs dark:shadow-lg transition-colors duration-200 relative z-10">
+                {/* Ліва частина: Логотип та назва пункту */}
                 <div className="flex items-center gap-2 sm:gap-3">
                     <button
                         type="button"
@@ -406,15 +396,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                     </div>
 
                     <div className="hidden sm:block">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white">
-                                Пропускний пункт КПП
-                            </h2>
-                            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
-                                ОНЛАЙН
-                            </span>
-                        </div>
+                        <h2 className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white">
+                            Пропускний пункт
+                        </h2>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
                             Робоче місце оператора вахти • Сканування цифрових перепусток
                         </p>
@@ -529,13 +513,6 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                         )}
                     </button>
 
-                    {currentTime && (
-                        <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 font-mono text-sm font-bold text-emerald-700 dark:text-emerald-400 shadow-inner">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>{currentTime}</span>
-                        </div>
-                    )}
-
                     <button
                         type="button"
                         onClick={onClose}
@@ -551,10 +528,10 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
             </header>
 
             {/* ОСНОВНА ЧАСТИНА: 2-КОЛОНКОВИЙ FULL-SCREEN РОБОЧИЙ ПРОСТІР НА ВЕСЬ ЕКРАН */}
-            <main className="kpp-workspace flex-1 min-h-0 w-full p-2 sm:p-4 lg:p-6 flex flex-col lg:flex-row gap-2.5 sm:gap-4 lg:gap-6 items-stretch justify-start lg:justify-center overflow-y-auto lg:overflow-hidden pb-4 sm:pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <main className="kpp-workspace flex-1 min-h-0 w-full p-2 sm:p-4 lg:p-6 flex flex-col lg:flex-row gap-2.5 sm:gap-4 lg:gap-6 items-stretch justify-start lg:justify-center overflow-y-auto lg:overflow-hidden pb-4 sm:pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10">
                 {/* ЛІВА КОЛОНКА (НА ПК) / ВЕРХНІЙ БЛОК (НА ТЕЛЕФОНІ): ВІДЕОПОТІК КАМЕРИ / РУЧНИЙ ВВІД */}
                 <div
-                    className={`kpp-camera-panel w-full lg:w-1/2 flex flex-col items-center justify-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-hidden transition-all duration-200 ${
+                    className={`kpp-camera-panel w-full lg:w-1/2 flex flex-col items-center justify-center bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-hidden transition-all duration-200 ${
                         lastResult
                             ? "p-2 sm:p-4 lg:p-6"
                             : "p-3 sm:p-5 lg:p-6"
@@ -695,9 +672,9 @@ export default function QrAccessScannerModal({ isOpen, onClose, onScanSuccess })
                 </div>
 
                 {/* ПРАВА КОЛОНКА (НА ПК) / НИЖНІЙ БЛОК (НА ТЕЛЕФОНІ): РЕЗУЛЬТАТ СКАНУВАННЯ / КАРТКА СТУДЕНТА */}
-                <div className="kpp-details-panel w-full lg:w-1/2 flex flex-col justify-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-8 shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-colors duration-200">
+                <div className="kpp-details-panel w-full lg:w-1/2 flex flex-col justify-center bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-8 shadow-lg dark:shadow-2xl relative min-h-0 shrink-0 lg:shrink overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-colors duration-200">
                     {lastResult ? (
-                        <div className="w-full space-y-3 sm:space-y-5 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="w-full space-y-3 sm:space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {/* Статусний бейдж пропуску */}
                             <div
                                 className={`p-3 sm:p-4.5 rounded-2xl sm:rounded-3xl border-2 flex items-center gap-3.5 sm:gap-4.5 ${

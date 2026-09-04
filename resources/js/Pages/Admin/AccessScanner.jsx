@@ -25,7 +25,7 @@ export default function AccessScanner({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                         <h2 className="font-black text-xl text-gray-900 dark:text-white leading-tight flex items-center gap-2">
-                            <span>Пропускний пункт КПП (Сканер)</span>
+                            <span>Пропускний пункт (Сканер)</span>
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                             Режим оператора вахти: швидка фіксація входу та виходу через QR-перепустки
@@ -54,7 +54,7 @@ export default function AccessScanner({
                 </div>
             }
         >
-            <Head title="Пропускний пункт КПП" />
+            <Head title="Пропускний пункт" />
 
             <div className="py-6 sm:py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <AccessLogsTab

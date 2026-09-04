@@ -37,37 +37,45 @@ export default function Login({ status }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center items-center px-4 font-sans antialiased text-gray-900 dark:text-gray-100 transition-colors duration-200 relative">
+        <div className="min-h-screen bg-slate-50/90 dark:bg-[#070e1b] flex flex-col justify-center items-center px-4 font-sans antialiased text-gray-900 dark:text-gray-100 transition-colors duration-200 relative overflow-hidden">
             <Head title="Авторизація" />
+
+            {/* Живий фон «Lava Waves & Aurora Mesh» */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
+                <div className="absolute inset-0 bg-dot-pattern opacity-45 dark:opacity-25" />
+                <div className="absolute -top-28 -left-28 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent dark:from-emerald-500/25 dark:via-teal-600/15 blur-[85px] animate-lava-1" />
+                <div className="absolute -bottom-28 -right-20 w-[620px] h-[620px] rounded-full bg-gradient-to-tl from-cyan-400/28 via-emerald-400/20 to-transparent dark:from-cyan-500/20 dark:via-teal-500/15 blur-[95px] animate-lava-2" />
+                <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-teal-400/25 via-emerald-500/18 to-transparent dark:from-teal-600/20 dark:via-slate-800/15 blur-[90px] animate-lava-3" />
+            </div>
+
             {/* Dark mode toggle */}
             <div className="absolute top-4 right-4 z-55">
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     type="button"
-                    className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 shadow-xs"
+                    className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 shadow-xs cursor-pointer"
                     title={darkMode ? 'Світла тема' : 'Темна тема'}
                     aria-label="Toggle dark mode"
                 >
                     {darkMode ? (
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                         </svg>
                     ) : (
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                         </svg>
                     )}
                 </button>
             </div>
 
-
             {status && (
-                <div className="mb-4 text-sm font-medium text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 max-w-md w-full text-center">
+                <div className="mb-4 text-sm font-medium text-emerald-600 bg-emerald-50/90 dark:bg-emerald-950/60 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800 max-w-md w-full text-center relative z-10">
                     {status}
                 </div>
             )}
 
-            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-8 flex flex-col transition-all relative">
+            <div className="w-full max-w-md bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-2xl p-8 flex flex-col transition-all relative z-10 animate-in fade-in slide-in-from-bottom-3 duration-500">
                 {/* Логотип та Заголовок (университетский стиль) */}
                 <div className="flex flex-col items-center mb-6 text-center">
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4 border border-emerald-100 dark:border-emerald-800/30 shadow-xs">
