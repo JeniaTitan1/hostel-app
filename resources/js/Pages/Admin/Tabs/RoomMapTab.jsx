@@ -181,6 +181,14 @@ export default function RoomMapTab({
             : buildings;
 
         const courseCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        const courseGenderCounts = {
+            1: { male: 0, female: 0 },
+            2: { male: 0, female: 0 },
+            3: { male: 0, female: 0 },
+            4: { male: 0, female: 0 },
+            5: { male: 0, female: 0 },
+            6: { male: 0, female: 0 },
+        };
         const specialtyCounts = {};
         let maleResidents = 0;
         let femaleResidents = 0;
@@ -199,6 +207,10 @@ export default function RoomMapTab({
                     const c = Number(u.course);
                     if (courseCounts[c] !== undefined) {
                         courseCounts[c] += 1;
+                        if (courseGenderCounts[c]) {
+                            if (u.gender === "male") courseGenderCounts[c].male += 1;
+                            else if (u.gender === "female") courseGenderCounts[c].female += 1;
+                        }
                     }
 
                     const spec = String(u.specialty || "Не вказано").trim().toUpperCase();
@@ -212,12 +224,16 @@ export default function RoomMapTab({
             });
         });
 
+        const maxCourseCount = Math.max(...Object.values(courseCounts), 1);
+
         return {
             totalResidents,
             courseCounts,
+            courseGenderCounts,
             specialtyCounts,
             maleResidents,
             femaleResidents,
+            maxCourseCount,
         };
     }, [buildings, selectedBuildingFilter]);
 
@@ -360,36 +376,29 @@ export default function RoomMapTab({
                     </div>
                 </div>
 
-                {/* 3. Детальна Інфографіка мешканців гуртожитку (Контингент) */}
+                {/* 3. Детальна Інфографіка та Інтерактивний Графік контингенту */}
                 {isDemographicsOpen && (
-                    <div className="pt-4 border-t border-slate-100 dark:border-gray-700/60 space-y-4 animate-in fade-in duration-200">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-gray-200 flex items-center gap-1.5">
+                    <div className="pt-4 border-t border-slate-100 dark:border-gray-700/80 space-y-4 animate-in fade-in duration-200">
+                        
+                        {/* Верхній рядок інфографіки: Заголовок + Активний фільтр мапи */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                                <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
                                     <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
-                                    Інфографіка контингенту мешканців
+                                    Графік та аналітика контингенту
                                 </span>
-                                <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-full">
+                                <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 px-2.5 py-0.5 rounded-full">
                                     {residentDemographics.totalResidents} студентів
                                 </span>
-
-                                {/* Гендерне співвідношення */}
-                                {residentDemographics.totalResidents > 0 && (
-                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-gray-400 ml-1">
-                                        <span className="text-sky-600 dark:text-sky-400 font-bold">Хлопці: {residentDemographics.maleResidents} ({Math.round((residentDemographics.maleResidents / residentDemographics.totalResidents) * 100)}%)</span>
-                                        <span>•</span>
-                                        <span className="text-rose-600 dark:text-rose-400 font-bold">Дівчата: {residentDemographics.femaleResidents} ({Math.round((residentDemographics.femaleResidents / residentDemographics.totalResidents) * 100)}%)</span>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Активний фільтр на мапі */}
                             {(academicCourseFilter !== "all" || academicSpecialtyFilter !== "all") && (
-                                <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs">
-                                        <span>Підсвічено на мапі:</span>
+                                <div className="flex items-center gap-2 self-start sm:self-auto">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs animate-in fade-in">
+                                        <span>Фільтр на шахматці:</span>
                                         {academicCourseFilter !== "all" && <span>{academicCourseFilter} курс</span>}
                                         {academicSpecialtyFilter !== "all" && <span>• {academicSpecialtyFilter}</span>}
                                     </span>
@@ -399,7 +408,7 @@ export default function RoomMapTab({
                                             setAcademicCourseFilter("all");
                                             setAcademicSpecialtyFilter("all");
                                         }}
-                                        className="text-[11px] font-semibold text-slate-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 underline decoration-dotted cursor-pointer"
+                                        className="text-[11px] font-bold text-slate-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 underline decoration-dotted cursor-pointer"
                                     >
                                         ✕ Скинути
                                     </button>
@@ -407,94 +416,285 @@ export default function RoomMapTab({
                             )}
                         </div>
 
-                        {/* Сегментована смуга розподілу курсів мешканців */}
-                        <div className="h-3 w-full bg-slate-100 dark:bg-gray-700/60 rounded-full overflow-hidden flex p-0.5 gap-0.5 shadow-inner">
-                            {residentDemographics.totalResidents === 0 ? (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">
-                                    У цьому корпусі наразі немає зареєстрованих мешканців
+                        {/* ОСНОВНА СІТКА ГРАФІКІВ: 12 колонок */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                            
+                            {/* ЛІВА ЧАСТИНА (7 колонок): Стовпчиковий графік розподілу за курсами з гендерним зрізом */}
+                            <div className="lg:col-span-7 bg-slate-50/90 dark:bg-gray-900/60 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 p-4 flex flex-col justify-between gap-3 shadow-2xs">
+                                
+                                {/* Шапка графіка: заголовок + легенда статі */}
+                                <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-slate-200/70 dark:border-gray-700/60">
+                                    <div className="space-y-0.5">
+                                        <h5 className="text-xs font-black text-slate-800 dark:text-gray-100 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span>Розподіл за курсами (1–6)</span>
+                                        </h5>
+                                        <p className="text-[11px] text-slate-400">
+                                            Клікніть по стовпчику для підсвічування кімнат на шахматці
+                                        </p>
+                                    </div>
+
+                                    {/* Легенда статі */}
+                                    <div className="flex items-center gap-3 text-[11px] font-bold">
+                                        <span className="flex items-center gap-1.5 text-sky-700 dark:text-sky-300">
+                                            <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-tr from-sky-600 to-sky-400" />
+                                            Хлопці
+                                        </span>
+                                        <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                                            <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-tr from-rose-600 to-rose-400" />
+                                            Дівчата
+                                        </span>
+                                    </div>
                                 </div>
-                            ) : (
-                                COURSE_CONFIG.map((c) => {
-                                    const count = residentDemographics.courseCounts[c.num] || 0;
-                                    if (count === 0) return null;
-                                    const pct = Math.round((count / residentDemographics.totalResidents) * 100);
-                                    const isSelected = academicCourseFilter === String(c.num);
-                                    return (
+
+                                {/* САМ ВІЗУАЛЬНИЙ СТОВПЧИКОВИЙ ГРАФІК */}
+                                <div className="relative pt-6 pb-1">
+                                    {/* Горизонтальні сіткові лінії */}
+                                    <div className="absolute inset-x-0 top-6 bottom-10 flex flex-col justify-between pointer-events-none opacity-30 dark:opacity-20">
+                                        <div className="border-b border-dashed border-slate-400 dark:border-gray-500 w-full" />
+                                        <div className="border-b border-dashed border-slate-400 dark:border-gray-500 w-full" />
+                                        <div className="border-b border-dashed border-slate-400 dark:border-gray-500 w-full" />
+                                    </div>
+
+                                    {/* 6 стовпчиків курсів */}
+                                    <div className="grid grid-cols-6 gap-2 sm:gap-3 items-end h-44 relative z-10">
+                                        {COURSE_CONFIG.map((c) => {
+                                            const count = residentDemographics.courseCounts[c.num] || 0;
+                                            const genderData = residentDemographics.courseGenderCounts[c.num] || { male: 0, female: 0 };
+                                            const pct = residentDemographics.totalResidents > 0 ? Math.round((count / residentDemographics.totalResidents) * 100) : 0;
+                                            const heightPct = count > 0 ? Math.max(Math.round((count / residentDemographics.maxCourseCount) * 100), 16) : 4;
+                                            const isSelected = academicCourseFilter === String(c.num);
+
+                                            const malePct = count > 0 ? (genderData.male / count) * 100 : 0;
+                                            const femalePct = count > 0 ? (genderData.female / count) * 100 : 0;
+
+                                            return (
+                                                <div
+                                                    key={c.num}
+                                                    className="flex flex-col items-center h-full justify-end group cursor-pointer"
+                                                    onClick={() => setAcademicCourseFilter(isSelected ? "all" : String(c.num))}
+                                                    title={`${c.label}: ${count} студ. (${pct}%) — Хлопців: ${genderData.male}, Дівчат: ${genderData.female}`}
+                                                >
+                                                    {/* Підпис зверху стовпчика: кількість та % */}
+                                                    <div className={`mb-1.5 transition-all text-center ${isSelected ? "scale-110" : "group-hover:scale-105"}`}>
+                                                        <div className={`text-xs font-black ${isSelected ? "text-indigo-600 dark:text-indigo-400" : count > 0 ? "text-slate-800 dark:text-gray-100" : "text-slate-300 dark:text-gray-600"}`}>
+                                                            {count}
+                                                        </div>
+                                                        {count > 0 && (
+                                                            <div className="text-[9px] font-bold text-slate-400 dark:text-gray-400 leading-tight">
+                                                                {pct}%
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Тіло стовпчика */}
+                                                    <div className="w-full flex items-end justify-center h-28">
+                                                        <div
+                                                            style={{ height: `${heightPct}%` }}
+                                                            className={`w-full max-w-[42px] rounded-t-xl overflow-hidden transition-all duration-300 flex flex-col justify-end shadow-xs ${
+                                                                isSelected
+                                                                    ? "ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900 shadow-md shadow-indigo-500/25 scale-[1.03]"
+                                                                    : "group-hover:brightness-110 group-hover:scale-[1.02]"
+                                                            } ${count === 0 ? "bg-slate-200/60 dark:bg-gray-800" : ""}`}
+                                                        >
+                                                            {count > 0 && (
+                                                                <>
+                                                                    {/* Жіноча частина стовпчика (верхня) */}
+                                                                    {genderData.female > 0 && (
+                                                                        <div
+                                                                            style={{ height: `${femalePct}%` }}
+                                                                            className="w-full bg-gradient-to-t from-rose-500 to-rose-400 flex items-center justify-center text-[9px] font-black text-white/90 transition-all"
+                                                                        >
+                                                                            {genderData.female > 1 && <span className="opacity-90">{genderData.female}</span>}
+                                                                        </div>
+                                                                    )}
+                                                                    {/* Чоловіча частина стовпчика (нижня) */}
+                                                                    {genderData.male > 0 && (
+                                                                        <div
+                                                                            style={{ height: `${malePct}%` }}
+                                                                            className="w-full bg-gradient-to-t from-sky-600 to-sky-400 flex items-center justify-center text-[9px] font-black text-white/90 transition-all"
+                                                                        >
+                                                                            {genderData.male > 1 && <span className="opacity-90">{genderData.male}</span>}
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Назва курсу знизу (кнопка) */}
+                                                    <div className="mt-2 text-center w-full">
+                                                        <span className={`inline-block px-1.5 py-0.5 rounded-md text-[10px] font-black transition-all ${
+                                                            isSelected
+                                                                ? "bg-indigo-600 text-white shadow-xs"
+                                                                : count > 0
+                                                                ? "bg-slate-200/80 dark:bg-gray-800 text-slate-700 dark:text-gray-300 group-hover:bg-slate-300 dark:group-hover:bg-gray-700"
+                                                                : "text-slate-400 dark:text-gray-600"
+                                                        }`}>
+                                                            {c.num} к.
+                                                        </span>
+                                                        <div className="text-[9px] font-bold text-slate-400 dark:text-gray-500 mt-0.5 whitespace-nowrap">
+                                                            {count > 0 ? `${genderData.male}ч / ${genderData.female}ж` : "—"}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ПРАВА ЧАСТИНА (5 колонок): Топ спеціальностей та Гендерний баланс */}
+                            <div className="lg:col-span-5 flex flex-col justify-between gap-3 bg-slate-50/90 dark:bg-gray-900/60 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 p-4 shadow-2xs">
+                                
+                                {/* 1. Блок гендерного балансу */}
+                                <div className="space-y-2 pb-3 border-b border-slate-200/70 dark:border-gray-700/60">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
+                                            <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                                            Гендерний баланс корпусу
+                                        </span>
+                                        <span className="text-[11px] font-bold text-slate-400">
+                                            {residentDemographics.totalResidents} мешканців
+                                        </span>
+                                    </div>
+
+                                    {/* Смуга пропорції хлопці/дівчата */}
+                                    <div className="h-3 rounded-full overflow-hidden flex bg-slate-200 dark:bg-gray-700 p-0.5 gap-0.5">
                                         <div
-                                            key={c.num}
-                                            style={{ width: `${(count / residentDemographics.totalResidents) * 100}%` }}
-                                            title={`${c.label}: ${count} студ. (${pct}%) — клікніть щоб фільтрувати кімнати на мапі`}
-                                            className={`${c.bg} h-full rounded-full transition-all duration-300 hover:brightness-110 cursor-pointer ${isSelected ? "ring-2 ring-white ring-offset-1" : ""}`}
-                                            onClick={() => setAcademicCourseFilter(academicCourseFilter === String(c.num) ? "all" : String(c.num))}
+                                            style={{ width: `${residentDemographics.totalResidents > 0 ? (residentDemographics.maleResidents / residentDemographics.totalResidents) * 100 : 50}%` }}
+                                            className="bg-gradient-to-r from-sky-500 to-sky-400 h-full rounded-full transition-all duration-300"
                                         />
-                                    );
-                                })
-                            )}
-                        </div>
+                                        <div
+                                            style={{ width: `${residentDemographics.totalResidents > 0 ? (residentDemographics.femaleResidents / residentDemographics.totalResidents) * 100 : 50}%` }}
+                                            className="bg-gradient-to-r from-rose-400 to-rose-500 h-full rounded-full transition-all duration-300"
+                                        />
+                                    </div>
 
-                        {/* 6 Карток курсів (клік підсвічує кімнати на шахматці) */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                            {COURSE_CONFIG.map((c) => {
-                                const count = residentDemographics.courseCounts[c.num] || 0;
-                                const pct = residentDemographics.totalResidents > 0 ? Math.round((count / residentDemographics.totalResidents) * 100) : 0;
-                                const isSelected = academicCourseFilter === String(c.num);
-
-                                return (
-                                    <button
-                                        key={c.num}
-                                        type="button"
-                                        onClick={() => setAcademicCourseFilter(isSelected ? "all" : String(c.num))}
-                                        title={`Показати кімнати ${c.label} на шахматці`}
-                                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative ${
-                                            isSelected
-                                                ? `bg-white dark:bg-gray-800 ${c.border} ring-2 ${c.ring} shadow-xs scale-[1.02]`
-                                                : count > 0
-                                                ? `bg-slate-50/70 dark:bg-gray-800/60 border-slate-200/80 dark:border-gray-700 hover:border-slate-300 hover:bg-white dark:hover:bg-gray-700`
-                                                : `bg-slate-50/40 dark:bg-gray-800/30 border-slate-100 dark:border-gray-700 opacity-60 hover:opacity-100`
-                                        }`}
-                                    >
-                                        <div className="flex items-center justify-between gap-1">
+                                    {/* Числові показники статі */}
+                                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                                        <div className="p-2 rounded-xl bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 flex items-center justify-between shadow-2xs">
                                             <div className="flex items-center gap-1.5">
-                                                <span className={`w-2 h-2 rounded-full ${c.bg}`} />
-                                                <span className="text-[11px] font-bold text-slate-700 dark:text-gray-200">
-                                                    {c.label}
-                                                </span>
+                                                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                                                <span className="text-[11px] font-bold text-slate-600 dark:text-gray-300">Хлопці:</span>
                                             </div>
-                                            {isSelected && (
-                                                <span className={`text-[9px] font-black px-1 py-0.2 rounded ${c.lightBg} ${c.text}`}>
-                                                    На мапі
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="mt-1.5 flex items-baseline justify-between">
-                                            <span className="text-base font-black text-slate-900 dark:text-white">
-                                                {count}
-                                            </span>
-                                            <span className={`text-[10px] font-black ${count > 0 ? c.text : "text-slate-400"}`}>
-                                                {pct}%
+                                            <span className="text-xs font-black text-sky-600 dark:text-sky-400">
+                                                {residentDemographics.maleResidents} <span className="text-[10px] text-slate-400 font-normal">({residentDemographics.totalResidents > 0 ? Math.round((residentDemographics.maleResidents / residentDemographics.totalResidents) * 100) : 0}%)</span>
                                             </span>
                                         </div>
-                                    </button>
-                                );
-                            })}
+
+                                        <div className="p-2 rounded-xl bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 flex items-center justify-between shadow-2xs">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                                                <span className="text-[11px] font-bold text-slate-600 dark:text-gray-300">Дівчата:</span>
+                                            </div>
+                                            <span className="text-xs font-black text-rose-600 dark:text-rose-400">
+                                                {residentDemographics.femaleResidents} <span className="text-[10px] text-slate-400 font-normal">({residentDemographics.totalResidents > 0 ? Math.round((residentDemographics.femaleResidents / residentDemographics.totalResidents) * 100) : 0}%)</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 2. Рейтинг топ-спеціальностей у корпусі з прогрес-барами */}
+                                <div className="space-y-2 flex-1 flex flex-col justify-between">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                            Топ спеціальностей мешканців
+                                        </span>
+                                        <span className="text-[11px] text-slate-400">
+                                            Клік для фільтру
+                                        </span>
+                                    </div>
+
+                                    {/* Списковий рейтинг спеціальностей */}
+                                    <div className="space-y-1.5 max-h-[145px] overflow-y-auto pr-1 no-scrollbar">
+                                        {Object.entries(residentDemographics.specialtyCounts)
+                                            .sort((a, b) => b[1] - a[1])
+                                            .slice(0, 5)
+                                            .map(([spec, count]) => {
+                                                const isSelected = academicSpecialtyFilter === spec;
+                                                const specPct = residentDemographics.totalResidents > 0 ? Math.round((count / residentDemographics.totalResidents) * 100) : 0;
+                                                return (
+                                                    <div
+                                                        key={spec}
+                                                        onClick={() => setAcademicSpecialtyFilter(isSelected ? "all" : spec)}
+                                                        className={`p-1.5 px-2.5 rounded-xl border transition-all cursor-pointer flex flex-col gap-1 ${
+                                                            isSelected
+                                                                ? "bg-white dark:bg-gray-800 border-indigo-500 ring-1 ring-indigo-500 shadow-xs"
+                                                                : "bg-white/80 dark:bg-gray-800/80 border-slate-200/70 dark:border-gray-700/70 hover:border-slate-300 dark:hover:border-gray-600"
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center justify-between text-[11px]">
+                                                            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-gray-200">
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-indigo-600" : "bg-slate-400"}`} />
+                                                                <span>{spec}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1 font-black">
+                                                                <span className={isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-slate-700 dark:text-gray-300"}>
+                                                                    {count} студ.
+                                                                </span>
+                                                                <span className="text-[10px] text-slate-400 font-normal">({specPct}%)</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-full bg-slate-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                                                            <div
+                                                                style={{ width: `${specPct}%` }}
+                                                                className={`h-full rounded-full transition-all duration-300 ${
+                                                                    isSelected ? "bg-indigo-600" : "bg-gradient-to-r from-indigo-500 to-emerald-500"
+                                                                }`}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
+
+                                    {/* Додаткові бейджі якщо спеціальностей більше */}
+                                    {Object.keys(residentDemographics.specialtyCounts).length > 5 && (
+                                        <div className="flex items-center gap-1 flex-wrap pt-1 text-[10px]">
+                                            <span className="text-slate-400">Інші:</span>
+                                            {Object.entries(residentDemographics.specialtyCounts)
+                                                .sort((a, b) => b[1] - a[1])
+                                                .slice(5)
+                                                .map(([spec, count]) => (
+                                                    <button
+                                                        key={spec}
+                                                        type="button"
+                                                        onClick={() => setAcademicSpecialtyFilter(academicSpecialtyFilter === spec ? "all" : spec)}
+                                                        className={`px-1.5 py-0.5 rounded-md font-bold transition-all cursor-pointer border ${
+                                                            academicSpecialtyFilter === spec
+                                                                ? "bg-indigo-600 text-white border-indigo-600"
+                                                                : "bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-100"
+                                                        }`}
+                                                    >
+                                                        {spec} ({count})
+                                                    </button>
+                                                ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Спеціальності / Напрями підготовки мешканців корпусу */}
+                        {/* Швидка стрічка фільтрації спеціальностей у футері блоку */}
                         {Object.keys(residentDemographics.specialtyCounts).length > 0 && (
-                            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                            <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-100 dark:border-gray-700/60">
                                 <span className="text-[11px] font-bold text-slate-500 dark:text-gray-400 mr-1">
-                                    Спеціальності у корпусі:
+                                    Швидкий фільтр мапи:
                                 </span>
                                 <button
                                     type="button"
-                                    onClick={() => setAcademicSpecialtyFilter("all")}
+                                    onClick={() => {
+                                        setAcademicSpecialtyFilter("all");
+                                        setAcademicCourseFilter("all");
+                                    }}
                                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                        academicSpecialtyFilter === "all"
-                                            ? "bg-slate-800 dark:bg-white text-white dark:text-slate-900"
+                                        academicSpecialtyFilter === "all" && academicCourseFilter === "all"
+                                            ? "bg-slate-800 dark:bg-white text-white dark:text-slate-900 shadow-xs"
                                             : "bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300 hover:bg-slate-200"
                                     }`}
                                 >
-                                    Всі ({residentDemographics.totalResidents})
+                                    Всі мешканці ({residentDemographics.totalResidents})
                                 </button>
                                 {Object.entries(residentDemographics.specialtyCounts).map(([spec, count]) => {
                                     const isSpecSelected = academicSpecialtyFilter === spec;
@@ -506,7 +706,7 @@ export default function RoomMapTab({
                                             className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
                                                 isSpecSelected
                                                     ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50"
+                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700"
                                             }`}
                                         >
                                             <span>{spec}</span>
