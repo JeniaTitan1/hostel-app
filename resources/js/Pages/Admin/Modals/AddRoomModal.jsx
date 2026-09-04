@@ -231,11 +231,12 @@ export default function AddRoomModal({
                             onChange={(e) => setIsAccessible(e.target.checked)}
                             className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
                         />
-                        <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <circle cx="12" cy="4" r="2" stroke="currentColor" strokeWidth={2} />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 7v5l3 3m-7-2a4 4 0 108 0" />
-                            </svg>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0 border border-blue-200/80 dark:border-blue-800/80 shadow-2xs">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M4.5 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0m4.67 3.5h1.464a.5.5 0 0 1 .494.577l-.5 3.5a.5.5 0 0 1-.988-.142l.394-2.766H9.17l-1.4 3.5H10.5a.5.5 0 0 1 0 1H7.5a.5.5 0 0 1-.465-.686l1.372-3.43H6.837l-.872 2.18A3.5 3.5 0 1 0 9 12.5a.5.5 0 0 1 1 0 4.5 4.5 0 1 1-5.115-4.455l.89-2.224A1.5 1.5 0 0 1 7.18 4.83H9.17z"/>
+                                </svg>
+                            </div>
                             <div>
                                 <span className="text-xs font-bold text-gray-900 dark:text-white block">
                                     Кімната для осіб з обмеженими можливостями (інклюзивна)
