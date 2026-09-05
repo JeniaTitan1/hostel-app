@@ -1,0 +1,908 @@
+[
+  {
+    "hash": "7efb9cd",
+    "date": "2026-09-05",
+    "message": "style: standardize button design system, labels and icons across all admin tabs",
+    "category": "style"
+  },
+  {
+    "hash": "10b8010",
+    "date": "2026-09-05",
+    "message": "fix: resolve select dropdown arrow overlapping number in audit logs tab",
+    "category": "fix"
+  },
+  {
+    "hash": "fa3de2f",
+    "date": "2026-09-05",
+    "message": "feat: add light color haze to audit rows, localize all actions to Ukrainian and optimize button layout",
+    "category": "feat"
+  },
+  {
+    "hash": "a502a32",
+    "date": "2026-09-05",
+    "message": "feat: overhaul audit logs tab with KPIs, categories, humanized action badges and CSV export",
+    "category": "feat"
+  },
+  {
+    "hash": "7e5b2b5",
+    "date": "2026-09-05",
+    "message": "Fix layout jump on resolve confirmation, add smooth animations, and make student contact button prominent",
+    "category": "feat"
+  },
+  {
+    "hash": "f509716",
+    "date": "2026-09-05",
+    "message": "Fix TicketsTab design: eliminate pitch-black KPI card, fix search icon padding overlap, and refine dark/light theme styling",
+    "category": "feat"
+  },
+  {
+    "hash": "64853a2",
+    "date": "2026-09-05",
+    "message": "Upgrade TicketsTab with interactive KPI stats, instant search, relative timestamps, safe resolution confirmation, and student contact integration",
+    "category": "feat"
+  },
+  {
+    "hash": "2911bd6",
+    "date": "2026-09-05",
+    "message": "Improve resident card readability with clean 2-line subtitle typography avoiding name truncation",
+    "category": "feat"
+  },
+  {
+    "hash": "9e10f3e",
+    "date": "2026-09-05",
+    "message": "Refactor resident card in room map to sleek single-row compact capsule design",
+    "category": "feat"
+  },
+  {
+    "hash": "6297218",
+    "date": "2026-09-05",
+    "message": "feat: add deployment and synchronization instructions to agent rules",
+    "category": "feat"
+  },
+  {
+    "hash": "dd0e02a",
+    "date": "2026-09-05",
+    "message": "fix(modals): fix React Rules of Hooks violations causing white screen crashes across all admin modals and add global ErrorBoundary",
+    "category": "fix"
+  },
+  {
+    "hash": "565bd52",
+    "date": "2026-09-05",
+    "message": "refactor(room-map): unify specialties into single interactive card and remove redundant bottom bar",
+    "category": "refactor"
+  },
+  {
+    "hash": "df7e418",
+    "date": "2026-09-05",
+    "message": "style(room-map): remove emojis from occupancy select options",
+    "category": "style"
+  },
+  {
+    "hash": "9b1d9bc",
+    "date": "2026-09-05",
+    "message": "feat(room-map): separate occupancy filter with free beds option and enhance toolbar design",
+    "category": "feat"
+  },
+  {
+    "hash": "a38e521",
+    "date": "2026-09-05",
+    "message": "feat(room-map): enhance resident card design with 2-line layout, color-coded academic badges, and interactive filters",
+    "category": "feat"
+  },
+  {
+    "hash": "dde4673",
+    "date": "2026-09-05",
+    "message": "build: update assets manifest and recompile frontend application modules",
+    "category": "feat"
+  },
+  {
+    "hash": "124a5eb",
+    "date": "2026-09-04",
+    "message": "Add interactive demographic charts and specialty distribution to RoomMapTab",
+    "category": "feat"
+  },
+  {
+    "hash": "87cb83e",
+    "date": "2026-09-04",
+    "message": "Fix layout shifting by stabilizing container heights and complete dark mode color styling",
+    "category": "feat"
+  },
+  {
+    "hash": "405690c",
+    "date": "2026-09-04",
+    "message": "Refine promotion hub UI with compact modern buttons and sleek mass promotion cards",
+    "category": "feat"
+  },
+  {
+    "hash": "7c18a18",
+    "date": "2026-09-04",
+    "message": "Enhance Room Map with resident demographics infographic and streamline Academic Settings promotion hub",
+    "category": "feat"
+  },
+  {
+    "hash": "d35886d",
+    "date": "2026-09-04",
+    "message": "Improve academic distribution chart reactivity and polish top action buttons",
+    "category": "feat"
+  },
+  {
+    "hash": "1001e1a",
+    "date": "2026-09-04",
+    "message": "Add rollback -1 course button and granular promotion management by building and specialty",
+    "category": "feat"
+  },
+  {
+    "hash": "75350c5",
+    "date": "2026-09-04",
+    "message": "Implement annual September 1st course promotion (+1 course) and enhance course display across system",
+    "category": "feat"
+  },
+  {
+    "hash": "a0f19ad",
+    "date": "2026-09-04",
+    "message": "Hide entry/exit button when access is denied in access logs",
+    "category": "feat"
+  },
+  {
+    "hash": "6f232e0",
+    "date": "2026-09-04",
+    "message": "Remove inclusive access references from AccessLogsTab: simplify to entry, exit and denied",
+    "category": "feat"
+  },
+  {
+    "hash": "aef10a9",
+    "date": "2026-09-04",
+    "message": "Update AccessLogsTab styling: add soft color-coded row gradients, left accent stripes, gender avatars, inclusive badges, and status legend",
+    "category": "feat"
+  },
+  {
+    "hash": "327b4ec",
+    "date": "2026-09-04",
+    "message": "Enhance incoming applications styling: remove gender pill, add soft color-coded row gradients and badges for relocation, booking, mixed and inclusive rooms",
+    "category": "feat"
+  },
+  {
+    "hash": "bb65109",
+    "date": "2026-09-04",
+    "message": "Update DatabaseSeeder with inclusive rooms, inclusive students, building restrictions, and access logs",
+    "category": "feat"
+  },
+  {
+    "hash": "5f78f74",
+    "date": "2026-09-04",
+    "message": "Refine building restriction UI: remove emojis, fix checkbox layout jumping, align heights",
+    "category": "feat"
+  },
+  {
+    "hash": "0b8af3d",
+    "date": "2026-09-04",
+    "message": "Add building restrictions for students creation, editing and booking",
+    "category": "feat"
+  },
+  {
+    "hash": "e1c35c0",
+    "date": "2026-09-04",
+    "message": "Прибрано кнопку і смайлики інклюзивності, додано фонове м'яке світіння рядків та бейджів статі",
+    "category": "feat"
+  },
+  {
+    "hash": "b85d59f",
+    "date": "2026-09-04",
+    "message": "Смайлик ♿ для інклюзивності, окремий швидкий фільтр та акуратний бейдж",
+    "category": "feat"
+  },
+  {
+    "hash": "8b5c9d3",
+    "date": "2026-09-04",
+    "message": "Оновлено іконку інклюзивності на офіційний чіткий символ інвалідності",
+    "category": "feat"
+  },
+  {
+    "hash": "51dcec7",
+    "date": "2026-09-04",
+    "message": "Стилізація заявок, інклюзивність студентів та попередження для інклюзивних кімнат",
+    "category": "feat"
+  },
+  {
+    "hash": "1d8f8d0",
+    "date": "2026-09-04",
+    "message": "fix(sw): bump pwa cache version to v2 to invalidate client stale caches",
+    "category": "fix"
+  },
+  {
+    "hash": "9ccb717",
+    "date": "2026-09-04",
+    "message": "fix: restore fixed КПП scanner modal and unify glassmorphic background across header, body, and footer",
+    "category": "fix"
+  },
+  {
+    "hash": "730e016",
+    "date": "2026-09-04",
+    "message": "build: compile frontend assets into public/build",
+    "category": "feat"
+  },
+  {
+    "hash": "18c0921",
+    "date": "2026-09-04",
+    "message": "feat: update checkpoint UI, entrance animations, and living lava background",
+    "category": "feat"
+  },
+  {
+    "hash": "bf25a71",
+    "date": "2026-09-04",
+    "message": "feat: enhance right panel action buttons to be larger and more practical",
+    "category": "feat"
+  },
+  {
+    "hash": "3073f5c",
+    "date": "2026-09-04",
+    "message": "fix: compact mobile portrait layout for zero-scroll instant pass processing",
+    "category": "fix"
+  },
+  {
+    "hash": "b5fd1d3",
+    "date": "2026-09-04",
+    "message": "fix: restore desktop layout & remove spacebar label on mobile",
+    "category": "fix"
+  },
+  {
+    "hash": "7ae043b",
+    "date": "2026-09-04",
+    "message": "feat: sync theme globally & add portrait scroll / landscape dual-column layout for КПП",
+    "category": "feat"
+  },
+  {
+    "hash": "a71569c",
+    "date": "2026-09-04",
+    "message": "feat: add theme toggle & adaptive light/dark mode for КПП and remove all emojis",
+    "category": "feat"
+  },
+  {
+    "hash": "9147201",
+    "date": "2026-09-04",
+    "message": "fix: remove vertical scrollbars and lock body scroll on full-screen КПП",
+    "category": "fix"
+  },
+  {
+    "hash": "06a5496",
+    "date": "2026-09-04",
+    "message": "fix: mount scanner to document.body with true 100vw/100vh full-screen viewport",
+    "category": "fix"
+  },
+  {
+    "hash": "91fdad0",
+    "date": "2026-09-04",
+    "message": "feat: full-screen dedicated workstation for КПП scanner on PC and mobile",
+    "category": "feat"
+  },
+  {
+    "hash": "58c8491",
+    "date": "2026-09-04",
+    "message": "feat: desktop centered modal and mobile full-page view for QR scanner",
+    "category": "feat"
+  },
+  {
+    "hash": "9e7e7dc",
+    "date": "2026-09-04",
+    "message": "fix: pixel-perfect centered SVG close icons for all admin modals",
+    "category": "fix"
+  },
+  {
+    "hash": "d432162",
+    "date": "2026-09-04",
+    "message": "fix: eliminate repeating flash toasts on background polling reloads",
+    "category": "fix"
+  },
+  {
+    "hash": "97b871a",
+    "date": "2026-09-04",
+    "message": "fix: remove room accessibility icon, protect modal backdrop drag-out, eliminate duplicate reallocation toast",
+    "category": "fix"
+  },
+  {
+    "hash": "cdfd129",
+    "date": "2026-09-04",
+    "message": "fix: resolve reallocate booking button submit and parameter validation",
+    "category": "fix"
+  },
+  {
+    "hash": "e570eb4",
+    "date": "2026-09-04",
+    "message": "fix: intuitive mobile back button handling and prevent exiting to login",
+    "category": "fix"
+  },
+  {
+    "hash": "a1a204a",
+    "date": "2026-09-04",
+    "message": "feat: minimalist and sleek top header pills with micro-animations",
+    "category": "feat"
+  },
+  {
+    "hash": "7a6b7f9",
+    "date": "2026-09-04",
+    "message": "fix: pixel-perfect centering for free bed plus icon and room avatars",
+    "category": "fix"
+  },
+  {
+    "hash": "2eb99dd",
+    "date": "2026-09-04",
+    "message": "feat: restore animated floating academic cap on hero banner",
+    "category": "feat"
+  },
+  {
+    "hash": "66df9f8",
+    "date": "2026-09-04",
+    "message": "fix: responsive mobile layout for AccessLogsTab and KPI cards",
+    "category": "fix"
+  },
+  {
+    "hash": "309da42",
+    "date": "2026-09-04",
+    "message": "feat: redesign hero banner with spacious glassmorphism campus weather and clock widget",
+    "category": "feat"
+  },
+  {
+    "hash": "12f3473",
+    "date": "2026-09-04",
+    "message": "feat: animate shockwave flash radiating directly from checkmark lines",
+    "category": "feat"
+  },
+  {
+    "hash": "9718f3d",
+    "date": "2026-09-04",
+    "message": "feat: real-time scan approval animated checkmark on student phone",
+    "category": "feat"
+  },
+  {
+    "hash": "3587a22",
+    "date": "2026-09-04",
+    "message": "feat: show install prompts in mobile browser and hide when running in standalone app",
+    "category": "feat"
+  },
+  {
+    "hash": "602a4cb",
+    "date": "2026-09-04",
+    "message": "fix: optimize admin tabs layout so all tabs including Settings are visible on desktop",
+    "category": "fix"
+  },
+  {
+    "hash": "f83cc76",
+    "date": "2026-09-04",
+    "message": "feat: make mobile pass fullscreen and add instant continue scanning flow",
+    "category": "feat"
+  },
+  {
+    "hash": "acd964f",
+    "date": "2026-09-04",
+    "message": "feat: add quick manual direction override and switcher for access logs",
+    "category": "feat"
+  },
+  {
+    "hash": "1140821",
+    "date": "2026-09-04",
+    "message": "style: remove horizontal scrollbar slider and replace all emojis with crisp SVG icons",
+    "category": "style"
+  },
+  {
+    "hash": "e888e1a",
+    "date": "2026-09-04",
+    "message": "fix: resolve syntax error in AdminController index method",
+    "category": "fix"
+  },
+  {
+    "hash": "353132e",
+    "date": "2026-09-04",
+    "message": "feat: implement Access Logs and QR checkpoint entry/exit scanning system",
+    "category": "feat"
+  },
+  {
+    "hash": "c942d52",
+    "date": "2026-09-04",
+    "message": "fix: smooth out header logo hover micro-interaction",
+    "category": "fix"
+  },
+  {
+    "hash": "1ce592c",
+    "date": "2026-09-04",
+    "message": "clean: hide mobile app install footer button on phone screens",
+    "category": "feat"
+  },
+  {
+    "hash": "65c3255",
+    "date": "2026-09-04",
+    "message": "style: add subtle dot pattern and soft pastel ambient lighting to light theme background",
+    "category": "style"
+  },
+  {
+    "hash": "3cfc693",
+    "date": "2026-09-04",
+    "message": "clean: remove all mobile app install banners and notices from mobile phone views",
+    "category": "feat"
+  },
+  {
+    "hash": "013f470",
+    "date": "2026-09-04",
+    "message": "fix: smooth physical fluid curtain curve and eliminate phantom header border line",
+    "category": "fix"
+  },
+  {
+    "hash": "6f54507",
+    "date": "2026-09-04",
+    "message": "fix: eliminate mobile flash bug and enhance smooth splash curtain animation",
+    "category": "fix"
+  },
+  {
+    "hash": "131827d",
+    "date": "2026-09-04",
+    "message": "feat: persistent install prompts until bound and add gentle registration info card",
+    "category": "feat"
+  },
+  {
+    "hash": "45eaed1",
+    "date": "2026-09-04",
+    "message": "style: adapt PWA prompt to light/dark themes and improve install persistence",
+    "category": "style"
+  },
+  {
+    "hash": "eafa8de",
+    "date": "2026-09-04",
+    "message": "revert: restore original UI, pass modal, and background while keeping PWA app support",
+    "category": "feat"
+  },
+  {
+    "hash": "27ab582",
+    "date": "2026-09-04",
+    "message": "feat: implement PWA mobile app, gyroscope lava lamp, and 3D digital pass",
+    "category": "feat"
+  },
+  {
+    "hash": "77763df",
+    "date": "2026-09-04",
+    "message": "style: update empty bed icon to standard material bed pictogram",
+    "category": "style"
+  },
+  {
+    "hash": "38a4119",
+    "date": "2026-09-04",
+    "message": "style: simplify boy and girl bed icons to clean minimalist silhouettes",
+    "category": "style"
+  },
+  {
+    "hash": "fc0bfc2",
+    "date": "2026-09-04",
+    "message": "feat: replace occupied bed icons with boy/girl avatar SVG figures",
+    "category": "feat"
+  },
+  {
+    "hash": "abefb55",
+    "date": "2026-09-04",
+    "message": "fix: use Address object in DirectStudentMail and update toast deduplication",
+    "category": "fix"
+  },
+  {
+    "hash": "76f122a",
+    "date": "2026-09-04",
+    "message": "feat: configure SMTP mail settings using Gmail credentials in .env and mail.php",
+    "category": "feat"
+  },
+  {
+    "hash": "36cf8b3",
+    "date": "2026-09-04",
+    "message": "refactor: remove manual toast notifications from ContactStudentModal and add pause-on-hover functionality to ToastContainer",
+    "category": "refactor"
+  },
+  {
+    "hash": "a85f296",
+    "date": "2026-09-03",
+    "message": "fix: Close contact modal immediately on send and gracefully handle unconfigured mail server with internal notification",
+    "category": "fix"
+  },
+  {
+    "hash": "dbda5cd",
+    "date": "2026-09-03",
+    "message": "fix: Remove duplicate reallocation badge from header and align action buttons in UsersTab",
+    "category": "fix"
+  },
+  {
+    "hash": "a16042b",
+    "date": "2026-09-03",
+    "message": "fix: Redirect to dashboard after setup, soften titles, fix email route & modal, fix impersonate 403, and remove inclusive icon",
+    "category": "fix"
+  },
+  {
+    "hash": "cf49b5e",
+    "date": "2026-09-03",
+    "message": "fix: Replace wheelchair SVG with standard FontAwesome icon and streamline header actions in reallocation mode",
+    "category": "fix"
+  },
+  {
+    "hash": "d9d63ba",
+    "date": "2026-09-03",
+    "message": "feat: Fix inclusive room card badge & layout, add email broadcast for announcements and direct student contact modal",
+    "category": "feat"
+  },
+  {
+    "hash": "b5f3646",
+    "date": "2026-09-03",
+    "message": "feat: Add prominent ReallocationModal for room change with direct building selection and return navigation bar",
+    "category": "feat"
+  },
+  {
+    "hash": "fb877f6",
+    "date": "2026-09-03",
+    "message": "fix: Eliminate duplicate digital pass and relocation buttons, refine page header title and subtitle for settled students, streamline sidebar and catalog",
+    "category": "fix"
+  },
+  {
+    "hash": "5235461",
+    "date": "2026-09-03",
+    "message": "feat: Restructure student portal UX with contextual layout for settled vs new students, roommate hub, digital pass widget, and expandable reallocation catalog",
+    "category": "feat"
+  },
+  {
+    "hash": "0e46a1e",
+    "date": "2026-09-03",
+    "message": "feat: Real live weather in Mykolaiv via Open-Meteo API with caching and dynamic meteorological conditions",
+    "category": "feat"
+  },
+  {
+    "hash": "83de741",
+    "date": "2026-09-03",
+    "message": "feat: Live Mykolaiv weather & clock widget, vibrant Aurora glow mesh, and technical dot grid pattern for light and dark modes",
+    "category": "feat"
+  },
+  {
+    "hash": "d45eb06",
+    "date": "2026-09-03",
+    "message": "feat: Aurora ambient gradient mesh, dynamic time-of-day greeting, weather/curfew mini-hint, and accessible room support",
+    "category": "feat"
+  },
+  {
+    "hash": "cb13d35",
+    "date": "2026-09-03",
+    "message": "perf: optimize digital pass for mobile, remove gyro lag, instant 60fps load and clean static layout",
+    "category": "perf"
+  },
+  {
+    "hash": "e63a64d",
+    "date": "2026-09-03",
+    "message": "style: make digital pass card completely steady and calm on desktop",
+    "category": "style"
+  },
+  {
+    "hash": "360ca8f",
+    "date": "2026-09-03",
+    "message": "style: restore beautiful 3D tilt card with frosted backdrop fog and clean zero-scrollbar layout",
+    "category": "style"
+  },
+  {
+    "hash": "8319484",
+    "date": "2026-09-03",
+    "message": "feat: mobile portrait lock, static pass typography, and real-time live gyroscope rotation for QR code",
+    "category": "feat"
+  },
+  {
+    "hash": "8dce868",
+    "date": "2026-09-03",
+    "message": "feat: full-screen mobile pass, dynamic QR rotation on orientation change, remove scrollbar and add backdrop blur",
+    "category": "feat"
+  },
+  {
+    "hash": "1a82e59",
+    "date": "2026-09-03",
+    "message": "feat: digital student pass modal with 3D tilt, live QR code, gyroscope reaction and ambient effects",
+    "category": "feat"
+  },
+  {
+    "hash": "7b2a5bc",
+    "date": "2026-09-03",
+    "message": "fix: prevent overflow of verify button and camera scan button in VerifyOrderModal",
+    "category": "fix"
+  },
+  {
+    "hash": "dc95660",
+    "date": "2026-09-03",
+    "message": "style: restyle QR camera scanner and order input for light theme elegance",
+    "category": "style"
+  },
+  {
+    "hash": "0b621a0",
+    "date": "2026-09-03",
+    "message": "feat: non-deletable dashes order input and live camera QR scanner in verification modal",
+    "category": "feat"
+  },
+  {
+    "hash": "3046b92",
+    "date": "2026-09-03",
+    "message": "feat: dynamic year order generation, auto-fill current year prefix in verification, public verify route, and QR code in PDF order",
+    "category": "feat"
+  },
+  {
+    "hash": "b50e50e",
+    "date": "2026-09-03",
+    "message": "fix(ui): polish room settings popover layout and separate delete button from capacity stepper",
+    "category": "fix"
+  },
+  {
+    "hash": "dc86f46",
+    "date": "2026-09-03",
+    "message": "feat: add rooms, floors, buildings management with default capacity setting and fix commandant building title",
+    "category": "feat"
+  },
+  {
+    "hash": "1a89a48",
+    "date": "2026-09-03",
+    "message": "fix: maintain continuous session in-place during impersonation and prevent polling concurrency kickouts",
+    "category": "fix"
+  },
+  {
+    "hash": "91d7bf9",
+    "date": "2026-09-03",
+    "message": "fix: resolve impersonate auth session and replace visualizer with concise stats header without emojis",
+    "category": "fix"
+  },
+  {
+    "hash": "d1a3286",
+    "date": "2026-09-03",
+    "message": "feat: implement interactive building occupancy visualizer and add event-driven notifications for updates",
+    "category": "feat"
+  },
+  {
+    "hash": "2134355",
+    "date": "2026-09-03",
+    "message": "refactor: simplify mixed room warning UI and consolidate confirmation dialog logic",
+    "category": "refactor"
+  },
+  {
+    "hash": "bcaa350",
+    "date": "2026-09-03",
+    "message": "feat: add gender display and improved mixed-room warnings in reallocate modal and bookings tab",
+    "category": "feat"
+  },
+  {
+    "hash": "7a4ffbb",
+    "date": "2026-09-03",
+    "message": "refactor: replace UI emoji icons with SVG elements and clean up text labels across components",
+    "category": "refactor"
+  },
+  {
+    "hash": "6ee896f",
+    "date": "2026-09-03",
+    "message": "feat: integrate password change and enforcement functionality into profile management",
+    "category": "feat"
+  },
+  {
+    "hash": "491780b",
+    "date": "2026-09-02",
+    "message": "feat: implement forced password change workflow by conditionally disabling current password requirement",
+    "category": "feat"
+  },
+  {
+    "hash": "92d956b",
+    "date": "2026-09-02",
+    "message": "refactor: add useRef hook to Dashboard imports",
+    "category": "refactor"
+  },
+  {
+    "hash": "7f71ab5",
+    "date": "2026-09-02",
+    "message": "feat: add batch student generation tool in admin panel and optimize intro animation session logic",
+    "category": "feat"
+  },
+  {
+    "hash": "7c4789f",
+    "date": "2026-09-02",
+    "message": "refactor: adjust dashboard polling intervals and remove redundant real-time toast notifications",
+    "category": "refactor"
+  },
+  {
+    "hash": "7341d30",
+    "date": "2026-09-02",
+    "message": "feat: add background real-time polling synchronization for dashboard and admin pages",
+    "category": "feat"
+  },
+  {
+    "hash": "db6fd2c",
+    "date": "2026-09-02",
+    "message": "refactor: disable Reverb broadcast, remove live status indicators, and add safe dispatch helper for room occupancy events",
+    "category": "refactor"
+  },
+  {
+    "hash": "a36d2a4",
+    "date": "2026-09-02",
+    "message": "feat: import useEffect hook in Admin Dashboard component",
+    "category": "feat"
+  },
+  {
+    "hash": "6972c12",
+    "date": "2026-09-02",
+    "message": "feat: implement real-time room occupancy updates using Laravel Reverb and Echo",
+    "category": "feat"
+  },
+  {
+    "hash": "2aa28dd",
+    "date": "2026-09-02",
+    "message": "feat: improve dark mode styles and replace emoji icons with clean SVG icons",
+    "category": "feat"
+  },
+  {
+    "hash": "6489fb1",
+    "date": "2026-09-02",
+    "message": "chore: update application bootstrap configuration and blade template structure",
+    "category": "chore"
+  },
+  {
+    "hash": "b2f3a58",
+    "date": "2026-09-02",
+    "message": "chore: update app.blade.php layout configuration",
+    "category": "chore"
+  },
+  {
+    "hash": "76bae44",
+    "date": "2026-09-02",
+    "message": "chore: update AppServiceProvider bindings and integrate shared assets in app.blade.php",
+    "category": "chore"
+  },
+  {
+    "hash": "5c9da10",
+    "date": "2026-09-02",
+    "message": "chore: seed database with initial user and booking data",
+    "category": "chore"
+  },
+  {
+    "hash": "f198796",
+    "date": "2026-09-02",
+    "message": "feat: implement announcement system with database migration, controller, and dashboard UI component",
+    "category": "feat"
+  },
+  {
+    "hash": "ff05381",
+    "date": "2026-09-02",
+    "message": "feat: improve mobile responsiveness and navigation scrollability across components and dashboard tabs",
+    "category": "feat"
+  },
+  {
+    "hash": "efc5a9c",
+    "date": "2026-09-02",
+    "message": "feat: localize application to Ukrainian and update branding and UI components",
+    "category": "feat"
+  },
+  {
+    "hash": "e67224b",
+    "date": "2026-09-02",
+    "message": "docs: update README installation instructions and add user seeding to DatabaseSeeder",
+    "category": "chore"
+  },
+  {
+    "hash": "7781583",
+    "date": "2026-07-24",
+    "message": "docs: update project documentation in README.md",
+    "category": "chore"
+  },
+  {
+    "hash": "1001d33",
+    "date": "2026-07-24",
+    "message": "chore: upgrade @vitejs/plugin-react to version 6.0.0",
+    "category": "chore"
+  },
+  {
+    "hash": "412605c",
+    "date": "2026-07-24",
+    "message": "feat: route commandants to admin dashboard and update header navigation logic",
+    "category": "feat"
+  },
+  {
+    "hash": "26f0d86",
+    "date": "2026-07-24",
+    "message": "feat: implement comprehensive admin dashboard tabs and management modals for academic, user, and booking settings",
+    "category": "feat"
+  },
+  {
+    "hash": "f806a97",
+    "date": "2026-07-24",
+    "message": "refactor: standardize code formatting and improve UI for student management table in dashboard",
+    "category": "refactor"
+  },
+  {
+    "hash": "d9d6ddc",
+    "date": "2026-07-23",
+    "message": "feat: add email change request flow, order verification system, and improve AuthenticatedLayout state management",
+    "category": "feat"
+  },
+  {
+    "hash": "9bf2911",
+    "date": "2026-07-21",
+    "message": "refactor: modularize AuthenticatedLayout by extracting header, footer, toast, notification, and animation components",
+    "category": "refactor"
+  },
+  {
+    "hash": "ede96b5",
+    "date": "2026-07-17",
+    "message": "added .env",
+    "category": "feat"
+  },
+  {
+    "hash": "ccc5549",
+    "date": "2026-07-17",
+    "message": "feat: implement session-persistent entrance animation state using window object",
+    "category": "feat"
+  },
+  {
+    "hash": "241f5fc",
+    "date": "2026-07-17",
+    "message": "feat: add monolithic wave loading animation and improve dashboard card entrance transitions",
+    "category": "feat"
+  },
+  {
+    "hash": "06b8555",
+    "date": "2026-07-17",
+    "message": "feat: implement system settings module and integrate global intake status control",
+    "category": "feat"
+  },
+  {
+    "hash": "7151943",
+    "date": "2026-07-17",
+    "message": "feat: implement user notification system with bell icon, dropdown display, and mark-as-read functionality",
+    "category": "feat"
+  },
+  {
+    "hash": "338c5b1",
+    "date": "2026-07-17",
+    "message": "refactor: update flash notification logic to use router events and fix manual check-in scroll behavior",
+    "category": "refactor"
+  },
+  {
+    "hash": "36ff172",
+    "date": "2026-07-16",
+    "message": "feat: implement room closure, reallocation notifications, and a global toast notification system",
+    "category": "feat"
+  },
+  {
+    "hash": "1cd98af",
+    "date": "2026-07-16",
+    "message": "refactor: automate mixed gender room creation during manual booking and improve UI layout for booking lists",
+    "category": "refactor"
+  },
+  {
+    "hash": "50fbf9e",
+    "date": "2026-07-16",
+    "message": "feat: add gender conflict validation and forced mixed-room booking functionality to manual check-in and dashboard UI",
+    "category": "feat"
+  },
+  {
+    "hash": "0c4dd60",
+    "date": "2026-07-16",
+    "message": "feat: extend user profile with academic details and gender, and update registration flow",
+    "category": "feat"
+  },
+  {
+    "hash": "81e4626",
+    "date": "2026-07-15",
+    "message": "feat: add dark mode support across the application with persistent theme toggling",
+    "category": "feat"
+  },
+  {
+    "hash": "082294c",
+    "date": "2026-07-15",
+    "message": "feat: add dark mode support and rejection reason field for bookings",
+    "category": "feat"
+  },
+  {
+    "hash": "684a17e",
+    "date": "2026-07-15",
+    "message": "feat: implement mandatory password and profile update enforcement for new users with admin batch generation and audit log management tools",
+    "category": "feat"
+  },
+  {
+    "hash": "cdc98bc",
+    "date": "2026-07-15",
+    "message": "feat: add maintenance ticketing system, user contact fields, and audit logging with admin dashboard improvements.",
+    "category": "feat"
+  },
+  {
+    "hash": "e4c9f15",
+    "date": "2026-07-15",
+    "message": "feat: initialize Laravel hostel management application with authentication, database models, and React/Inertia frontend",
+    "category": "feat"
+  }
+]
