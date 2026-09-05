@@ -95,7 +95,7 @@ class AdminController extends Controller
             })
             ->get(['id', 'name', 'email', 'gender', 'is_inclusive', 'allowed_buildings', 'specialty', 'course', 'group']);
 
-        $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(100)->get();
+        $auditLogs = AuditLog::with('user')->orderBy('created_at', 'desc')->take(250)->get();
 
         $allUsers = User::where('role', 'user')
             ->with(['bookings' => function ($q) {
