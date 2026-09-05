@@ -1,908 +1,1978 @@
 [
   {
+    "hash": "c96c396",
+    "date": "2026-09-05",
+    "original_msg": "docs: add interactive project presentation timeline dashboard and Obsidian markdown document",
+    "title": "Створення інтерактивного дашборду презентації та Markdown-звіту для Obsidian",
+    "details": "Розроблено повнофункціональну інтерактивну сторінку презентації історії розробки проєкту з живим пошуком, візуалізацією Git-графа, картками етапів та слайд-шоу для захисту перед комісією.",
+    "category": "docs",
+    "category_label": "📚 Документація",
+    "module": "Загальне ядро",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
+  },
+  {
     "hash": "7efb9cd",
     "date": "2026-09-05",
-    "message": "style: standardize button design system, labels and icons across all admin tabs",
-    "category": "style"
+    "original_msg": "style: standardize button design system, labels and icons across all admin tabs",
+    "title": "Повна уніфікація дизайн-системи кнопок дій по всіх 10 вкладках системи",
+    "details": "Стандартизовано стилі кнопок «Зв'язок», «Редагувати», «Увійти як» та «Видалити». Досягнуто однакового візуального ритму, радіусів заокруглення, відступів та чітких SVG-іконок.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "10b8010",
     "date": "2026-09-05",
-    "message": "fix: resolve select dropdown arrow overlapping number in audit logs tab",
-    "category": "fix"
+    "original_msg": "fix: resolve select dropdown arrow overlapping number in audit logs tab",
+    "title": "Виправлення накладання стрілочки випадаючого списку на цифру пагінації в аудиті",
+    "details": "Замінено дефолтну браузерну стрілку елемента select на абсолютну SVG-іконку з чіткими відступами pl-3.5 pr-8, що виключило візуальні дефекти при виборі кількості записів.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Аудит-лог",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "fa3de2f",
     "date": "2026-09-05",
-    "message": "feat: add light color haze to audit rows, localize all actions to Ukrainian and optimize button layout",
-    "category": "feat"
+    "original_msg": "feat: add light color haze to audit rows, localize all actions to Ukrainian and optimize button layout",
+    "title": "Додавання кольорової димки до рядків аудиту та повна українізація бейджів",
+    "details": "Створено м'яке кольорове підсвічування (смарагдове, індиго, бурштинове, червоне) відповідно до важливості системної події та перекладено всі дії журналу на українську мову.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Аудит-лог",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a502a32",
     "date": "2026-09-05",
-    "message": "feat: overhaul audit logs tab with KPIs, categories, humanized action badges and CSV export",
-    "category": "feat"
+    "original_msg": "feat: overhaul audit logs tab with KPIs, categories, humanized action badges and CSV export",
+    "title": "Масштабне оновлення аудиту: інтерактивні KPI, категорії, бейджі та експорт у CSV",
+    "details": "Впроваджено картки підсумкової аналітики, фільтрацію за категоріями системних операцій та функцію генерації офіційного звіту у форматі CSV для звітності.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Аудит-лог",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7e5b2b5",
     "date": "2026-09-05",
-    "message": "Fix layout jump on resolve confirmation, add smooth animations, and make student contact button prominent",
-    "category": "feat"
+    "original_msg": "Fix layout jump on resolve confirmation, add smooth animations, and make student contact button prominent",
+    "title": "Усунення стрибків верстки при підтвердженні ремонту та акцентування кнопки зв'язку",
+    "details": "Встановлено фіксовані розміри для кнопок дій у списку ремонтних заявок, додано плавні мікро-анімації та оптимізовано кнопку прямого зв'язку зі студентом.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "f509716",
     "date": "2026-09-05",
-    "message": "Fix TicketsTab design: eliminate pitch-black KPI card, fix search icon padding overlap, and refine dark/light theme styling",
-    "category": "feat"
+    "original_msg": "Fix TicketsTab design: eliminate pitch-black KPI card, fix search icon padding overlap, and refine dark/light theme styling",
+    "title": "Оптимізація дизайну вкладки ремонтів для світлої та темної тем",
+    "details": "Усунуто надмірно темну картку KPI у світлому режимі, виправлено внутрішній відступ іконки лупи в полі пошуку та збалансовано контрастність шрифтів.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "64853a2",
     "date": "2026-09-05",
-    "message": "Upgrade TicketsTab with interactive KPI stats, instant search, relative timestamps, safe resolution confirmation, and student contact integration",
-    "category": "feat"
+    "original_msg": "Upgrade TicketsTab with interactive KPI stats, instant search, relative timestamps, safe resolution confirmation, and student contact integration",
+    "title": "Модернізація системи ремонтів: живі KPI, швидкий пошук та модалка зв'язку зі студентом",
+    "details": "Додано миттєвий пошук несправностей, відносний час реєстрації заявки (напр. «Вчора, 14:30»), модальне вікно для зв'язку з мешканцем через Telegram, телефон або Email.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "2911bd6",
     "date": "2026-09-05",
-    "message": "Improve resident card readability with clean 2-line subtitle typography avoiding name truncation",
-    "category": "feat"
+    "original_msg": "Improve resident card readability with clean 2-line subtitle typography avoiding name truncation",
+    "title": "Покращення читабельності карток мешканців: дворядкова типографіка без обрізання",
+    "details": "Оновлено верстку карток студентів у кімнатах Шахматки, щоб довгі прізвища та спеціальності відображалися красиво й без примусового скорочення тексту.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9e10f3e",
     "date": "2026-09-05",
-    "message": "Refactor resident card in room map to sleek single-row compact capsule design",
-    "category": "feat"
+    "original_msg": "Refactor resident card in room map to sleek single-row compact capsule design",
+    "title": "Редизайн картки мешканця в кімнаті до компактної капсульної форми",
+    "details": "Оптимізовано розмір картки студента для максимального огляду всіх кімнат на екрані монітора без необхідності зайвої вертикальної прокрутки.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6297218",
     "date": "2026-09-05",
-    "message": "feat: add deployment and synchronization instructions to agent rules",
-    "category": "feat"
+    "original_msg": "feat: add deployment and synchronization instructions to agent rules",
+    "title": "Створення регламентів та інструкцій автоматичної синхронізації коду",
+    "details": "Додано обов'язкові правила оптимізації проекту, автоматичної компіляції ассетів та оновлення маніфесту Vite при розгортанні на бойовий сервер Azure.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "dd0e02a",
     "date": "2026-09-05",
-    "message": "fix(modals): fix React Rules of Hooks violations causing white screen crashes across all admin modals and add global ErrorBoundary",
-    "category": "fix"
+    "original_msg": "fix(modals): fix React Rules of Hooks violations causing white screen crashes across all admin modals and add global ErrorBoundary",
+    "title": "Усунення помилок React Rules of Hooks у модальних вікнах та додавання ErrorBoundary",
+    "details": "Виправлено невірний порядок виклику хуків React, що викликав білий екран при відкритті окремих модалок, та додано захисний екран вилову системних винятків ErrorBoundary.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "565bd52",
     "date": "2026-09-05",
-    "message": "refactor(room-map): unify specialties into single interactive card and remove redundant bottom bar",
-    "category": "refactor"
+    "original_msg": "refactor(room-map): unify specialties into single interactive card and remove redundant bottom bar",
+    "title": "Об'єднання спеціальностей в єдину інтерактивну картку та видалення зайвої панелі",
+    "details": "Спрощено навігацію по Шахматці: фільтрація мешканців за спеціальностями стала наочною та ергономічною, без перевантаження нижньої частини екрана.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "df7e418",
     "date": "2026-09-05",
-    "message": "style(room-map): remove emojis from occupancy select options",
-    "category": "style"
+    "original_msg": "style(room-map): remove emojis from occupancy select options",
+    "title": "Очищення інтерфейсу від текстових емодзі: перехід на професійні SVG-піктограми",
+    "details": "Видалено емодзі з випадаючих списків заселеності кімнат та замінено їх на стильні масштабовані векторні іконки Lucide/Heroicons.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9b1d9bc",
     "date": "2026-09-05",
-    "message": "feat(room-map): separate occupancy filter with free beds option and enhance toolbar design",
-    "category": "feat"
+    "original_msg": "feat(room-map): separate occupancy filter with free beds option and enhance toolbar design",
+    "title": "Відокремлення фільтра заселеності з швидким пошуком вільних ліжко-місць",
+    "details": "Адміністратор отримав змогу в один клік відфільтрувати кімнати з вільними ліжками для термінового поселення абітурієнтів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a38e521",
     "date": "2026-09-05",
-    "message": "feat(room-map): enhance resident card design with 2-line layout, color-coded academic badges, and interactive filters",
-    "category": "feat"
+    "original_msg": "feat(room-map): enhance resident card design with 2-line layout, color-coded academic badges, and interactive filters",
+    "title": "Оновлення карток мешканців: дворядковий вигляд, кольорові бейджі та живі фільтри",
+    "details": "Додано виразне колірне кодування курсів та спеціальностей для миттєвої візуальної ідентифікації студентів на шаховій дошці гуртожитку.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "dde4673",
     "date": "2026-09-05",
-    "message": "build: update assets manifest and recompile frontend application modules",
-    "category": "feat"
+    "original_msg": "build: update assets manifest and recompile frontend application modules",
+    "title": "Оптимізація та збірка фронтенду через Vite для бойового середовища",
+    "details": "Оновлено маніфест ассетів, мінімізовано CSS стилістику та оптимізовано чанки JavaScript для максимальної швидкості завантаження на мобільних пристроях.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "124a5eb",
     "date": "2026-09-04",
-    "message": "Add interactive demographic charts and specialty distribution to RoomMapTab",
-    "category": "feat"
+    "original_msg": "Add interactive demographic charts and specialty distribution to RoomMapTab",
+    "title": "Додавання інтерактивної демографічної аналітики до Шахматки кімнат",
+    "details": "Створено наочні графіки та діаграми розподілу мешканців за статтю, курсами навчання та факультетськими спеціальностями.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "87cb83e",
     "date": "2026-09-04",
-    "message": "Fix layout shifting by stabilizing container heights and complete dark mode color styling",
-    "category": "feat"
+    "original_msg": "Fix layout shifting by stabilizing container heights and complete dark mode color styling",
+    "title": "Стабілізація висоти контейнерів для усунення стрибків інтерфейсу в Dark Mode",
+    "details": "Зафіксовано висоти ключових інформаційних панелей та блоків, що усунуло неприємне зміщення елементів при перемиканні фільтрів.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "405690c",
     "date": "2026-09-04",
-    "message": "Refine promotion hub UI with compact modern buttons and sleek mass promotion cards",
-    "category": "feat"
+    "original_msg": "Refine promotion hub UI with compact modern buttons and sleek mass promotion cards",
+    "title": "Модернізація центру академічного переведення курсів студентів",
+    "details": "Створено ергономічні картки масового переведення та компактні кнопки дій для завершення поточного навчального року.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Академічна система",
+    "milestone_id": 6,
+    "milestone_title": "🎓 Академічна структура та Курси",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7c18a18",
     "date": "2026-09-04",
-    "message": "Enhance Room Map with resident demographics infographic and streamline Academic Settings promotion hub",
-    "category": "feat"
+    "original_msg": "Enhance Room Map with resident demographics infographic and streamline Academic Settings promotion hub",
+    "title": "Інфографіка демографії мешканців у Шахматці та оптимізація панелі переведення",
+    "details": "Додано наочну статистику гендерного балансу мешканців у кожному корпусі університету.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d35886d",
     "date": "2026-09-04",
-    "message": "Improve academic distribution chart reactivity and polish top action buttons",
-    "category": "feat"
+    "original_msg": "Improve academic distribution chart reactivity and polish top action buttons",
+    "title": "Підвищення реактивності графіка академічного розподілу",
+    "details": "Графік отримав миттєве оновлення при перемиканні фільтрів поверхів та гуртожитків без перезавантаження сторінки.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1001e1a",
     "date": "2026-09-04",
-    "message": "Add rollback -1 course button and granular promotion management by building and specialty",
-    "category": "feat"
+    "original_msg": "Add rollback -1 course button and granular promotion management by building and specialty",
+    "title": "Функція відкату «-1 курс» та точкове переведення за корпусом і спеціальністю",
+    "details": "Додано захисну можливість корекції переведення студентів у разі помилкового підтвердження або переведення на повторний курс.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Академічна система",
+    "milestone_id": 6,
+    "milestone_title": "🎓 Академічна структура та Курси",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "75350c5",
     "date": "2026-09-04",
-    "message": "Implement annual September 1st course promotion (+1 course) and enhance course display across system",
-    "category": "feat"
+    "original_msg": "Implement annual September 1st course promotion (+1 course) and enhance course display across system",
+    "title": "Автоматичне щорічне переведення студентів «+1 курс» (1 вересня)",
+    "details": "Створено механізм планового глобального переведення студентського контингенту на наступний курс на початку навчального року.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Академічна система",
+    "milestone_id": 6,
+    "milestone_title": "🎓 Академічна структура та Курси",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a0f19ad",
     "date": "2026-09-04",
-    "message": "Hide entry/exit button when access is denied in access logs",
-    "category": "feat"
+    "original_msg": "Hide entry/exit button when access is denied in access logs",
+    "title": "Приховування кнопок зміни напрямку для заблокованих спроб проходу",
+    "details": "Якщо студенту заборонено прохід через КПП (наприклад, через заборгованість або блокування), кнопка зміни напрямку «Вхід/Вихід» деактивується.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6f232e0",
     "date": "2026-09-04",
-    "message": "Remove inclusive access references from AccessLogsTab: simplify to entry, exit and denied",
-    "category": "feat"
+    "original_msg": "Remove inclusive access references from AccessLogsTab: simplify to entry, exit and denied",
+    "title": "Оптимізація статусної моделі КПП: чіткий розподіл на Вхід, Вихід та Відхилено",
+    "details": "Спрощено бізнес-логіку роботи чергового персоналу на прохідній гуртожитку для мінімізації людського фактора.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "aef10a9",
     "date": "2026-09-04",
-    "message": "Update AccessLogsTab styling: add soft color-coded row gradients, left accent stripes, gender avatars, inclusive badges, and status legend",
-    "category": "feat"
+    "original_msg": "Update AccessLogsTab styling: add soft color-coded row gradients, left accent stripes, gender avatars, inclusive badges, and status legend",
+    "title": "Кольорове зонування журналу КПП з аватарами статі та бейджами",
+    "details": "Кожен запис проходу отримав помітну кольорову смужку-акцент: зелена для входу, помаранчева для виходу та червона для відмови.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "327b4ec",
     "date": "2026-09-04",
-    "message": "Enhance incoming applications styling: remove gender pill, add soft color-coded row gradients and badges for relocation, booking, mixed and inclusive rooms",
-    "category": "feat"
+    "original_msg": "Enhance incoming applications styling: remove gender pill, add soft color-coded row gradients and badges for relocation, booking, mixed and inclusive rooms",
+    "title": "Кольорове кодування вхідних заявок на поселення та переселення",
+    "details": "Заявки на переселення виділено преміальним пурпурним градієнтом, а нові поселення — свіжим смарагдовим стилем.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "bb65109",
     "date": "2026-09-04",
-    "message": "Update DatabaseSeeder with inclusive rooms, inclusive students, building restrictions, and access logs",
-    "category": "feat"
+    "original_msg": "Update DatabaseSeeder with inclusive rooms, inclusive students, building restrictions, and access logs",
+    "title": "Оновлення сідера бази даних (DatabaseSeeder) реальними тестовими даними",
+    "details": "База даних наповнена реальними сценаріями: інклюзивні кімнати, студенти різних курсів, налаштовані права доступу та історія КПП.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "5f78f74",
     "date": "2026-09-04",
-    "message": "Refine building restriction UI: remove emojis, fix checkbox layout jumping, align heights",
-    "category": "feat"
+    "original_msg": "Refine building restriction UI: remove emojis, fix checkbox layout jumping, align heights",
+    "title": "Шліфування інтерфейсу закріплення корпусів за комендантами та студентами",
+    "details": "Вирівняно геометрію карток та усунуто випадкові зсуви прапорців при виборі декількох корпусів одночасно.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "0b8af3d",
     "date": "2026-09-04",
-    "message": "Add building restrictions for students creation, editing and booking",
-    "category": "feat"
+    "original_msg": "Add building restrictions for students creation, editing and booking",
+    "title": "Впровадження обмеження доступу за корпусами при роботі зі студентами",
+    "details": "Комендант може керувати поселенням та переглядати дані лише закріпленого за ним гуртожитку, що гарантує захист даних.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e1c35c0",
     "date": "2026-09-04",
-    "message": "Прибрано кнопку і смайлики інклюзивності, додано фонове м'яке світіння рядків та бейджів статі",
-    "category": "feat"
+    "original_msg": "Прибрано кнопку і смайлики інклюзивності, додано фонове м'яке світіння рядків та бейджів статі",
+    "title": "М'яке фонове світіння рядків та статусних бейджів для естетики",
+    "details": "Застосовано фірмовий стиль із напівпрозорою підсвіткою відповідно до статі студента та статусу кімнати.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "b85d59f",
     "date": "2026-09-04",
-    "message": "Смайлик ♿ для інклюзивності, окремий швидкий фільтр та акуратний бейдж",
-    "category": "feat"
+    "original_msg": "Смайлик ♿ для інклюзивності, окремий швидкий фільтр та акуратний бейдж",
+    "title": "Окремий швидкий фільтр та акуратний бейдж для інклюзивних кімнат",
+    "details": "Адміністрація отримала швидкий фільтр кімнат зі спеціальним безбар'єрним доступом для маломобільних студентів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "8b5c9d3",
     "date": "2026-09-04",
-    "message": "Оновлено іконку інклюзивності на офіційний чіткий символ інвалідності",
-    "category": "feat"
+    "original_msg": "Оновлено іконку інклюзивності на офіційний чіткий символ інвалідності",
+    "title": "Встановлення офіційного міжнародного символу доступності",
+    "details": "Замінено неформальні позначки на міжнародний стандартний векторний символ доступності ISA (International Symbol of Access).",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "51dcec7",
     "date": "2026-09-04",
-    "message": "Стилізація заявок, інклюзивність студентів та попередження для інклюзивних кімнат",
-    "category": "feat"
+    "original_msg": "Стилізація заявок, інклюзивність студентів та попередження для інклюзивних кімнат",
+    "title": "Попередження про інклюзивні кімнати та захист від помилкового заселення",
+    "details": "Впроваджено інтелектуальне модальне попередження, якщо звичайного студента намагаються поселити в спеціалізовану інклюзивну кімнату.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1d8f8d0",
     "date": "2026-09-04",
-    "message": "fix(sw): bump pwa cache version to v2 to invalidate client stale caches",
-    "category": "fix"
+    "original_msg": "fix(sw): bump pwa cache version to v2 to invalidate client stale caches",
+    "title": "Оновлення кешу сервіс-воркера PWA до версії v2",
+    "details": "Забезпечено миттєве оновлення клієнтських мобільних додатків у студентів без необхідності ручного очищення кешу браузера.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9ccb717",
     "date": "2026-09-04",
-    "message": "fix: restore fixed КПП scanner modal and unify glassmorphic background across header, body, and footer",
-    "category": "fix"
+    "original_msg": "fix: restore fixed КПП scanner modal and unify glassmorphic background across header, body, and footer",
+    "title": "Уніфікація скляного стилю (Glassmorphism) для сканера КПП",
+    "details": "Поєднано напівпрозорі матові панелі шапки, відеозони камери та футера сканера перепусток в єдиний монолітний вигляд.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "730e016",
     "date": "2026-09-04",
-    "message": "build: compile frontend assets into public/build",
-    "category": "feat"
+    "original_msg": "build: compile frontend assets into public/build",
+    "title": "Складання оптимізованих фронтенд-ассетів у каталог public/build",
+    "details": "Проведено фінальну мінімізацію скриптів та стилів для високої продуктивності веб-додатку під навантаженням.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "18c0921",
     "date": "2026-09-04",
-    "message": "feat: update checkpoint UI, entrance animations, and living lava background",
-    "category": "feat"
+    "original_msg": "feat: update checkpoint UI, entrance animations, and living lava background",
+    "title": "Анімований живий фон та плавні переходи для робочого місця чергового КПП",
+    "details": "Інтерфейс сканера на прохідній отримав презентабельний живий вигляд з динамічним фоном та плавними реакціями на дію сканера.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "bf25a71",
     "date": "2026-09-04",
-    "message": "feat: enhance right panel action buttons to be larger and more practical",
-    "category": "feat"
+    "original_msg": "feat: enhance right panel action buttons to be larger and more practical",
+    "title": "Збільшення кнопок дій на панелі КПП для зручності сенсорних екранів",
+    "details": "Черговий на вахті гуртожитку може легко працювати зі сканером на сенсорному моноблоці або планшеті без промахів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "3073f5c",
     "date": "2026-09-04",
-    "message": "fix: compact mobile portrait layout for zero-scroll instant pass processing",
-    "category": "fix"
+    "original_msg": "fix: compact mobile portrait layout for zero-scroll instant pass processing",
+    "title": "Компактний режим КПП для роботи без скролінгу на смартфонах",
+    "details": "Всі елементи верифікації перепустки та статусу студента ідеально поміщаються в портретну орієнтацію мобільного екрана.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "b5fd1d3",
     "date": "2026-09-04",
-    "message": "fix: restore desktop layout & remove spacebar label on mobile",
-    "category": "fix"
+    "original_msg": "fix: restore desktop layout & remove spacebar label on mobile",
+    "title": "Оптимізація розмітки чергового КПП на десктопі та адаптація під мобільні",
+    "details": "Прибрано зайві підказки про клавішу пробілу на сенсорних смартфонах та адаптовано двоколонкову структуру для ПК.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7ae043b",
     "date": "2026-09-04",
-    "message": "feat: sync theme globally & add portrait scroll / landscape dual-column layout for КПП",
-    "category": "feat"
+    "original_msg": "feat: sync theme globally & add portrait scroll / landscape dual-column layout for КПП",
+    "title": "Глобальна синхронізація тем оформлення та адаптивний двоколонковий режим КПП",
+    "details": "Стан темної або світлої теми тепер зберігається синхронно по всій системі; на планшетах впроваджено поділ на 2 колонки.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a71569c",
     "date": "2026-09-04",
-    "message": "feat: add theme toggle & adaptive light/dark mode for КПП and remove all emojis",
-    "category": "feat"
+    "original_msg": "feat: add theme toggle & adaptive light/dark mode for КПП and remove all emojis",
+    "title": "Повна підтримка тем Dark/Light для станції КПП та векторні піктограми",
+    "details": "Створено швидкий перемикач теми на прохідній для комфортної роботи чергового в нічний та денний час.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9147201",
     "date": "2026-09-04",
-    "message": "fix: remove vertical scrollbars and lock body scroll on full-screen КПП",
-    "category": "fix"
+    "original_msg": "fix: remove vertical scrollbars and lock body scroll on full-screen КПП",
+    "title": "Блокування зайвого вертикального скролу на повноекранному сканері КПП",
+    "details": "Забезпечено суворе фіксування інтерфейсу сканера (body scroll lock) під час активного процесу перевірки перепусток.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "06a5496",
     "date": "2026-09-04",
-    "message": "fix: mount scanner to document.body with true 100vw/100vh full-screen viewport",
-    "category": "fix"
+    "original_msg": "fix: mount scanner to document.body with true 100vw/100vh full-screen viewport",
+    "title": "Монтування сканера перепусток у document.body на повний екран (100vw/100vh)",
+    "details": "Виправлено нашарування z-index, щоб вікно сканування завжди розташовувалося на передньому плані над системними панелями.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "91fdad0",
     "date": "2026-09-04",
-    "message": "feat: full-screen dedicated workstation for КПП scanner on PC and mobile",
-    "category": "feat"
+    "original_msg": "feat: full-screen dedicated workstation for КПП scanner on PC and mobile",
+    "title": "Спеціалізоване повноекранне робоче місце оператора КПП на ПК та смартфонах",
+    "details": "Розроблено автономний інтерфейс вахтера без зайвих навігаційних меню, що збільшує пропускну здатність входу в гуртожиток.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "58c8491",
     "date": "2026-09-04",
-    "message": "feat: desktop centered modal and mobile full-page view for QR scanner",
-    "category": "feat"
+    "original_msg": "feat: desktop centered modal and mobile full-page view for QR scanner",
+    "title": "Адаптація QR-сканера: центральне модальне вікно для ПК та повний екран для телефонів",
+    "details": "Зручне зчитування QR-перепусток як зі стаціонарної веб-камери на столі коменданта, так і з камери телефону охоронця.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9e7e7dc",
     "date": "2026-09-04",
-    "message": "fix: pixel-perfect centered SVG close icons for all admin modals",
-    "category": "fix"
+    "original_msg": "fix: pixel-perfect centered SVG close icons for all admin modals",
+    "title": "Піксельно точні SVG-хрестики закриття для всіх модальних вікон",
+    "details": "Уніфіковано всі 9 діалогових вікон адміністративної панелі єдиним фірмовим стилем кнопок закриття та скасування.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d432162",
     "date": "2026-09-04",
-    "message": "fix: eliminate repeating flash toasts on background polling reloads",
-    "category": "fix"
+    "original_msg": "fix: eliminate repeating flash toasts on background polling reloads",
+    "title": "Запобігання повторним спливаючим повідомленням при фоновому оновленні даних",
+    "details": "Усунуто дублювання системних тостів (toasts) під час автоматичного фонового опитування сервера кожні 15 секунд.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "97b871a",
     "date": "2026-09-04",
-    "message": "fix: remove room accessibility icon, protect modal backdrop drag-out, eliminate duplicate reallocation toast",
-    "category": "fix"
+    "original_msg": "fix: remove room accessibility icon, protect modal backdrop drag-out, eliminate duplicate reallocation toast",
+    "title": "Захист від випадкового закриття модалок при виділенні тексту або протягуванні миші",
+    "details": "Діалогові вікна більше не закриваються помилково, якщо користувач виділив текст студента і відпустив курсор за межами вікна.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "cdfd129",
     "date": "2026-09-04",
-    "message": "fix: resolve reallocate booking button submit and parameter validation",
-    "category": "fix"
+    "original_msg": "fix: resolve reallocate booking button submit and parameter validation",
+    "title": "Корекція відправки форми та валідації параметрів переселення студентів",
+    "details": "Перевірено коректність передачі ідентифікатора ліжко-місця та усунено ризик створення порожніх записів бронювання.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e570eb4",
     "date": "2026-09-04",
-    "message": "fix: intuitive mobile back button handling and prevent exiting to login",
-    "category": "fix"
+    "original_msg": "fix: intuitive mobile back button handling and prevent exiting to login",
+    "title": "Інтуїтивна обробка кнопки «Назад» у мобільних браузерах",
+    "details": "При натисканні апаратної або системної кнопки «Назад» на телефоні закривається модальне вікно замість раптового виходу з облікового запису.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a1a204a",
     "date": "2026-09-04",
-    "message": "feat: minimalist and sleek top header pills with micro-animations",
-    "category": "feat"
+    "original_msg": "feat: minimalist and sleek top header pills with micro-animations",
+    "title": "Мінімалістичні пігулки шапки системи з мікро-анімаціями наведення",
+    "details": "Оновлено верхній навігаційний бар: додано плавні ефекти підсвічування активної вкладки та лічильників повідомлень.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7a6b7f9",
     "date": "2026-09-04",
-    "message": "fix: pixel-perfect centering for free bed plus icon and room avatars",
-    "category": "fix"
+    "original_msg": "fix: pixel-perfect centering for free bed plus icon and room avatars",
+    "title": "Піксельне центрування іконки плюса для вільних ліжок та аватарок кімнат",
+    "details": "Усунуто мікро-зсуви векторних елементів усередині круглих бейджів ліжко-місць у Шахматці.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "2eb99dd",
     "date": "2026-09-04",
-    "message": "feat: restore animated floating academic cap on hero banner",
-    "category": "feat"
+    "original_msg": "feat: restore animated floating academic cap on hero banner",
+    "title": "Анімована академічна конфедератка (шапка випускника) на головному банері",
+    "details": "Додано фірмову плавну анімацію ширяння символу освіти на стартовій панелі особистого кабінету студента.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "66df9f8",
     "date": "2026-09-04",
-    "message": "fix: responsive mobile layout for AccessLogsTab and KPI cards",
-    "category": "fix"
+    "original_msg": "fix: responsive mobile layout for AccessLogsTab and KPI cards",
+    "title": "Адаптивна мобільна верстка журналу КПП та карток аналітичних KPI",
+    "details": "Таблиця реєстрації проходів автоматично трансформується в зручні мобільні картки на екранах менше 768 пікселів.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "309da42",
     "date": "2026-09-04",
-    "message": "feat: redesign hero banner with spacious glassmorphism campus weather and clock widget",
-    "category": "feat"
+    "original_msg": "feat: redesign hero banner with spacious glassmorphism campus weather and clock widget",
+    "title": "Редизайн головного банера зі скляним віджетом реальної погоди Миколаєва та годинником",
+    "details": "Студент на головному екрані бачить точний поточний час та актуальну погоду біля свого навчального корпусу.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "12f3473",
     "date": "2026-09-04",
-    "message": "feat: animate shockwave flash radiating directly from checkmark lines",
-    "category": "feat"
+    "original_msg": "feat: animate shockwave flash radiating directly from checkmark lines",
+    "title": "Анімація імпульсного спалаху (shockwave) при успішному зчитуванні перепустки",
+    "details": "Візуальний ефект радіальної хвилі підтверджує охоронцю та студенту дійсність цифрової перепустки за частку секунди.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9718f3d",
     "date": "2026-09-04",
-    "message": "feat: real-time scan approval animated checkmark on student phone",
-    "category": "feat"
+    "original_msg": "feat: real-time scan approval animated checkmark on student phone",
+    "title": "Анімована галочка успішного проходу на екрані смартфона студента в реальному часі",
+    "details": "Смартфон студента синхронно вібрує та показує смарагдову галочку дозволу одразу після сканування комендантом.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "3587a22",
     "date": "2026-09-04",
-    "message": "feat: show install prompts in mobile browser and hide when running in standalone app",
-    "category": "feat"
+    "original_msg": "feat: show install prompts in mobile browser and hide when running in standalone app",
+    "title": "Розумні підказки встановлення PWA-додатку для мобільних браузерів",
+    "details": "Система коректно пропонує встановити додаток на робочий стіл телефона і автоматично ховає банер, якщо додаток уже встановлено.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "602a4cb",
     "date": "2026-09-04",
-    "message": "fix: optimize admin tabs layout so all tabs including Settings are visible on desktop",
-    "category": "fix"
+    "original_msg": "fix: optimize admin tabs layout so all tabs including Settings are visible on desktop",
+    "title": "Оптимізація ширини та відображення всіх 10 вкладок адміністратора на десктопі",
+    "details": "Усі функціональні розділи системи (включно з Налаштуваннями та Аудитом) розміщені в один акуратний ряд без горизонтального скролу.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "f83cc76",
     "date": "2026-09-04",
-    "message": "feat: make mobile pass fullscreen and add instant continue scanning flow",
-    "category": "feat"
+    "original_msg": "feat: make mobile pass fullscreen and add instant continue scanning flow",
+    "title": "Повноекранний режим цифрової перепустки та безперервне сканування для чергових",
+    "details": "Черговий на вахті може сканувати студентів одного за одним без необхідності повторного відкриття вікна сканера.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "acd964f",
     "date": "2026-09-04",
-    "message": "feat: add quick manual direction override and switcher for access logs",
-    "category": "feat"
+    "original_msg": "feat: add quick manual direction override and switcher for access logs",
+    "title": "Швидке ручне перемикання напрямку проходу (Вхід/Вихід) у журналі КПП",
+    "details": "Комендант може скоригувати напрямок руху студента у разі випадкової помилки в журналі фіксації.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1140821",
     "date": "2026-09-04",
-    "message": "style: remove horizontal scrollbar slider and replace all emojis with crisp SVG icons",
-    "category": "style"
+    "original_msg": "style: remove horizontal scrollbar slider and replace all emojis with crisp SVG icons",
+    "title": "Заміна горизонтальних повзунків та емодзі на чіткі векторні SVG-іконки",
+    "details": "Проведено масштабну чистку інтерфейсу від застарілих елементів на користь сучасної мінімалістичної графіки.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e888e1a",
     "date": "2026-09-04",
-    "message": "fix: resolve syntax error in AdminController index method",
-    "category": "fix"
+    "original_msg": "fix: resolve syntax error in AdminController index method",
+    "title": "Виправлення синтаксичної помилки в методі index контролера AdminController",
+    "details": "Усунуто помилку парсингу PHP у контролері управління кімнатним фондом гуртожитків.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "353132e",
     "date": "2026-09-04",
-    "message": "feat: implement Access Logs and QR checkpoint entry/exit scanning system",
-    "category": "feat"
+    "original_msg": "feat: implement Access Logs and QR checkpoint entry/exit scanning system",
+    "title": "Впровадження підсистеми журналювання КПП та QR-сканування перепусток",
+    "details": "Створено таблицю access_logs у базі даних, маршрути API та компонент сканування через камеру пристрою.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "КПП та Перепустки",
+    "milestone_id": 5,
+    "milestone_title": "🛡️ Безпека КПП та Журнал Аудиту",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "c942d52",
     "date": "2026-09-04",
-    "message": "fix: smooth out header logo hover micro-interaction",
-    "category": "fix"
+    "original_msg": "fix: smooth out header logo hover micro-interaction",
+    "title": "Плавна мікро-анімація наведення курсору на логотип університету МНАУ",
+    "details": "Додано делікатне масштабування та неоновий відблиск герба університету при взаємодії в шапці сайту.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1ce592c",
     "date": "2026-09-04",
-    "message": "clean: hide mobile app install footer button on phone screens",
-    "category": "feat"
+    "original_msg": "clean: hide mobile app install footer button on phone screens",
+    "title": "Приховування зайвої кнопки встановлення мобільного додатку на смартфонах",
+    "details": "Усунуто візуальний шум у мобільній версії сайту, звільнивши більше простору для корисної інформації.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "65c3255",
     "date": "2026-09-04",
-    "message": "style: add subtle dot pattern and soft pastel ambient lighting to light theme background",
-    "category": "style"
+    "original_msg": "style: add subtle dot pattern and soft pastel ambient lighting to light theme background",
+    "title": "Додавання технічного патерну точок (dot grid) та пастельного ембієнт-освітлення",
+    "details": "Світла тема сайту отримала вишуканий академічний фоновий візерунок у стилі сучасних продуктових інтерфейсів.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "3cfc693",
     "date": "2026-09-04",
-    "message": "clean: remove all mobile app install banners and notices from mobile phone views",
-    "category": "feat"
+    "original_msg": "clean: remove all mobile app install banners and notices from mobile phone views",
+    "title": "Очищення мобільних екранів від нав'язливих рекламних банерів інсталяції PWA",
+    "details": "Спрощено перший вхід студента в систему з мобільного пристрою.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "013f470",
     "date": "2026-09-04",
-    "message": "fix: smooth physical fluid curtain curve and eliminate phantom header border line",
-    "category": "fix"
+    "original_msg": "fix: smooth physical fluid curtain curve and eliminate phantom header border line",
+    "title": "Фізично плавна шторка завантаження сайту та усунення фантомної лінії шапки",
+    "details": "Покращено плавність анімації відкриття сайту на мобільних дисплеях із частотою оновлення 120 Гц.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6f54507",
     "date": "2026-09-04",
-    "message": "fix: eliminate mobile flash bug and enhance smooth splash curtain animation",
-    "category": "fix"
+    "original_msg": "fix: eliminate mobile flash bug and enhance smooth splash curtain animation",
+    "title": "Усунення мерехтіння (FOUC) на мобільних пристроях при початковому завантаженні",
+    "details": "Оптимізовано виконання скриптів ініціалізації теми перед рендерингом компонентів Inertia.js.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "131827d",
     "date": "2026-09-04",
-    "message": "feat: persistent install prompts until bound and add gentle registration info card",
-    "category": "feat"
+    "original_msg": "feat: persistent install prompts until bound and add gentle registration info card",
+    "title": "Інформаційна картка швидкої реєстрації та збереження стану PWA-підказки",
+    "details": "Студенти отримали покрокову інструкцію, як додати веб-додаток на головний екран свого смартфона.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "45eaed1",
     "date": "2026-09-04",
-    "message": "style: adapt PWA prompt to light/dark themes and improve install persistence",
-    "category": "style"
+    "original_msg": "style: adapt PWA prompt to light/dark themes and improve install persistence",
+    "title": "Адаптація діалогу встановлення PWA під темну та світлу теми оформлення",
+    "details": "Повідомлення про встановлення тепер гармонійно вписується в обрану тему оформлення операційної системи користувача.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "eafa8de",
     "date": "2026-09-04",
-    "message": "revert: restore original UI, pass modal, and background while keeping PWA app support",
-    "category": "feat"
+    "original_msg": "revert: restore original UI, pass modal, and background while keeping PWA app support",
+    "title": "Відновлення еталонного UI студентського кабінету зі збереженням PWA-можливостей",
+    "details": "Повернуто улюблений вигляд профілю студента, зберігши при цьому всі переваги автономного офлайн-додатку.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "27ab582",
     "date": "2026-09-04",
-    "message": "feat: implement PWA mobile app, gyroscope lava lamp, and 3D digital pass",
-    "category": "feat"
+    "original_msg": "feat: implement PWA mobile app, gyroscope lava lamp, and 3D digital pass",
+    "title": "Розробка прогресивного веб-додатку (PWA), фону лава-лампи та 3D-перепустки",
+    "details": "Створено маніфест PWA, service worker для кешування та технологію 3D-нахилу цифрового студентського квитка.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "77763df",
     "date": "2026-09-04",
-    "message": "style: update empty bed icon to standard material bed pictogram",
-    "category": "style"
+    "original_msg": "style: update empty bed icon to standard material bed pictogram",
+    "title": "Оновлення піктограми вільного ліжка на стандартний ергономічний символ",
+    "details": "Спрощено візуальне сприйняття вільних місць у Шахматці за допомогою лаконічної піктограми ліжка.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "38a4119",
     "date": "2026-09-04",
-    "message": "style: simplify boy and girl bed icons to clean minimalist silhouettes",
-    "category": "style"
+    "original_msg": "style: simplify boy and girl bed icons to clean minimalist silhouettes",
+    "title": "Стилізація силуетів юнаків та дівчат для позначення зайнятих місць",
+    "details": "Розроблено елегантні мінімалістичні силуети мешканців для миттєвої оцінки гендерного складу кімнати.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "fc0bfc2",
     "date": "2026-09-04",
-    "message": "feat: replace occupied bed icons with boy/girl avatar SVG figures",
-    "category": "feat"
+    "original_msg": "feat: replace occupied bed icons with boy/girl avatar SVG figures",
+    "title": "Впровадження гендерних векторних фігур замість загальних іконок ліжок",
+    "details": "Кожен заселений студент відображається векторним силуетом блакитного або рожевого кольору відповідно до статі.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "abefb55",
     "date": "2026-09-04",
-    "message": "fix: use Address object in DirectStudentMail and update toast deduplication",
-    "category": "fix"
+    "original_msg": "fix: use Address object in DirectStudentMail and update toast deduplication",
+    "title": "Використання строгого об'єкта адреси в поштових сповіщеннях DirectStudentMail",
+    "details": "Підвищено надійність доставки повідомлень студентам на офіційні електронні скриньки Gmail/МНАУ.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "76f122a",
     "date": "2026-09-04",
-    "message": "feat: configure SMTP mail settings using Gmail credentials in .env and mail.php",
-    "category": "feat"
+    "original_msg": "feat: configure SMTP mail settings using Gmail credentials in .env and mail.php",
+    "title": "Налаштування SMTP-сервера розсилки електронних листів через безпечний протокол",
+    "details": "Інтегровано поштову службу Laravel Mail для надсилання сповіщень про поселення та розгляд ремонтних заявок.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "36cf8b3",
     "date": "2026-09-04",
-    "message": "refactor: remove manual toast notifications from ContactStudentModal and add pause-on-hover functionality to ToastContainer",
-    "category": "refactor"
+    "original_msg": "refactor: remove manual toast notifications from ContactStudentModal and add pause-on-hover functionality to ToastContainer",
+    "title": "Оптимізація таймерів спливаючих сповіщень та зупинка при наведенні курсору",
+    "details": "Повідомлення залишається видимим, доки адміністратор читає текст, завдяки паузі при наведенні миші.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a85f296",
     "date": "2026-09-03",
-    "message": "fix: Close contact modal immediately on send and gracefully handle unconfigured mail server with internal notification",
-    "category": "fix"
+    "original_msg": "fix: Close contact modal immediately on send and gracefully handle unconfigured mail server with internal notification",
+    "title": "Миттєве закриття модалки повідомлення та безпечна обробка черги пошти",
+    "details": "Користувач не очікує завершення відправки листа сервером — форма закривається миттєво, а пошта йде у фоновому режимі.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "dbda5cd",
     "date": "2026-09-03",
-    "message": "fix: Remove duplicate reallocation badge from header and align action buttons in UsersTab",
-    "category": "fix"
+    "original_msg": "fix: Remove duplicate reallocation badge from header and align action buttons in UsersTab",
+    "title": "Усунення дублювання статусу переселення в шапці та вирівнювання кнопок користувачів",
+    "details": "Покращено візуальну ієрархію у вкладці облікових записів персоналу та студентів.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a16042b",
     "date": "2026-09-03",
-    "message": "fix: Redirect to dashboard after setup, soften titles, fix email route & modal, fix impersonate 403, and remove inclusive icon",
-    "category": "fix"
+    "original_msg": "fix: Redirect to dashboard after setup, soften titles, fix email route & modal, fix impersonate 403, and remove inclusive icon",
+    "title": "Перенаправлення на робочий дашборд після первинного входу та захист сесії",
+    "details": "Усунено помилку прав доступу 403 Forbidden під час переходу коменданта в режим швидкого перегляду системи.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "cf49b5e",
     "date": "2026-09-03",
-    "message": "fix: Replace wheelchair SVG with standard FontAwesome icon and streamline header actions in reallocation mode",
-    "category": "fix"
+    "original_msg": "fix: Replace wheelchair SVG with standard FontAwesome icon and streamline header actions in reallocation mode",
+    "title": "Стандартизація символу доступності та оптимізація панелі дій режиму переселення",
+    "details": "Створено чітку верхню панель навігації при перегляді доступних кімнат під час зміни місця проживання.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d9d63ba",
     "date": "2026-09-03",
-    "message": "feat: Fix inclusive room card badge & layout, add email broadcast for announcements and direct student contact modal",
-    "category": "feat"
+    "original_msg": "feat: Fix inclusive room card badge & layout, add email broadcast for announcements and direct student contact modal",
+    "title": "Електронна розсилка оголошень гуртожитку та модальне вікно зв'язку зі студентом",
+    "details": "Комендант може надіслати важливе оголошення (наприклад, про санітарний день або оплату) всім мешканцям в один клік.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "b5f3646",
     "date": "2026-09-03",
-    "message": "feat: Add prominent ReallocationModal for room change with direct building selection and return navigation bar",
-    "category": "feat"
+    "original_msg": "feat: Add prominent ReallocationModal for room change with direct building selection and return navigation bar",
+    "title": "Спеціальне модальне вікно ReallocationModal для переселення студента між кімнатами",
+    "details": "Зручний покроковий майстер: вибір гуртожитку, поверху, перевірка сумісності сусідів та підтвердження зміни кімнати.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "fb877f6",
     "date": "2026-09-03",
-    "message": "fix: Eliminate duplicate digital pass and relocation buttons, refine page header title and subtitle for settled students, streamline sidebar and catalog",
-    "category": "fix"
+    "original_msg": "fix: Eliminate duplicate digital pass and relocation buttons, refine page header title and subtitle for settled students, streamline sidebar and catalog",
+    "title": "Оптимізація навігаційного меню та каталог доступних кімнат для переселення",
+    "details": "Прибрано дублюючі кнопки дій у шапці профілю студента та впорядковано бічне меню особистого кабінету.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "5235461",
     "date": "2026-09-03",
-    "message": "feat: Restructure student portal UX with contextual layout for settled vs new students, roommate hub, digital pass widget, and expandable reallocation catalog",
-    "category": "feat"
+    "original_msg": "feat: Restructure student portal UX with contextual layout for settled vs new students, roommate hub, digital pass widget, and expandable reallocation catalog",
+    "title": "Реструктуризація UX студентського порталу: кабінет сусіда та цифрова перепустка",
+    "details": "Студент бачить інформацію про своїх сусідів по кімнаті, статус оплати гуртожитку та доступний номерний фонд.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "0e46a1e",
     "date": "2026-09-03",
-    "message": "feat: Real live weather in Mykolaiv via Open-Meteo API with caching and dynamic meteorological conditions",
-    "category": "feat"
+    "original_msg": "feat: Real live weather in Mykolaiv via Open-Meteo API with caching and dynamic meteorological conditions",
+    "title": "Інтеграція реальної погоди Миколаєва через Open-Meteo API з кешуванням",
+    "details": "Отримання температури та атмосферних умов у реальному часі без необхідності платних API-ключів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "83de741",
     "date": "2026-09-03",
-    "message": "feat: Live Mykolaiv weather & clock widget, vibrant Aurora glow mesh, and technical dot grid pattern for light and dark modes",
-    "category": "feat"
+    "original_msg": "feat: Live Mykolaiv weather & clock widget, vibrant Aurora glow mesh, and technical dot grid pattern for light and dark modes",
+    "title": "Віджет погоди та годинника з градієнтною сіткою Aurora Mesh",
+    "details": "Створено ультрасучасний візуальний акцент головного екрана студента з м'якою неоновою підсвіткою.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d45eb06",
     "date": "2026-09-03",
-    "message": "feat: Aurora ambient gradient mesh, dynamic time-of-day greeting, weather/curfew mini-hint, and accessible room support",
-    "category": "feat"
+    "original_msg": "feat: Aurora ambient gradient mesh, dynamic time-of-day greeting, weather/curfew mini-hint, and accessible room support",
+    "title": "Динамічне привітання за часом доби, нагадування про комендантську годину та інклюзивність",
+    "details": "Система вітає студента персоналізовано («Доброго ранку», «Доброго вечора») та вчасно нагадує про правила безпеки.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "cb13d35",
     "date": "2026-09-03",
-    "message": "perf: optimize digital pass for mobile, remove gyro lag, instant 60fps load and clean static layout",
-    "category": "perf"
+    "original_msg": "perf: optimize digital pass for mobile, remove gyro lag, instant 60fps load and clean static layout",
+    "title": "Оптимізація цифрової перепустки: плавний рендеринг 60fps на мобільних пристроях",
+    "details": "Усунено затримки обробки сенсорів руху телефону та забезпечено миттєвий відгук 3D-картки квитка.",
+    "category": "perf",
+    "category_label": "⚡ Оптимізація",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e63a64d",
     "date": "2026-09-03",
-    "message": "style: make digital pass card completely steady and calm on desktop",
-    "category": "style"
+    "original_msg": "style: make digital pass card completely steady and calm on desktop",
+    "title": "Стабілізація картки перепустки на комп'ютерах без підтримки датчиків нахилу",
+    "details": "На десктопних браузерах картка зберігає ідеальний спокійний вигляд з елегантним скляним бліком наведення курсору.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "360ca8f",
     "date": "2026-09-03",
-    "message": "style: restore beautiful 3D tilt card with frosted backdrop fog and clean zero-scrollbar layout",
-    "category": "style"
+    "original_msg": "style: restore beautiful 3D tilt card with frosted backdrop fog and clean zero-scrollbar layout",
+    "title": "Ефект матового скла та 3D-нахил картки перепустки без зайвих смуг прокрутки",
+    "details": "Створено бездоганний візуальний ефект фізичної пластикової ID-картки студента МНАУ в браузері.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "8319484",
     "date": "2026-09-03",
-    "message": "feat: mobile portrait lock, static pass typography, and real-time live gyroscope rotation for QR code",
-    "category": "feat"
+    "original_msg": "feat: mobile portrait lock, static pass typography, and real-time live gyroscope rotation for QR code",
+    "title": "Блокування орієнтації перепустки та живий поворот QR-коду за гіроскопом",
+    "details": "QR-код плавно підлаштовується під кут нахилу телефону охоронця для максимально легкого сканування на вході.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "8dce868",
     "date": "2026-09-03",
-    "message": "feat: full-screen mobile pass, dynamic QR rotation on orientation change, remove scrollbar and add backdrop blur",
-    "category": "feat"
+    "original_msg": "feat: full-screen mobile pass, dynamic QR rotation on orientation change, remove scrollbar and add backdrop blur",
+    "title": "Повноекранний вигляд мобільної перепустки з ефектом глибокого розмиття фону",
+    "details": "Студент може відкрити перепустку на весь екран одним дотиком, що зручно для пред'явлення на КПП гуртожитку.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1a82e59",
     "date": "2026-09-03",
-    "message": "feat: digital student pass modal with 3D tilt, live QR code, gyroscope reaction and ambient effects",
-    "category": "feat"
+    "original_msg": "feat: digital student pass modal with 3D tilt, live QR code, gyroscope reaction and ambient effects",
+    "title": "Інноваційна цифрова перепустка з 3D-нахилом, живим QR-кодом та реакцією на гіроскоп",
+    "details": "Революційне рішення для студентів університету: повна відмова від паперових посвідчень на користь захищеного смартфона.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7b2a5bc",
     "date": "2026-09-03",
-    "message": "fix: prevent overflow of verify button and camera scan button in VerifyOrderModal",
-    "category": "fix"
+    "original_msg": "fix: prevent overflow of verify button and camera scan button in VerifyOrderModal",
+    "title": "Виправлення верстки кнопки підтвердження в модальному вікні VerifyOrderModal",
+    "details": "Усунуто вихід тексту та кнопок за межі модального вікна на невеликих моніторах ноутбуків.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "dc95660",
     "date": "2026-09-03",
-    "message": "style: restyle QR camera scanner and order input for light theme elegance",
-    "category": "style"
+    "original_msg": "style: restyle QR camera scanner and order input for light theme elegance",
+    "title": "Стилізація QR-сканера та поля введення номера ордера для світлої теми",
+    "details": "Ордер на поселення можна перевірити як через сканування камерою, так і ручним введенням у стильному полі.",
+    "category": "style",
+    "category_label": "🎨 Дизайн та стилі",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "0b621a0",
     "date": "2026-09-03",
-    "message": "feat: non-deletable dashes order input and live camera QR scanner in verification modal",
-    "category": "feat"
+    "original_msg": "feat: non-deletable dashes order input and live camera QR scanner in verification modal",
+    "title": "Поле введення ордера з фіксованими дефісами та камера-сканер у модалці перевірки",
+    "details": "Зручне введення офіційного формату ордера МНАУ з автоматичною підстановкою розділових знаків.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "3046b92",
     "date": "2026-09-03",
-    "message": "feat: dynamic year order generation, auto-fill current year prefix in verification, public verify route, and QR code in PDF order",
-    "category": "feat"
+    "original_msg": "feat: dynamic year order generation, auto-fill current year prefix in verification, public verify route, and QR code in PDF order",
+    "title": "Генерація офіційних ордерів на поселення з QR-кодом та публічний маршрут перевірки",
+    "details": "Кожен ордер містить унікальний криптографічний QR-код, який будь-хто може перевірити за прямим посиланням /verify-order.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "b50e50e",
     "date": "2026-09-03",
-    "message": "fix(ui): polish room settings popover layout and separate delete button from capacity stepper",
-    "category": "fix"
+    "original_msg": "fix(ui): polish room settings popover layout and separate delete button from capacity stepper",
+    "title": "Покращення діалогового вікна налаштувань кімнати та захист кнопки видалення",
+    "details": "Кнопку видалення кімнати відокремлено від лічильника зміни кількості ліжок для уникнення випадкової втрати даних.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "dc86f46",
     "date": "2026-09-03",
-    "message": "feat: add rooms, floors, buildings management with default capacity setting and fix commandant building title",
-    "category": "feat"
+    "original_msg": "feat: add rooms, floors, buildings management with default capacity setting and fix commandant building title",
+    "title": "Повноцінне управління корпусами, поверхами та кімнатами гуртожитків",
+    "details": "Адміністратор може налаштовувати структуру університетського містечка, місткість поверхів та призначати комендантів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1a89a48",
     "date": "2026-09-03",
-    "message": "fix: maintain continuous session in-place during impersonation and prevent polling concurrency kickouts",
-    "category": "fix"
+    "original_msg": "fix: maintain continuous session in-place during impersonation and prevent polling concurrency kickouts",
+    "title": "Збереження безперервної сесії під час режиму тимчасового перевтілення (Impersonation)",
+    "details": "Головний адміністратор може переглядати інтерфейс від імені студента без розриву сесії фоновими опитуваннями.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "91d7bf9",
     "date": "2026-09-03",
-    "message": "fix: resolve impersonate auth session and replace visualizer with concise stats header without emojis",
-    "category": "fix"
+    "original_msg": "fix: resolve impersonate auth session and replace visualizer with concise stats header without emojis",
+    "title": "Оптимізація безпеки сесій перевтілення та чіткі числові показники без емодзі",
+    "details": "Посилено автентифікаційні перевірки CSRF та ролей доступу до адміністративної панелі.",
+    "category": "fix",
+    "category_label": "🛠️ Виправлення",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d1a3286",
     "date": "2026-09-03",
-    "message": "feat: implement interactive building occupancy visualizer and add event-driven notifications for updates",
-    "category": "feat"
+    "original_msg": "feat: implement interactive building occupancy visualizer and add event-driven notifications for updates",
+    "title": "Інтерактивний візуалізатор зайнятості гуртожитків та система сповіщень про зміни",
+    "details": "Наочна кругова та смужкова діаграма завантаженості кожного поверху гуртожитку з миттєвим інформуванням.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "2134355",
     "date": "2026-09-03",
-    "message": "refactor: simplify mixed room warning UI and consolidate confirmation dialog logic",
-    "category": "refactor"
+    "original_msg": "refactor: simplify mixed room warning UI and consolidate confirmation dialog logic",
+    "title": "Консолідація діалогових вікон попередження про змішане заселення кімнат",
+    "details": "Об'єднано логіку перевірок статі мешканців кімнати в єдиний безпечний сервіс валідації на рівні бекенду.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "bcaa350",
     "date": "2026-09-03",
-    "message": "feat: add gender display and improved mixed-room warnings in reallocate modal and bookings tab",
-    "category": "feat"
+    "original_msg": "feat: add gender display and improved mixed-room warnings in reallocate modal and bookings tab",
+    "title": "Відображення статі та захисні попередження про змішані кімнати у вкладці бронювань",
+    "details": "Система запобігає випадковому заселенню хлопця в дівочу кімнату (або навпаки) без особливого дозволу адміністратора.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7a4ffbb",
     "date": "2026-09-03",
-    "message": "refactor: replace UI emoji icons with SVG elements and clean up text labels across components",
-    "category": "refactor"
+    "original_msg": "refactor: replace UI emoji icons with SVG elements and clean up text labels across components",
+    "title": "Заміна емодзі на елегантні векторні іконки по всіх інтерфейсних компонентах",
+    "details": "Переведення проекту на єдиний професійний графічний стиль корпоративного рівня.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6ee896f",
     "date": "2026-09-03",
-    "message": "feat: integrate password change and enforcement functionality into profile management",
-    "category": "feat"
+    "original_msg": "feat: integrate password change and enforcement functionality into profile management",
+    "title": "Інтеграція обов'язкової зміни пароля при першому вході в особистий профіль",
+    "details": "Підвищення кібербезпеки студентських акаунтів: при першому вході за тимчасовим паролем вимагається встановити особистий.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "491780b",
     "date": "2026-09-02",
-    "message": "feat: implement forced password change workflow by conditionally disabling current password requirement",
-    "category": "feat"
+    "original_msg": "feat: implement forced password change workflow by conditionally disabling current password requirement",
+    "title": "Реалізація бізнес-процесу примусового оновлення пароля для нових студентів",
+    "details": "Студент отримує доступ до функцій поселення та перепустки лише після встановлення надійного пароля.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "92d956b",
     "date": "2026-09-02",
-    "message": "refactor: add useRef hook to Dashboard imports",
-    "category": "refactor"
+    "original_msg": "refactor: add useRef hook to Dashboard imports",
+    "title": "Оптимізація посилань DOM через хук useRef на головній панелі",
+    "details": "Знижено кількість повторних рендерів React компонентів при скролінгу великої сітки кімнат гуртожитку.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7f71ab5",
     "date": "2026-09-02",
-    "message": "feat: add batch student generation tool in admin panel and optimize intro animation session logic",
-    "category": "feat"
+    "original_msg": "feat: add batch student generation tool in admin panel and optimize intro animation session logic",
+    "title": "Інструмент пакетної генерації студентських акаунтів та оптимізація інтро-анімації",
+    "details": "Адміністратор може завантажити список першокурсників та в один клік згенерувати для них захищені облікові записи.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7c4789f",
     "date": "2026-09-02",
-    "message": "refactor: adjust dashboard polling intervals and remove redundant real-time toast notifications",
-    "category": "refactor"
+    "original_msg": "refactor: adjust dashboard polling intervals and remove redundant real-time toast notifications",
+    "title": "Налаштування інтервалів фонового опитування та усунення зайвих сповіщень",
+    "details": "Оптимізовано мережеве навантаження на сервер Laravel шляхом адаптивного таймінгу запитів активних користувачів.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7341d30",
     "date": "2026-09-02",
-    "message": "feat: add background real-time polling synchronization for dashboard and admin pages",
-    "category": "feat"
+    "original_msg": "feat: add background real-time polling synchronization for dashboard and admin pages",
+    "title": "Фонова синхронізація в реальному часі для панелей адміністратора та коменданта",
+    "details": "Зміни в статусах кімнат та заявок одразу відображаються у всіх відкритих вкладках персоналу гуртожитку.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "db6fd2c",
     "date": "2026-09-02",
-    "message": "refactor: disable Reverb broadcast, remove live status indicators, and add safe dispatch helper for room occupancy events",
-    "category": "refactor"
+    "original_msg": "refactor: disable Reverb broadcast, remove live status indicators, and add safe dispatch helper for room occupancy events",
+    "title": "Безпечний диспетчер подій зайнятості кімнат та оптимізація сокетів",
+    "details": "Створено надійну систему оновлення статусу кімнат через внутрішні системні події Laravel Events.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "a36d2a4",
     "date": "2026-09-02",
-    "message": "feat: import useEffect hook in Admin Dashboard component",
-    "category": "feat"
+    "original_msg": "feat: import useEffect hook in Admin Dashboard component",
+    "title": "Підключення життєвого циклу useEffect в головному компоненті Admin Dashboard",
+    "details": "Забезпечено автоматичну ініціалізацію фільтрів та завантаження структури гуртожитку при відкритті сторінки.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6972c12",
     "date": "2026-09-02",
-    "message": "feat: implement real-time room occupancy updates using Laravel Reverb and Echo",
-    "category": "feat"
+    "original_msg": "feat: implement real-time room occupancy updates using Laravel Reverb and Echo",
+    "title": "Підключення механізму оновлення зайнятості ліжок у реальному часі",
+    "details": "Інтеграція системи оновлення статусу поселення для одночасної злагодженої роботи декількох операторів поселення.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "2aa28dd",
     "date": "2026-09-02",
-    "message": "feat: improve dark mode styles and replace emoji icons with clean SVG icons",
-    "category": "feat"
+    "original_msg": "feat: improve dark mode styles and replace emoji icons with clean SVG icons",
+    "title": "Вдосконалення темної теми оформлення та заміна піктограм на SVG",
+    "details": "Розроблено фірмову контрастну колірну гаму для комфортної роботи персоналу в темний час доби.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "6489fb1",
     "date": "2026-09-02",
-    "message": "chore: update application bootstrap configuration and blade template structure",
-    "category": "chore"
+    "original_msg": "chore: update application bootstrap configuration and blade template structure",
+    "title": "Оновлення базової конфігурації завантажувача Laravel та шаблону Blade",
+    "details": "Налаштування заголовків безпеки, підключення сучасних шрифтів та адаптивного мета-тегу viewport.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "b2f3a58",
     "date": "2026-09-02",
-    "message": "chore: update app.blade.php layout configuration",
-    "category": "chore"
+    "original_msg": "chore: update app.blade.php layout configuration",
+    "title": "Оптимізація кореневого шаблону додатка app.blade.php",
+    "details": "Підготовка основи для односторінкового SPA-застосунку на базі Inertia.js та підключення скриптів PWA.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "76bae44",
     "date": "2026-09-02",
-    "message": "chore: update AppServiceProvider bindings and integrate shared assets in app.blade.php",
-    "category": "chore"
+    "original_msg": "chore: update AppServiceProvider bindings and integrate shared assets in app.blade.php",
+    "title": "Налаштування сервіс-провайдера AppServiceProvider та спільних ресурсів",
+    "details": "Реєстрація глобальних змінних авторизованого користувача та університетських налаштувань для всіх сторінок.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "5c9da10",
     "date": "2026-09-02",
-    "message": "chore: seed database with initial user and booking data",
-    "category": "chore"
+    "original_msg": "chore: seed database with initial user and booking data",
+    "title": "Наповнення бази даних початковими тестовими користувачами та бронюваннями",
+    "details": "Створено базовий набір даних для тестування системи поселення перед запуском у виробниче використання.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "f198796",
     "date": "2026-09-02",
-    "message": "feat: implement announcement system with database migration, controller, and dashboard UI component",
-    "category": "feat"
+    "original_msg": "feat: implement announcement system with database migration, controller, and dashboard UI component",
+    "title": "Впровадження системи університетських оголошень з міграціями та контролером",
+    "details": "Розроблено функціонал публікації важливих повідомлень адміністрації гуртожитку безпосередньо в кабінети студентів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "ff05381",
     "date": "2026-09-02",
-    "message": "feat: improve mobile responsiveness and navigation scrollability across components and dashboard tabs",
-    "category": "feat"
+    "original_msg": "feat: improve mobile responsiveness and navigation scrollability across components and dashboard tabs",
+    "title": "Покращення мобільної адаптивності та горизонтального скролу навігаційних вкладок",
+    "details": "Адміністративна панель стала зручною для перегляду та керування з планшетів і смартфонів чергових.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "efc5a9c",
     "date": "2026-09-02",
-    "message": "feat: localize application to Ukrainian and update branding and UI components",
-    "category": "feat"
+    "original_msg": "feat: localize application to Ukrainian and update branding and UI components",
+    "title": "Повна локалізація інтерфейсу проєкту на українську мову та оновлення брендингу",
+    "details": "Перекладено всі текстові повідомлення, форми валідації, статуси та підказки відповідно до стандартів МНАУ.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e67224b",
     "date": "2026-09-02",
-    "message": "docs: update README installation instructions and add user seeding to DatabaseSeeder",
-    "category": "chore"
+    "original_msg": "docs: update README installation instructions and add user seeding to DatabaseSeeder",
+    "title": "Оновлення технічної інструкції розгортання проєкту в README.md",
+    "details": "Створено чітку документацію щодо налаштування оточення, міграцій бази даних та збірки ассетів.",
+    "category": "docs",
+    "category_label": "📚 Документація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7781583",
     "date": "2026-07-24",
-    "message": "docs: update project documentation in README.md",
-    "category": "chore"
+    "original_msg": "docs: update project documentation in README.md",
+    "title": "Оновлення загальної документації проекту та опису архітектури",
+    "details": "Описано модульну структуру проекту, взаємозв'язки моделей та схему розмежування доступу за ролями.",
+    "category": "docs",
+    "category_label": "📚 Документація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1001d33",
     "date": "2026-07-24",
-    "message": "chore: upgrade @vitejs/plugin-react to version 6.0.0",
-    "category": "chore"
+    "original_msg": "chore: upgrade @vitejs/plugin-react to version 6.0.0",
+    "title": "Оновлення плагіна @vitejs/plugin-react до версії 6.0 для швидкої збірки",
+    "details": "Прискорено процес компіляції React компонентів та гарячої заміни модулів (HMR) під час розробки.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "412605c",
     "date": "2026-07-24",
-    "message": "feat: route commandants to admin dashboard and update header navigation logic",
-    "category": "feat"
+    "original_msg": "feat: route commandants to admin dashboard and update header navigation logic",
+    "title": "Спеціалізовані маршрути для комендантів та логіка прав навігації",
+    "details": "Коменданти отримали прямий доступ до панелі управління житловим фондом свого гуртожитку.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "26f0d86",
     "date": "2026-07-24",
-    "message": "feat: implement comprehensive admin dashboard tabs and management modals for academic, user, and booking settings",
-    "category": "feat"
+    "original_msg": "feat: implement comprehensive admin dashboard tabs and management modals for academic, user, and booking settings",
+    "title": "Реалізація повного набору вкладок адміністратора та модальних вікон управління",
+    "details": "Розроблено структуру вкладок: Номерний фонд, Студенти, Бронювання, Академічні налаштування та Звіти.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "f806a97",
     "date": "2026-07-24",
-    "message": "refactor: standardize code formatting and improve UI for student management table in dashboard",
-    "category": "refactor"
+    "original_msg": "refactor: standardize code formatting and improve UI for student management table in dashboard",
+    "title": "Стандартизація коду та редизайн таблиці управління студентами",
+    "details": "Створено швидкий пошук студентів за ПІБ, номером групи, курсом та закріпленою кімнатою.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "d9d6ddc",
     "date": "2026-07-23",
-    "message": "feat: add email change request flow, order verification system, and improve AuthenticatedLayout state management",
-    "category": "feat"
+    "original_msg": "feat: add email change request flow, order verification system, and improve AuthenticatedLayout state management",
+    "title": "Заявки на зміну електронної пошти та система верифікації ордерів на поселення",
+    "details": "Студенти отримали можливість безпечно змінювати контактну пошту з обов'язковим підтвердженням адміністратора.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "9bf2911",
     "date": "2026-07-21",
-    "message": "refactor: modularize AuthenticatedLayout by extracting header, footer, toast, notification, and animation components",
-    "category": "refactor"
+    "original_msg": "refactor: modularize AuthenticatedLayout by extracting header, footer, toast, notification, and animation components",
+    "title": "Модульна декомпозиція базового макета AuthenticatedLayout",
+    "details": "Виділено незалежні компоненти: шапка системи, футер, контейнер сповіщень та анімаційні переходи.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "ede96b5",
     "date": "2026-07-17",
-    "message": "added .env",
-    "category": "feat"
+    "original_msg": "added .env",
+    "title": "Конфігурація середовища змінних (.env) для налаштування бази даних та пошти",
+    "details": "Створено захищений файл параметрів сервера, підключення до бази PostgreSQL та ключів шифрування.",
+    "category": "chore",
+    "category_label": "📦 Збірка/Конфігурація",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "ccc5549",
     "date": "2026-07-17",
-    "message": "feat: implement session-persistent entrance animation state using window object",
-    "category": "feat"
+    "original_msg": "feat: implement session-persistent entrance animation state using window object",
+    "title": "Збереження стану інтро-анімації в сесії браузера (window object)",
+    "details": "Ефектна анімація вітання відтворюється лише один раз за робочу сесію, не відволікаючи користувача при переході між сторінками.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "241f5fc",
     "date": "2026-07-17",
-    "message": "feat: add monolithic wave loading animation and improve dashboard card entrance transitions",
-    "category": "feat"
+    "original_msg": "feat: add monolithic wave loading animation and improve dashboard card entrance transitions",
+    "title": "Анімація монолітної хвилі завантаження та плавні переходи карток дашборду",
+    "details": "Створено відчуття швидкодії та легкості інтерфейсу завдяки анімаційним переходам CSS Keyframes.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "06b8555",
     "date": "2026-07-17",
-    "message": "feat: implement system settings module and integrate global intake status control",
-    "category": "feat"
+    "original_msg": "feat: implement system settings module and integrate global intake status control",
+    "title": "Модуль глобальних налаштувань системи та управління сезоном поселення",
+    "details": "Головний адміністратор може відкривати або призупиняти прийом заявок на поселення для всіх гуртожитків в один клік.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "7151943",
     "date": "2026-07-17",
-    "message": "feat: implement user notification system with bell icon, dropdown display, and mark-as-read functionality",
-    "category": "feat"
+    "original_msg": "feat: implement user notification system with bell icon, dropdown display, and mark-as-read functionality",
+    "title": "Система користувацьких сповіщень з дзвіночком, списком та позначкою прочитання",
+    "details": "Користувачі миттєво бачать зміну статусу своєї заявки, нові оголошення та відповіді на ремонтні запити.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Студентський кабінет",
+    "milestone_id": 3,
+    "milestone_title": "�� Студентський Портал & 3D-Перепустка",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "338c5b1",
     "date": "2026-07-17",
-    "message": "refactor: update flash notification logic to use router events and fix manual check-in scroll behavior",
-    "category": "refactor"
+    "original_msg": "refactor: update flash notification logic to use router events and fix manual check-in scroll behavior",
+    "title": "Оновлення обробки flash-сповіщень на події Inertia Router та стабілізація скролу",
+    "details": "Виправлено збереження позиції прокрутки списку кімнат при ручному заселенні студента.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "36ff172",
     "date": "2026-07-16",
-    "message": "feat: implement room closure, reallocation notifications, and a global toast notification system",
-    "category": "feat"
+    "original_msg": "feat: implement room closure, reallocation notifications, and a global toast notification system",
+    "title": "Функціонал закриття кімнат на ремонт, сповіщення про переселення та глобальні тости",
+    "details": "Комендант може тимчасово вивести кімнату з експлуатації з автоматичним інформуванням мешканців про нові варіанти розселення.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "1cd98af",
     "date": "2026-07-16",
-    "message": "refactor: automate mixed gender room creation during manual booking and improve UI layout for booking lists",
-    "category": "refactor"
+    "original_msg": "refactor: automate mixed gender room creation during manual booking and improve UI layout for booking lists",
+    "title": "Автоматичний контроль змішаного заселення та оптимізація списку бронювань",
+    "details": "Система автоматично фіксує кімнати зі змішаним проживанням та маркує їх відповідними підказками.",
+    "category": "refactor",
+    "category_label": "♻️ Рефакторинг",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "50fbf9e",
     "date": "2026-07-16",
-    "message": "feat: add gender conflict validation and forced mixed-room booking functionality to manual check-in and dashboard UI",
-    "category": "feat"
+    "original_msg": "feat: add gender conflict validation and forced mixed-room booking functionality to manual check-in and dashboard UI",
+    "title": "Валідація гендерних конфліктів та можливість примусового заселення змішаних кімнат",
+    "details": "Адміністратор має гнучкий інструмент заселення сімейних пар або спеціальних студентських груп під особисту відповідальність.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "0c4dd60",
     "date": "2026-07-16",
-    "message": "feat: extend user profile with academic details and gender, and update registration flow",
-    "category": "feat"
+    "original_msg": "feat: extend user profile with academic details and gender, and update registration flow",
+    "title": "Розширення профілю користувача академічними атрибутами, статтю та процес реєстрації",
+    "details": "Додано поля: факультет, спеціальність, номер академічної групи, курс та контактний телефон.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "81e4626",
     "date": "2026-07-15",
-    "message": "feat: add dark mode support across the application with persistent theme toggling",
-    "category": "feat"
+    "original_msg": "feat: add dark mode support across the application with persistent theme toggling",
+    "title": "Підтримка темного режиму (Dark Mode) по всій системі зі збереженням вибору",
+    "details": "Користувач може комфортно працювати в додатку вночі, налаштування теми надійно зберігається в локальному сховищі браузера.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Дизайн-система",
+    "milestone_id": 7,
+    "milestone_title": "�� Єдина Дизайн-Система та Реліз",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "082294c",
     "date": "2026-07-15",
-    "message": "feat: add dark mode support and rejection reason field for bookings",
-    "category": "feat"
+    "original_msg": "feat: add dark mode support and rejection reason field for bookings",
+    "title": "Додавання причини відхилення заявки на поселення та адаптація під темну тему",
+    "details": "Студент завжди знає точну причину відмови (наприклад, неповнота документів або відсутність пільг) з рекомендаціями коменданта.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Шахматка кімнат",
+    "milestone_id": 2,
+    "milestone_title": "🏢 Інтерактивна Шахматка Кімнат",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "684a17e",
     "date": "2026-07-15",
-    "message": "feat: implement mandatory password and profile update enforcement for new users with admin batch generation and audit log management tools",
-    "category": "feat"
+    "original_msg": "feat: implement mandatory password and profile update enforcement for new users with admin batch generation and audit log management tools",
+    "title": "Обов'язкова первинна зміна пароля, пакетне створення акаунтів та аудит дій",
+    "details": "Впроваджено корпоративний стандарт безпеки університетської мережі МНАУ для захисту персональних даних студентів.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Авторизація та Безпека",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "cdc98bc",
     "date": "2026-07-15",
-    "message": "feat: add maintenance ticketing system, user contact fields, and audit logging with admin dashboard improvements.",
-    "category": "feat"
+    "original_msg": "feat: add maintenance ticketing system, user contact fields, and audit logging with admin dashboard improvements.",
+    "title": "Створення підсистеми заявок на ремонт, контактних даних та первинного логу аудиту",
+    "details": "Студенти отримали можливість повідомляти про побутові поломки (сантехніка, електрика, меблі) безпосередньо зі смартфона.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Система ремонтів",
+    "milestone_id": 4,
+    "milestone_title": "🔧 Технічні Ремонти та Швидкий Зв'язок",
+    "author": "Казаковцев Євген Вадимович"
   },
   {
     "hash": "e4c9f15",
     "date": "2026-07-15",
-    "message": "feat: initialize Laravel hostel management application with authentication, database models, and React/Inertia frontend",
-    "category": "feat"
+    "original_msg": "feat: initialize Laravel hostel management application with authentication, database models, and React/Inertia frontend",
+    "title": "Ініціалізація та фундаментальний старт проєкту автоматизації гуртожитків МНАУ",
+    "details": "Створення базового каркасу Laravel 11, інтеграція Inertia.js з React 18, проєктування архітектури бази даних, ролей користувачів та маршрутизації.",
+    "category": "feat",
+    "category_label": "🚀 Новий функціонал",
+    "module": "Загальне ядро",
+    "milestone_id": 1,
+    "milestone_title": "🏗️ Фундамент, Авторизація та БД",
+    "author": "Казаковцев Євген Вадимович"
   }
 ]

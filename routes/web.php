@@ -48,6 +48,15 @@ Route::middleware('auth')->group(function () {
 // Публічна перевірка справжності ордерів (за кодом або QR)
 Route::get('/verify-order/{orderNumber?}', [OrderVerificationController::class, 'verify'])->name('verify-order');
 
+// Публічна інтерактивна презентація та візуалізація Git-історії розробки
+Route::get('/presentation', function () {
+    return response()->file(public_path('presentation.html'));
+})->name('project.presentation');
+
+Route::get('/presentation.html', function () {
+    return response()->file(public_path('presentation.html'));
+});
+
 Route::post('/bookings/{booking}/request-reallocate', [AdminController::class, 'requestReallocate'])->name('bookings.request-reallocate');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
