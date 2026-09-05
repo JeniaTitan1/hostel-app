@@ -419,19 +419,6 @@ export default function BookingsTab({
                                                         <span className="text-xs text-gray-400 font-mono">
                                                             {booking.user?.email}
                                                         </span>
-                                                        {booking.user && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setContactingUser(booking.user)}
-                                                                className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 font-bold text-[10px] hover:bg-sky-100 dark:hover:bg-sky-900/50 inline-flex items-center gap-1 cursor-pointer transition-colors"
-                                                                title="Зв'язатися зі студентом"
-                                                            >
-                                                                <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                                </svg>
-                                                                <span>Зв'язатися</span>
-                                                            </button>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -493,12 +480,25 @@ export default function BookingsTab({
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-2 pt-1">
+                                        <div className="flex items-center gap-2 pt-1">
+                                            {booking.user && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setContactingUser(booking.user)}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/70 text-xs font-bold transition-all hover:shadow-2xs active:scale-95 shrink-0 cursor-pointer"
+                                                    title="Зв'язатися зі студентом (Telegram, телефон або email)"
+                                                >
+                                                    <svg className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                                    </svg>
+                                                    <span>Зв'язок</span>
+                                                </button>
+                                            )}
                                             <button
                                                 type="button"
                                                 disabled={actionProcessingId === booking.id}
                                                 onClick={() => handleApproveWithPrompt(booking, style.mixedStatus, style.accessibleStatus)}
-                                                className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                                                className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -508,9 +508,9 @@ export default function BookingsTab({
                                             <button
                                                 type="button"
                                                 onClick={() => handleReject(booking.id)}
-                                                className="w-full py-2 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-bold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                                                className="flex-1 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-900/50 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                                             >
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <svg className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                                 <span>Відхилити</span>
@@ -530,7 +530,7 @@ export default function BookingsTab({
                                         <th className="p-4">Тип заявки</th>
                                         <th className="p-4">Корпус</th>
                                         <th className="p-4">Поверх / Кімната & Статус</th>
-                                        <th className="p-4 text-right whitespace-nowrap w-48">Дії</th>
+                                        <th className="p-4 text-right whitespace-nowrap">Дії</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-200">
@@ -584,19 +584,6 @@ export default function BookingsTab({
                                                                 <span className="text-[11px] text-gray-400 font-mono truncate">
                                                                     {booking.user?.email}
                                                                 </span>
-                                                                {booking.user && (
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => setContactingUser(booking.user)}
-                                                                        className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 font-bold text-[10px] hover:bg-sky-100 dark:hover:bg-sky-900/50 inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                                                                        title="Зв'язатися зі студентом"
-                                                                    >
-                                                                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                                        </svg>
-                                                                        <span>Зв'язатися</span>
-                                                                    </button>
-                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -658,13 +645,27 @@ export default function BookingsTab({
                                                     )}
                                                 </td>
 
-                                                <td className="p-4 text-right align-middle whitespace-nowrap w-48">
+                                                <td className="p-4 text-right align-middle whitespace-nowrap">
                                                     <div className="flex items-center justify-end gap-2">
+                                                        {booking.user && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setContactingUser(booking.user)}
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/70 text-xs font-bold transition-all hover:shadow-2xs active:scale-95 shrink-0 cursor-pointer"
+                                                                title="Зв'язатися зі студентом (Telegram, телефон або email)"
+                                                            >
+                                                                <svg className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                                                </svg>
+                                                                <span>Зв'язок</span>
+                                                            </button>
+                                                        )}
                                                         <button
                                                             type="button"
                                                             disabled={actionProcessingId === booking.id}
                                                             onClick={() => handleApproveWithPrompt(booking, style.mixedStatus, style.accessibleStatus)}
-                                                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50 shadow-xs active:scale-95 flex items-center gap-1 cursor-pointer"
+                                                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all duration-150 shadow-2xs hover:shadow-xs active:scale-95 shrink-0 cursor-pointer disabled:opacity-50"
+                                                            title="Схвалити заявку"
                                                         >
                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -674,9 +675,10 @@ export default function BookingsTab({
                                                         <button
                                                             type="button"
                                                             onClick={() => handleReject(booking.id)}
-                                                            className="px-3.5 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-semibold transition-all border border-red-200 dark:border-red-800 active:scale-95 flex items-center gap-1 cursor-pointer"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-900/50 text-xs font-bold transition-all hover:shadow-2xs active:scale-95 shrink-0 cursor-pointer"
+                                                            title="Відхилити заявку"
                                                         >
-                                                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <svg className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                             </svg>
                                                             <span>Відхилити</span>
