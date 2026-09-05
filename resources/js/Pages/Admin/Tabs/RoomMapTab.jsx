@@ -982,10 +982,10 @@ export default function RoomMapTab({
                                 }`}
                             >
                                 <option value="all">Усі кімнати (зайнятість)</option>
-                                <option value="has_beds">🛏️ Є вільні ліжка (койки)</option>
-                                <option value="empty_rooms">🚪 Повністю вільні кімнати</option>
-                                <option value="full">🔒 Повністю заселені (100%)</option>
-                                <option value="repair">🛠️ На ремонті</option>
+                                <option value="has_beds">Є вільні ліжка (койки)</option>
+                                <option value="empty_rooms">Повністю вільні кімнати</option>
+                                <option value="full">Повністю заселені (100%)</option>
+                                <option value="repair">На ремонті</option>
                             </select>
                             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-emerald-600 dark:text-emerald-400">
                                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
