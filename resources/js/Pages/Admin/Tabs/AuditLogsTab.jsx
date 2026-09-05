@@ -1236,19 +1236,26 @@ export default function AuditLogsTab({
                         {/* Кількість записів на сторінці */}
                         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto text-xs text-slate-500 dark:text-gray-400">
                             <span className="text-[11px] font-semibold">На сторінці:</span>
-                            <select
-                                value={perPage}
-                                onChange={(e) => {
-                                    setPerPage(Number(e.target.value));
-                                    setCurrentPage(1);
-                                }}
-                                className="text-xs rounded-xl border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 py-1.5 px-3 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold"
-                            >
-                                <option value={10}>10</option>
-                                <option value={20}>20</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                            </select>
+                            <div className="relative inline-flex items-center">
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => {
+                                        setPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="appearance-none text-xs rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 py-1.5 pl-3.5 pr-8 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold cursor-pointer transition-all shadow-2xs min-w-[64px]"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 dark:text-gray-400">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
