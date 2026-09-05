@@ -4,10 +4,11 @@ import InputLabel from "@/Components/InputLabel";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 /**
- * Преміальна органічна анімація «Fluid Aurora & Star Dust»:
- * Живі рідкі хвилі з гармонійною математикою коливань, які м'яко переливаються
- * смарагдовими, бірюзовими та ціановими градієнтами, реагуючи на рух курсора,
- * а також плаваючі мікро-частинки сяйва.
+ * Преміальна органічна анімація «Luminous Fluid Aurora»:
+ * 4 багатошарові рідкі хвилі з природною математикою гармонійних коливань,
+ * які безперервно дихають та плавно переливаються м'якими смарагдово-бірюзовими
+ * градієнтами, а також повільно дрейфуючий зоряний пил.
+ * (Без штучного свічення від мишки).
  */
 function FluidAuroraBackground({ darkMode }) {
     const canvasRef = useRef(null);
@@ -28,58 +29,54 @@ function FluidAuroraBackground({ darkMode }) {
         };
         window.addEventListener("resize", handleResize);
 
-        // Курсор для інтерактивної взаємодії
-        const mouse = { x: null, y: null, targetX: null, targetY: null };
-        const handleMouseMove = (e) => {
-            mouse.targetX = e.clientX;
-            mouse.targetY = e.clientY;
-        };
-        const handleMouseLeave = () => {
-            mouse.targetX = null;
-            mouse.targetY = null;
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseleave", handleMouseLeave);
-
-        // Хвилі рідкого сяйва
+        // 4 плавні шари рідкої Аврори з різними фазами, амплітудами та швидкістю
         const waves = [
             {
-                baseYRatio: 0.65,
-                amplitude: 65,
-                freq: 0.0025,
-                speed: 0.0012,
+                baseYRatio: 0.58,
+                amplitude: 70,
+                freq: 0.0022,
+                speed: 0.0010,
                 colorLight: ["rgba(16, 185, 129, 0.16)", "rgba(13, 148, 136, 0.02)"],
-                colorDark: ["rgba(16, 185, 129, 0.22)", "rgba(6, 78, 59, 0.02)"],
+                colorDark: ["rgba(16, 185, 129, 0.24)", "rgba(4, 47, 46, 0.03)"],
                 phase: 0,
             },
             {
-                baseYRatio: 0.72,
-                amplitude: 80,
-                freq: 0.0018,
-                speed: -0.0009,
-                colorLight: ["rgba(20, 184, 166, 0.14)", "rgba(14, 116, 144, 0.01)"],
-                colorDark: ["rgba(20, 184, 166, 0.20)", "rgba(4, 47, 46, 0.02)"],
-                phase: 2.1,
+                baseYRatio: 0.67,
+                amplitude: 85,
+                freq: 0.0016,
+                speed: -0.0008,
+                colorLight: ["rgba(20, 184, 166, 0.15)", "rgba(14, 116, 144, 0.02)"],
+                colorDark: ["rgba(20, 184, 166, 0.22)", "rgba(6, 78, 59, 0.03)"],
+                phase: 2.4,
             },
             {
-                baseYRatio: 0.80,
+                baseYRatio: 0.76,
                 amplitude: 95,
-                freq: 0.0014,
-                speed: 0.0015,
+                freq: 0.0012,
+                speed: 0.0013,
+                colorLight: ["rgba(45, 212, 191, 0.14)", "rgba(6, 182, 212, 0.01)"],
+                colorDark: ["rgba(45, 212, 191, 0.19)", "rgba(8, 51, 68, 0.02)"],
+                phase: 4.5,
+            },
+            {
+                baseYRatio: 0.85,
+                amplitude: 110,
+                freq: 0.0010,
+                speed: -0.0011,
                 colorLight: ["rgba(6, 182, 212, 0.12)", "rgba(20, 184, 166, 0.01)"],
-                colorDark: ["rgba(6, 182, 212, 0.18)", "rgba(8, 51, 68, 0.02)"],
-                phase: 4.2,
+                colorDark: ["rgba(56, 189, 248, 0.16)", "rgba(4, 47, 46, 0.02)"],
+                phase: 1.2,
             },
         ];
 
-        // М'які плаваючі частинки (зоряний пил знань)
-        const particleCount = 28;
+        // М'які плаваючі частинки (світловий пил кампусу)
+        const particleCount = 30;
         const particles = Array.from({ length: particleCount }, () => ({
             x: Math.random() * width,
             y: Math.random() * height,
-            radius: Math.random() * 2 + 1,
-            speedY: Math.random() * 0.35 + 0.1,
-            speedX: (Math.random() - 0.5) * 0.25,
+            radius: Math.random() * 2.2 + 1,
+            speedY: Math.random() * 0.3 + 0.08,
+            speedX: (Math.random() - 0.5) * 0.2,
             alpha: Math.random() * 0.4 + 0.2,
             pulseSpeed: Math.random() * 0.02 + 0.01,
             phase: Math.random() * Math.PI * 2,
@@ -93,64 +90,22 @@ function FluidAuroraBackground({ darkMode }) {
             time += 1;
             ctx.clearRect(0, 0, width, height);
 
-            // Плавна інтерполяція положення миші
-            if (mouse.targetX !== null) {
-                if (mouse.x === null) {
-                    mouse.x = mouse.targetX;
-                    mouse.y = mouse.targetY;
-                } else {
-                    mouse.x += (mouse.targetX - mouse.x) * 0.05;
-                    mouse.y += (mouse.targetY - mouse.y) * 0.05;
-                }
-            }
-
-            // 1. Інтерактивне розсіяне свічення за курсором (Spotlight)
-            if (mouse.x !== null && mouse.y !== null) {
-                const spotlightRadius = 350;
-                const spotGrad = ctx.createRadialGradient(
-                    mouse.x,
-                    mouse.y,
-                    0,
-                    mouse.x,
-                    mouse.y,
-                    spotlightRadius
-                );
-                spotGrad.addColorStop(
-                    0,
-                    darkMode
-                        ? "rgba(52, 211, 153, 0.07)"
-                        : "rgba(16, 185, 129, 0.06)"
-                );
-                spotGrad.addColorStop(1, "transparent");
-                ctx.fillStyle = spotGrad;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            // 2. Малювання плавних хвиль рідкої Аврори
+            // 1. Малювання гармонійних рідких хвиль Аврори
             waves.forEach((w) => {
                 ctx.save();
                 ctx.beginPath();
                 ctx.moveTo(0, height);
 
                 const baseY = height * w.baseYRatio;
-                const step = 10;
+                const step = 8;
 
                 for (let x = 0; x <= width; x += step) {
-                    // Основна синусоїда + вторинна гармоніка для органічності
-                    const sin1 = Math.sin(x * w.freq + w.phase + time * w.speed) * w.amplitude;
-                    const cos1 = Math.cos(x * w.freq * 0.5 - time * w.speed * 0.7) * (w.amplitude * 0.35);
+                    // Основна хвиля + повільне органічне дихання амплітуди
+                    const breathe = Math.sin(time * 0.001 + w.phase) * 12;
+                    const sin1 = Math.sin(x * w.freq + w.phase + time * w.speed) * (w.amplitude + breathe);
+                    const cos1 = Math.cos(x * w.freq * 0.55 - time * w.speed * 0.65) * (w.amplitude * 0.4);
 
-                    // М'який вигин хвилі при наближенні курсора
-                    let mouseBend = 0;
-                    if (mouse.x !== null && mouse.y !== null) {
-                        const dist = Math.abs(x - mouse.x);
-                        if (dist < 260) {
-                            const factor = Math.cos((dist / 260) * (Math.PI / 2));
-                            mouseBend = factor * ((mouse.y - baseY) * 0.12);
-                        }
-                    }
-
-                    const y = baseY + sin1 + cos1 + mouseBend;
+                    const y = baseY + sin1 + cos1;
                     ctx.lineTo(x, y);
                 }
 
@@ -167,10 +122,10 @@ function FluidAuroraBackground({ darkMode }) {
                 ctx.restore();
             });
 
-            // 3. Плаваючі світлові частинки
+            // 2. М'які плаваючі частинки сяйва
             particles.forEach((p) => {
                 p.y -= p.speedY;
-                p.x += p.speedX + Math.sin(p.phase) * 0.2;
+                p.x += p.speedX + Math.sin(p.phase) * 0.18;
                 p.phase += p.pulseSpeed;
 
                 if (p.y < -20) {
@@ -186,8 +141,8 @@ function FluidAuroraBackground({ darkMode }) {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fillStyle = darkMode
-                    ? `rgba(52, 211, 153, ${currentAlpha * 0.75})`
-                    : `rgba(16, 185, 129, ${currentAlpha * 0.55})`;
+                    ? `rgba(52, 211, 153, ${currentAlpha * 0.8})`
+                    : `rgba(16, 185, 129, ${currentAlpha * 0.6})`;
                 ctx.fill();
                 ctx.restore();
             });
@@ -212,8 +167,6 @@ function FluidAuroraBackground({ darkMode }) {
             isRunning = false;
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener("resize", handleResize);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseleave", handleMouseLeave);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [darkMode]);
@@ -270,22 +223,22 @@ export default function Login({ status, canResetPassword = true }) {
         <div className="min-h-screen flex flex-col justify-between items-center bg-[#f8fafc] dark:bg-[#080d1a] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative overflow-hidden font-sans antialiased p-4 sm:p-6 lg:p-8">
             <Head title="Авторизація — МНАУ Гуртожитки" />
 
-            {/* Живий фон Аврори та мікро-сітка */}
+            {/* Живий фон Аврори та мікро-текстура */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
                 {/* Невагома тактильна текстура */}
                 <div className="absolute inset-0 bg-dot-pattern opacity-20 dark:opacity-10" />
 
-                {/* Верхня розсіяна смарагдово-м'ятна аура */}
+                {/* Верхнє м'яке свічення для створення просторової глибини */}
                 <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-[950px] h-[550px] rounded-full bg-gradient-to-b from-emerald-400/18 via-teal-300/10 to-transparent dark:from-emerald-500/20 dark:via-teal-600/12 dark:to-transparent blur-[140px] pointer-events-none" />
 
-                {/* Нижня розсіяна ціанова аура */}
-                <div className="absolute -bottom-44 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full bg-gradient-to-t from-cyan-400/15 via-teal-400/8 to-transparent dark:from-sky-500/16 dark:via-teal-700/10 dark:to-transparent blur-[150px] pointer-events-none" />
+                {/* Нижнє ціанове розсіяне свічення */}
+                <div className="absolute -bottom-44 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full bg-gradient-to-t from-cyan-400/14 via-teal-400/8 to-transparent dark:from-sky-500/16 dark:via-teal-700/10 dark:to-transparent blur-[150px] pointer-events-none" />
 
-                {/* Органічні рідкі хвилі Аврори з інтерактивним рухом за мишею */}
+                {/* Органічні рідкі хвилі Аврори (без курсорного свічення) */}
                 <FluidAuroraBackground darkMode={darkMode} />
             </div>
 
-            {/* Верхній блок: кнопка перемикання темної теми */}
+            {/* Верхня панель: перемикач теми */}
             <div className="w-full max-w-5xl flex justify-end relative z-30">
                 <button
                     onClick={() => setDarkMode(!darkMode)}
@@ -306,29 +259,25 @@ export default function Login({ status, canResetPassword = true }) {
                 </button>
             </div>
 
-            {/* ГОЛОВНА ЦЕНТРАЛЬНА КАРТКА АВТОРИЗАЦІЇ */}
-            <div className="my-auto w-full max-w-[425px] relative z-20 flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
-                {/* Статус повідомлення (якщо наявне) */}
+            {/* ЦЕНТРАЛЬНА КАРТКА АВТОРИЗАЦІЇ */}
+            <div className="my-auto w-full max-w-[420px] relative z-20 flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
+                {/* Статус повідомлення (після відновлення пароля тощо) */}
                 {status && (
                     <div className="mb-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/60 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 w-full text-center shadow-xs">
                         {status}
                     </div>
                 )}
 
-                {/* Преміальний скляний моноліт */}
-                <div className="w-full bg-white/80 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] dark:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] p-8 sm:p-10 transition-all relative overflow-hidden">
+                {/* Скляний моноліт форми */}
+                <div className="w-full bg-white/85 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.07)] dark:shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] p-8 sm:p-10 transition-all relative overflow-hidden">
                     {/* Тонка внутрішня світлова лінія вгорі картки */}
                     <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/40 dark:via-emerald-400/50 to-transparent pointer-events-none" />
 
-                    {/* Фірмовий блок брендингу */}
-                    <div className="flex flex-col items-center text-center mb-7">
-                        <div className="relative mb-3.5 group">
-                            {/* М'яке розсіяне світіння навколо емблеми */}
-                            <div className="absolute inset-0 bg-emerald-500/25 dark:bg-emerald-400/30 rounded-2xl blur-xl transition-all duration-500 group-hover:bg-emerald-500/40 group-hover:scale-110" />
-                            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-2xl shadow-lg shadow-emerald-500/25 ring-1 ring-white/40 dark:ring-white/20 transition-transform duration-300 group-hover:scale-105">
-                                <span>М</span>
-                                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#0c1427] animate-pulse" />
-                            </div>
+                    {/* Фірмовий блок брендингу (статичний, без анімації при наведенні) */}
+                    <div className="flex flex-col items-center text-center mb-7 select-none">
+                        {/* Чиста, стабільна іконка МНАУ */}
+                        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 text-white font-black text-2xl shadow-md shadow-emerald-500/20 ring-1 ring-white/30 dark:ring-white/10 mb-3.5 pointer-events-none">
+                            <span>М</span>
                         </div>
 
                         {/* Назва МНАУ ГУРТОЖИТКИ */}
@@ -344,14 +293,9 @@ export default function Login({ status, canResetPassword = true }) {
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-snug max-w-xs">
                             Миколаївський національний аграрний університет
                         </p>
-
-                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-400/25">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span>Вхід до системи розселення</span>
-                        </div>
                     </div>
 
-                    {/* Форма авторизації */}
+                    {/* Оптимізована форма входу */}
                     <form onSubmit={submit} className="space-y-4">
                         {/* Поле Email */}
                         <div>
@@ -372,7 +316,7 @@ export default function Login({ status, canResetPassword = true }) {
                                     name="email"
                                     value={data.email}
                                     placeholder="student@mnau.edu.ua"
-                                    className="w-full pl-10 pr-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
+                                    className="w-full pl-10 pr-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs transition-all"
                                     autoComplete="username"
                                     autoFocus
                                     required
@@ -403,7 +347,7 @@ export default function Login({ status, canResetPassword = true }) {
                                     name="password"
                                     value={data.password}
                                     placeholder="••••••••"
-                                    className="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
+                                    className="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs transition-all"
                                     autoComplete="current-password"
                                     required
                                     onFocus={() => setPasswordFocused(true)}
@@ -462,7 +406,7 @@ export default function Login({ status, canResetPassword = true }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/35 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {processing ? (
                                     <>
@@ -474,8 +418,8 @@ export default function Login({ status, canResetPassword = true }) {
                                     </>
                                 ) : (
                                     <>
-                                        <span>Увійти до системи</span>
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <span>Увійти</span>
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                         </svg>
                                     </>
