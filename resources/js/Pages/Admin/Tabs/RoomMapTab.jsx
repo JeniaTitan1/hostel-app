@@ -646,12 +646,12 @@ export default function RoomMapTab({
 
                                                     {/* Назва курсу знизу (кнопка) */}
                                                     <div className="mt-2 text-center w-full">
-                                                        <span className={`inline-block px-1.5 py-0.5 rounded-md text-[10px] font-black transition-colors duration-150 ${
+                                                        <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-black transition-all duration-150 ${
                                                             isSelected
-                                                                ? "bg-indigo-600 text-white shadow-xs"
+                                                                ? "bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-500/30"
                                                                 : count > 0
-                                                                ? "bg-slate-200/80 dark:bg-gray-800 text-slate-700 dark:text-gray-300 group-hover:bg-slate-300 dark:group-hover:bg-gray-700"
-                                                                : "text-slate-400 dark:text-gray-600"
+                                                                ? `${c.lightBg} ${c.text} border ${c.border} group-hover:brightness-95`
+                                                                : "text-slate-400 dark:text-gray-600 bg-slate-100 dark:bg-gray-800"
                                                         }`}>
                                                             {c.num} к.
                                                         </span>
@@ -666,7 +666,7 @@ export default function RoomMapTab({
                                 </div>
                             </div>
 
-                            {/* ПРАВА ЧАСТИНА (5 колонок): Топ спеціальностей та Гендерний баланс */}
+                            {/* ПРАВА ЧАСТИНА (5 колонок): Гендерний баланс та Єдина інтерактивна картка спеціальностей */}
                             <div className="lg:col-span-5 flex flex-col justify-between gap-3 bg-slate-50/90 dark:bg-gray-900/60 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 p-4 shadow-2xs">
                                 
                                 {/* 1. Блок гендерного балансу */}
@@ -717,132 +717,96 @@ export default function RoomMapTab({
                                     </div>
                                 </div>
 
-                                {/* 2. Рейтинг топ-спеціальностей у корпусі з прогрес-барами */}
+                                {/* 2. Єдина інтерактивна картка спеціальностей контингенту */}
                                 <div className="space-y-2 flex-1 flex flex-col justify-between">
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
-                                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                            Топ спеціальностей мешканців
-                                        </span>
-                                        <span className="text-[11px] text-slate-400">
-                                            {academicSpecialtyFilter !== "all" ? "Клікніть для скидання / зміни" : "Клік для фільтру"}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                Спеціальності контингенту
+                                            </span>
+                                            <span className="text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-200/70 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">
+                                                {Object.keys(overallDemographics.specialtyCounts).length}
+                                            </span>
+                                        </div>
+                                        {academicSpecialtyFilter !== "all" ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setAcademicSpecialtyFilter("all")}
+                                                className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                                            >
+                                                ✕ Скинути вибір
+                                            </button>
+                                        ) : (
+                                            <span className="text-[10px] text-slate-400">
+                                                Клік для фільтру на мапі
+                                            </span>
+                                        )}
                                     </div>
 
-                                    {/* Списковий рейтинг спеціальностей */}
-                                    <div className="space-y-1.5 max-h-[145px] overflow-y-auto pr-1 no-scrollbar">
+                                    {/* Повний інтерактивний список усіх спеціальностей (з повною назвою та прогресом) */}
+                                    <div className="space-y-1.5 max-h-[185px] overflow-y-auto pr-1 no-scrollbar">
                                         {Object.entries(overallDemographics.specialtyCounts)
                                             .sort((a, b) => b[1] - a[1])
-                                            .slice(0, 5)
                                             .map(([spec, count]) => {
                                                 const isSelected = academicSpecialtyFilter === spec;
                                                 const specPct = overallDemographics.totalResidents > 0 ? Math.round((count / overallDemographics.totalResidents) * 100) : 0;
+                                                const meta = SPECIALTY_META[spec] || { name: spec, dot: "bg-indigo-500" };
+
                                                 return (
-                                                    <div
+                                                    <button
                                                         key={spec}
+                                                        type="button"
                                                         onClick={() => setAcademicSpecialtyFilter(isSelected ? "all" : spec)}
-                                                        className={`p-1.5 px-2.5 rounded-xl border transition-colors duration-150 cursor-pointer flex flex-col gap-1 ${
+                                                        className={`w-full text-left p-2 rounded-xl border transition-all duration-150 flex flex-col gap-1.5 cursor-pointer ${
                                                             isSelected
-                                                                ? "bg-indigo-50/90 dark:bg-indigo-950/70 border-indigo-500 ring-1 ring-indigo-500 shadow-xs"
-                                                                : "bg-white/80 dark:bg-gray-800/80 border-slate-200/70 dark:border-gray-700/70 hover:border-slate-300 dark:hover:border-gray-600"
+                                                                ? "bg-indigo-50/90 dark:bg-indigo-950/70 border-indigo-500 ring-2 ring-indigo-500/30 shadow-xs"
+                                                                : "bg-white dark:bg-gray-800 border-slate-200/80 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-gray-700/60 shadow-2xs"
                                                         }`}
                                                     >
-                                                        <div className="flex items-center justify-between text-[11px]">
-                                                            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-gray-200">
-                                                                <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-indigo-600" : "bg-slate-400"}`} />
-                                                                <span>{spec}</span>
+                                                        <div className="flex items-center justify-between gap-2 text-xs">
+                                                            <div className="flex items-center gap-1.5 min-w-0">
+                                                                <span className={`w-2 h-2 rounded-full shrink-0 ${meta.dot || "bg-indigo-500"}`} />
+                                                                <span className="font-extrabold text-slate-800 dark:text-gray-100 shrink-0">
+                                                                    {spec}
+                                                                </span>
+                                                                <span className="text-[11px] text-slate-400 truncate max-w-[140px] sm:max-w-[200px]" title={meta.name}>
+                                                                    • {meta.name}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                                <span className={`font-black text-xs ${isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-slate-800 dark:text-gray-100"}`}>
+                                                                    {count} студ.
+                                                                </span>
+                                                                <span className="text-[10px] text-slate-400 font-medium">
+                                                                    ({specPct}%)
+                                                                </span>
                                                                 {isSelected && (
-                                                                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-indigo-600 text-white leading-tight shadow-2xs">
+                                                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-600 text-white shadow-2xs">
                                                                         Обрано
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className="flex items-center gap-1 font-black">
-                                                                <span className={isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-slate-700 dark:text-gray-300"}>
-                                                                    {count} студ.
-                                                                </span>
-                                                                <span className="text-[10px] text-slate-400 font-normal">({specPct}%)</span>
-                                                            </div>
                                                         </div>
-                                                        <div className="w-full bg-slate-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+
+                                                        {/* Прогрес-бар частки спеціальності */}
+                                                        <div className="w-full bg-slate-100 dark:bg-gray-700/80 h-1.5 rounded-full overflow-hidden">
                                                             <div
                                                                 style={{ width: `${specPct}%` }}
                                                                 className={`h-full rounded-full transition-all duration-300 ${
-                                                                    isSelected ? "bg-indigo-600" : "bg-gradient-to-r from-indigo-500 to-emerald-500"
+                                                                    isSelected
+                                                                        ? "bg-indigo-600"
+                                                                        : "bg-gradient-to-r from-indigo-500 to-emerald-500"
                                                                 }`}
                                                             />
                                                         </div>
-                                                    </div>
+                                                    </button>
                                                 );
                                             })}
                                     </div>
-
-                                    {/* Додаткові бейджі якщо спеціальностей більше */}
-                                    {Object.keys(overallDemographics.specialtyCounts).length > 5 && (
-                                        <div className="flex items-center gap-1 flex-wrap pt-1 text-[10px]">
-                                            <span className="text-slate-400">Інші:</span>
-                                            {Object.entries(overallDemographics.specialtyCounts)
-                                                .sort((a, b) => b[1] - a[1])
-                                                .slice(5)
-                                                .map(([spec, count]) => (
-                                                    <button
-                                                        key={spec}
-                                                        type="button"
-                                                        onClick={() => setAcademicSpecialtyFilter(academicSpecialtyFilter === spec ? "all" : spec)}
-                                                        className={`px-1.5 py-0.5 rounded-md font-bold transition-colors duration-150 cursor-pointer border ${
-                                                            academicSpecialtyFilter === spec
-                                                                ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                                                                : "bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-100 dark:hover:bg-gray-700"
-                                                        }`}
-                                                    >
-                                                        {spec} ({count})
-                                                    </button>
-                                                ))}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>
-
-                        {/* Швидка стрічка фільтрації спеціальностей у футері блоку (уніфікована висота, без підстрибування) */}
-                        {Object.keys(overallDemographics.specialtyCounts).length > 0 && (
-                            <div className="min-h-[42px] flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-100 dark:border-gray-700/60">
-                                <span className="text-[11px] font-bold text-slate-500 dark:text-gray-400 mr-1 shrink-0">
-                                    Швидкий фільтр мапи:
-                                </span>
-                                <button
-                                    type="button"
-                                    onClick={handleResetAcademicFilter}
-                                    className={`h-7 px-3 rounded-lg text-xs font-bold transition-colors duration-150 cursor-pointer shrink-0 border inline-flex items-center justify-center ${
-                                        academicSpecialtyFilter === "all" && academicCourseFilter === "all"
-                                            ? "bg-slate-800 dark:bg-white text-white dark:text-slate-900 border-slate-800 dark:border-white shadow-xs"
-                                            : "bg-slate-100 dark:bg-gray-700/80 text-slate-600 dark:text-gray-300 border-transparent hover:bg-slate-200 dark:hover:bg-gray-600"
-                                    }`}
-                                >
-                                    Всі мешканці ({overallDemographics.totalResidents})
-                                </button>
-                                {Object.entries(overallDemographics.specialtyCounts).map(([spec, count]) => {
-                                    const isSpecSelected = academicSpecialtyFilter === spec;
-                                    return (
-                                        <button
-                                            key={spec}
-                                            type="button"
-                                            onClick={() => setAcademicSpecialtyFilter(isSpecSelected ? "all" : spec)}
-                                            className={`h-7 px-2.5 rounded-lg text-xs font-bold transition-colors duration-150 cursor-pointer shrink-0 border inline-flex items-center justify-center ${
-                                                isSpecSelected
-                                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xs ring-2 ring-indigo-500/20"
-                                                    : "bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/80"
-                                            }`}
-                                        >
-                                            <span>{spec}</span>
-                                            <span className={`ml-1 font-black ${isSpecSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400"}`}>
-                                                ({count})
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
