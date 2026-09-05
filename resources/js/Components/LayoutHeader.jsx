@@ -22,12 +22,9 @@ export default function LayoutHeader({
 
     return (
         <>
-            <nav className="bg-white/70 dark:bg-[#070e1b]/75 border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.45)]">
-                {/* Неонова смарагдово-бірюзова лінія акценту на самому верху навбару */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/60 dark:via-emerald-400/80 to-teal-500/0 pointer-events-none" />
-
+            <nav className="bg-white/85 dark:bg-[#0c1427]/85 border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 shadow-[0_1px_3px_0_rgba(0,0,0,0.03)] dark:shadow-[0_4px_25px_rgba(0,0,0,0.4)]">
                 <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-                    <div className="flex h-16 items-center justify-between">
+                    <div className="flex h-14 items-center justify-between">
                         {/* Left: Logo & Desktop Links */}
                         <div className="flex items-center gap-4 sm:gap-8">
                             <Link
@@ -268,16 +265,9 @@ export default function LayoutHeader({
 
             {header && (
                 <div className="relative z-40 transition-colors duration-300">
-                    {/* Декоративний скляний контейнер із м'яким градієнтним підсвічуванням */}
-                    <div className="bg-gradient-to-b from-white/75 via-white/55 to-white/35 dark:from-[#091122]/85 dark:via-[#091122]/70 dark:to-[#070d1a]/55 backdrop-blur-xl border-b border-slate-200/75 dark:border-white/[0.08] shadow-xs relative overflow-hidden">
-                        {/* Тонка неонова декоративна лінія зверху підрозділу */}
-                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 dark:via-emerald-400/40 to-transparent pointer-events-none" />
-
-                        {/* Розсіяне фонове сяйво за заголовками підрозділу */}
-                        <div className="absolute -top-12 left-1/4 w-80 h-28 bg-emerald-400/15 dark:bg-emerald-500/12 rounded-full blur-3xl pointer-events-none" />
-                        <div className="absolute -top-12 right-1/4 w-72 h-24 bg-cyan-400/12 dark:bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
-
-                        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
+                    {/* Чистий, суцільний скляний бар підрозділу без розмитих градієнтів */}
+                    <div className="bg-white/75 dark:bg-[#0c1427]/75 backdrop-blur-xl border-b border-slate-200/70 dark:border-white/[0.06] shadow-[0_1px_2px_0_rgba(0,0,0,0.02)]">
+                        <div className="mx-auto max-w-7xl px-4 py-2.5 sm:py-3 sm:px-6 lg:px-8">
                             {header}
                         </div>
                     </div>

@@ -4,9 +4,9 @@ import { useIsMobileApp } from "@/Utils/mobileAppDetector";
 export default function LayoutFooter() {
     const isMobileApp = useIsMobileApp();
     return (
-        <footer className="bg-white/55 dark:bg-[#070e1b]/60 backdrop-blur-xl border-t border-slate-200/50 dark:border-gray-800/60 mt-auto py-8 transition-colors duration-200 relative z-10">
+        <footer className="bg-white/65 dark:bg-[#0c1427]/65 backdrop-blur-xl border-t border-slate-200/60 dark:border-gray-800/60 mt-auto py-6 sm:py-7 transition-colors duration-200 relative z-10">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 border-b border-gray-100 dark:border-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-5 border-b border-gray-100 dark:border-gray-800/60">
                     {/* Logo & Info */}
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">

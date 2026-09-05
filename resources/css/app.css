@@ -5,14 +5,39 @@
 @layer base {
     html {
         background-color: #f8fafc;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
     }
     html.dark {
-        background-color: #070c18;
+        background-color: #0b0f19;
         color-scheme: dark;
+        scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
     }
     body {
         background-color: transparent;
     }
+}
+
+/* Сучасний делікатний скролбар без грубих чорних ліній */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.45);
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 @keyframes wiggle {
@@ -289,13 +314,13 @@
 }
 
 .bg-dot-pattern {
-    background-image: radial-gradient(rgba(16, 185, 129, 0.28) 1.2px, transparent 1.2px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
 .dark .bg-dot-pattern {
-    background-image: radial-gradient(rgba(52, 211, 153, 0.22) 1.2px, transparent 1.2px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
 @keyframes floatAcademicCap {

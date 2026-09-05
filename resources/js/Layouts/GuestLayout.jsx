@@ -19,16 +19,16 @@ export default function GuestLayout({ children }) {
         localStorage.setItem('darkMode', darkMode);
     }, [darkMode]);
     return (
-        <div className="flex min-h-screen flex-col items-center bg-slate-50 dark:bg-[#070d19] pt-6 sm:justify-center sm:pt-0 text-gray-900 dark:text-gray-100 transition-colors duration-300 relative overflow-hidden">
-            {/* Живий фон «Lava Waves & Aurora Mesh» з виразною глибиною */}
+        <div className="flex min-h-screen flex-col items-center bg-[#f8fafc] dark:bg-[#0b0f19] pt-6 sm:justify-center sm:pt-0 text-gray-900 dark:text-gray-100 transition-colors duration-300 relative overflow-hidden">
+            {/* Живий делікатний фон «Ambient Aura Mesh» */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
-                {/* Сітка точок для глибини */}
-                <div className="absolute inset-0 bg-dot-pattern opacity-70 dark:opacity-30" />
+                {/* Невагома мікро-текстура */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-25 dark:opacity-10" />
 
-                {/* Великі живі лавові хвилі */}
-                <div className="absolute -top-[10%] -left-[10%] w-[550px] h-[550px] sm:w-[700px] sm:h-[700px] bg-gradient-to-br from-emerald-500/35 via-teal-400/25 to-transparent dark:from-emerald-500/25 dark:via-teal-600/20 rounded-full blur-[90px] animate-lava-1" />
-                <div className="absolute top-[20%] -right-[15%] w-[500px] h-[500px] sm:w-[650px] sm:h-[650px] bg-gradient-to-bl from-cyan-400/35 via-emerald-400/25 to-transparent dark:from-cyan-500/25 dark:via-teal-500/20 rounded-full blur-[100px] animate-lava-2" />
-                <div className="absolute -bottom-[20%] left-[20%] w-[550px] h-[550px] bg-gradient-to-tr from-teal-500/30 via-indigo-400/20 to-transparent dark:from-teal-600/20 dark:via-indigo-900/20 rounded-full blur-[100px] animate-lava-3" />
+                {/* М'які живі розсіяні хвилі */}
+                <div className="absolute -top-[10%] -left-[10%] w-[550px] h-[550px] sm:w-[700px] sm:h-[700px] bg-gradient-to-br from-emerald-400/12 via-teal-300/8 to-transparent dark:from-emerald-500/15 dark:via-teal-600/10 rounded-full blur-[130px] animate-lava-1" />
+                <div className="absolute top-[20%] -right-[15%] w-[500px] h-[500px] sm:w-[650px] sm:h-[650px] bg-gradient-to-bl from-cyan-400/10 via-sky-300/8 to-transparent dark:from-cyan-500/12 dark:via-teal-500/8 rounded-full blur-[140px] animate-lava-2" />
+                <div className="absolute -bottom-[20%] left-[20%] w-[550px] h-[550px] bg-gradient-to-tr from-teal-400/8 via-indigo-400/6 to-transparent dark:from-teal-600/10 dark:via-indigo-900/10 rounded-full blur-[140px] animate-lava-3" />
             </div>
 
             {/* Dark mode toggle */}
