@@ -4,11 +4,12 @@ import InputLabel from "@/Components/InputLabel";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 /**
- * Інтерактивна фонова анімація «Campus Constellation Mesh»:
- * Легкі частинки (вузли кімнат кампусу), які плавно дрейфують та
- * з'єднуються тонкими світловими лініями, створюючи живу цифрову мережу.
+ * Преміальна органічна анімація «Fluid Aurora & Star Dust»:
+ * Живі рідкі хвилі з гармонійною математикою коливань, які м'яко переливаються
+ * смарагдовими, бірюзовими та ціановими градієнтами, реагуючи на рух курсора,
+ * а також плаваючі мікро-частинки сяйва.
  */
-function CampusNetworkBackground({ darkMode }) {
+function FluidAuroraBackground({ darkMode }) {
     const canvasRef = useRef(null);
 
     useEffect(() => {
@@ -16,6 +17,7 @@ function CampusNetworkBackground({ darkMode }) {
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
         let animationFrameId;
+
         let width = (canvas.width = window.innerWidth);
         let height = (canvas.height = window.innerHeight);
 
@@ -26,65 +28,169 @@ function CampusNetworkBackground({ darkMode }) {
         };
         window.addEventListener("resize", handleResize);
 
-        // Кількість вузлів мережі (адаптивно)
-        const particleCount = Math.min(Math.floor((width * height) / 38000), 42);
-        const particles = [];
+        // Курсор для інтерактивної взаємодії
+        const mouse = { x: null, y: null, targetX: null, targetY: null };
+        const handleMouseMove = (e) => {
+            mouse.targetX = e.clientX;
+            mouse.targetY = e.clientY;
+        };
+        const handleMouseLeave = () => {
+            mouse.targetX = null;
+            mouse.targetY = null;
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseleave", handleMouseLeave);
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.45,
-                vy: (Math.random() - 0.5) * 0.45,
-                radius: Math.random() * 2 + 1.2,
-                alpha: Math.random() * 0.5 + 0.3,
-            });
-        }
+        // Хвилі рідкого сяйва
+        const waves = [
+            {
+                baseYRatio: 0.65,
+                amplitude: 65,
+                freq: 0.0025,
+                speed: 0.0012,
+                colorLight: ["rgba(16, 185, 129, 0.16)", "rgba(13, 148, 136, 0.02)"],
+                colorDark: ["rgba(16, 185, 129, 0.22)", "rgba(6, 78, 59, 0.02)"],
+                phase: 0,
+            },
+            {
+                baseYRatio: 0.72,
+                amplitude: 80,
+                freq: 0.0018,
+                speed: -0.0009,
+                colorLight: ["rgba(20, 184, 166, 0.14)", "rgba(14, 116, 144, 0.01)"],
+                colorDark: ["rgba(20, 184, 166, 0.20)", "rgba(4, 47, 46, 0.02)"],
+                phase: 2.1,
+            },
+            {
+                baseYRatio: 0.80,
+                amplitude: 95,
+                freq: 0.0014,
+                speed: 0.0015,
+                colorLight: ["rgba(6, 182, 212, 0.12)", "rgba(20, 184, 166, 0.01)"],
+                colorDark: ["rgba(6, 182, 212, 0.18)", "rgba(8, 51, 68, 0.02)"],
+                phase: 4.2,
+            },
+        ];
 
+        // М'які плаваючі частинки (зоряний пил знань)
+        const particleCount = 28;
+        const particles = Array.from({ length: particleCount }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 2 + 1,
+            speedY: Math.random() * 0.35 + 0.1,
+            speedX: (Math.random() - 0.5) * 0.25,
+            alpha: Math.random() * 0.4 + 0.2,
+            pulseSpeed: Math.random() * 0.02 + 0.01,
+            phase: Math.random() * Math.PI * 2,
+        }));
+
+        let time = 0;
         let isRunning = true;
+
         const render = () => {
             if (!isRunning) return;
+            time += 1;
             ctx.clearRect(0, 0, width, height);
 
-            const nodeColor = darkMode
-                ? "rgba(52, 211, 153, "
-                : "rgba(16, 185, 129, ";
-            const lineColor = darkMode
-                ? "rgba(45, 212, 191, "
-                : "rgba(20, 184, 166, ";
-
-            // Оновлення та малювання вузлів
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `${nodeColor}${p.alpha * (darkMode ? 0.6 : 0.45)})`;
-                ctx.fill();
-
-                // З'єднання найближчих вузлів лініями
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const dx = p.x - p2.x;
-                    const dy = p.y - p2.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < 135) {
-                        const lineAlpha = (1 - dist / 135) * (darkMode ? 0.22 : 0.15);
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.strokeStyle = `${lineColor}${lineAlpha})`;
-                        ctx.lineWidth = 0.85;
-                        ctx.stroke();
-                    }
+            // Плавна інтерполяція положення миші
+            if (mouse.targetX !== null) {
+                if (mouse.x === null) {
+                    mouse.x = mouse.targetX;
+                    mouse.y = mouse.targetY;
+                } else {
+                    mouse.x += (mouse.targetX - mouse.x) * 0.05;
+                    mouse.y += (mouse.targetY - mouse.y) * 0.05;
                 }
             }
+
+            // 1. Інтерактивне розсіяне свічення за курсором (Spotlight)
+            if (mouse.x !== null && mouse.y !== null) {
+                const spotlightRadius = 350;
+                const spotGrad = ctx.createRadialGradient(
+                    mouse.x,
+                    mouse.y,
+                    0,
+                    mouse.x,
+                    mouse.y,
+                    spotlightRadius
+                );
+                spotGrad.addColorStop(
+                    0,
+                    darkMode
+                        ? "rgba(52, 211, 153, 0.07)"
+                        : "rgba(16, 185, 129, 0.06)"
+                );
+                spotGrad.addColorStop(1, "transparent");
+                ctx.fillStyle = spotGrad;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            // 2. Малювання плавних хвиль рідкої Аврори
+            waves.forEach((w) => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(0, height);
+
+                const baseY = height * w.baseYRatio;
+                const step = 10;
+
+                for (let x = 0; x <= width; x += step) {
+                    // Основна синусоїда + вторинна гармоніка для органічності
+                    const sin1 = Math.sin(x * w.freq + w.phase + time * w.speed) * w.amplitude;
+                    const cos1 = Math.cos(x * w.freq * 0.5 - time * w.speed * 0.7) * (w.amplitude * 0.35);
+
+                    // М'який вигин хвилі при наближенні курсора
+                    let mouseBend = 0;
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const dist = Math.abs(x - mouse.x);
+                        if (dist < 260) {
+                            const factor = Math.cos((dist / 260) * (Math.PI / 2));
+                            mouseBend = factor * ((mouse.y - baseY) * 0.12);
+                        }
+                    }
+
+                    const y = baseY + sin1 + cos1 + mouseBend;
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.lineTo(width, height);
+                ctx.closePath();
+
+                const grad = ctx.createLinearGradient(0, baseY - w.amplitude, 0, height);
+                const [c1, c2] = darkMode ? w.colorDark : w.colorLight;
+                grad.addColorStop(0, c1);
+                grad.addColorStop(1, c2);
+
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // 3. Плаваючі світлові частинки
+            particles.forEach((p) => {
+                p.y -= p.speedY;
+                p.x += p.speedX + Math.sin(p.phase) * 0.2;
+                p.phase += p.pulseSpeed;
+
+                if (p.y < -20) {
+                    p.y = height + 10;
+                    p.x = Math.random() * width;
+                }
+                if (p.x < -20) p.x = width + 10;
+                if (p.x > width + 20) p.x = -10;
+
+                const currentAlpha = p.alpha * (0.65 + 0.35 * Math.sin(p.phase));
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = darkMode
+                    ? `rgba(52, 211, 153, ${currentAlpha * 0.75})`
+                    : `rgba(16, 185, 129, ${currentAlpha * 0.55})`;
+                ctx.fill();
+                ctx.restore();
+            });
 
             animationFrameId = requestAnimationFrame(render);
         };
@@ -106,6 +212,8 @@ function CampusNetworkBackground({ darkMode }) {
             isRunning = false;
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener("resize", handleResize);
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseleave", handleMouseLeave);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [darkMode]);
@@ -114,7 +222,6 @@ function CampusNetworkBackground({ darkMode }) {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 pointer-events-none z-0"
-            style={{ opacity: darkMode ? 0.85 : 0.7 }}
         />
     );
 }
@@ -128,6 +235,8 @@ export default function Login({ status, canResetPassword = true }) {
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [emailFocused, setEmailFocused] = useState(false);
+    const [passwordFocused, setPasswordFocused] = useState(false);
 
     useEffect(() => {
         if (darkMode) {
@@ -158,25 +267,26 @@ export default function Login({ status, canResetPassword = true }) {
     };
 
     return (
-        <div className="min-h-screen flex flex-col justify-between items-center bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative overflow-hidden font-sans antialiased p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen flex flex-col justify-between items-center bg-[#f8fafc] dark:bg-[#080d1a] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative overflow-hidden font-sans antialiased p-4 sm:p-6 lg:p-8">
             <Head title="Авторизація — МНАУ Гуртожитки" />
 
-            {/* М'яка фонова аура та жива сітка вузлів */}
+            {/* Живий фон Аврори та мікро-сітка */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
-                <div className="absolute inset-0 bg-dot-pattern opacity-25 dark:opacity-10" />
+                {/* Невагома тактильна текстура */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-20 dark:opacity-10" />
 
-                {/* Верхня смарагдово-м'ятна аура */}
-                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[550px] rounded-full bg-gradient-to-b from-emerald-400/15 via-teal-300/8 to-transparent dark:from-emerald-500/16 dark:via-teal-600/10 dark:to-transparent blur-[140px]" />
+                {/* Верхня розсіяна смарагдово-м'ятна аура */}
+                <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-[950px] h-[550px] rounded-full bg-gradient-to-b from-emerald-400/18 via-teal-300/10 to-transparent dark:from-emerald-500/20 dark:via-teal-600/12 dark:to-transparent blur-[140px] pointer-events-none" />
 
-                {/* Нижня ціаново-блакитна аура */}
-                <div className="absolute -bottom-40 left-1/2 -translate-x-1/2 w-[900px] h-[550px] rounded-full bg-gradient-to-t from-cyan-400/12 via-teal-300/6 to-transparent dark:from-sky-500/12 dark:via-teal-600/8 dark:to-transparent blur-[150px]" />
+                {/* Нижня розсіяна ціанова аура */}
+                <div className="absolute -bottom-44 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full bg-gradient-to-t from-cyan-400/15 via-teal-400/8 to-transparent dark:from-sky-500/16 dark:via-teal-700/10 dark:to-transparent blur-[150px] pointer-events-none" />
 
-                {/* Живий канвас зв'язків кампусу */}
-                <CampusNetworkBackground darkMode={darkMode} />
+                {/* Органічні рідкі хвилі Аврори з інтерактивним рухом за мишею */}
+                <FluidAuroraBackground darkMode={darkMode} />
             </div>
 
-            {/* Dark Mode Кнопка перемикача у верхньому куті */}
-            <div className="w-full max-w-6xl flex justify-end relative z-30">
+            {/* Верхній блок: кнопка перемикання темної теми */}
+            <div className="w-full max-w-5xl flex justify-end relative z-30">
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     type="button"
@@ -196,96 +306,26 @@ export default function Login({ status, canResetPassword = true }) {
                 </button>
             </div>
 
-            {/* ТЕМАТИЧНІ ПЛАВАЮЧІ ЕЛЕМЕНТИ КАМПУСУ НАВКОЛО КАРТКИ (для великих екранів) */}
-            <div className="hidden lg:block absolute inset-0 pointer-events-none z-10 overflow-hidden" aria-hidden="true">
-                {/* 1. Лівий верхній елемент: Академічна конфедератка */}
-                <div className="absolute top-[18%] left-[8%] xl:left-[14%] animate-float-1">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-emerald-500/5">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-lg shadow-xs">
-                            🎓
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                Студентський простір
-                            </div>
-                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
-                                4 університетські гуртожитки
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 2. Правий верхній елемент: Електронний ключ кімнати */}
-                <div className="absolute top-[22%] right-[8%] xl:right-[14%] animate-float-2">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-teal-500/5">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500/20 to-cyan-500/10 text-teal-600 dark:text-teal-300 flex items-center justify-center text-lg shadow-xs">
-                            🔑
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                    Цифровий ключ
-                                </span>
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            </div>
-                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
-                                Миттєве заселення онлайн
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3. Лівий нижній елемент: Безконтактний КПП & QR-код */}
-                <div className="absolute bottom-[20%] left-[9%] xl:left-[15%] animate-float-3">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-emerald-500/5">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 text-cyan-600 dark:text-cyan-300 flex items-center justify-center text-lg shadow-xs">
-                            🪪
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                Перепустка КПП
-                            </div>
-                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
-                                Безконтактний прохід через турнікет
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 4. Правий нижній елемент: Аграрна специфіка університету */}
-                <div className="absolute bottom-[18%] right-[9%] xl:right-[15%] animate-float-4">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-amber-500/5">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-emerald-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center text-lg shadow-xs">
-                            🌾
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                Кампус МНАУ
-                            </div>
-                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
-                                Комфорт та студентський затишок
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* ГОЛОВНА ЦЕНТРАЛЬНА КАРТКА АВТОРИЗАЦІЇ */}
-            <div className="my-auto w-full max-w-[430px] relative z-20 flex flex-col items-center">
-                {/* Статус повідомлення (наприклад, після скидання пароля) */}
+            <div className="my-auto w-full max-w-[425px] relative z-20 flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
+                {/* Статус повідомлення (якщо наявне) */}
                 {status && (
                     <div className="mb-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/60 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 w-full text-center shadow-xs">
                         {status}
                     </div>
                 )}
 
-                <div className="w-full bg-white/85 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.07)] dark:shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] p-8 sm:p-10 transition-all">
-                    {/* Фірмовий логотип МНАУ Гуртожитки */}
+                {/* Преміальний скляний моноліт */}
+                <div className="w-full bg-white/80 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] dark:shadow-[0_25px_70px_-15px_rgba(0,0,0,0.7)] p-8 sm:p-10 transition-all relative overflow-hidden">
+                    {/* Тонка внутрішня світлова лінія вгорі картки */}
+                    <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/40 dark:via-emerald-400/50 to-transparent pointer-events-none" />
+
+                    {/* Фірмовий блок брендингу */}
                     <div className="flex flex-col items-center text-center mb-7">
                         <div className="relative mb-3.5 group">
-                            {/* М'яка неонова підсвітка логотипу */}
-                            <div className="absolute inset-0 bg-emerald-500/25 rounded-2xl blur-xl transition-all group-hover:bg-emerald-500/35" />
-                            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-2xl shadow-lg shadow-emerald-500/30 ring-1 ring-white/40 dark:ring-white/20 transition-transform duration-300 group-hover:scale-105">
+                            {/* М'яке розсіяне світіння навколо емблеми */}
+                            <div className="absolute inset-0 bg-emerald-500/25 dark:bg-emerald-400/30 rounded-2xl blur-xl transition-all duration-500 group-hover:bg-emerald-500/40 group-hover:scale-110" />
+                            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-2xl shadow-lg shadow-emerald-500/25 ring-1 ring-white/40 dark:ring-white/20 transition-transform duration-300 group-hover:scale-105">
                                 <span>М</span>
                                 <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#0c1427] animate-pulse" />
                             </div>
@@ -296,7 +336,7 @@ export default function Login({ status, canResetPassword = true }) {
                             <span className="text-xl font-black tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent">
                                 МНАУ
                             </span>
-                            <span className="text-sm font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                            <span className="text-sm font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
                                 Гуртожитки
                             </span>
                         </div>
@@ -321,7 +361,7 @@ export default function Login({ status, canResetPassword = true }) {
                                 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5"
                             />
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                <div className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors duration-200 ${emailFocused ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                                     </svg>
@@ -336,6 +376,8 @@ export default function Login({ status, canResetPassword = true }) {
                                     autoComplete="username"
                                     autoFocus
                                     required
+                                    onFocus={() => setEmailFocused(true)}
+                                    onBlur={() => setEmailFocused(false)}
                                     onChange={(e) => setData("email", e.target.value)}
                                 />
                             </div>
@@ -350,7 +392,7 @@ export default function Login({ status, canResetPassword = true }) {
                                 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5"
                             />
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                <div className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors duration-200 ${passwordFocused ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
@@ -364,6 +406,8 @@ export default function Login({ status, canResetPassword = true }) {
                                     className="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
                                     autoComplete="current-password"
                                     required
+                                    onFocus={() => setPasswordFocused(true)}
+                                    onBlur={() => setPasswordFocused(false)}
                                     onChange={(e) => setData("password", e.target.value)}
                                 />
                                 <button
@@ -439,16 +483,6 @@ export default function Login({ status, canResetPassword = true }) {
                             </button>
                         </div>
                     </form>
-
-                    {/* Безпека */}
-                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/[0.06] flex flex-col items-center gap-1.5 text-center">
-                        <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 dark:text-slate-500">
-                            <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                            <span>Безпечний вхід із 256-бітним SSL-шифруванням</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
