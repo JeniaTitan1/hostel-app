@@ -3,12 +3,13 @@ import { createPortal } from "react-dom";
 import { router } from "@inertiajs/react";
 
 export default function ContactStudentModal({ student, onClose }) {
-    if (!student) return null;
-
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
     const [processing, setProcessing] = useState(false);
     const [activeTab, setActiveTab] = useState("email"); // "email" | "quick"
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!student || typeof document === "undefined") return null;
 
     const quickSubjects = [
         "Термінове повідомлення від коменданта",
@@ -53,8 +54,6 @@ export default function ContactStudentModal({ student, onClose }) {
     };
 
     const telegramUser = cleanTelegramUsername(student.telegram);
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

@@ -26,7 +26,9 @@ export default function AddFloorModal({
         }
     }, [isOpen, suggestedFloor]);
 
-    if (!isOpen) return null;
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!isOpen || typeof document === "undefined") return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -54,8 +56,6 @@ export default function AddFloorModal({
             }
         );
     };
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

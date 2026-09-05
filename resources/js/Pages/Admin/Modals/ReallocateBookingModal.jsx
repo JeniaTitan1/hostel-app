@@ -17,7 +17,9 @@ export default function ReallocateBookingModal({
     getRoomGender,
     buildings = [],
 }) {
-    if (!reallocateBookingData || !reallocateCurrentRoom) return null;
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!reallocateBookingData || !reallocateCurrentRoom || typeof document === "undefined") return null;
 
     const allRooms = buildings.flatMap((b) => b.rooms || []);
     const targetRoom = allRooms.find(
@@ -33,8 +35,6 @@ export default function ReallocateBookingModal({
     const isAccessibleConflict =
         Boolean(targetRoom?.is_accessible) &&
         !reallocateBookingData?.user?.is_inclusive;
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

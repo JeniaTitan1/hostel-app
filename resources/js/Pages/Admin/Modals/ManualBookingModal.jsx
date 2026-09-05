@@ -8,15 +8,15 @@ export default function ManualBookingModal({
     users = [],
     getRoomGender,
 }) {
-    if (!room) return null;
-
     const [allowMixedGender, setAllowMixedGender] = useState(false);
-
     const manualForm = useForm({
         user_id: "",
-        room_id: room.id,
+        room_id: room?.id || "",
         force_mixed: false,
     });
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!room || typeof document === "undefined") return null;
 
     const roomGender = getRoomGender ? getRoomGender(room) : { type: "empty" };
     const activeRoomGender = roomGender.type === "male" || roomGender.type === "female" ? roomGender.type : null;
@@ -43,8 +43,6 @@ export default function ManualBookingModal({
 
     const selectedUser = users.find((u) => String(u.id) === String(manualForm.data.user_id));
     const isGenderConflict = activeRoomGender && selectedUser?.gender && selectedUser.gender !== activeRoomGender;
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

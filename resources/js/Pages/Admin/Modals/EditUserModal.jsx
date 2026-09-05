@@ -8,9 +8,9 @@ export default function EditUserModal({
     onSubmit,
     availableBuildings = [],
 }) {
-    if (!editingUser) return null;
-
     const backdropMouseDownRef = React.useRef(false);
+
+    if (!editingUser || typeof document === "undefined") return null;
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

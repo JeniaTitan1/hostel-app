@@ -9,9 +9,9 @@ export default function RejectBookingModal({
     onSubmit,
     isProcessing,
 }) {
-    if (!rejectModalBookingId) return null;
-
     const backdropMouseDownRef = React.useRef(false);
+
+    if (!rejectModalBookingId || typeof document === "undefined") return null;
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

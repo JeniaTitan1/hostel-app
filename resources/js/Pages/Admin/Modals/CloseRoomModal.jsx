@@ -3,13 +3,14 @@ import { createPortal } from "react-dom";
 import { useForm } from "@inertiajs/react";
 
 export default function CloseRoomModal({ room, onClose }) {
-    if (!room) return null;
-
     const form = useForm({
         closure_reason: "",
         closure_duration: "",
         hide_from_frontend: false,
     });
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!room || typeof document === "undefined") return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -20,8 +21,6 @@ export default function CloseRoomModal({ room, onClose }) {
             },
         });
     };
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;

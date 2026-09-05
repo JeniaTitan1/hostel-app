@@ -59,6 +59,7 @@ export default function Dashboard({
     const [manualBookingRoom, setManualBookingRoom] = useState(null);
     const [roomToCloseForRepair, setRoomToCloseForRepair] = useState(null);
     const [liveHighlightedRoomIds, setLiveHighlightedRoomIds] = useState([]);
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
 
     const isReloadingRef = useRef(false);
 
@@ -506,8 +507,6 @@ export default function Dashboard({
             router.post(route("admin.users.impersonate", userId));
         }
     };
-
-    const [showVerifyModal, setShowVerifyModal] = useState(false);
 
     return (
         <AuthenticatedLayout

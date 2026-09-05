@@ -29,7 +29,9 @@ export default function AddRoomModal({
         }
     }, [isOpen, suggestedRoomNumber]);
 
-    if (!isOpen) return null;
+    const backdropMouseDownRef = React.useRef(false);
+
+    if (!isOpen || typeof document === "undefined") return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -59,8 +61,6 @@ export default function AddRoomModal({
             }
         );
     };
-
-    const backdropMouseDownRef = React.useRef(false);
 
     const handleBackdropMouseDown = (e) => {
         backdropMouseDownRef.current = e.target === e.currentTarget;
