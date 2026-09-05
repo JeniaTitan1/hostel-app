@@ -32,6 +32,24 @@ export default function RoomMapTab({
 }) {
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [settingsRoomId, setSettingsRoomId] = useState(null);
+    const [occupancyFilter, setOccupancyFilter] = useState("all");
+
+    // Динамічний перелік поверхів для кнопок швидкого перемикання
+    const availableFloors = useMemo(() => {
+        const floorsSet = new Set();
+        const targetBuildings = selectedBuildingFilter
+            ? buildings.filter((b) => Number(b.id) === Number(selectedBuildingFilter))
+            : buildings;
+        targetBuildings.forEach((b) => {
+            (b.rooms || []).forEach((r) => {
+                if (r.floor !== undefined && r.floor !== null) {
+                    floorsSet.add(Number(r.floor));
+                }
+            });
+        });
+        const list = Array.from(floorsSet).sort((a, b) => a - b);
+        return list.length > 0 ? list : [1, 2, 3, 4, 5];
+    }, [buildings, selectedBuildingFilter]);
 
     // Фільтри контингенту для інфографіки та підсвічування кімнат на шахматці
     const [academicCourseFilter, setAcademicCourseFilter] = useState("all");
@@ -830,96 +848,199 @@ export default function RoomMapTab({
             </div>
 
             {/* Пошук та фільтри для мапи */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
-                        Карта корпусів МНАУ
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
-                        Інтерактивна схема кімнат, поверхів та розселення
-                    </p>
+            <div className="bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700/80 rounded-2xl shadow-xs p-4 sm:p-5 space-y-3.5">
+                {/* Верхній рядок: Заголовок, Корпуси та кнопка додавання */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-gray-700/60">
+                    <div>
+                        <h3 className="font-extrabold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
+                            Карта корпусів МНАУ
+                        </h3>
+                        <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
+                            Інтерактивна схема кімнат, поверхів та розселення
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        {/* Фільтр корпусів / Фіксований корпус для коменданта */}
+                        {isSuperAdmin && buildings.length > 1 ? (
+                            <div className="relative min-w-[170px]">
+                                <select
+                                    value={selectedBuildingFilter}
+                                    onChange={(e) =>
+                                        setSelectedBuildingFilter(e.target.value)
+                                    }
+                                    className="w-full appearance-none text-xs font-bold rounded-xl border border-slate-200 dark:border-gray-600 pl-8 pr-8 py-2 bg-slate-50/80 dark:bg-gray-700/80 hover:bg-white dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 focus:border-emerald-500 transition-all cursor-pointer shadow-2xs"
+                                >
+                                    <option value="">Усі корпуси</option>
+                                    {buildings.map((b) => (
+                                        <option key={b.id} value={b.id}>
+                                            {b.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                                    <svg className="w-3.5 h-3.5 text-slate-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-xs font-bold text-gray-700 dark:text-gray-200 px-3 py-2 bg-slate-100 dark:bg-gray-700/80 rounded-xl border border-slate-200 dark:border-gray-600 flex items-center gap-2 shrink-0 shadow-2xs">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span>{buildings[0]?.name || "Мій корпус"}</span>
+                            </div>
+                        )}
+
+                        {/* Кнопка створення корпусу (тільки SuperAdmin) */}
+                        {isSuperAdmin && (
+                            <button
+                                type="button"
+                                onClick={() => setAddBuildingModalOpen(true)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xs shrink-0"
+                                title="Додати новий корпус"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Додати корпус</span>
+                            </button>
+                        )}
+                    </div>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full md:w-auto">
-                    {/* Фільтр корпусів / Фіксований корпус для коменданта */}
-                    {isSuperAdmin && buildings.length > 1 ? (
-                        <select
-                            value={selectedBuildingFilter}
-                            onChange={(e) =>
-                                setSelectedBuildingFilter(e.target.value)
-                            }
-                            className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-44 transition-all font-medium"
-                        >
-                            <option value="">Усі корпуси</option>
-                            {buildings.map((b) => (
-                                <option key={b.id} value={b.id}>
-                                    {b.name}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <div className="text-xs font-bold text-gray-700 dark:text-gray-200 px-3.5 py-2 bg-slate-100 dark:bg-gray-700/80 rounded-xl border border-slate-200 dark:border-gray-600 flex items-center gap-2 shrink-0">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span>{buildings[0]?.name || "Мій корпус"}</span>
+
+                {/* Нижній рядок: Пошук, Фільтр статі, Окремий фільтр зайнятості/вільних місць, Вибір поверху */}
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 flex-wrap">
+                        {/* 1. Пошук з іконкою та кнопкою очищення */}
+                        <div className="relative flex-1 min-w-[200px] max-w-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Пошук жильця або кімнати..."
+                                value={mapSearch}
+                                onChange={(e) => setMapSearch(e.target.value)}
+                                className="w-full text-xs pl-9 pr-8 py-2 rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50/70 dark:bg-gray-700/70 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 focus:border-emerald-500 transition-all font-medium shadow-2xs"
+                            />
+                            {mapSearch && (
+                                <button
+                                    type="button"
+                                    onClick={() => setMapSearch("")}
+                                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                    title="Очистити пошук"
+                                >
+                                    ✕
+                                </button>
+                            )}
                         </div>
-                    )}
 
-                    {/* Кнопка створення корпусу (тільки SuperAdmin) */}
-                    {isSuperAdmin && (
-                        <button
-                            type="button"
-                            onClick={() => setAddBuildingModalOpen(true)}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xs shrink-0"
-                            title="Додати новий корпус"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span>Додати корпус</span>
-                        </button>
-                    )}
+                        {/* 2. Фільтр статі кімнат (виключно за статтю) */}
+                        <div className="relative min-w-[145px]">
+                            <select
+                                value={genderFilter}
+                                onChange={(e) => setGenderFilter(e.target.value)}
+                                className={`w-full appearance-none text-xs font-bold rounded-xl border pl-8 pr-8 py-2 transition-all cursor-pointer shadow-2xs focus:outline-none focus:ring-2 focus:ring-emerald-500/80 ${
+                                    genderFilter
+                                        ? "border-indigo-400 dark:border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-200"
+                                        : "border-slate-200 dark:border-gray-600 bg-slate-50/70 dark:bg-gray-700/70 hover:bg-white dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                }`}
+                            >
+                                <option value="">Всі статі</option>
+                                <option value="male">Чоловічі кімнати</option>
+                                <option value="female">Жіночі кімнати</option>
+                            </select>
+                            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
 
-                    {/* Пошук */}
-                    <input
-                        type="text"
-                        placeholder="Пошук жильця або кімнати..."
-                        value={mapSearch}
-                        onChange={(e) => setMapSearch(e.target.value)}
-                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-48 transition-all"
-                    />
+                        {/* 3. Окремий фільтр зайнятості та вільних ліжок (NEW!) */}
+                        <div className="relative min-w-[185px]">
+                            <select
+                                value={occupancyFilter}
+                                onChange={(e) => setOccupancyFilter(e.target.value)}
+                                className={`w-full appearance-none text-xs font-bold rounded-xl border pl-8 pr-8 py-2 transition-all cursor-pointer shadow-2xs focus:outline-none focus:ring-2 focus:ring-emerald-500/80 ${
+                                    occupancyFilter !== "all"
+                                        ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 ring-1 ring-emerald-500/30"
+                                        : "border-slate-200 dark:border-gray-600 bg-slate-50/70 dark:bg-gray-700/70 hover:bg-white dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                }`}
+                            >
+                                <option value="all">Усі кімнати (зайнятість)</option>
+                                <option value="has_beds">🛏️ Є вільні ліжка (койки)</option>
+                                <option value="empty_rooms">🚪 Повністю вільні кімнати</option>
+                                <option value="full">🔒 Повністю заселені (100%)</option>
+                                <option value="repair">🛠️ На ремонті</option>
+                            </select>
+                            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-emerald-600 dark:text-emerald-400">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7 11.5c1.4 0 2.5-1.1 2.5-2.5S8.4 6.5 7 6.5 4.5 7.6 4.5 9s1.1 2.5 2.5 2.5zm12-5h-8v7H4V5H2v15h2v-3h16v3h2v-9c0-2.2-1.8-4-4-4z" />
+                                </svg>
+                            </div>
+                            <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
 
-                    {/* Фільтр статі */}
-                    <select
-                        value={genderFilter}
-                        onChange={(e) => setGenderFilter(e.target.value)}
-                        className="text-xs rounded-xl border border-slate-200 dark:border-gray-600 p-2.5 focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full sm:w-36 transition-all"
-                    >
-                        <option value="">Всі статі</option>
-                        <option value="male">Чоловічі</option>
-                        <option value="female">Жіночі</option>
-                        <option value="empty">Вільні кімнати</option>
-                    </select>
+                        {/* Кнопка швидкого скидання фільтрів якщо щось активно */}
+                        {(mapSearch || genderFilter || occupancyFilter !== "all" || selectedFloor !== "all") && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMapSearch("");
+                                    setGenderFilter("");
+                                    setOccupancyFilter("all");
+                                    setSelectedFloor("all");
+                                }}
+                                title="Скинути активні фільтри"
+                                className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 transition-colors shrink-0 shadow-2xs"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span>Скинути</span>
+                            </button>
+                        )}
+                    </div>
 
-                    {/* Швидкий вибір поверху */}
-                    <div className="flex items-center bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
+                    {/* 4. Швидкий вибір поверху (динамічний перелік поверхів) */}
+                    <div className="flex items-center bg-slate-100 dark:bg-gray-700/60 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar border border-slate-200/60 dark:border-gray-600/60 shrink-0">
                         <button
                             type="button"
                             onClick={() => setSelectedFloor("all")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 shrink-0 ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 shrink-0 ${
                                 selectedFloor === "all"
-                                    ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                                    ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
                                     : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                             }`}
                         >
                             Усі поверхи
                         </button>
-                        {[1, 2, 3, 4, 5].map((fl) => (
+                        {availableFloors.map((fl) => (
                             <button
                                 key={fl}
                                 type="button"
                                 onClick={() => setSelectedFloor(String(fl))}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 shrink-0 ${
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 shrink-0 ${
                                     selectedFloor === String(fl)
-                                        ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                                        ? "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-xs"
                                         : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                                 }`}
                             >
@@ -1031,7 +1152,9 @@ export default function RoomMapTab({
                                                             b.new_room_id !==
                                                                 null),
                                                 ) || [];
-                                            return (
+
+                                            // Пошук за номером кімнати або жильцем
+                                            const matchesSearch =
                                                 !mapSearch ||
                                                 room.room_number
                                                     .toLowerCase()
@@ -1050,8 +1173,40 @@ export default function RoomMapTab({
                                                             .includes(
                                                                 mapSearch.toLowerCase(),
                                                             ),
-                                                )
-                                            );
+                                                );
+                                            if (!matchesSearch) return false;
+
+                                            // Фільтр статі
+                                            if (genderFilter) {
+                                                const rg = getRoomGender(room);
+                                                if (rg.type !== genderFilter) {
+                                                    return false;
+                                                }
+                                            }
+
+                                            // Окремий фільтр зайнятості та вільних ліжок
+                                            if (occupancyFilter && occupancyFilter !== "all") {
+                                                const capacity = room.capacity || 0;
+                                                const occupiedCount = approvedBookings.length;
+                                                const freeBeds = Math.max(0, capacity - occupiedCount);
+                                                const isRepair = room.status === "closed";
+
+                                                if (occupancyFilter === "has_beds") {
+                                                    // Кімнати де є вільні ліжка (койки для заселення), не на ремонті
+                                                    if (isRepair || freeBeds <= 0) return false;
+                                                } else if (occupancyFilter === "empty_rooms") {
+                                                    // Повністю порожні кімнати (0 жильців), не на ремонті
+                                                    if (isRepair || occupiedCount > 0) return false;
+                                                } else if (occupancyFilter === "full") {
+                                                    // Повністю зайняті кімнати (100%), не на ремонті
+                                                    if (isRepair || freeBeds > 0) return false;
+                                                } else if (occupancyFilter === "repair") {
+                                                    // Кімнати на ремонті
+                                                    if (!isRepair) return false;
+                                                }
+                                            }
+
+                                            return true;
                                         });
 
                                         if (floorRooms.length === 0)
@@ -1095,28 +1250,7 @@ export default function RoomMapTab({
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                                    {floorRooms
-                                                        .filter((room) => {
-                                                            if (!genderFilter)
-                                                                return true;
-                                                            const rg =
-                                                                getRoomGender(
-                                                                    room,
-                                                                );
-                                                            if (
-                                                                genderFilter ===
-                                                                "empty"
-                                                            )
-                                                                return (
-                                                                    rg.type ===
-                                                                    "empty"
-                                                                );
-                                                            return (
-                                                                rg.type ===
-                                                                genderFilter
-                                                            );
-                                                        })
-                                                        .map((room) => {
+                                                    {floorRooms.map((room) => {
                                                             const approvedBookings =
                                                                 room.bookings?.filter(
                                                                     (b) =>
