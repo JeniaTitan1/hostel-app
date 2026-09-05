@@ -36,40 +36,14 @@ export default function LayoutHeader({
                                     <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#070e1b] animate-pulse" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <div className="flex items-center gap-1.5 leading-none">
-                                        <span className="text-sm font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent">
-                                            МНАУ
-                                        </span>
-                                        <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-400/25">
-                                            Кампус
-                                        </span>
-                                    </div>
+                                    <span className="text-sm font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent leading-none">
+                                        МНАУ
+                                    </span>
                                     <span className="text-[9px] font-semibold leading-none text-slate-400 dark:text-slate-400 mt-1 uppercase tracking-widest">
                                         Гуртожитки
                                     </span>
                                 </div>
                             </Link>
-
-                            {/* Desktop Menu */}
-                            <div className="hidden sm:flex sm:items-center sm:space-x-2">
-                                <Link
-                                    href={homeRoute}
-                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
-                                        isDashboardActive
-                                            ? "bg-emerald-500/12 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/25 dark:border-emerald-400/30 shadow-xs shadow-emerald-500/10"
-                                            : "text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/[0.06]"
-                                    }`}
-                                >
-                                    <span className={`w-1.5 h-1.5 rounded-full transition-all ${isDashboardActive ? "bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)] scale-110" : "bg-transparent"}`} />
-                                    <span>
-                                        {user.role === "admin"
-                                            ? "Панель керування"
-                                            : user.role === "commandant"
-                                            ? "Панель коменданта"
-                                            : "Головна"}
-                                    </span>
-                                </Link>
-                            </div>
                         </div>
 
                         {/* Right Section: Mobile & Desktop Controls */}
