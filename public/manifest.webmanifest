@@ -2,7 +2,7 @@
   "name": "МНАУ Гуртожитки • Цифрова Перепустка",
   "short_name": "МНАУ Кампус",
   "description": "Особистий кабінет студента, цифрова QR-перепустка та поселення в гуртожитки Миколаївського НАУ.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "id": "/",
   "display": "standalone",
   "orientation": "portrait",

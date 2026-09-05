@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import { useIsMobileApp } from "@/Utils/mobileAppDetector";
 
 const PWA_INSTALLED_KEY = "mnau_pwa_installed_v1";
 
 /**
  * Розумний помічник встановлення мобільного додатка:
- * - Якщо сайт відкрито у встановленому додатку (PWA Standalone) -> повністю приховує всі банери та пропозиції
- * - Якщо користувач зайшов через браузер (на телефоні чи ПК) -> показує плаваючий банер та помічник інсталяції
+ * - Якщо сайт відкрито у мобільному додатку (PWA Standalone, Android WebView, iOS WKWebView тощо) -> повністю приховує всі банери та пропозиції
+ * - Якщо користувач зайшов через звичайний браузер (на телефоні чи ПК) -> показує плаваючий банер та помічник інсталяції
  */
 export default function PwaInstallPrompt() {
+    const isMobileApp = useIsMobileApp();
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isAppInstalled, setIsAppInstalled] = useState(false);
     const [deviceType, setDeviceType] = useState("desktop"); // 'android' | 'ios' | 'desktop'
@@ -17,6 +19,13 @@ export default function PwaInstallPrompt() {
     const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
     useEffect(() => {
+        // Якщо вже виявлено роботу в мобільному додатку — банер не показуємо
+        if (isMobileApp) {
+            setIsAppInstalled(true);
+            setShowFloatingBanner(false);
+            return;
+        }
+
         // 1. Детекція типу пристрою
         const ua = (window.navigator.userAgent || "").toLowerCase();
         const isIosDevice = /iphone|ipad|ipod/.test(ua) && !window.MSStream;
@@ -30,22 +39,9 @@ export default function PwaInstallPrompt() {
             setDeviceType("desktop");
         }
 
-        // 2. Перевірка чи сайт запущено як окремий додаток (PWA Standalone)
-        const isStandalone =
-            window.matchMedia("(display-mode: standalone)").matches ||
-            window.navigator.standalone === true ||
-            document.referrer.includes("android-app://");
-
-        if (isStandalone) {
-            // Користувач ВЖЕ відкрив сайт через мобільний додаток -> не показуємо жодних пропозицій
-            setIsAppInstalled(true);
-            setShowFloatingBanner(false);
-            localStorage.setItem(PWA_INSTALLED_KEY, "true");
-        } else {
-            // Користувач відкрив сайт у звичайному браузері -> показуємо банер
-            setIsAppInstalled(false);
-            setShowFloatingBanner(true);
-        }
+        // 2. Якщо користувач зайшов через звичайний веб-браузер на телефоні або ПК — показуємо банер
+        setIsAppInstalled(false);
+        setShowFloatingBanner(true);
 
         // 3. Обробник стандартного браузерного PWA prompt (Chrome / Android / Edge)
         const handleBeforeInstallPrompt = (e) => {
@@ -90,7 +86,7 @@ export default function PwaInstallPrompt() {
             window.removeEventListener("appinstalled", handleAppInstalled);
             window.removeEventListener("open-pwa-install", handleOpenInstaller);
         };
-    }, []);
+    }, [isMobileApp]);
 
     const handleInstallClick = async () => {
         if (deferredPrompt) {
@@ -108,6 +104,11 @@ export default function PwaInstallPrompt() {
             setShowModal(true);
         }
     };
+
+    // Якщо користувач вже відкрив сайт усередині мобільного додатка -> не рендеримо нічого
+    if (isMobileApp) {
+        return null;
+    }
 
     return (
         <>

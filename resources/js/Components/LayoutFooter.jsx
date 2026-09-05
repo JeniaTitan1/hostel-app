@@ -1,6 +1,8 @@
 import React from "react";
+import { useIsMobileApp } from "@/Utils/mobileAppDetector";
 
 export default function LayoutFooter() {
+    const isMobileApp = useIsMobileApp();
     return (
         <footer className="bg-white/55 dark:bg-[#070e1b]/60 backdrop-blur-xl border-t border-slate-200/50 dark:border-gray-800/60 mt-auto py-8 transition-colors duration-200 relative z-10">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -92,18 +94,20 @@ export default function LayoutFooter() {
                                     Реєстр суб'єктів освітньої діяльності
                                 </a>
                             </li>
-                            <li className="pt-1">
-                                <button
-                                    type="button"
-                                    onClick={() => window.dispatchEvent(new CustomEvent("open-pwa-install"))}
-                                    className="text-emerald-600 dark:text-emerald-400 font-semibold hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors flex items-center gap-1.5 cursor-pointer"
-                                >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>Мобільний додаток (Встановити)</span>
-                                </button>
-                            </li>
+                            {!isMobileApp && (
+                                <li className="pt-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => window.dispatchEvent(new CustomEvent("open-pwa-install"))}
+                                        className="text-emerald-600 dark:text-emerald-400 font-semibold hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <span>Мобільний додаток (Встановити)</span>
+                                    </button>
+                                </li>
+                            )}
                         </ul>
                     </div>
                 </div>
