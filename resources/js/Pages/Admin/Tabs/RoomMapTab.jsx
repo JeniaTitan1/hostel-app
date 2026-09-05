@@ -320,6 +320,19 @@ export default function RoomMapTab({
         { num: 6, label: "6 курс", bg: "bg-rose-500", text: "text-rose-700 dark:text-rose-300", lightBg: "bg-rose-50 dark:bg-rose-950/40", border: "border-rose-300 dark:border-rose-700", ring: "ring-rose-500" },
     ];
 
+    const SPECIALTY_META = {
+        'КН': { name: "Комп'ютерні науки", bg: "bg-indigo-50 dark:bg-indigo-950/60", text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/80", dot: "bg-indigo-500" },
+        'ГРС': { name: "Готельно-ресторанна справа", bg: "bg-pink-50 dark:bg-pink-950/60", text: "text-pink-700 dark:text-pink-300", border: "border-pink-200 dark:border-pink-800/80", dot: "bg-pink-500" },
+        'АГР': { name: "Агрономія", bg: "bg-emerald-50 dark:bg-emerald-950/60", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/80", dot: "bg-emerald-500" },
+        'МЕН': { name: "Менеджмент", bg: "bg-purple-50 dark:bg-purple-950/60", text: "text-purple-700 dark:text-purple-300", border: "border-purple-200 dark:border-purple-800/80", dot: "bg-purple-500" },
+        'ПВ': { name: "Право", bg: "bg-blue-50 dark:bg-blue-950/60", text: "text-blue-700 dark:text-blue-300", border: "border-blue-200 dark:border-blue-800/80", dot: "bg-blue-500" },
+        'ФІН': { name: "Фінанси та банківська справа", bg: "bg-teal-50 dark:bg-teal-950/60", text: "text-teal-700 dark:text-teal-300", border: "border-teal-200 dark:border-teal-800/80", dot: "bg-teal-500" },
+        'АІ': { name: "Агроінженерія", bg: "bg-amber-50 dark:bg-amber-950/60", text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/80", dot: "bg-amber-500" },
+        'ЕТ': { name: "Електроенергетика та електромеханіка", bg: "bg-cyan-50 dark:bg-cyan-950/60", text: "text-cyan-700 dark:text-cyan-300", border: "border-cyan-200 dark:border-cyan-800/80", dot: "bg-cyan-500" },
+        'ВМ': { name: "Ветеринарна медицина", bg: "bg-rose-50 dark:bg-rose-950/60", text: "text-rose-700 dark:text-rose-300", border: "border-rose-200 dark:border-rose-800/80", dot: "bg-rose-500" },
+        'ТВППЖ': { name: "Технологія тваринництва", bg: "bg-lime-50 dark:bg-lime-950/60", text: "text-lime-700 dark:text-lime-300", border: "border-lime-200 dark:border-lime-800/80", dot: "bg-lime-500" },
+    };
+
     const matchesAcademicFilter = (room) => {
         if (academicCourseFilter === "all" && academicSpecialtyFilter === "all") return true;
 
@@ -1502,10 +1515,22 @@ export default function RoomMapTab({
                                                                                 ) => {
                                                                                     const userSpec = String(b.user?.specialty || "").trim().toUpperCase();
                                                                                     const userCourse = Number(b.user?.course);
+                                                                                    const userGroup = b.user?.group ? String(b.user.group).trim() : null;
                                                                                     const isMatchingResident = (academicSpecialtyFilter !== "all" || academicCourseFilter !== "all") && (
                                                                                         (academicSpecialtyFilter === "all" || userSpec === String(academicSpecialtyFilter).trim().toUpperCase()) &&
                                                                                         (academicCourseFilter === "all" || userCourse === Number(academicCourseFilter))
                                                                                     );
+
+                                                                                    const courseCfg = COURSE_CONFIG.find((c) => c.num === userCourse);
+                                                                                    const specInfo = SPECIALTY_META[userSpec] || {
+                                                                                        name: userSpec,
+                                                                                        bg: "bg-slate-100 dark:bg-gray-750",
+                                                                                        text: "text-slate-700 dark:text-gray-200",
+                                                                                        border: "border-slate-200/80 dark:border-gray-700",
+                                                                                        dot: "bg-slate-400",
+                                                                                    };
+                                                                                    const isSpecActive = academicSpecialtyFilter === userSpec;
+                                                                                    const isCourseActive = academicCourseFilter === String(userCourse);
 
                                                                                     return (
                                                                                         <div
@@ -1524,78 +1549,140 @@ export default function RoomMapTab({
                                                                                                     },
                                                                                                 )
                                                                                             }
-                                                                                            className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-colors duration-150 ${
+                                                                                            className={`group p-2.5 rounded-xl border text-xs cursor-pointer transition-all duration-150 ${
                                                                                                 isMatchingResident
-                                                                                                    ? "bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-400 dark:border-indigo-500 ring-1 ring-indigo-500/30 hover:bg-indigo-100/90 dark:hover:bg-indigo-900/60"
-                                                                                                    : "bg-slate-50 dark:bg-gray-700/60 border-slate-200/80 dark:border-gray-600/60 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-white dark:hover:bg-gray-700"
+                                                                                                    ? "bg-indigo-50/90 dark:bg-indigo-950/70 border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/25 shadow-2xs"
+                                                                                                    : "bg-white dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-xs"
                                                                                             }`}
                                                                                         >
-                                                                                            <div className="flex items-center gap-2 truncate min-w-0">
-                                                                                                <BedIcon
-                                                                                                    gender={
-                                                                                                        b
-                                                                                                            .user
-                                                                                                            ?.gender
-                                                                                                    }
-                                                                                                    isOccupied={
-                                                                                                        true
-                                                                                                    }
-                                                                                                    name={
-                                                                                                        b
-                                                                                                            .user
-                                                                                                            ?.name
-                                                                                                    }
-                                                                                                />
-                                                                                                <span className="truncate font-semibold text-gray-800 dark:text-gray-100">
-                                                                                                    {b
-                                                                                                        .user
-                                                                                                        ?.name ||
-                                                                                                        "Користувач"}
-                                                                                                </span>
-                                                                                                {(userCourse || userSpec) && (
-                                                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 border ${
-                                                                                                        isMatchingResident
-                                                                                                            ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                                                                                                            : "bg-slate-100 dark:bg-gray-750 text-slate-600 dark:text-gray-300 border-slate-200/60 dark:border-gray-700"
-                                                                                                    }`}>
-                                                                                                        {userCourse ? `${userCourse}к` : ""}{userCourse && userSpec ? " • " : ""}{userSpec || ""}
+                                                                                            {/* Верхній рядок: Аватар з іконкою статі, ім'я студента та кнопки дій */}
+                                                                                            <div className="flex items-center justify-between gap-1.5">
+                                                                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                                                                    <div
+                                                                                                        className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border ${
+                                                                                                            b.user?.gender === "female"
+                                                                                                                ? "bg-pink-50/80 dark:bg-pink-950/40 border-pink-200/70 dark:border-pink-900/50"
+                                                                                                                : "bg-blue-50/80 dark:bg-blue-950/40 border-blue-200/70 dark:border-blue-900/50"
+                                                                                                        }`}
+                                                                                                    >
+                                                                                                        <BedIcon
+                                                                                                            gender={
+                                                                                                                b
+                                                                                                                    .user
+                                                                                                                    ?.gender
+                                                                                                            }
+                                                                                                            isOccupied={
+                                                                                                                true
+                                                                                                            }
+                                                                                                            name={
+                                                                                                                b
+                                                                                                                    .user
+                                                                                                                    ?.name
+                                                                                                            }
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                    <span
+                                                                                                        className="truncate font-bold text-xs text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                                                                                                        title={
+                                                                                                            b.user?.name ||
+                                                                                                            "Користувач"
+                                                                                                        }
+                                                                                                    >
+                                                                                                        {b.user?.name ||
+                                                                                                            "Користувач"}
                                                                                                     </span>
-                                                                                                )}
-                                                                                            </div>
-                                                                                            <div className="flex items-center gap-1 shrink-0 ml-1">
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    onClick={(
-                                                                                                        e,
-                                                                                                    ) => {
-                                                                                                        e.stopPropagation();
-                                                                                                        handleRequestReallocate(
-                                                                                                            b,
-                                                                                                            room,
-                                                                                                        );
-                                                                                                    }}
-                                                                                                    title="Переселити"
-                                                                                                    className="p-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-lg transition-colors"
-                                                                                                >
-                                                                                                    ⇄
-                                                                                                </button>
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    onClick={(
-                                                                                                        e,
-                                                                                                    ) => {
-                                                                                                        e.stopPropagation();
-                                                                                                        handleEvictStudent &&
-                                                                                                            handleEvictStudent(
+                                                                                                </div>
+
+                                                                                                {/* Кнопки дій (переселити, виселити) */}
+                                                                                                <div className="flex items-center gap-0.5 shrink-0 ml-1 opacity-75 group-hover:opacity-100 transition-opacity">
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        onClick={(
+                                                                                                            e,
+                                                                                                        ) => {
+                                                                                                            e.stopPropagation();
+                                                                                                            handleRequestReallocate(
                                                                                                                 b,
+                                                                                                                room,
                                                                                                             );
-                                                                                                    }}
-                                                                                                    title="Виселити студента"
-                                                                                                    className="p-1 text-xs font-bold text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 rounded-lg transition-colors"
-                                                                                                >
-                                                                                                    ✕
-                                                                                                </button>
+                                                                                                        }}
+                                                                                                        title="Переселити студента"
+                                                                                                        className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors"
+                                                                                                    >
+                                                                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                                                                        </svg>
+                                                                                                    </button>
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        onClick={(
+                                                                                                            e,
+                                                                                                        ) => {
+                                                                                                            e.stopPropagation();
+                                                                                                            handleEvictStudent &&
+                                                                                                                handleEvictStudent(
+                                                                                                                    b,
+                                                                                                                );
+                                                                                                        }}
+                                                                                                        title="Виселити студента"
+                                                                                                        className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-colors"
+                                                                                                    >
+                                                                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                                                                        </svg>
+                                                                                                    </button>
+                                                                                                </div>
                                                                                             </div>
+
+                                                                                            {/* Нижній рядок: Детальні бейджі навчання (Курс, Спеціальність, Група) */}
+                                                                                            {(userCourse || userSpec || userGroup) && (
+                                                                                                <div className="mt-1.5 flex items-center gap-1.5 flex-wrap pl-8">
+                                                                                                    {userCourse ? (
+                                                                                                        <span
+                                                                                                            onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                setAcademicCourseFilter(isCourseActive ? "all" : String(userCourse));
+                                                                                                            }}
+                                                                                                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold border transition-all cursor-pointer ${
+                                                                                                                isCourseActive
+                                                                                                                    ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs border-slate-900 dark:border-white"
+                                                                                                                    : `${courseCfg?.lightBg || "bg-slate-100 dark:bg-gray-700"} ${courseCfg?.text || "text-slate-600 dark:text-gray-300"} ${courseCfg?.border || "border-slate-200 dark:border-gray-600"} hover:brightness-95 dark:hover:brightness-110`
+                                                                                                            }`}
+                                                                                                            title={`${userCourse} курс — клікніть для фільтрації на мапі`}
+                                                                                                        >
+                                                                                                            <span className={`w-1.5 h-1.5 rounded-full ${isCourseActive ? "bg-white dark:bg-slate-900" : courseCfg?.bg || "bg-slate-400"}`} />
+                                                                                                            <span>{userCourse} курс</span>
+                                                                                                        </span>
+                                                                                                    ) : null}
+
+                                                                                                    {userSpec ? (
+                                                                                                        <span
+                                                                                                            onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                setAcademicSpecialtyFilter(isSpecActive ? "all" : userSpec);
+                                                                                                            }}
+                                                                                                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold border transition-all cursor-pointer ${
+                                                                                                                isSpecActive
+                                                                                                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                                                                                                                    : `${specInfo.bg} ${specInfo.text} ${specInfo.border} hover:brightness-95 dark:hover:brightness-110`
+                                                                                                            }`}
+                                                                                                            title={`${specInfo.name || userSpec} — клікніть для фільтрації на мапі`}
+                                                                                                        >
+                                                                                                            <span className={`w-1.5 h-1.5 rounded-full ${isSpecActive ? "bg-white" : specInfo.dot}`} />
+                                                                                                            <span>{userSpec}</span>
+                                                                                                        </span>
+                                                                                                    ) : null}
+
+                                                                                                    {userGroup && (
+                                                                                                        <span
+                                                                                                            className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-gray-750 text-slate-500 dark:text-gray-400 border border-slate-200/70 dark:border-gray-700"
+                                                                                                            title={`Академічна група: ${userGroup}`}
+                                                                                                        >
+                                                                                                            гр. {userGroup}
+                                                                                                        </span>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            )}
                                                                                         </div>
                                                                                     );
                                                                                 },
@@ -1625,18 +1712,22 @@ export default function RoomMapTab({
                                                                                                 room,
                                                                                             )
                                                                                         }
-                                                                                        className="flex items-center gap-2 p-2 rounded-xl border border-dashed border-slate-200 dark:border-gray-700 text-xs text-slate-400 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 cursor-pointer transition-colors duration-150"
+                                                                                        className="group flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-200/90 dark:border-gray-700 text-xs text-slate-400 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 cursor-pointer transition-all duration-150"
                                                                                     >
-                                                                                        <BedIcon
-                                                                                            isOccupied={
-                                                                                                false
-                                                                                            }
-                                                                                        />
-                                                                                        <span className="text-[11px] font-medium">
-                                                                                            Вільне
-                                                                                            місце
-                                                                                            (+
-                                                                                            Поселити)
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <div className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-gray-800 flex items-center justify-center text-slate-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 group-hover:text-emerald-600 transition-colors border border-slate-200/60 dark:border-gray-700">
+                                                                                                <BedIcon
+                                                                                                    isOccupied={
+                                                                                                        false
+                                                                                                    }
+                                                                                                />
+                                                                                            </div>
+                                                                                            <span className="text-xs font-semibold text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                                                                Вільне ліжко
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                            + Поселити
                                                                                         </span>
                                                                                     </div>
                                                                                 ),
