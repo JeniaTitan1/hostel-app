@@ -1,7 +1,123 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { Head, Link, useForm } from "@inertiajs/react";
+
+/**
+ * Інтерактивна фонова анімація «Campus Constellation Mesh»:
+ * Легкі частинки (вузли кімнат кампусу), які плавно дрейфують та
+ * з'єднуються тонкими світловими лініями, створюючи живу цифрову мережу.
+ */
+function CampusNetworkBackground({ darkMode }) {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let animationFrameId;
+        let width = (canvas.width = window.innerWidth);
+        let height = (canvas.height = window.innerHeight);
+
+        const handleResize = () => {
+            if (!canvas) return;
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener("resize", handleResize);
+
+        // Кількість вузлів мережі (адаптивно)
+        const particleCount = Math.min(Math.floor((width * height) / 38000), 42);
+        const particles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.45,
+                vy: (Math.random() - 0.5) * 0.45,
+                radius: Math.random() * 2 + 1.2,
+                alpha: Math.random() * 0.5 + 0.3,
+            });
+        }
+
+        let isRunning = true;
+        const render = () => {
+            if (!isRunning) return;
+            ctx.clearRect(0, 0, width, height);
+
+            const nodeColor = darkMode
+                ? "rgba(52, 211, 153, "
+                : "rgba(16, 185, 129, ";
+            const lineColor = darkMode
+                ? "rgba(45, 212, 191, "
+                : "rgba(20, 184, 166, ";
+
+            // Оновлення та малювання вузлів
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `${nodeColor}${p.alpha * (darkMode ? 0.6 : 0.45)})`;
+                ctx.fill();
+
+                // З'єднання найближчих вузлів лініями
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 135) {
+                        const lineAlpha = (1 - dist / 135) * (darkMode ? 0.22 : 0.15);
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `${lineColor}${lineAlpha})`;
+                        ctx.lineWidth = 0.85;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(render);
+        };
+
+        render();
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                isRunning = false;
+                cancelAnimationFrame(animationFrameId);
+            } else {
+                isRunning = true;
+                render();
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            isRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener("resize", handleResize);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [darkMode]);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="fixed inset-0 pointer-events-none z-0"
+            style={{ opacity: darkMode ? 0.85 : 0.7 }}
+        />
+    );
+}
 
 export default function Login({ status, canResetPassword = true }) {
     const [darkMode, setDarkMode] = useState(() => {
@@ -42,19 +158,25 @@ export default function Login({ status, canResetPassword = true }) {
     };
 
     return (
-        <div className="min-h-screen flex flex-col lg:flex-row bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative overflow-hidden font-sans antialiased">
+        <div className="min-h-screen flex flex-col justify-between items-center bg-[#f8fafc] dark:bg-[#0b0f19] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative overflow-hidden font-sans antialiased p-4 sm:p-6 lg:p-8">
             <Head title="Авторизація — МНАУ Гуртожитки" />
 
-            {/* М'який живий фон «Ambient Aura Mesh» */}
+            {/* М'яка фонова аура та жива сітка вузлів */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
                 <div className="absolute inset-0 bg-dot-pattern opacity-25 dark:opacity-10" />
-                <div className="absolute -top-32 -left-32 w-[720px] h-[720px] rounded-full bg-gradient-to-br from-emerald-400/14 via-teal-300/8 to-transparent dark:from-emerald-500/16 dark:via-teal-600/10 dark:to-transparent blur-[140px] animate-lava-1" />
-                <div className="absolute -bottom-32 -right-32 w-[720px] h-[720px] rounded-full bg-gradient-to-tl from-cyan-400/12 via-sky-300/8 to-transparent dark:from-sky-500/14 dark:via-teal-600/8 dark:to-transparent blur-[140px] animate-lava-2" />
-                <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-teal-400/8 via-emerald-400/5 to-transparent dark:from-emerald-600/8 dark:via-slate-800/10 dark:to-transparent blur-[150px] animate-lava-3" />
+
+                {/* Верхня смарагдово-м'ятна аура */}
+                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[550px] rounded-full bg-gradient-to-b from-emerald-400/15 via-teal-300/8 to-transparent dark:from-emerald-500/16 dark:via-teal-600/10 dark:to-transparent blur-[140px]" />
+
+                {/* Нижня ціаново-блакитна аура */}
+                <div className="absolute -bottom-40 left-1/2 -translate-x-1/2 w-[900px] h-[550px] rounded-full bg-gradient-to-t from-cyan-400/12 via-teal-300/6 to-transparent dark:from-sky-500/12 dark:via-teal-600/8 dark:to-transparent blur-[150px]" />
+
+                {/* Живий канвас зв'язків кампусу */}
+                <CampusNetworkBackground darkMode={darkMode} />
             </div>
 
-            {/* Dark Mode Toggle (фіксована у верхньому правому куті) */}
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50">
+            {/* Dark Mode Кнопка перемикача у верхньому куті */}
+            <div className="w-full max-w-6xl flex justify-end relative z-30">
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     type="button"
@@ -74,167 +196,122 @@ export default function Login({ status, canResetPassword = true }) {
                 </button>
             </div>
 
-            {/* ЛІВА ЧАСТИНА (Презентаційний блок МНАУ — для десктопу) */}
-            <div className="hidden lg:flex lg:w-7/12 xl:w-3/5 flex-col justify-between p-10 xl:p-14 relative z-10 border-r border-slate-200/60 dark:border-white/[0.06]">
-                {/* Верхній блок: Брендінг університету */}
-                <div>
-                    <div className="flex items-center gap-3.5 mb-10">
-                        <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-lg shadow-lg shadow-emerald-500/25 ring-1 ring-white/30 dark:ring-white/20">
-                            <span className="tracking-tight">М</span>
-                            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#0b0f19] animate-pulse" />
+            {/* ТЕМАТИЧНІ ПЛАВАЮЧІ ЕЛЕМЕНТИ КАМПУСУ НАВКОЛО КАРТКИ (для великих екранів) */}
+            <div className="hidden lg:block absolute inset-0 pointer-events-none z-10 overflow-hidden" aria-hidden="true">
+                {/* 1. Лівий верхній елемент: Академічна конфедератка */}
+                <div className="absolute top-[18%] left-[8%] xl:left-[14%] animate-float-1">
+                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-emerald-500/5">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-lg shadow-xs">
+                            🎓
                         </div>
                         <div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-base font-black tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent">
-                                    МНАУ
-                                </span>
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                                    Гуртожитки
-                                </span>
+                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                Студентський простір
                             </div>
-                            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                Миколаївський національний аграрний університет
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Головний заголовок та опис */}
-                    <div className="max-w-xl">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-400/25 mb-5 shadow-xs">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
-                            <span>Єдина цифрова екосистема поселення</span>
-                        </div>
-                        <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight mb-4">
-                            Сучасний та комфортний простір вашого студентського життя
-                        </h1>
-                        <p className="text-sm xl:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Автоматизована система розселення, електронних ордерів, цифрових перепусток та оперативного зв'язку з комендатурою університетського містечка.
-                        </p>
-                    </div>
-
-                    {/* Сітка функціональних карток */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 max-w-xl">
-                        {/* Картка 1: Цифрова перепустка */}
-                        <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md border border-slate-200/70 dark:border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 shadow-xs hover:shadow-md group">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition-transform">
-                                🪪
+                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
+                                4 університетські гуртожитки
                             </div>
-                            <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                                Цифрова перепустка та КПП
-                            </h2>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                                Безконтактний прохід через турнікети за персональним QR-кодом прямо з телефону.
-                            </p>
-                        </div>
-
-                        {/* Картка 2: Інтерактивна шахматка */}
-                        <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md border border-slate-200/70 dark:border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 shadow-xs hover:shadow-md group">
-                            <div className="w-9 h-9 rounded-xl bg-teal-500/10 dark:bg-teal-400/15 text-teal-700 dark:text-teal-300 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition-transform">
-                                🏢
-                            </div>
-                            <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                                Інтерактивна шахматка
-                            </h2>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                                Прозорий вибір кімнат, перегляд поверхів, ліжко-місць та сусідів онлайн.
-                            </p>
-                        </div>
-
-                        {/* Картка 3: Електронні заявки */}
-                        <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md border border-slate-200/70 dark:border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 shadow-xs hover:shadow-md group">
-                            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 dark:bg-cyan-400/15 text-cyan-700 dark:text-cyan-300 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition-transform">
-                                ⚡
-                            </div>
-                            <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                                Ремонти та звернення
-                            </h2>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                                Миттєве створення тикетів до майстрів та коменданта з відстеженням статусу.
-                            </p>
-                        </div>
-
-                        {/* Картка 4: Мобільний додаток */}
-                        <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md border border-slate-200/70 dark:border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 shadow-xs hover:shadow-md group">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition-transform">
-                                📲
-                            </div>
-                            <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                                Мобільна адаптивність
-                            </h2>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                                Швидкий PWA-доступ з будь-якого смартфона без потреби встановлення з App Store.
-                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Нижній підвал презентаційного блоку */}
-                <div className="pt-6 border-t border-slate-200/60 dark:border-white/[0.06] flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span>4 гуртожитки</span>
+                {/* 2. Правий верхній елемент: Електронний ключ кімнати */}
+                <div className="absolute top-[22%] right-[8%] xl:right-[14%] animate-float-2">
+                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-teal-500/5">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500/20 to-cyan-500/10 text-teal-600 dark:text-teal-300 flex items-center justify-center text-lg shadow-xs">
+                            🔑
                         </div>
-                        <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-                            <span>100% цифровий облік</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-                            <span>24/7 доступність</span>
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                    Цифровий ключ
+                                </span>
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            </div>
+                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
+                                Миттєве заселення онлайн
+                            </div>
                         </div>
                     </div>
-                    <span className="text-[11px]">
-                        © {new Date().getFullYear()} МНАУ
-                    </span>
+                </div>
+
+                {/* 3. Лівий нижній елемент: Безконтактний КПП & QR-код */}
+                <div className="absolute bottom-[20%] left-[9%] xl:left-[15%] animate-float-3">
+                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-emerald-500/5">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 text-cyan-600 dark:text-cyan-300 flex items-center justify-center text-lg shadow-xs">
+                            🪪
+                        </div>
+                        <div>
+                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                Перепустка КПП
+                            </div>
+                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
+                                Безконтактний прохід через турнікет
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. Правий нижній елемент: Аграрна специфіка університету */}
+                <div className="absolute bottom-[18%] right-[9%] xl:right-[15%] animate-float-4">
+                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/70 dark:bg-white/[0.04] backdrop-blur-xl border border-slate-200/80 dark:border-white/[0.08] shadow-lg shadow-amber-500/5">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-emerald-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center text-lg shadow-xs">
+                            🌾
+                        </div>
+                        <div>
+                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                Кампус МНАУ
+                            </div>
+                            <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
+                                Комфорт та студентський затишок
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* ПРАВА ЧАСТИНА (Форма входу) */}
-            <div className="w-full lg:w-5/12 xl:w-2/5 flex flex-col justify-center items-center p-6 sm:p-10 lg:p-12 relative z-10 my-auto">
-                {/* Мобільний логотип (відображається лише на планшетах та телефонах) */}
-                <div className="lg:hidden flex flex-col items-center mb-6 text-center">
-                    <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-xl shadow-md shadow-emerald-500/25 ring-1 ring-white/30 dark:ring-white/20 mb-3">
-                        <span>М</span>
-                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal-300 ring-2 ring-white dark:ring-[#0b0f19] animate-pulse" />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">
-                            МНАУ
-                        </span>
-                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                            Гуртожитки
-                        </span>
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
-                        Миколаївський національний аграрний університет
-                    </p>
-                </div>
-
-                {/* Статус повідомлення (якщо є) */}
+            {/* ГОЛОВНА ЦЕНТРАЛЬНА КАРТКА АВТОРИЗАЦІЇ */}
+            <div className="my-auto w-full max-w-[430px] relative z-20 flex flex-col items-center">
+                {/* Статус повідомлення (наприклад, після скидання пароля) */}
                 {status && (
-                    <div className="mb-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 max-w-md w-full text-center shadow-xs">
+                    <div className="mb-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/60 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 w-full text-center shadow-xs">
                         {status}
                     </div>
                 )}
 
-                {/* Картка форми авторизації */}
-                <div className="w-full max-w-[420px] bg-white/85 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/[0.08] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] p-7 sm:p-9 transition-all">
-                    {/* Заголовок картки */}
-                    <div className="mb-6">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300 mb-2.5">
-                            <span>🔐</span>
-                            <span>Особистий кабінет</span>
+                <div className="w-full bg-white/85 dark:bg-[#0c1427]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.07)] dark:shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] p-8 sm:p-10 transition-all">
+                    {/* Фірмовий логотип МНАУ Гуртожитки */}
+                    <div className="flex flex-col items-center text-center mb-7">
+                        <div className="relative mb-3.5 group">
+                            {/* М'яка неонова підсвітка логотипу */}
+                            <div className="absolute inset-0 bg-emerald-500/25 rounded-2xl blur-xl transition-all group-hover:bg-emerald-500/35" />
+                            <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-2xl shadow-lg shadow-emerald-500/30 ring-1 ring-white/40 dark:ring-white/20 transition-transform duration-300 group-hover:scale-105">
+                                <span>М</span>
+                                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#0c1427] animate-pulse" />
+                            </div>
                         </div>
-                        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-                            Вхід до системи
-                        </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
-                            Введіть електронну пошту та пароль від вашого облікового запису
+
+                        {/* Назва МНАУ ГУРТОЖИТКИ */}
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xl font-black tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent">
+                                МНАУ
+                            </span>
+                            <span className="text-sm font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                                Гуртожитки
+                            </span>
+                        </div>
+
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-snug max-w-xs">
+                            Миколаївський національний аграрний університет
                         </p>
+
+                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-400/25">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Вхід до системи розселення</span>
+                        </div>
                     </div>
 
-                    {/* Форма */}
+                    {/* Форма авторизації */}
                     <form onSubmit={submit} className="space-y-4">
                         {/* Поле Email */}
                         <div>
@@ -255,7 +332,7 @@ export default function Login({ status, canResetPassword = true }) {
                                     name="email"
                                     value={data.email}
                                     placeholder="student@mnau.edu.ua"
-                                    className="w-full pl-10 pr-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
+                                    className="w-full pl-10 pr-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
                                     autoComplete="username"
                                     autoFocus
                                     required
@@ -284,7 +361,7 @@ export default function Login({ status, canResetPassword = true }) {
                                     name="password"
                                     value={data.password}
                                     placeholder="••••••••"
-                                    className="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
+                                    className="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-xs transition-all"
                                     autoComplete="current-password"
                                     required
                                     onChange={(e) => setData("password", e.target.value)}
@@ -363,8 +440,8 @@ export default function Login({ status, canResetPassword = true }) {
                         </div>
                     </form>
 
-                    {/* Безпека та підтримка */}
-                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/[0.06] flex flex-col items-center gap-2 text-center">
+                    {/* Безпека */}
+                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/[0.06] flex flex-col items-center gap-1.5 text-center">
                         <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 dark:text-slate-500">
                             <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -373,11 +450,16 @@ export default function Login({ status, canResetPassword = true }) {
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Нижня примітка про підтримку */}
-                <div className="mt-6 text-[11px] text-slate-400 dark:text-slate-500 text-center leading-relaxed max-w-sm">
-                    Виникли проблеми зі входом? Зверніться до коменданта свого гуртожитку або напишіть до служби підтримки МНАУ.
-                </div>
+            {/* НИЖНІЙ ПІДВАЛ СТОРІНКИ */}
+            <div className="w-full max-w-md text-center relative z-20 py-2">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed font-medium">
+                    © {new Date().getFullYear()} Миколаївський національний аграрний університет (МНАУ).
+                </p>
+                <p className="text-[10px] text-slate-400/80 dark:text-slate-600 mt-0.5">
+                    Потрібна допомога? Зверніться до коменданта свого гуртожитку.
+                </p>
             </div>
         </div>
     );
