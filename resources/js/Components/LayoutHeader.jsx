@@ -22,23 +22,32 @@ export default function LayoutHeader({
 
     return (
         <>
-            <nav className="bg-white/65 dark:bg-[#070e1b]/70 border-b border-slate-200/50 dark:border-gray-800/60 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-200">
+            <nav className="bg-white/70 dark:bg-[#070e1b]/75 border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.45)]">
+                {/* Неонова смарагдово-бірюзова лінія акценту на самому верху навбару */}
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/60 dark:via-emerald-400/80 to-teal-500/0 pointer-events-none" />
+
                 <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Left: Logo & Desktop Links */}
                         <div className="flex items-center gap-4 sm:gap-8">
                             <Link
                                 href={homeRoute}
-                                className="flex items-center gap-2.5 focus:outline-none rounded-xl p-1 group"
+                                className="flex items-center gap-2.5 sm:gap-3 focus:outline-none rounded-2xl p-1 group"
                             >
-                                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-black text-sm shadow-xs shadow-emerald-500/20 transition-all duration-300 ease-out group-hover:brightness-105 group-hover:shadow-md group-hover:shadow-emerald-500/25 active:scale-95">
-                                    М
+                                <div className="relative flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white font-black text-sm shadow-md shadow-emerald-500/25 ring-1 ring-white/30 dark:ring-white/20 transition-all duration-300 ease-out group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-emerald-500/35 active:scale-95">
+                                    <span className="tracking-tight">М</span>
+                                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-teal-300 dark:bg-teal-400 ring-2 ring-white dark:ring-[#070e1b] animate-pulse" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-black leading-none text-gray-950 dark:text-white tracking-tight">
-                                        МНАУ
-                                    </span>
-                                    <span className="text-[9px] font-semibold leading-none text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">
+                                    <div className="flex items-center gap-1.5 leading-none">
+                                        <span className="text-sm font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 dark:from-white dark:via-slate-100 dark:to-emerald-200 bg-clip-text text-transparent">
+                                            МНАУ
+                                        </span>
+                                        <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-400/25">
+                                            Кампус
+                                        </span>
+                                    </div>
+                                    <span className="text-[9px] font-semibold leading-none text-slate-400 dark:text-slate-400 mt-1 uppercase tracking-widest">
                                         Гуртожитки
                                     </span>
                                 </div>
@@ -48,17 +57,20 @@ export default function LayoutHeader({
                             <div className="hidden sm:flex sm:items-center sm:space-x-2">
                                 <Link
                                     href={homeRoute}
-                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
                                         isDashboardActive
-                                            ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 shadow-2xs"
-                                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
+                                            ? "bg-emerald-500/12 dark:bg-emerald-400/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/25 dark:border-emerald-400/30 shadow-xs shadow-emerald-500/10"
+                                            : "text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/[0.06]"
                                     }`}
                                 >
-                                    {user.role === "admin"
-                                        ? "Панель керування"
-                                        : user.role === "commandant"
-                                        ? "Панель коменданта"
-                                        : "Головна"}
+                                    <span className={`w-1.5 h-1.5 rounded-full transition-all ${isDashboardActive ? "bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)] scale-110" : "bg-transparent"}`} />
+                                    <span>
+                                        {user.role === "admin"
+                                            ? "Панель керування"
+                                            : user.role === "commandant"
+                                            ? "Панель коменданта"
+                                            : "Головна"}
+                                    </span>
                                 </Link>
                             </div>
                         </div>
@@ -69,16 +81,16 @@ export default function LayoutHeader({
                             <button
                                 onClick={() => setDarkMode(!darkMode)}
                                 type="button"
-                                className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
-                                title={darkMode ? "Світла тема" : "Темна тема"}
+                                className="relative p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/[0.06] text-slate-600 dark:text-amber-300 hover:bg-slate-100 dark:hover:bg-white/[0.12] transition-all shadow-xs hover:shadow-sm active:scale-95 cursor-pointer touch-manipulation group"
+                                title={darkMode ? "Увімкнути світлу тему" : "Увімкнути темну тему"}
                                 aria-label="Toggle dark mode"
                             >
                                 {darkMode ? (
-                                    <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-4 h-4 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)] group-hover:rotate-45 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                                     </svg>
                                 ) : (
-                                    <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-4 h-4 text-slate-700 group-hover:-rotate-12 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                                     </svg>
                                 )}
@@ -98,22 +110,22 @@ export default function LayoutHeader({
                                     <Dropdown.Trigger>
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs focus:outline-none"
+                                            className="inline-flex items-center gap-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/[0.06] pl-2 pr-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-white/[0.12] transition-all shadow-xs hover:shadow-sm focus:outline-none cursor-pointer"
                                         >
-                                            <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-black flex items-center justify-center">
+                                            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs ring-1 ring-white/30 dark:ring-white/15">
                                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
                                             </div>
-                                            <span className="max-w-[120px] truncate">{user.name}</span>
-                                            <svg className="h-3.5 w-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <span className="max-w-[130px] truncate">{user.name}</span>
+                                            <svg className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                             </svg>
                                         </button>
                                     </Dropdown.Trigger>
 
-                                    <Dropdown.Content contentClasses="py-1 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 shadow-xl rounded-xl">
-                                        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-                                            <div className="text-xs font-bold text-gray-900 dark:text-white truncate">{user.name}</div>
-                                            <div className="text-[10px] text-gray-400 truncate">{user.email}</div>
+                                    <Dropdown.Content contentClasses="py-1.5 bg-white/95 dark:bg-[#0c1427]/95 border border-slate-200/80 dark:border-white/10 shadow-2xl rounded-2xl backdrop-blur-xl">
+                                        <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/10">
+                                            <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.name}</div>
+                                            <div className="text-[10px] text-slate-400 dark:text-slate-400 truncate">{user.email}</div>
                                         </div>
                                         <Dropdown.Link href={route("profile.edit")}>
                                             Налаштування профілю
@@ -142,7 +154,7 @@ export default function LayoutHeader({
                                 <button
                                     onClick={() => setShowingNavigationDropdown((prev) => !prev)}
                                     type="button"
-                                    className="p-2 rounded-xl border border-gray-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95 touch-manipulation"
+                                    className="p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/[0.06] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.12] transition-all shadow-xs active:scale-95 touch-manipulation cursor-pointer"
                                     aria-label="Головне меню"
                                 >
                                     <svg className="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -169,17 +181,17 @@ export default function LayoutHeader({
 
                 {/* Mobile Navigation Dropdown Menu */}
                 {showingNavigationDropdown && (
-                    <div className="sm:hidden border-t border-slate-200/50 dark:border-gray-800 bg-white/85 dark:bg-[#070e1b]/85 backdrop-blur-xl px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-xl">
+                    <div className="sm:hidden border-t border-slate-200/60 dark:border-white/10 bg-white/90 dark:bg-[#080f1e]/90 backdrop-blur-2xl px-4 pt-3 pb-5 space-y-3 animate-fade-in shadow-2xl">
                         {/* User info card on mobile */}
-                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
+                        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-white/[0.05] border border-slate-200/60 dark:border-white/10">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-extrabold text-sm flex items-center justify-center shadow-xs ring-1 ring-white/30 dark:ring-white/20">
                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                                <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
                                     {user.name}
                                 </div>
-                                <div className="text-[10px] text-gray-400 truncate">
+                                <div className="text-[10px] text-slate-400 dark:text-slate-400 truncate">
                                     {user.email}
                                 </div>
                                 <span className="inline-block px-2 py-0.5 mt-1 rounded-md text-[9px] font-bold uppercase bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
@@ -195,7 +207,7 @@ export default function LayoutHeader({
                                 className={`flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
                                     isDashboardActive
                                         ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
-                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06]"
                                 }`}
                             >
                                 <span>
@@ -205,7 +217,7 @@ export default function LayoutHeader({
                                         ? "Панель коменданта"
                                         : "Головна"}
                                 </span>
-                                <span className="text-gray-400">→</span>
+                                <span className="text-slate-400">→</span>
                             </Link>
 
                             <Link
@@ -213,11 +225,11 @@ export default function LayoutHeader({
                                 className={`flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
                                     isProfileActive
                                         ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
-                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06]"
                                 }`}
                             >
                                 <span>Налаштування профілю</span>
-                                <span className="text-gray-400">→</span>
+                                <span className="text-slate-400">→</span>
                             </Link>
 
                             {!isMobileApp && (
@@ -240,7 +252,7 @@ export default function LayoutHeader({
                             )}
                         </div>
 
-                        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="pt-2 border-t border-slate-100 dark:border-white/10">
                             <Link
                                 href={route("logout")}
                                 method="post"
@@ -255,11 +267,21 @@ export default function LayoutHeader({
             </nav>
 
             {header && (
-                <header className="bg-white/35 dark:bg-[#0c1322]/40 backdrop-blur-md border-b border-slate-200/40 dark:border-gray-800/50 transition-colors duration-200 relative">
-                    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
-                        {header}
+                <div className="relative z-40 transition-colors duration-300">
+                    {/* Декоративний скляний контейнер із м'яким градієнтним підсвічуванням */}
+                    <div className="bg-gradient-to-b from-white/75 via-white/55 to-white/35 dark:from-[#091122]/85 dark:via-[#091122]/70 dark:to-[#070d1a]/55 backdrop-blur-xl border-b border-slate-200/75 dark:border-white/[0.08] shadow-xs relative overflow-hidden">
+                        {/* Тонка неонова декоративна лінія зверху підрозділу */}
+                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 dark:via-emerald-400/40 to-transparent pointer-events-none" />
+
+                        {/* Розсіяне фонове сяйво за заголовками підрозділу */}
+                        <div className="absolute -top-12 left-1/4 w-80 h-28 bg-emerald-400/15 dark:bg-emerald-500/12 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -top-12 right-1/4 w-72 h-24 bg-cyan-400/12 dark:bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
+
+                        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 relative z-10">
+                            {header}
+                        </div>
                     </div>
-                </header>
+                </div>
             )}
         </>
     );

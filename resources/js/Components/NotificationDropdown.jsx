@@ -116,10 +116,10 @@ export default function NotificationDropdown({ notifications = [], user }) {
     return (
         <Dropdown>
             <Dropdown.Trigger>
-                <span className="inline-flex rounded-lg">
+                <span className="inline-flex rounded-xl">
                     <button
                         type="button"
-                        className="group relative inline-flex items-center justify-center p-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-150 ease-in-out focus:outline-none"
+                        className="group relative inline-flex items-center justify-center p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/[0.06] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.12] transition-all shadow-xs hover:shadow-sm active:scale-95 cursor-pointer touch-manipulation focus:outline-none"
                         title="Сповіщення"
                     >
                         {/* Bell icon with hover wiggle */}
@@ -138,7 +138,7 @@ export default function NotificationDropdown({ notifications = [], user }) {
                             />
                         </svg>
                         {notifications.length > 0 && (
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-white dark:ring-gray-700 animate-pulse">
+                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#070e1b] animate-pulse">
                                 {notifications.length}
                             </span>
                         )}
@@ -146,23 +146,23 @@ export default function NotificationDropdown({ notifications = [], user }) {
                 </span>
             </Dropdown.Trigger>
 
-            <Dropdown.Content width="80">
-                <div className="p-3 border-b border-gray-100 dark:border-gray-700/80 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/40">
-                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+            <Dropdown.Content width="80" contentClasses="py-1 bg-white/95 dark:bg-[#0c1427]/95 border border-slate-200/80 dark:border-white/10 shadow-2xl rounded-2xl backdrop-blur-xl overflow-hidden">
+                <div className="p-3 border-b border-slate-100 dark:border-white/10 flex items-center justify-between bg-slate-50/70 dark:bg-white/[0.03]">
+                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider">
                         Сповіщення
                     </span>
                     {notifications.length > 0 && user?.role !== "admin" && (
                         <button
                             onClick={handleClearAllNotifications}
-                            className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors uppercase tracking-wider"
+                            className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors uppercase tracking-wider cursor-pointer"
                         >
                             Очистити все
                         </button>
                     )}
                 </div>
-                <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50 w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.06] w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
                     {notifications.length === 0 ? (
-                        <div className="p-6 text-center text-xs text-gray-400 dark:text-gray-500">
+                        <div className="p-6 text-center text-xs text-slate-400 dark:text-slate-500">
                             Немає нових сповіщень
                         </div>
                     ) : (
@@ -171,7 +171,7 @@ export default function NotificationDropdown({ notifications = [], user }) {
                             return (
                                 <div
                                     key={n.id}
-                                    className="p-3.5 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-gray-700/40 transition-all duration-200 relative group border-l-2 border-transparent hover:border-emerald-500/50 dark:hover:border-emerald-500/30"
+                                    className="p-3.5 flex items-start gap-3 hover:bg-slate-50/80 dark:hover:bg-white/[0.04] transition-all duration-200 relative group border-l-2 border-transparent hover:border-emerald-500 dark:hover:border-emerald-400"
                                 >
                                     <div
                                         className={`flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg border ${style.bg} transition-all group-hover:scale-105 duration-200 shadow-sm`}

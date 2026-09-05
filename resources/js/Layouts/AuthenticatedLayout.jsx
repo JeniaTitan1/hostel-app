@@ -302,26 +302,29 @@ const consumedFlashSet = new Set();
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen flex flex-col antialiased bg-slate-50/90 dark:bg-[#070e1b] text-gray-950 dark:text-gray-100 selection:bg-emerald-100 dark:selection:bg-emerald-900/30 transition-colors duration-200 relative">
+        <div className="min-h-screen flex flex-col antialiased bg-[#f6f9fc] dark:bg-[#070c18] text-slate-900 dark:text-gray-100 selection:bg-emerald-500/20 dark:selection:bg-emerald-500/30 transition-colors duration-300 relative">
             {/* Органічний живий фон «Liquid Lava Waves & Aurora Mesh» для всього сайту */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0" aria-hidden="true">
-                {/* Делікатна мікро-сітка точок для створення тактильної глибини */}
-                <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-20" />
+                {/* Чітка мікро-сітка точок для створення тактильної глибини */}
+                <div className="absolute inset-0 bg-dot-pattern opacity-60 dark:opacity-35" />
 
-                {/* 1. Верхня ліва смарагдово-м'ятна хвиля — м'яко просвічує крізь навбар і шапку */}
-                <div className="absolute -top-32 -left-32 w-[680px] h-[680px] rounded-full bg-gradient-to-br from-emerald-400/22 via-teal-300/14 to-transparent dark:from-emerald-500/18 dark:via-teal-600/12 blur-[120px] animate-lava-1" />
+                {/* 0. Центральне розсіяне сяйво під верхньою частиною сайту */}
+                <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-[850px] h-[360px] bg-gradient-to-b from-emerald-400/26 via-teal-400/16 to-transparent dark:from-emerald-500/22 dark:via-teal-500/14 dark:to-transparent blur-[95px] pointer-events-none" />
 
-                {/* 2. Верхня права ціаново-смарагдова хвиля — просвічує праву частину навбару та віджетів */}
-                <div className="absolute -top-24 -right-28 w-[640px] h-[640px] rounded-full bg-gradient-to-bl from-cyan-400/20 via-emerald-400/14 to-transparent dark:from-cyan-500/16 dark:via-teal-500/10 blur-[125px] animate-lava-2" />
+                {/* 1. Верхня ліва смарагдово-м'ятна хвиля — виразно і м'яко переливається крізь навбар */}
+                <div className="absolute -top-28 -left-28 w-[760px] h-[760px] rounded-full bg-gradient-to-br from-emerald-400/40 via-teal-300/30 to-transparent dark:from-emerald-500/32 dark:via-teal-600/22 dark:to-transparent blur-[85px] animate-lava-1" />
 
-                {/* 3. Центрально-ліва жива морська хвиля — м'яка аура під картками кабінету */}
-                <div className="absolute top-1/3 -left-28 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-teal-400/18 via-emerald-500/12 to-transparent dark:from-teal-600/14 dark:via-emerald-700/08 blur-[115px] animate-lava-3" />
+                {/* 2. Верхня права ціаново-смарагдова хвиля — сяє під віджетами, перепусткою та кнопками */}
+                <div className="absolute -top-20 -right-24 w-[720px] h-[720px] rounded-full bg-gradient-to-bl from-cyan-400/38 via-emerald-400/28 to-transparent dark:from-cyan-500/30 dark:via-teal-500/20 dark:to-transparent blur-[90px] animate-lava-2" />
+
+                {/* 3. Центрально-ліва жива морська хвиля — м'яка аура під робочими картками */}
+                <div className="absolute top-1/3 -left-24 w-[640px] h-[640px] rounded-full bg-gradient-to-tr from-teal-400/35 via-emerald-500/25 to-transparent dark:from-teal-600/26 dark:via-emerald-700/18 dark:to-transparent blur-[80px] animate-lava-3" />
 
                 {/* 4. Нижня права лавова хвиля — плавно заходить під напівпрозорий футер */}
-                <div className="absolute -bottom-28 -right-24 w-[720px] h-[720px] rounded-full bg-gradient-to-tl from-emerald-400/20 via-teal-300/14 to-transparent dark:from-emerald-600/16 dark:via-cyan-900/10 blur-[130px] animate-lava-4" />
+                <div className="absolute -bottom-24 -right-20 w-[780px] h-[780px] rounded-full bg-gradient-to-tl from-emerald-400/38 via-teal-300/28 to-transparent dark:from-emerald-600/28 dark:via-cyan-900/22 dark:to-transparent blur-[95px] animate-lava-4" />
 
                 {/* 5. Нижня ліва плаваюча лавова крапля — делікатне підсвічування підвалу */}
-                <div className="absolute -bottom-36 left-1/4 w-[580px] h-[580px] rounded-full bg-gradient-to-tr from-cyan-300/18 via-emerald-400/12 to-transparent dark:from-teal-500/14 dark:via-slate-800/10 blur-[115px] animate-lava-1" />
+                <div className="absolute -bottom-32 left-1/4 w-[650px] h-[650px] rounded-full bg-gradient-to-tr from-cyan-300/32 via-emerald-400/24 to-transparent dark:from-teal-500/24 dark:via-slate-800/20 dark:to-transparent blur-[85px] animate-lava-1" />
             </div>
 
             {/* Flash Message Toasts */}

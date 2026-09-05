@@ -7,7 +7,7 @@
         background-color: #f8fafc;
     }
     html.dark {
-        background-color: #111827;
+        background-color: #070c18;
         color-scheme: dark;
     }
     body {
@@ -212,17 +212,17 @@
     0%, 100% {
         transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
         border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-        opacity: 0.7;
+        opacity: 0.85;
     }
     33% {
         transform: translate3d(55px, -35px, 0) scale(1.2) rotate(12deg);
         border-radius: 58% 42% 38% 62% / 42% 65% 35% 58%;
-        opacity: 0.95;
+        opacity: 1;
     }
     66% {
         transform: translate3d(-40px, 45px, 0) scale(0.95) rotate(-8deg);
         border-radius: 35% 65% 60% 40% / 55% 38% 62% 45%;
-        opacity: 0.75;
+        opacity: 0.88;
     }
 }
 
@@ -230,17 +230,17 @@
     0%, 100% {
         transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
         border-radius: 50% 50% 38% 62% / 52% 48% 52% 48%;
-        opacity: 0.65;
+        opacity: 0.85;
     }
     38% {
         transform: translate3d(-60px, 40px, 0) scale(1.25) rotate(-15deg);
         border-radius: 65% 35% 55% 45% / 38% 58% 42% 62%;
-        opacity: 0.95;
+        opacity: 1;
     }
     72% {
         transform: translate3d(45px, -30px, 0) scale(0.92) rotate(10deg);
         border-radius: 40% 60% 45% 55% / 60% 40% 60% 40%;
-        opacity: 0.7;
+        opacity: 0.88;
     }
 }
 
@@ -248,23 +248,23 @@
     0%, 100% {
         transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
         border-radius: 60% 40% 45% 55% / 50% 60% 40% 50%;
-        opacity: 0.6;
+        opacity: 0.8;
     }
     50% {
         transform: translate3d(35px, 50px, 0) scale(1.15) rotate(-10deg);
         border-radius: 45% 55% 60% 40% / 40% 45% 55% 60%;
-        opacity: 0.9;
+        opacity: 1;
     }
 }
 
 @keyframes lavaDrift4 {
     0%, 100% {
         transform: translate3d(0, 0, 0) scale(0.95) rotate(0deg);
-        opacity: 0.5;
+        opacity: 0.8;
     }
     50% {
         transform: translate3d(-45px, -35px, 0) scale(1.18) rotate(14deg);
-        opacity: 0.85;
+        opacity: 1;
     }
 }
 
@@ -289,12 +289,12 @@
 }
 
 .bg-dot-pattern {
-    background-image: radial-gradient(rgba(16, 185, 129, 0.2) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(16, 185, 129, 0.28) 1.2px, transparent 1.2px);
     background-size: 24px 24px;
 }
 
 .dark .bg-dot-pattern {
-    background-image: radial-gradient(rgba(52, 211, 153, 0.15) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(52, 211, 153, 0.22) 1.2px, transparent 1.2px);
     background-size: 24px 24px;
 }
 
