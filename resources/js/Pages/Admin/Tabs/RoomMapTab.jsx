@@ -1630,6 +1630,18 @@ export default function RoomMapTab({
                                                                                     const isSpecActive = academicSpecialtyFilter === userSpec;
                                                                                     const isCourseActive = academicCourseFilter === String(userCourse);
 
+                                                                                    const activeBadgeColor = (isCourseActive || isSpecActive)
+                                                                                        ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                                                                                        : specInfo?.bg
+                                                                                            ? `${specInfo.bg} ${specInfo.text} ${specInfo.border}`
+                                                                                            : courseCfg?.lightBg
+                                                                                                ? `${courseCfg.lightBg} ${courseCfg.text} ${courseCfg.border}`
+                                                                                                : "bg-slate-100 dark:bg-gray-750 text-slate-700 dark:text-gray-200 border-slate-200/80 dark:border-gray-700";
+
+                                                                                    const activeDotColor = (isCourseActive || isSpecActive)
+                                                                                        ? "bg-white"
+                                                                                        : (specInfo?.dot || courseCfg?.bg || "bg-indigo-500");
+
                                                                                     return (
                                                                                         <div
                                                                                             key={
@@ -1647,52 +1659,108 @@ export default function RoomMapTab({
                                                                                                     },
                                                                                                 )
                                                                                             }
-                                                                                            className={`group p-2.5 rounded-xl border text-xs cursor-pointer transition-all duration-150 ${
+                                                                                            className={`group flex items-center justify-between gap-1.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all duration-150 ${
                                                                                                 isMatchingResident
                                                                                                     ? "bg-indigo-50/90 dark:bg-indigo-950/70 border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/25 shadow-2xs"
                                                                                                     : "bg-white dark:bg-gray-800/90 border-slate-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-xs"
                                                                                             }`}
                                                                                         >
-                                                                                            {/* Верхній рядок: Аватар з іконкою статі, ім'я студента та кнопки дій */}
-                                                                                            <div className="flex items-center justify-between gap-1.5">
-                                                                                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                                                                    <div
-                                                                                                        className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border ${
-                                                                                                            b.user?.gender === "female"
-                                                                                                                ? "bg-pink-50/80 dark:bg-pink-950/40 border-pink-200/70 dark:border-pink-900/50"
-                                                                                                                : "bg-blue-50/80 dark:bg-blue-950/40 border-blue-200/70 dark:border-blue-900/50"
-                                                                                                        }`}
-                                                                                                    >
-                                                                                                        <BedIcon
-                                                                                                            gender={
-                                                                                                                b
-                                                                                                                    .user
-                                                                                                                    ?.gender
-                                                                                                            }
-                                                                                                            isOccupied={
-                                                                                                                true
-                                                                                                            }
-                                                                                                            name={
-                                                                                                                b
-                                                                                                                    .user
-                                                                                                                    ?.name
-                                                                                                            }
-                                                                                                        />
-                                                                                                    </div>
-                                                                                                    <span
-                                                                                                        className="truncate font-bold text-xs text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
-                                                                                                        title={
-                                                                                                            b.user?.name ||
-                                                                                                            "Користувач"
+                                                                                            {/* Ліва частина: Аватар з іконкою статі та ім'я студента */}
+                                                                                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                                                                <div
+                                                                                                    className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border ${
+                                                                                                        b.user?.gender === "female"
+                                                                                                            ? "bg-pink-50/80 dark:bg-pink-950/40 border-pink-200/70 dark:border-pink-900/50"
+                                                                                                            : "bg-blue-50/80 dark:bg-blue-950/40 border-blue-200/70 dark:border-blue-900/50"
+                                                                                                    }`}
+                                                                                                >
+                                                                                                    <BedIcon
+                                                                                                        gender={
+                                                                                                            b
+                                                                                                                .user
+                                                                                                                ?.gender
                                                                                                         }
-                                                                                                    >
-                                                                                                        {b.user?.name ||
-                                                                                                            "Користувач"}
-                                                                                                    </span>
+                                                                                                        isOccupied={
+                                                                                                            true
+                                                                                                        }
+                                                                                                        name={
+                                                                                                            b
+                                                                                                                .user
+                                                                                                                ?.name
+                                                                                                        }
+                                                                                                    />
                                                                                                 </div>
+                                                                                                <span
+                                                                                                    className="truncate font-bold text-xs text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                                                                                                    title={
+                                                                                                        b.user?.name ||
+                                                                                                        "Користувач"
+                                                                                                    }
+                                                                                                >
+                                                                                                    {b.user?.name ||
+                                                                                                        "Користувач"}
+                                                                                                </span>
+                                                                                            </div>
+
+                                                                                            {/* Права частина: Компактний бейдж навчання + Кнопки дій */}
+                                                                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                                                                {/* Єдиний стильний бейдж (Курс • Спеціальність • Група) */}
+                                                                                                {(userCourse || userSpec || userGroup) && (
+                                                                                                    <div
+                                                                                                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[10px] font-bold border transition-all ${activeBadgeColor} hover:brightness-95 dark:hover:brightness-110`}
+                                                                                                        title={`${userCourse ? `${userCourse} курс` : ""} ${specInfo?.name || userSpec || ""} ${userGroup ? `• Група ${userGroup}` : ""}`.trim()}
+                                                                                                    >
+                                                                                                        <span
+                                                                                                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeDotColor}`}
+                                                                                                        />
+
+                                                                                                        {userCourse ? (
+                                                                                                            <span
+                                                                                                                onClick={(e) => {
+                                                                                                                    e.stopPropagation();
+                                                                                                                    setAcademicCourseFilter(isCourseActive ? "all" : String(userCourse));
+                                                                                                                }}
+                                                                                                                className={`hover:underline cursor-pointer transition-colors ${
+                                                                                                                    isCourseActive ? "underline font-black text-white" : ""
+                                                                                                                }`}
+                                                                                                                title={`${userCourse} курс — клікніть для фільтрації`}
+                                                                                                            >
+                                                                                                                {userCourse}к
+                                                                                                            </span>
+                                                                                                        ) : null}
+
+                                                                                                        {userCourse && (userSpec || userGroup) && (
+                                                                                                            <span className="opacity-35 select-none font-normal">•</span>
+                                                                                                        )}
+
+                                                                                                        {userSpec ? (
+                                                                                                            <span
+                                                                                                                onClick={(e) => {
+                                                                                                                    e.stopPropagation();
+                                                                                                                    setAcademicSpecialtyFilter(isSpecActive ? "all" : userSpec);
+                                                                                                                }}
+                                                                                                                className={`hover:underline cursor-pointer transition-colors ${
+                                                                                                                    isSpecActive ? "underline font-black text-white" : ""
+                                                                                                                }`}
+                                                                                                                title={`${specInfo?.name || userSpec} — клікніть для фільтрації`}
+                                                                                                            >
+                                                                                                                {userSpec}
+                                                                                                            </span>
+                                                                                                        ) : null}
+
+                                                                                                        {userGroup && (
+                                                                                                            <span
+                                                                                                                className="opacity-70 font-semibold text-[9.5px]"
+                                                                                                                title={`Академічна група: ${userGroup}`}
+                                                                                                            >
+                                                                                                                {userSpec ? (userGroup.toLowerCase().includes(userSpec.toLowerCase()) ? userGroup : `-${userGroup}`) : `гр.${userGroup}`}
+                                                                                                            </span>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                )}
 
                                                                                                 {/* Кнопки дій (переселити, виселити) */}
-                                                                                                <div className="flex items-center gap-0.5 shrink-0 ml-1 opacity-75 group-hover:opacity-100 transition-opacity">
+                                                                                                <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                                                                                                     <button
                                                                                                         type="button"
                                                                                                         onClick={(
@@ -1705,7 +1773,7 @@ export default function RoomMapTab({
                                                                                                             );
                                                                                                         }}
                                                                                                         title="Переселити студента"
-                                                                                                        className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors"
+                                                                                                        className="w-5 h-5 flex items-center justify-center rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors"
                                                                                                     >
                                                                                                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                                                                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -1723,7 +1791,7 @@ export default function RoomMapTab({
                                                                                                                 );
                                                                                                         }}
                                                                                                         title="Виселити студента"
-                                                                                                        className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-colors"
+                                                                                                        className="w-5 h-5 flex items-center justify-center rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-colors"
                                                                                                     >
                                                                                                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                                                                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1731,56 +1799,6 @@ export default function RoomMapTab({
                                                                                                     </button>
                                                                                                 </div>
                                                                                             </div>
-
-                                                                                            {/* Нижній рядок: Детальні бейджі навчання (Курс, Спеціальність, Група) */}
-                                                                                            {(userCourse || userSpec || userGroup) && (
-                                                                                                <div className="mt-1.5 flex items-center gap-1.5 flex-wrap pl-8">
-                                                                                                    {userCourse ? (
-                                                                                                        <span
-                                                                                                            onClick={(e) => {
-                                                                                                                e.stopPropagation();
-                                                                                                                setAcademicCourseFilter(isCourseActive ? "all" : String(userCourse));
-                                                                                                            }}
-                                                                                                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold border transition-all cursor-pointer ${
-                                                                                                                isCourseActive
-                                                                                                                    ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs border-slate-900 dark:border-white"
-                                                                                                                    : `${courseCfg?.lightBg || "bg-slate-100 dark:bg-gray-700"} ${courseCfg?.text || "text-slate-600 dark:text-gray-300"} ${courseCfg?.border || "border-slate-200 dark:border-gray-600"} hover:brightness-95 dark:hover:brightness-110`
-                                                                                                            }`}
-                                                                                                            title={`${userCourse} курс — клікніть для фільтрації на мапі`}
-                                                                                                        >
-                                                                                                            <span className={`w-1.5 h-1.5 rounded-full ${isCourseActive ? "bg-white dark:bg-slate-900" : courseCfg?.bg || "bg-slate-400"}`} />
-                                                                                                            <span>{userCourse} курс</span>
-                                                                                                        </span>
-                                                                                                    ) : null}
-
-                                                                                                    {userSpec ? (
-                                                                                                        <span
-                                                                                                            onClick={(e) => {
-                                                                                                                e.stopPropagation();
-                                                                                                                setAcademicSpecialtyFilter(isSpecActive ? "all" : userSpec);
-                                                                                                            }}
-                                                                                                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold border transition-all cursor-pointer ${
-                                                                                                                isSpecActive
-                                                                                                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                                                                                                                    : `${specInfo.bg} ${specInfo.text} ${specInfo.border} hover:brightness-95 dark:hover:brightness-110`
-                                                                                                            }`}
-                                                                                                            title={`${specInfo.name || userSpec} — клікніть для фільтрації на мапі`}
-                                                                                                        >
-                                                                                                            <span className={`w-1.5 h-1.5 rounded-full ${isSpecActive ? "bg-white" : specInfo.dot}`} />
-                                                                                                            <span>{userSpec}</span>
-                                                                                                        </span>
-                                                                                                    ) : null}
-
-                                                                                                    {userGroup && (
-                                                                                                        <span
-                                                                                                            className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-gray-750 text-slate-500 dark:text-gray-400 border border-slate-200/70 dark:border-gray-700"
-                                                                                                            title={`Академічна група: ${userGroup}`}
-                                                                                                        >
-                                                                                                            гр. {userGroup}
-                                                                                                        </span>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            )}
                                                                                         </div>
                                                                                     );
                                                                                 },
