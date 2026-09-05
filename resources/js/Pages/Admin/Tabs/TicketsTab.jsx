@@ -98,157 +98,106 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
 
     return (
         <div className="space-y-4">
-            {/* KPI Статистика заявок (3 інтерактивні віджети) */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* 1. Потребують уваги / В роботі */}
+            {/* KPI Статистика заявок (3 гармонійні віджети для світлої та темної теми) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                {/* 1. Потребують виконання (В роботі) */}
                 <div
                     onClick={() => setStatusFilter(statusFilter === "pending" ? "all" : "pending")}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                    className={`p-4 rounded-2xl border transition-all duration-150 cursor-pointer select-none bg-white dark:bg-gray-800 ${
                         statusFilter === "pending"
-                            ? "bg-amber-500 text-white border-amber-600 shadow-md ring-2 ring-amber-400/30"
-                            : "bg-white dark:bg-gray-800 border-slate-200/80 dark:border-gray-700 hover:border-amber-400 hover:shadow-xs"
+                            ? "border-amber-400 dark:border-amber-500 ring-2 ring-amber-500/25 bg-amber-50/30 dark:bg-amber-950/20 shadow-xs"
+                            : "border-slate-200/80 dark:border-gray-700/80 hover:border-amber-300 dark:hover:border-amber-600 hover:shadow-xs"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p
-                                className={`text-xs font-semibold ${
-                                    statusFilter === "pending" ? "text-amber-100" : "text-gray-500 dark:text-gray-400"
-                                }`}
-                            >
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 Потребують виконання
                             </p>
-                            <h4
-                                className={`text-2xl font-black mt-1 ${
-                                    statusFilter === "pending" ? "text-white" : "text-amber-600 dark:text-amber-400"
-                                }`}
-                            >
+                            <h4 className="text-2xl font-black mt-1 text-amber-600 dark:text-amber-400 tracking-tight">
                                 {pendingCount}
                             </h4>
                         </div>
-                        <div
-                            className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                                statusFilter === "pending"
-                                    ? "bg-white/20 text-white"
-                                    : "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-900/50"
-                            }`}
-                        >
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-900/50 shadow-3xs">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
-                    <div
-                        className={`mt-2 text-[11px] ${
-                            statusFilter === "pending" ? "text-amber-100" : "text-gray-400 dark:text-gray-500"
-                        }`}
-                    >
-                        {pendingCount === 0 ? "Всі несправності усунено" : "Очікують на прихід майстра"}
+                    <div className="mt-2.5 text-[11px] text-gray-400 dark:text-gray-400 flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${pendingCount > 0 ? "bg-amber-500 animate-pulse" : "bg-gray-400"}`} />
+                        <span>{pendingCount === 0 ? "Всі несправності усунено" : "Очікують на прихід майстра"}</span>
                     </div>
                 </div>
 
                 {/* 2. Успішно вирішено */}
                 <div
                     onClick={() => setStatusFilter(statusFilter === "resolved" ? "all" : "resolved")}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                    className={`p-4 rounded-2xl border transition-all duration-150 cursor-pointer select-none bg-white dark:bg-gray-800 ${
                         statusFilter === "resolved"
-                            ? "bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-400/30"
-                            : "bg-white dark:bg-gray-800 border-slate-200/80 dark:border-gray-700 hover:border-emerald-400 hover:shadow-xs"
+                            ? "border-emerald-400 dark:border-emerald-500 ring-2 ring-emerald-500/25 bg-emerald-50/30 dark:bg-emerald-950/20 shadow-xs"
+                            : "border-slate-200/80 dark:border-gray-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 hover:shadow-xs"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p
-                                className={`text-xs font-semibold ${
-                                    statusFilter === "resolved" ? "text-emerald-100" : "text-gray-500 dark:text-gray-400"
-                                }`}
-                            >
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 Успішно вирішено
                             </p>
-                            <h4
-                                className={`text-2xl font-black mt-1 ${
-                                    statusFilter === "resolved" ? "text-white" : "text-emerald-600 dark:text-emerald-400"
-                                }`}
-                            >
+                            <h4 className="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400 tracking-tight">
                                 {resolvedCount}
                             </h4>
                         </div>
-                        <div
-                            className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                                statusFilter === "resolved"
-                                    ? "bg-white/20 text-white"
-                                    : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-900/50"
-                            }`}
-                        >
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-900/50 shadow-3xs">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
-                    <div
-                        className={`mt-2 text-[11px] ${
-                            statusFilter === "resolved" ? "text-emerald-100" : "text-gray-400 dark:text-gray-500"
-                        }`}
-                    >
-                        Завершених технічних робіт
+                    <div className="mt-2.5 text-[11px] text-gray-400 dark:text-gray-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>Завершених технічних робіт</span>
                     </div>
                 </div>
 
-                {/* 3. Всього звернень */}
+                {/* 3. Всього звернень (Гармонійний стиль без чорного блоку) */}
                 <div
                     onClick={() => setStatusFilter("all")}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                    className={`p-4 rounded-2xl border transition-all duration-150 cursor-pointer select-none bg-white dark:bg-gray-800 ${
                         statusFilter === "all"
-                            ? "bg-slate-900 dark:bg-slate-800 text-white border-slate-900 shadow-md ring-2 ring-slate-400/30"
-                            : "bg-white dark:bg-gray-800 border-slate-200/80 dark:border-gray-700 hover:border-slate-400 hover:shadow-xs"
+                            ? "border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-500/25 bg-indigo-50/30 dark:bg-indigo-950/20 shadow-xs"
+                            : "border-slate-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-xs"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p
-                                className={`text-xs font-semibold ${
-                                    statusFilter === "all" ? "text-slate-300" : "text-gray-500 dark:text-gray-400"
-                                }`}
-                            >
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 Всього звернень
                             </p>
-                            <h4
-                                className={`text-2xl font-black mt-1 ${
-                                    statusFilter === "all" ? "text-white" : "text-gray-900 dark:text-white"
-                                }`}
-                            >
+                            <h4 className="text-2xl font-black mt-1 text-gray-900 dark:text-white tracking-tight">
                                 {totalCount}
                             </h4>
                         </div>
-                        <div
-                            className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                                statusFilter === "all"
-                                    ? "bg-white/20 text-white"
-                                    : "bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300 border border-slate-200/70 dark:border-gray-600"
-                            }`}
-                        >
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-900/50 shadow-3xs">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
                     </div>
-                    <div
-                        className={`mt-2 text-[11px] ${
-                            statusFilter === "all" ? "text-slate-300" : "text-gray-400 dark:text-gray-500"
-                        }`}
-                    >
-                        Журнал заявок студентів
+                    <div className="mt-2.5 text-[11px] text-gray-400 dark:text-gray-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                        <span>Журнал усіх звернень студентів</span>
                     </div>
                 </div>
             </div>
 
             {/* Основний контейнер списку */}
-            <div className="bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700/80 rounded-2xl shadow-sm overflow-hidden">
                 {/* Панель керування та пошуку */}
                 <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-gray-700 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
-                    {/* Пошук */}
+                    {/* Пошук з ідеальним відступом (без налізання іконки) */}
                     <div className="relative flex-1 max-w-md">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 dark:text-gray-400">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -257,8 +206,8 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Пошук за студентом, кімнатою або текстом поломки..."
-                            className="w-full pl-9.5 pr-8 py-2 bg-slate-50 dark:bg-gray-750 border border-slate-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                            placeholder="Пошук за студентом, кімнатою або текстом..."
+                            className="w-full pl-10 pr-8 py-2 bg-slate-50 dark:bg-gray-700/80 border border-slate-200 dark:border-gray-600 rounded-xl text-xs text-gray-900 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-400 focus:bg-white dark:focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500 transition-all font-medium shadow-3xs"
                         />
                         {search && (
                             <button
@@ -276,14 +225,14 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                     {/* Фільтри статусу та корпусів */}
                     <div className="flex items-center gap-2 flex-wrap">
                         {/* Таби статусу */}
-                        <div className="flex items-center bg-slate-100 dark:bg-gray-700 p-0.5 rounded-xl text-xs font-semibold">
+                        <div className="flex items-center bg-slate-100 dark:bg-gray-700/80 p-1 rounded-xl gap-1 border border-slate-200/60 dark:border-gray-600/70 shrink-0">
                             <button
                                 type="button"
                                 onClick={() => setStatusFilter("all")}
-                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                className={`px-3 py-1 rounded-lg text-xs transition-all ${
                                     statusFilter === "all"
-                                        ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-2xs font-bold"
-                                        : "text-slate-500 dark:text-gray-300 hover:text-gray-800"
+                                        ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-xs font-bold border border-slate-200/80 dark:border-gray-600"
+                                        : "text-slate-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium"
                                 }`}
                             >
                                 Всі ({totalCount})
@@ -291,10 +240,10 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                             <button
                                 type="button"
                                 onClick={() => setStatusFilter("pending")}
-                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                className={`px-3 py-1 rounded-lg text-xs transition-all ${
                                     statusFilter === "pending"
-                                        ? "bg-amber-500 text-white shadow-2xs font-bold"
-                                        : "text-slate-500 dark:text-gray-300 hover:text-amber-600"
+                                        ? "bg-amber-500 text-white shadow-xs font-bold"
+                                        : "text-slate-600 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 font-medium"
                                 }`}
                             >
                                 В роботі ({pendingCount})
@@ -302,10 +251,10 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                             <button
                                 type="button"
                                 onClick={() => setStatusFilter("resolved")}
-                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                className={`px-3 py-1 rounded-lg text-xs transition-all ${
                                     statusFilter === "resolved"
-                                        ? "bg-emerald-600 text-white shadow-2xs font-bold"
-                                        : "text-slate-500 dark:text-gray-300 hover:text-emerald-600"
+                                        ? "bg-emerald-600 text-white shadow-xs font-bold"
+                                        : "text-slate-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium"
                                 }`}
                             >
                                 Вирішені ({resolvedCount})
@@ -317,7 +266,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                             <select
                                 value={buildingFilter}
                                 onChange={(e) => setBuildingFilter(e.target.value)}
-                                className="py-1.5 px-2.5 bg-slate-50 dark:bg-gray-750 border border-slate-200 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                                className="py-1.5 px-2.5 bg-slate-50 dark:bg-gray-700/80 border border-slate-200 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             >
                                 <option value="all">Всі корпуси</option>
                                 {uniqueBuildings.map((b) => (
@@ -333,7 +282,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                 {/* Список або таблиця */}
                 {tickets.length === 0 ? (
                     <div className="p-12 text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-gray-750 flex items-center justify-center mx-auto text-slate-400 mb-3">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-gray-700 flex items-center justify-center mx-auto text-slate-400 dark:text-gray-400 mb-3">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
@@ -345,7 +294,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                     </div>
                 ) : filteredTickets.length === 0 ? (
                     <div className="p-10 text-center">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-gray-750 flex items-center justify-center mx-auto text-slate-400 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-gray-700 flex items-center justify-center mx-auto text-slate-400 dark:text-gray-400 mb-2">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -368,7 +317,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                 ) : (
                     <>
                         {/* Mobile Cards View */}
-                        <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-700">
+                        <div className="md:hidden divide-y divide-slate-100 dark:divide-gray-750">
                             {filteredTickets.map((t) => {
                                 const isExpanded = expandedTicketId === t.id;
                                 const isConfirming = confirmResolveId === t.id;
@@ -377,7 +326,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                     <div key={t.id} className="p-4 space-y-3 bg-white dark:bg-gray-800">
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs border border-indigo-100 dark:border-indigo-900/50">
+                                                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-100 dark:border-indigo-900/50">
                                                     {(t.user?.name || "С")[0]}
                                                 </div>
                                                 <div>
@@ -391,19 +340,24 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                             </div>
 
                                             <span
-                                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${
                                                     t.status === "resolved"
-                                                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60"
-                                                        : "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60"
+                                                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60"
+                                                        : "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60"
                                                 }`}
                                             >
-                                                {t.status === "resolved" ? "✓ Вирішено" : "● В роботі"}
+                                                <span
+                                                    className={`w-1.5 h-1.5 rounded-full ${
+                                                        t.status === "resolved" ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+                                                    }`}
+                                                />
+                                                <span>{t.status === "resolved" ? "Вирішено" : "В роботі"}</span>
                                             </span>
                                         </div>
 
                                         {/* Кімната та корпус */}
                                         <div className="flex items-center gap-2 text-xs">
-                                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-gray-750 text-slate-700 dark:text-gray-200 font-bold border border-slate-200/70 dark:border-gray-600">
+                                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-gray-700 text-slate-800 dark:text-gray-200 font-bold border border-slate-200/70 dark:border-gray-600">
                                                 Кімната №{t.room?.room_number}
                                             </span>
                                             <span className="text-gray-500 dark:text-gray-400 truncate text-[11px]">
@@ -414,10 +368,10 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                         {/* Опис проблеми */}
                                         <div
                                             onClick={() => toggleExpand(t.id)}
-                                            className="p-3 bg-slate-50 dark:bg-gray-750/50 rounded-xl border border-slate-100 dark:border-gray-700 text-xs text-gray-800 dark:text-gray-200 leading-relaxed cursor-pointer"
+                                            className="p-3 bg-slate-50 dark:bg-gray-900/60 rounded-xl border border-slate-100 dark:border-gray-700 text-xs text-gray-800 dark:text-gray-200 leading-relaxed cursor-pointer"
                                         >
-                                            <span className="text-gray-400 block text-[9.5px] uppercase font-bold tracking-wider mb-1">
-                                                Опис поломки:
+                                            <span className="text-gray-400 dark:text-gray-400 block text-[9.5px] uppercase font-bold tracking-wider mb-1">
+                                                Опис несправності:
                                             </span>
                                             <p className={isExpanded ? "" : "line-clamp-2"}>
                                                 {t.description}
@@ -434,7 +388,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                             {t.status === "pending" && (
                                                 <>
                                                     {isConfirming ? (
-                                                        <div className="flex-1 flex items-center justify-between gap-1 p-1 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200">
+                                                        <div className="flex-1 flex items-center justify-between gap-1 p-1 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/80">
                                                             <span className="text-[11px] font-bold text-amber-800 dark:text-amber-200 pl-2">
                                                                 Підтвердити?
                                                             </span>
@@ -497,17 +451,17 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                         {/* Desktop Table View */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left border-collapse text-xs">
-                                <thead>
-                                    <tr className="border-b border-slate-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-750/70 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                        <th className="p-4 w-52">Студент</th>
-                                        <th className="p-4 w-44">Кімната / Корпус</th>
-                                        <th className="p-4">Опис несправності</th>
-                                        <th className="p-4 w-28">Час подачі</th>
-                                        <th className="p-4 w-28">Статус</th>
-                                        <th className="p-4 text-right w-44">Дія</th>
+                                <thead className="bg-slate-50/90 dark:bg-gray-900/80 border-b border-slate-200/80 dark:border-gray-700 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">
+                                    <tr>
+                                        <th className="py-3.5 px-4 w-52">Студент</th>
+                                        <th className="py-3.5 px-4 w-48">Кімната / Корпус</th>
+                                        <th className="py-3.5 px-4">Опис несправності</th>
+                                        <th className="py-3.5 px-4 w-28">Час подачі</th>
+                                        <th className="py-3.5 px-4 w-28">Статус</th>
+                                        <th className="py-3.5 px-4 text-right w-40">Дія</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-200">
+                                <tbody className="divide-y divide-slate-100 dark:divide-gray-700/80 text-gray-700 dark:text-gray-200">
                                     {filteredTickets.map((t) => {
                                         const isExpanded = expandedTicketId === t.id;
                                         const isConfirming = confirmResolveId === t.id;
@@ -516,21 +470,21 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                             <React.Fragment key={t.id}>
                                                 <tr
                                                     onClick={() => toggleExpand(t.id)}
-                                                    className={`hover:bg-slate-50/60 dark:hover:bg-gray-700/40 transition-colors cursor-pointer ${
-                                                        isExpanded ? "bg-slate-50/70 dark:bg-gray-750/60" : ""
+                                                    className={`hover:bg-slate-50/80 dark:hover:bg-gray-700/40 transition-colors cursor-pointer ${
+                                                        isExpanded ? "bg-slate-50/90 dark:bg-gray-750/70" : ""
                                                     }`}
                                                 >
                                                     {/* Студент */}
                                                     <td className="p-4 font-medium text-gray-900 dark:text-white">
                                                         <div className="flex items-center gap-2.5">
-                                                            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0 border border-indigo-100 dark:border-indigo-900/50">
+                                                            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0 border border-indigo-200/60 dark:border-indigo-800/60">
                                                                 {(t.user?.name || "С")[0]}
                                                             </div>
                                                             <div className="min-w-0">
                                                                 <div className="font-bold text-xs text-gray-900 dark:text-white truncate" title={t.user?.name}>
                                                                     {t.user?.name || "Студент"}
                                                                 </div>
-                                                                <div className="text-[10.5px] text-gray-400 truncate" title={t.user?.email}>
+                                                                <div className="text-[10.5px] text-gray-400 dark:text-gray-400 truncate" title={t.user?.email}>
                                                                     {t.user?.email}
                                                                 </div>
                                                             </div>
@@ -539,11 +493,11 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
 
                                                     {/* Кімната та корпус */}
                                                     <td className="p-4">
-                                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-gray-750 text-slate-800 dark:text-gray-200 font-bold border border-slate-200/80 dark:border-gray-700 text-xs">
+                                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-gray-700 text-slate-800 dark:text-gray-200 font-bold border border-slate-200/80 dark:border-gray-600 text-xs shadow-3xs">
                                                             <span>№{t.room?.room_number}</span>
                                                         </div>
                                                         <div
-                                                            className="text-[10.5px] text-gray-400 dark:text-gray-400 mt-0.5 truncate max-w-[150px]"
+                                                            className="text-[10.5px] text-gray-400 dark:text-gray-400 mt-0.5 truncate max-w-[160px]"
                                                             title={t.room?.building?.name}
                                                         >
                                                             {t.room?.building?.name}
@@ -561,7 +515,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                             >
                                                                 {t.description}
                                                             </span>
-                                                            {t.description && t.description.length > 60 && (
+                                                            {t.description && t.description.length > 55 && (
                                                                 <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold shrink-0 select-none">
                                                                     {isExpanded ? "▲" : "▼"}
                                                                 </span>
@@ -581,8 +535,8 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                         <span
                                                             className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                                                                 t.status === "resolved"
-                                                                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60"
-                                                                    : "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/60"
+                                                                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60"
+                                                                    : "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/60"
                                                             }`}
                                                         >
                                                             <span
@@ -615,7 +569,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                             {t.status === "pending" && (
                                                                 <>
                                                                     {isConfirming ? (
-                                                                        <div className="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/50 p-0.5 rounded-lg border border-amber-200/80">
+                                                                        <div className="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 p-0.5 rounded-lg border border-amber-200 dark:border-amber-800/80">
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => {
@@ -640,7 +594,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                                             type="button"
                                                                             onClick={() => setConfirmResolveId(t.id)}
                                                                             disabled={ticketProcessingId === t.id}
-                                                                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 rounded-lg text-xs font-bold transition-all hover:shadow-2xs active:scale-95"
+                                                                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/70 rounded-lg text-xs font-bold transition-all hover:shadow-2xs active:scale-95"
                                                                             title="Позначити заявку як виконану"
                                                                         >
                                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -657,8 +611,8 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
 
                                                 {/* Розгорнутий рядок з повним описом */}
                                                 {isExpanded && (
-                                                    <tr className="bg-slate-50/50 dark:bg-gray-750/30 border-b border-slate-100 dark:border-gray-700">
-                                                        <td colSpan={6} className="p-4 pt-1">
+                                                    <tr className="bg-slate-50/60 dark:bg-gray-900/40 border-b border-slate-100 dark:border-gray-700/80">
+                                                        <td colSpan={6} className="p-4 pt-1.5">
                                                             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-slate-200/80 dark:border-gray-700 space-y-3 shadow-2xs">
                                                                 <div>
                                                                     <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
@@ -669,14 +623,14 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                                     </p>
                                                                 </div>
 
-                                                                <div className="pt-2 border-t border-slate-100 dark:border-gray-700/80 flex items-center justify-between flex-wrap gap-2 text-[11px] text-gray-500">
+                                                                <div className="pt-2 border-t border-slate-100 dark:border-gray-700 flex items-center justify-between flex-wrap gap-2 text-[11px] text-gray-500 dark:text-gray-400">
                                                                     <div className="flex items-center gap-3">
                                                                         <span>
-                                                                            🕒 Зареєстровано: <strong className="text-gray-700 dark:text-gray-300">{formatFullDateTime(t.created_at)}</strong>
+                                                                            Зареєстровано: <strong className="text-gray-700 dark:text-gray-300">{formatFullDateTime(t.created_at)}</strong>
                                                                         </span>
                                                                         {t.user?.phone && (
                                                                             <span>
-                                                                                📞 Телефон: <strong className="text-gray-700 dark:text-gray-300">{t.user.phone}</strong>
+                                                                                Телефон: <strong className="text-gray-700 dark:text-gray-300">{t.user.phone}</strong>
                                                                             </span>
                                                                         )}
                                                                     </div>
@@ -685,7 +639,7 @@ export default function TicketsTab({ tickets = [], handleResolveTicket, ticketPr
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => setContactStudent(t.user)}
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 font-bold rounded-lg transition-colors"
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800/60"
                                                                         >
                                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
